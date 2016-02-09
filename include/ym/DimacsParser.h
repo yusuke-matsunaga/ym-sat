@@ -1,7 +1,7 @@
 ﻿#ifndef YMYMLOGIC_DIMACSPARSER_H
 #define YMYMLOGIC_DIMACSPARSER_H
 
-/// @file YmLogic/DimacsParser.h
+/// @file ym/DimacsParser.h
 /// @brief DimacsParser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -9,8 +9,8 @@
 /// All rights reserved.
 
 
-#include "YmLogic/sat_nsdef.h"
-#include "YmUtils/IDO.h"
+#include "ym/sat_nsdef.h"
+#include "ym/IDO.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_SAT
 class DimacsParserImpl;
 
 //////////////////////////////////////////////////////////////////////
-/// @class DimacsParser DimacsParser.h "YmLogic/DimacsParser.h"
+/// @class DimacsParser DimacsParser.h "ym/DimacsParser.h"
 /// @ingroup SatGroup
 /// @brief DIMACS形式の CNFファイルを読み込むパーサークラス
 /// @sa DimacsHandler

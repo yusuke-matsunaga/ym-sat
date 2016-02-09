@@ -27,7 +27,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include <climits>
 #include <cfloat>
 #include <new>
-#include "YmTools.h"
+#include "ym_config.h"
 
 //=================================================================================================
 // Basic Types & Minor Things:

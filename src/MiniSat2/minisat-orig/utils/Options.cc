@@ -18,8 +18,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 **************************************************************************************************/
 
 #include "mtl/Sort.h"
-#include "YmUtils/Options.h"
-#include "YmUtils/ParseUtils.h"
+#include "ym/Options.h"
+#include "ym/ParseUtils.h"
 
 using namespace Minisat;
 

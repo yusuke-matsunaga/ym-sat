@@ -21,7 +21,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Glueminisat_System_h
 #define Glueminisat_System_h
 
-#include "YmTools.h"
+#include "ym_config.h"
 #include "YmTools_int.h"
 
 #if defined(HAVE_GETRUSAGE)

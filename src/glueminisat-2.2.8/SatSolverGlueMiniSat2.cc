@@ -8,7 +8,7 @@
 
 
 #include "SatSolverGlueMiniSat2.h"
-#include "YmLogic/SatStats.h"
+#include "ym/SatStats.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

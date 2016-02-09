@@ -1,7 +1,7 @@
 ﻿#ifndef YMYMLOGIC_DIMACSVERIFIER_H
 #define YMYMLOGIC_DIMACSVERIFIER_H
 
-/// @file YmLogic/DimacsVerifier.h
+/// @file ym/DimacsVerifier.h
 /// @brief DimacsVerifier のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -9,14 +9,14 @@
 /// All rights reserved.
 
 
-#include "YmLogic/DimacsHandler.h"
-#include "YmLogic/Bool3.h"
+#include "ym/DimacsHandler.h"
+#include "ym/Bool3.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-/// @class DimacsVerifier DimacsVerifier.h "YmLogic/DimacsVerifier.h"
+/// @class DimacsVerifier DimacsVerifier.h "ym/DimacsVerifier.h"
 /// @brief 検証用のDimacsHandler
 //////////////////////////////////////////////////////////////////////
 class DimacsVerifier :
