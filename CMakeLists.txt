@@ -7,9 +7,6 @@
 # プロジェクト名，バージョンの設定
 # ===================================================================
 
-# 名前空間の定義
-set ( SAT_NAMESPACE "nsSat" )
-
 
 # ===================================================================
 # オプション
@@ -92,5 +89,5 @@ set (SAT_SOURCES
 ym_add_library (ym_sat
   SHARED
   ${SAT_SOURCES}
-  DESTINATION lib
+  DESTINATION ${YM_INSTALL_LIBDIR}
   )
