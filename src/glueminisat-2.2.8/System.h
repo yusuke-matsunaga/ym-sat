@@ -22,11 +22,10 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define Glueminisat_System_h
 
 #include "ym_config.h"
-#include "YmTools_int.h"
 
-#if defined(HAVE_GETRUSAGE)
+#if defined(YM_HAVE_GETRUSAGE)
 #  include <sys/resource.h>
-#elif defined(HAVE_TIMES)
+#elif defined(YM_HAVE_TIMES)
 // System V 系では rusage() の代りに times() を使う．
 #  include <sys/param.h>
 #  include <sys/times.h>
@@ -38,7 +37,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #else
 #  error "neither getrusage() nor times() are found."
 #endif
-#if defined(HAVE_SYS_TIME_H)
+#if defined(YM_HAVE_SYS_TIME_H)
 #  include <sys/time.h>
 #endif
 #if defined(__linux__)
@@ -91,11 +90,11 @@ inline
 double
 Glueminisat::cpuTime()
 {
-#if defined(HAVE_GETRUSAGE)
+#if defined(YM_HAVE_GETRUSAGE)
   struct rusage ru;
   getrusage(RUSAGE_SELF, &ru);
   return (double)ru.ru_utime.tv_sec + (double)ru.ru_utime.tv_usec / 1000000.0;
-#elif defined(HAVE_TIMES)
+#elif defined(YM_HAVE_TIMES)
   struct tms buffer;
   (void) times(&buffer);
   return (double)buffer.tms_utime / (double)CLK_TCK;

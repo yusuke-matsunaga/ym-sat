@@ -85,7 +85,7 @@ SaUIP1::capture(SatReason creason,
     // つまり conflict clause に含まれていた変数ということ．
     for ( ; ; -- last) {
       SatLiteral q = get_assign(last);
-      VarId var = q.varid();
+      SatVarId var = q.varid();
       if ( get_mark(var) ) {
 	set_mark(var, false);
 	// それを最初のリテラルにする．
@@ -113,7 +113,7 @@ SaUIP1::put_lit(SatLiteral lit,
 		vector<SatLiteral>& learnt,
 		ymuint& count)
 {
-  VarId var = lit.varid();
+  SatVarId var = lit.varid();
   int var_level = decision_level(var);
   if ( !get_mark(var) && var_level > 0 ) {
     set_mark_and_putq(var);

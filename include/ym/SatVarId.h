@@ -113,22 +113,6 @@ ostream&
 operator<<(ostream& s,
 	   const SatVarId& varid);
 
-/// @relates SatVarId
-/// @brief バイナリファイルの出力
-/// @param[in] s 出力先のストリーム
-/// @param[in] varid 対象の変数
-ODO&
-operator<<(ODO& s,
-	   const SatVarId& varid);
-
-/// @relates SatVarId
-/// @brief バイナリファイルの読み込み
-/// @param[in] s 入力元のストリーム
-/// @param[out] varid 対象の変数
-IDO&
-operator>>(IDO& s,
-	   SatVarId& varid);
-
 
 //////////////////////////////////////////////////////////////////////
 // SatVarId を要素とするコンテナクラスの定義

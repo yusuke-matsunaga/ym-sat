@@ -15,7 +15,7 @@ BEGIN_NAMESPACE_YM_SAT
 // @brief コンストラクタ
 AssignList::AssignList() :
   mSize(1024),
-  mList(new Literal[mSize]),
+  mList(new SatLiteral[mSize]),
   mTail(0),
   mHead(0),
   mMarker(new ymuint32[mSize]),

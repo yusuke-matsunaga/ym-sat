@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/sat_nsdef.h"
+#include "ym/ym_sat.h"
 #include "ym/IDO.h"
 
 

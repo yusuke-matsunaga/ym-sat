@@ -106,7 +106,7 @@ YmSatMS2::next_decision()
   // 一定確率でランダムな変数を選ぶ．
   if ( mRandGen.real1() < mParams.mVarFreq && !var_heap().empty() ) {
     ymuint pos = mRandGen.int32() % variable_num();
-    VarId vid(pos);
+    SatVarId vid(pos);
     if ( eval(vid) == kB3X ) {
       bool inv = mRandGen.real1() < 0.5;
       return SatLiteral(vid, inv);
@@ -116,7 +116,7 @@ YmSatMS2::next_decision()
   while ( !var_heap().empty() ) {
     // activity の高い変数を取り出す．
     ymuint vindex = var_heap().pop_top();
-    VarId vid(vindex);
+    SatVarId vid(vindex);
     if ( eval(vid) != kB3X ) {
       // すでに確定していたらスキップする．
       // もちろん，ヒープからも取り除く．
@@ -125,7 +125,7 @@ YmSatMS2::next_decision()
 
     bool inv = false;
     if ( mParams.mPhaseCache ) {
-      Bool3 val = old_val(vid);
+      SatBool3 val = old_val(vid);
       if ( val != kB3X ) {
 	// 以前割り当てた極性を選ぶ
 	if ( val == kB3False ) {
@@ -136,8 +136,8 @@ YmSatMS2::next_decision()
     }
     {
 #if 0
-      SatLiteral plit(VarId(vindex), false);
-      SatLiteral nlit(VarId(vindex), true);
+      SatLiteral plit(SatVarId(vindex), false);
+      SatLiteral nlit(SatVarId(vindex), true);
       if ( mParams.mWlPosi ) {
 	// Watcher の多い方の極性を(わざと)選ぶ
 	if ( watcher_list(nlit).num() >= watcher_list(plit).num() ) {
@@ -159,7 +159,7 @@ YmSatMS2::next_decision()
 #endif
     }
   end:
-    return SatLiteral(VarId(vindex), inv);
+    return SatLiteral(SatVarId(vindex), inv);
   }
   return kSatLiteralX;
 }

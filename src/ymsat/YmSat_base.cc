@@ -352,7 +352,7 @@ YmSat::add_clause_sub(ymuint lit_num)
       }
     }
 
-    Bool3 v = eval(l);
+    SatBool3 v = eval(l);
     if ( v == kB3False ) {
       // false literal は追加しない．
       continue;
@@ -647,7 +647,7 @@ YmSat::del_satisfied_watcher(SatLiteral watch_lit)
     Watcher w = wlist.elem(rpos);
     if ( w.is_literal() ) {
       SatLiteral l = w.literal();
-      Bool3 val = eval(l);
+      SatBool3 val = eval(l);
       if ( val == kB3True ) {
 	// この watcher は削除する．
 	continue;

@@ -27,9 +27,9 @@ BEGIN_NAMESPACE_YM_SAT
 // @retval kB3False 充足不能が判明した．
 // @retval kB3X わからなかった．
 // @note i 番めの変数の割り当て結果は model[i] に入る．
-Bool3
+SatBool3
 YmSat::solve(const vector<SatLiteral>& assumptions,
-	     vector<Bool3>& model)
+	     vector<SatBool3>& model)
 {
   if ( debug & debug_solve ) {
     cout << "YmSat::solve starts" << endl;
@@ -77,7 +77,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   mClauseDecay = mParams.mClauseDecay;
 
   // 最終的な結果を納める変数
-  Bool3 sat_stat = kB3X;
+  SatBool3 sat_stat = kB3X;
 
   ASSERT_COND( decision_level() == 0 );
 
@@ -169,7 +169,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   if ( sat_stat == kB3True ) {
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
     for (ymuint i = 0; i < mVarNum; ++ i) {
-      Bool3 val = cur_val(mVal[i]);
+      SatBool3 val = cur_val(mVal[i]);
       ASSERT_COND(val != kB3X );
       model[i] = val;
     }
@@ -223,7 +223,7 @@ YmSat::stop()
 // 矛盾の結果新たな学習節が追加される場合もあるし，
 // 内部で reduce_learnt_clause() を呼んでいるので学習節が
 // 削減される場合もある．
-Bool3
+SatBool3
 YmSat::search()
 {
   ymuint cur_confl_num = 0;
@@ -348,7 +348,7 @@ YmSat::implication()
       if ( w.is_literal() ) {
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
 	SatLiteral l0 = w.literal();
-	Bool3 val0 = eval(l0);
+	SatBool3 val0 = eval(l0);
 	if ( val0 == kB3True ) {
 	  // すでに充足していた．
 	  continue;
@@ -405,7 +405,7 @@ YmSat::implication()
 	  }
 	}
 
-	Bool3 val0 = eval(l0);
+	SatBool3 val0 = eval(l0);
 	if ( val0 == kB3True ) {
 	  // すでに充足していた．
 	  continue;
@@ -422,7 +422,7 @@ YmSat::implication()
 	ymuint n = c->lit_num();
 	for (ymuint i = 2; i < n; ++ i) {
 	  SatLiteral l2 = c->lit(i);
-	  Bool3 v = eval(l2);
+	  SatBool3 v = eval(l2);
 	  if ( v != kB3False ) {
 	    // l2 を 1番めの watch literal にする．
 	    c->xchange_wl1(i);

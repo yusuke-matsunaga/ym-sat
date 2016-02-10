@@ -57,20 +57,20 @@ bool
 SatDimacsHandler::read_clause(const FileRegion& loc,
 			      const vector<int>& lits)
 {
-  vector<Literal> tmp;
+  vector<SatLiteral> tmp;
   for (vector<int>::const_iterator p = lits.begin();
        p != lits.end(); ++ p) {
     int i = *p;
-    VarId vid;
+    SatVarId vid;
     bool inv = false;
     if ( i > 0 ) {
-      vid = VarId(i - 1);
+      vid = SatVarId(i - 1);
     }
     else {
-      vid = VarId(- i - 1);
+      vid = SatVarId(- i - 1);
       inv = true;
     }
-    tmp.push_back(Literal(vid, inv));
+    tmp.push_back(SatLiteral(vid, inv));
   }
   mSolver.add_clause(tmp);
 

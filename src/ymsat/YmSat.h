@@ -156,9 +156,9 @@ public:
   /// @retval kB3X わからなかった．
   /// @note i 番めの変数の割り当て結果は model[i] に入る．
   virtual
-  Bool3
+  SatBool3
   solve(const vector<SatLiteral>& assumptions,
-	vector<Bool3>& model);
+	vector<SatBool3>& model);
 
   /// @brief 探索を中止する．
   ///
@@ -231,7 +231,7 @@ private:
   /// 矛盾の結果新たな学習節が追加される場合もあるし，
   /// 内部で reduce_learnt_clause() を呼んでいるので学習節が
   /// 削減される場合もある．
-  Bool3
+  SatBool3
   search();
 
   /// @brief search() 用の条件パラメータの初期化を行う．
@@ -303,16 +303,16 @@ protected:
 
   /// @brief 変数1の評価を行う．
   /// @param[in] id 変数番号
-  Bool3
+  SatBool3
   eval(SatVarId id) const;
 
   /// @brief literal の評価を行う．
   /// @param[in] l リテラル
-  Bool3
+  SatBool3
   eval(SatLiteral l) const;
 
   /// @brief 変数の直前の値を返す．
-  Bool3
+  SatBool3
   old_val(SatVarId id) const;
 
   /// @brief 現在の decision level を返す．
@@ -713,15 +713,15 @@ YmSat::add_watcher(SatLiteral watch_lit,
 BEGIN_NONAMESPACE
 
 inline
-Bool3
+SatBool3
 conv_to_Bool3(ymuint8 x)
 {
   int tmp = static_cast<int>(x) - 1;
-  return static_cast<Bool3>(tmp);
+  return static_cast<SatBool3>(tmp);
 }
 
 inline
-Bool3
+SatBool3
 cur_val(ymuint8 x)
 {
   return conv_to_Bool3(x & 3U);
@@ -731,7 +731,7 @@ END_NONAMESPACE
 
 // 変数の評価を行う．
 inline
-Bool3
+SatBool3
 YmSat::eval(SatVarId id) const
 {
   ASSERT_COND( id.val() < mVarNum );
@@ -740,7 +740,7 @@ YmSat::eval(SatVarId id) const
 
 // literal の評価を行う．
 inline
-Bool3
+SatBool3
 YmSat::eval(SatLiteral l) const
 {
   ymuint index = l.index();
@@ -748,12 +748,12 @@ YmSat::eval(SatLiteral l) const
   ymuint x = mVal[index / 2] & 3U;
   ymuint inv = index & 1U;
   int d = 1 - (inv * 2);
-  return static_cast<Bool3>((static_cast<int>(x) - 1) * d);
+  return static_cast<SatBool3>((static_cast<int>(x) - 1) * d);
 }
 
 // @brief 変数の直前の値を返す．
 inline
-Bool3
+SatBool3
 YmSat::old_val(SatVarId id) const
 {
   ASSERT_COND( id.val() < mVarNum );
@@ -766,7 +766,7 @@ inline
 bool
 YmSat::check_and_assign(SatLiteral lit)
 {
-  Bool3 old_val = eval(lit);
+  SatBool3 old_val = eval(lit);
   if ( old_val != kB3X ) {
     return old_val == kB3True;
   }
@@ -778,7 +778,7 @@ BEGIN_NONAMESPACE
 
 inline
 ymuint8
-conv_from_Bool3(Bool3 b)
+conv_from_Bool3(SatBool3 b)
 {
   int tmp = static_cast<int>(b) + 1;
   return static_cast<ymuint8>(tmp);

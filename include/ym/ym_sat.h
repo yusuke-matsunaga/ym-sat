@@ -1,7 +1,7 @@
 ﻿#ifndef YM_SAT_H
 #define YM_SAT_H
 
-/// @file ym/sat.h
+/// @file ym/ym_sat.h
 /// @brief SAT Solver 用の定義ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///

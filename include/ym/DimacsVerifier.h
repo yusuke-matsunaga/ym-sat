@@ -10,7 +10,7 @@
 
 
 #include "ym/DimacsHandler.h"
-#include "ym/Bool3.h"
+#include "ym/SatBool3.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -85,7 +85,7 @@ public:
   /// @retval true model が実際に充足解だった．
   /// @retval false model は充足解ではなかった．
   bool
-  verify(const vector<Bool3>& model) const;
+  verify(const vector<SatBool3>& model) const;
 
 
 private:

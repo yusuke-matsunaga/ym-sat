@@ -70,7 +70,7 @@ SaUIP2::capture(SatReason creason,
       for (ymuint i = 0; i < n; ++ i) {
 	SatLiteral q = cclause->lit(i);
 	if ( !first && q == cclause->wl0() ) continue;
-	VarId var = q.varid();
+	SatVarId var = q.varid();
 	int var_level = decision_level(var);
 	if ( !get_mark(var) && var_level > 0 ) {
 	  set_mark_and_putq(var);
@@ -93,7 +93,7 @@ SaUIP2::capture(SatReason creason,
     else {
       ASSERT_COND( !first );
       SatLiteral q = creason.literal();
-      VarId var = q.varid();
+      SatVarId var = q.varid();
       int var_level = decision_level(var);
       if ( !get_mark(var) && var_level > 0 ) {
 	set_mark_and_putq(var);
@@ -119,7 +119,7 @@ SaUIP2::capture(SatReason creason,
     // つまり conflict clause に含まれていた変数ということ．
     for ( ; ; -- last) {
       SatLiteral q = get_assign(last);
-      VarId var = q.varid();
+      SatVarId var = q.varid();
       if ( get_mark(var) ) {
 	set_mark(var, false);
 	// それを最初のリテラルにする．

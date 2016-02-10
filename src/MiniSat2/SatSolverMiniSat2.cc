@@ -58,7 +58,7 @@ SatSolverMiniSat2::sane() const
 SatVarId
 SatSolverMiniSat2::new_var(bool decision)
 {
-  return VarId(mSolver.newVar(true, decision));
+  return SatVarId(mSolver.newVar(true, decision));
 }
 
 // @brief 節を追加する．

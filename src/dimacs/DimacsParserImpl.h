@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/sat.h"
+#include "ym/ym_sat.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

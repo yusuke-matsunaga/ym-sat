@@ -310,24 +310,6 @@ SatLiteral::make_negative() const
   return SatLiteral(mBody | 1U);
 }
 
-// @brief バイナリファイルに出力する．
-// @param[in] s 出力先のストリーム
-inline
-void
-SatLiteral::store(ODO& s) const
-{
-  s << mBody;
-}
-
-// @brief バイナリファイルから読み込む．
-// @param[in] s 入力元のストリーム
-inline
-void
-SatLiteral::restore(IDO& s)
-{
-  s >> mBody;
-}
-
 // @brief 比較関数
 // @param[in] lit1, lit2 比較対象のリテラル
 // @retval -1 lit1 < lit2
