@@ -15,6 +15,13 @@
 #include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
 
 
+BEGIN_NAMESPACE_YM
+
+const SatVarId kSatVarIdIllegal;
+const SatLiteral kSatLiteralX;
+
+END_NAMESPACE_YM
+
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////

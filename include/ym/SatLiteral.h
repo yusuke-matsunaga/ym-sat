@@ -111,7 +111,7 @@ private:
 
   /// @brief 内部でのみ用いるコンストラクタ
   explicit
-  SatLiteral(ymuint32 body);
+  SatLiteral(ymuint body);
 
 
 private:
@@ -229,7 +229,7 @@ void
 SatLiteral::set(SatVarId varid,
 	     bool inv)
 {
-  mBody = (varid.val() << 1) + static_cast<ymuint32>(inv);
+  mBody = (varid.val() << 1) + static_cast<ymuint>(inv);
 }
 
 // デフォルトコンストラクタ
@@ -395,6 +395,28 @@ ymuint
 SatLiteral::index() const
 {
   return mBody;
+}
+
+// @relates SatLiteral
+// @brief SatLiteral の内容を ostream に出力する関数
+// @param[in] s 出力ストリーム
+// @param[in] lit 出力対象のリテラル
+// @return s
+inline
+ostream&
+operator<<(ostream& s,
+	   const SatLiteral& lit)
+{
+  if ( lit == kSatLiteralX ) {
+    s << "-X-";
+  }
+  else {
+    s << "v_" << lit.varid();
+    if ( lit.is_negative() ) {
+      s << "'";
+    }
+  }
+  return s;
 }
 
 END_NAMESPACE_YM
