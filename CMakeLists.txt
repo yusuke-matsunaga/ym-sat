@@ -83,21 +83,6 @@ set (ym_sat_SOURCES
 # ===================================================================
 #  ターゲットの設定
 # ===================================================================
-#ym_add_library (ym_sat
-#  SHARED
-#  ${SAT_SOURCES}
-#  DESTINATION ${YM_INSTALL_LIBDIR}
-#  )
-
-add_library ( ym_sat
-  OBJECT
+ym_add_object_library ( ym_sat
   ${ym_sat_SOURCES}
-  )
-
-target_compile_options ( ym_sat
-  PRIVATE "-O3" "-fPIC"
-  )
-
-target_compile_definitions ( ym_sat
-  PRIVATE "-DNDEBUG"
   )
