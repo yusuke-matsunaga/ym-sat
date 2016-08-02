@@ -31,10 +31,8 @@ BEGIN_NAMESPACE_YM_SAT
 // @brief コンストラクタ
 // @param[in] type 実装タイプを表す文字列
 // @param[in] option オプション文字列
-// @param[in] rec_out ログを記録するストリームへのポインタ
 SatSolver::SatSolver(const string& type,
-		     const string& option,
-		     ostream* rec_out)
+		     const string& option)
 {
   if ( type == "minisat" ) {
     // minisat-1.4
@@ -51,7 +49,6 @@ SatSolver::SatSolver(const string& type,
   else {
     mImpl = new YmSatMS2(option);
   }
-  mRecOut = rec_out;
 }
 
 // @brief デストラクタ
@@ -69,11 +66,6 @@ SatSolver::new_var(bool decision)
 {
   SatVarId id = mImpl->new_var(decision);
 
-  if ( mRecOut ) {
-    *mRecOut << "N" << endl
-	     << "# varid = " << id << endl;
-  }
-
   return id;
 }
 
@@ -82,16 +74,6 @@ SatSolver::new_var(bool decision)
 void
 SatSolver::add_clause(const vector<SatLiteral>& lits)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    for (vector<SatLiteral>::const_iterator p = lits.begin();
-	 p != lits.end(); ++ p) {
-      SatLiteral l = *p;
-      put_lit(l);
-    }
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lits);
 }
 
@@ -99,12 +81,6 @@ SatSolver::add_clause(const vector<SatLiteral>& lits)
 void
 SatSolver::add_clause(SatLiteral lit1)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(1, &lit1);
 }
 
@@ -113,13 +89,6 @@ void
 SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit2)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    put_lit(lit2);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lit1, lit2);
 }
 
@@ -129,14 +98,6 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit2,
 		      SatLiteral lit3)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    put_lit(lit2);
-    put_lit(lit3);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lit1, lit2, lit3);
 }
 
@@ -147,15 +108,6 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit3,
 		      SatLiteral lit4)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    put_lit(lit2);
-    put_lit(lit3);
-    put_lit(lit4);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lit1, lit2, lit3, lit4);
 }
 
@@ -167,16 +119,6 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit4,
 		      SatLiteral lit5)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    put_lit(lit2);
-    put_lit(lit3);
-    put_lit(lit4);
-    put_lit(lit5);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lit1, lit2, lit3, lit4, lit5);
 }
 
@@ -204,16 +146,6 @@ SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
 		 vector<SatBool3>& model)
 {
-  if ( mRecOut ) {
-    *mRecOut << "S";
-    for (vector<SatLiteral>::const_iterator p = assumptions.begin();
-	 p != assumptions.end(); ++ p) {
-      SatLiteral l = *p;
-      put_lit(l);
-    }
-    *mRecOut << endl;
-  }
-
   return mImpl->solve(assumptions, model);
 }
 
@@ -226,29 +158,10 @@ SatSolver::stop()
   mImpl->stop();
 }
 
-// @brief リテラルを出力する．
-void
-SatSolver::put_lit(SatLiteral lit) const
-{
-  ASSERT_COND( mRecOut != nullptr );
-
-  *mRecOut << " " << lit.varid();
-  if ( lit.is_positive() ) {
-    *mRecOut << "P";
-  }
-  else {
-    *mRecOut << "N";
-  }
-}
-
 // @brief 学習節をすべて削除する．
 void
 SatSolver::forget_learnt_clause()
 {
-  if ( mRecOut ) {
-    *mRecOut << "F" << endl;
-  }
-
   mImpl->forget_learnt_clause();
 }
 

@@ -47,6 +47,7 @@
 set (ym_sat_SOURCES
   src/SatMsgHandlerImpl1.cc
   src/SatSolver.cc
+  src/SatSolverR.cc
   src/SatStats.cc
 
   src/MiniSat/SatSolverMiniSat.cc
