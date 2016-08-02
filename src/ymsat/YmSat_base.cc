@@ -16,8 +16,13 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
+#if YMSAT_USE_LBD
 const
 YmSat::Params kDefaultParams(0.95, 0.999, false);
+#else
+const
+YmSat::Params kDefaultParams(0.95, 0.999);
+#endif
 
 //////////////////////////////////////////////////////////////////////
 // YmSat
@@ -27,6 +32,7 @@ YmSat::Params kDefaultParams(0.95, 0.999, false);
 YmSat::YmSat(const string& option) :
   mSane(true),
   mAlloc(4096),
+  mConstrClauseNum(0),
   mConstrLitNum(0),
   mLearntBinNum(0),
   mLearntLitNum(0),
@@ -37,9 +43,13 @@ YmSat::YmSat(const string& option) :
   mDecisionLevel(nullptr),
   mReason(nullptr),
   mWatcherList(nullptr),
+#if YMSAT_USE_WEIGHTARRAY
   mWeightArray(nullptr),
+#endif
+#if YMSAT_USE_LBD
   mLbdTmp(nullptr),
   mLbdTmpSize(0),
+#endif
   mRootLevel(0),
   mClauseBump(1.0),
   mClauseDecay(1.0),
@@ -56,8 +66,10 @@ YmSat::YmSat(const string& option) :
   mSweep_assigns = -1;
   mSweep_props = 0;
 
+#if YMSAT_USE_LBD
   mLbdTmpSize = 1024;
   mLbdTmp = new bool[mLbdTmpSize];
+#endif
 
   mTmpLitsSize = 1024;
   mTmpLits = new SatLiteral[mTmpLitsSize];
@@ -70,8 +82,10 @@ YmSat::YmSat(const string& option) :
 // @brief デストラクタ
 YmSat::~YmSat()
 {
+  // SatClause は mAlloc が開放してくれる．
+
   for (ymuint i = 0; i < mVarSize * 2; ++ i) {
-    mWatcherList[i].finish(mAlloc);
+    mWatcherList[i].finish();
   }
 
   delete mAnalyzer;
@@ -79,8 +93,12 @@ YmSat::~YmSat()
   delete [] mDecisionLevel;
   delete [] mReason;
   delete [] mWatcherList;
+#if YMSAT_USE_WEIGHTARRAY
   delete [] mWeightArray;
+#endif
+#if YMSAT_USE_LBD
   delete [] mLbdTmp;
+#endif
   delete [] mTmpLits;
 }
 
@@ -105,7 +123,9 @@ YmSat::new_var(bool decision)
     return kSatVarIdIllegal;
   }
 
+#if YMSAT_USE_DVAR
   mDvarArray.push_back(decision);
+#endif
 
   // ここではカウンタを増やすだけ
   // 実際の処理は alloc_var() でまとめて行う．
@@ -254,7 +274,7 @@ YmSat::variable_num() const
 ymuint
 YmSat::clause_num() const
 {
-  return mConstrClauseList.size() + mConstrBinClauseList.size();
+  return mConstrClauseNum;
 }
 
 // @brief 制約節のリテラルの総数を得る．
@@ -417,33 +437,40 @@ YmSat::add_clause_sub(ymuint lit_num)
     return;
   }
 
+#if YMSAT_USE_WEIGHTARRAY
   for (ymuint i = 0; i < lit_num; ++ i) {
     SatLiteral l = mTmpLits[i];
     ymuint index = l.index();
     mWeightArray[index] += 1.0 / static_cast<double>(lit_num);
   }
+#endif
+
+  ++ mConstrClauseNum;
 
   SatLiteral l1 = mTmpLits[1];
 
-  // 節の生成
-  SatClause* clause = new_clause(lit_num);
-
-  if ( debug & debug_assign ) {
-    cout << "add_clause: " << *clause << endl;
-  }
-
-  mAllConstrClauseList.push_back(clause);
-
   if ( lit_num == 2 ) {
     // 二項節の watcher は相方のリテラルなので clause は使われない
-    // ただし，デバッグ，検証用に別のリストに入れておく．
-    mConstrBinClauseList.push_back(clause);
+
+    if ( debug & debug_assign ) {
+      cout << "add_clause: " << l0 << " + " << l1 << endl;
+    }
+
+    mConstrBinList.push_back(l0);
+    mConstrBinList.push_back(l1);
 
     // watcher-list の設定
     add_watcher(~l0, SatReason(l1));
     add_watcher(~l1, SatReason(l0));
   }
   else {
+    // 節の生成
+    SatClause* clause = new_clause(lit_num);
+
+    if ( debug & debug_assign ) {
+      cout << "add_clause: " << *clause << endl;
+    }
+
     mConstrClauseList.push_back(clause);
 
     // watcher-list の設定
@@ -524,11 +551,13 @@ YmSat::add_learnt_clause(const vector<SatLiteral>& learnt_lits)
 
     bump_clause_activity(clause);
 
+#if YMSAT_USE_LBD
     if ( mParams.mUseLbd ) {
       // LBD の計算
       ymuint lbd = calc_lbd(clause);
       clause->set_lbd(lbd);
     }
+#endif
 
     mLearntClauseList.push_back(clause);
 
@@ -569,6 +598,7 @@ YmSat::new_clause(ymuint lit_num,
 		  bool learnt)
 {
   ymuint size = sizeof(SatClause) + sizeof(SatLiteral) * (lit_num - 1);
+
   void* p = mAlloc.get_memory(size);
   SatClause* clause = new (p) SatClause(lit_num, mTmpLits, learnt);
 
@@ -671,8 +701,10 @@ YmSat::alloc_var()
     }
     for (ymuint i = mOldVarNum; i < mVarNum; ++ i) {
       mVal[i] = conv_from_Bool3(kB3X) | (conv_from_Bool3(kB3X) << 2);
+#if YMSAT_USE_WEIGHTARRAY
       mWeightArray[i * 2 + 0] = 0.0;
       mWeightArray[i * 2 + 1] = 0.0;
+#endif
       mVarHeap.add_var(SatVarId(i));
     }
     mOldVarNum = mVarNum;
@@ -688,18 +720,24 @@ YmSat::expand_var()
   int* old_decision_level = mDecisionLevel;
   SatReason* old_reason = mReason;
   WatcherList* old_watcher_list = mWatcherList;
+#if YMSAT_USE_WEIGHTARRAY
   double* old_weight_array = mWeightArray;
+#endif
   if ( mVarSize == 0 ) {
     mVarSize = 1024;
   }
   while ( mVarSize < mVarNum ) {
     mVarSize <<= 1;
   }
+
   mVal = new ymuint8[mVarSize];
   mDecisionLevel = new int[mVarSize];
   mReason = new SatReason[mVarSize];
   mWatcherList = new WatcherList[mVarSize * 2];
+#if YMSAT_USE_WEIGHTAARAY
   mWeightArray = new double[mVarSize * 2];
+#endif
+
   for (ymuint i = 0; i < mOldVarNum; ++ i) {
     mVal[i] = old_val[i];
     mDecisionLevel[i] = old_decision_level[i];
@@ -708,19 +746,45 @@ YmSat::expand_var()
   ymuint n2 = mOldVarNum * 2;
   for (ymuint i = 0; i < n2; ++ i) {
     mWatcherList[i].move(old_watcher_list[i]);
+#if YMSAT_USE_WEIGHTARRAY
     mWeightArray[i] = old_weight_array[i];
+#endif
   }
+
   if ( old_size > 0 ) {
     delete [] old_val;
     delete [] old_decision_level;
     delete [] old_reason;
     delete [] old_watcher_list;
+#if YMSAT_USE_WEIGHTARRAY
     delete [] old_weight_array;
+#endif
   }
+
   mAssignList.reserve(mVarSize);
   mVarHeap.alloc_var(mVarSize);
   mAnalyzer->alloc_var(mVarSize);
 }
+
+BEGIN_NONAMESPACE
+
+// DIMACS 形式でリテラルを出力する．
+void
+write_lit(ostream& s,
+	  SatLiteral lit)
+{
+  SatVarId var = lit.varid();
+  ymint idx = var.val() + 1;
+  if ( lit.is_negative() ) {
+    s << " -";
+      }
+  else {
+    s << " ";
+  }
+  s << idx;
+}
+
+END_NONAMESPACE
 
 // @brief DIMACS 形式で制約節を出力する．
 // @param[in] s 出力先のストリーム
@@ -728,19 +792,18 @@ void
 YmSat::write_DIMACS(ostream& s) const
 {
   s << "p cnf " << variable_num() << " " << clause_num() << endl;
-  for (ymuint i = 0; i < mAllConstrClauseList.size(); ++ i) {
-    SatClause* clause = mAllConstrClauseList[i];
+  for (ymuint i = 0; i < mConstrBinList.size(); i += 2) {
+    SatLiteral lit0 = mConstrBinList[i + 0];
+    SatLiteral lit1 = mConstrBinList[i + 1];
+    write_lit(s, lit0);
+    write_lit(s, lit1);
+  }
+  for (ymuint i = 0; i < mConstrClauseList.size(); ++ i) {
+    SatClause* clause = mConstrClauseList[i];
     ymuint nl = clause->lit_num();
     for (ymuint j = 0; j < nl; ++ j) {
       SatLiteral lit = clause->lit(j);
-      SatVarId var = lit.varid();
-      ymint idx = var.val() + 1;
-      if ( lit.is_negative() ) {
-	s << " -" << idx;
-      }
-      else {
-	s << " " << idx;
-      }
+      write_lit(s, lit);
     }
     s << " 0" << endl;
   }

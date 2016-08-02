@@ -18,6 +18,7 @@
 #include "AssignList.h"
 #include "Watcher.h"
 #include "VarHeap.h"
+#include "conf.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -46,6 +47,7 @@ public:
     /// @brief 学習節の decay 値
     double mClauseDecay;
 
+#if YMSAT_USE_LBD
     /// @brief LBD ヒューリスティックを使うとき true
     bool mUseLbd;
 
@@ -66,7 +68,23 @@ public:
       mUseLbd(use_lbd)
     {
     }
+#else
 
+    /// @brief コンストラクタ
+    Params() :
+      mVarDecay(1.0),
+      mClauseDecay(1.0)
+    {
+    }
+
+    /// @brief 値を指定したコンストラクタ
+    Params(double var_decay,
+	   double clause_decay) :
+      mVarDecay(var_decay),
+      mClauseDecay(clause_decay)
+    {
+    }
+#endif
   };
 
 
@@ -324,10 +342,12 @@ protected:
   int
   decision_level(SatVarId varid) const;
 
+#if YMSAT_USE_LBD
   /// @brief LBD を計算する．
   /// @param[in] clause 対象の節
   ymuint
   calc_lbd(const SatClause* clause);
+#endif
 
   /// @brief 変数の割り当て理由を返す．
   /// @param[in] varid 変数番号
@@ -480,13 +500,12 @@ private:
   // ただし二項節は含まない．
   vector<SatClause*> mConstrClauseList;
 
-  // 二項制約節のリスト
-  // この節は実際には使われない．
-  vector<SatClause*> mConstrBinClauseList;
+  // 二項節を表すリテラルのリスト
+  // 2つで一組
+  vector<SatLiteral> mConstrBinList;
 
-  // 全ての制約節のリスト
-  // この節は実際には使われない．
-  vector<SatClause*> mAllConstrClauseList;
+  // 制約節の数(二項節も含む)
+  ymuint64 mConstrClauseNum;
 
   // 制約節の総リテラル数 (二項制約節も含む)
   ymuint64 mConstrLitNum;
@@ -500,8 +519,10 @@ private:
   // 学習節の総リテラル数 (二項制約節も含む)
   ymuint64 mLearntLitNum;
 
+#if YMSAT_USE_DVAR
   // dvar 配列
   vector<bool> mDvarArray;
+#endif
 
   // 変数の数
   ymuint32 mVarNum;
@@ -528,19 +549,23 @@ private:
   // サイズは mVarSize * 2
   WatcherList* mWatcherList;
 
+#if YMSAT_USE_WEIGHTARRAY
   // 変数の極性ごとの重み
   // サイズは mVarSize * 2
   double* mWeightArray;
+#endif
 
   // 変数のヒープ木
   VarHeap mVarHeap;
 
+#if YMSAT_USE_LBD
   // calc_lbd() 用の作業領域
   // サイズは decision_level() + 1
   bool* mLbdTmp;
 
   // mLbdTmp のサイズ．
   ymuint32 mLbdTmpSize;
+#endif
 
   // 矛盾の解析時にテンポラリに使用される節
   SatClause* mTmpBinClause;
@@ -707,7 +732,7 @@ void
 YmSat::add_watcher(SatLiteral watch_lit,
 		   SatReason reason)
 {
-  watcher_list(watch_lit).add(Watcher(reason), mAlloc);
+  watcher_list(watch_lit).add(Watcher(reason));
 }
 
 BEGIN_NONAMESPACE

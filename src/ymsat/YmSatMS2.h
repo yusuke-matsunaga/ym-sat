@@ -51,6 +51,7 @@ public:
     {
     }
 
+#if YMSAT_USE_LBD
     /// @brief 値を指定したコンストラクタ
     Params(double var_decay,
 	   double clause_decay,
@@ -66,7 +67,22 @@ public:
       mWlNega(!wl_posi && wl_nega)
     {
     }
-
+#else
+    /// @brief 値を指定したコンストラクタ
+    Params(double var_decay,
+	   double clause_decay,
+	   double var_freq,
+	   bool phase_cache,
+	   bool wl_posi,
+	   bool wl_nega) :
+      YmSat::Params(var_decay, clause_decay),
+      mVarFreq(var_freq),
+      mPhaseCache(phase_cache),
+      mWlPosi(wl_posi),
+      mWlNega(!wl_posi && wl_nega)
+    {
+    }
+#endif
   };
 
 

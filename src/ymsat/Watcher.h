@@ -70,8 +70,7 @@ public:
   /// @brief 要素を追加する．
   /// @param[in] elem 追加する要素
   void
-  add(Watcher elem,
-      Alloc& alloc);
+  add(Watcher elem);
 
   /// @brief pos 番目の要素を返す．
   /// @param[in] pos 位置
@@ -100,7 +99,7 @@ public:
   /// @note かなり危険な関数．
   /// @note この関数を呼んだらもうこのオブジェクトは使えない．
   void
-  finish(Alloc& alloc);
+  finish();
 
 
 private:
@@ -111,8 +110,7 @@ private:
   /// @brief 配列を拡張する．
   /// @param[in] req_size 拡張するサイズ
   void
-  expand(ymuint req_size,
-	 Alloc& alloc);
+  expand(ymuint req_size);
 
 
 private:
@@ -173,14 +171,12 @@ WatcherList::clear()
   mNum = 0;
 }
 
-// @brief 要素を追加する．
 inline
 void
-WatcherList::add(Watcher elem,
-		 Alloc& alloc)
+WatcherList::add(Watcher elem)
 {
   if ( mNum >= mSize ) {
-    expand(mNum + 1, alloc);
+    expand(mNum + 1);
   }
   set_elem(mNum, elem);
   ++ mNum;
@@ -238,8 +234,7 @@ WatcherList::move(WatcherList& from)
 // @brief 配列を拡張する．
 inline
 void
-WatcherList::expand(ymuint req_size,
-		    Alloc& alloc)
+WatcherList::expand(ymuint req_size)
 {
   if ( mSize < req_size ) {
     ymuint old_size = mSize;
@@ -250,14 +245,13 @@ WatcherList::expand(ymuint req_size,
     while ( mSize < req_size ) {
       mSize <<= 1;
     }
-    void* p = alloc.get_memory(sizeof(Watcher) * mSize);
-    mArray = new (p) Watcher[mSize];
+    mArray = new Watcher[mSize];
 
     if ( old_size > 0 ) {
       for (ymuint i = 0; i < old_size; ++ i) {
 	mArray[i] = old_array[i];
       }
-      alloc.put_memory(sizeof(Watcher) * old_size, old_array);
+      delete [] old_array;
     }
   }
 }
@@ -267,11 +261,9 @@ WatcherList::expand(ymuint req_size,
 // @note この関数を呼んだらもうこのオブジェクトは使えない．
 inline
 void
-WatcherList::finish(Alloc& alloc)
+WatcherList::finish()
 {
-  if ( mSize > 0 ) {
-    alloc.put_memory(sizeof(Watcher) * mSize, mArray);
-  }
+  delete [] mArray;
 }
 
 END_NAMESPACE_YM_SAT

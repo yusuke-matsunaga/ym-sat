@@ -42,9 +42,9 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     }
     cout << endl;
     cout << " Clauses:" << endl;
-    for (vector<SatClause*>::const_iterator p = mConstrClauseList.begin();
-	 p != mConstrClauseList.end(); ++ p) {
-      cout << "  " << *(*p) << endl;
+    for (ymuint i = 0; i < mConstrClauseList.size(); ++ i) {
+      const SatClause* clause = mConstrClauseList[i];
+      cout << "  " << *clause << endl;
     }
     cout << " VarNum: " << mVarNum << endl;
   }
@@ -455,12 +455,14 @@ YmSat::implication()
 	if ( val0 == kB3X ) {
 	  assign(l0, w);
 
+#if YMSAT_USE_DVAR
 	  if ( mParams.mUseLbd ) {
 	    ymuint lbd = calc_lbd(c) + 1;
 	    if ( c->lbd() > lbd ) {
 	      c->set_lbd(lbd);
 	    }
 	  }
+#endif
 	}
 	else {
 	  // 矛盾がおこった．
@@ -628,6 +630,7 @@ YmSat::forget_learnt_clause()
   mVarHeap.build(var_list);
 }
 
+#if YMSAT_USE_LBD
 // @brief LBD を計算する．
 // @param[in] clause 対象の節
 ymuint
@@ -670,6 +673,7 @@ YmSat::calc_lbd(const SatClause* clause)
 
   return c;
 }
+#endif
 
 // 学習節のアクティビティを増加させる．
 // @param[in] clause 対象の節

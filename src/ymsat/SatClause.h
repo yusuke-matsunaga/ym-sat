@@ -11,6 +11,7 @@
 
 #include "ym/ym_sat.h"
 #include "ym/SatLiteral.h"
+#include "conf.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -107,9 +108,11 @@ public:
   bool
   is_learnt() const;
 
+#if YMSAT_USE_LBD
   /// @brief SatLiteral Block Distance を返す．
   ymuint
   lbd() const;
+#endif
 
   /// @brief 学習節の場合にアクティビティを返す．
   double
@@ -124,8 +127,10 @@ private:
   // サイズと learnt フラグをパックしたもの
   ymuint32 mSizeLearnt;
 
+#if YMSAT_USE_LBD
   // リテラルブロック距離
   ymuint32 mLBD;
+#endif
 
   // activity
   double mActivity;
@@ -157,7 +162,9 @@ SatClause::SatClause(ymuint lit_num,
 		     bool learnt)
 {
   mSizeLearnt = (lit_num << 1) | static_cast<ymuint>(learnt);
+#if YMSAT_USE_LBD
   mLBD = lit_num;
+#endif
   mActivity = 0.0;
   for (ymuint i = 0; i < lit_num; ++ i) {
     mLits[i] = lits[i];
@@ -203,6 +210,7 @@ SatClause::xchange_wl1(ymuint src_pos)
   mLits[1] = tmp;
 }
 
+#if YMSAT_USE_LBD
 // @brief literal block distance を設定する．
 inline
 void
@@ -210,6 +218,7 @@ SatClause::set_lbd(ymuint lbd)
 {
   mLBD = lbd;
 }
+#endif
 
 // @brief リテラル数の取得
 inline
@@ -251,6 +260,7 @@ SatClause::is_learnt() const
   return static_cast<bool>(mSizeLearnt & 1UL);
 }
 
+#if YMSAT_USE_LBD
 // @brief SatLiteral Block Distance を返す．
 inline
 ymuint
@@ -258,6 +268,7 @@ SatClause::lbd() const
 {
   return mLBD;
 }
+#endif
 
 // @brief 学習節の場合にアクティビティを返す．
 inline

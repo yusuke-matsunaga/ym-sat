@@ -13,11 +13,17 @@
 BEGIN_NAMESPACE_YM_SAT
 
 #if 0
+#define YMSAT_VAR_FREQ 0.02
+#else
+#define YMSAT_VAR_FREQ 0.00
+#endif
+
+#if YMSAT_USE_LBD
 const
-YmSatMS2::Params kDefaultParams(0.95, 0.999, false, 0.02, true, false, false);
+YmSatMS2::Params kDefaultParams(0.95, 0.999, false, YMSAT_VAR_FREQ, true, false, false);
 #else
 const
-YmSatMS2::Params kDefaultParams(0.95, 0.999, false, 0.00, true, false, false);
+YmSatMS2::Params kDefaultParams(0.95, 0.999, YMSAT_VAR_FREQ, true, false, false);
 #endif
 
 //////////////////////////////////////////////////////////////////////
