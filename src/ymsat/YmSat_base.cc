@@ -456,8 +456,7 @@ YmSat::add_clause_sub(ymuint lit_num)
       cout << "add_clause: " << l0 << " + " << l1 << endl;
     }
 
-    mConstrBinList.push_back(l0);
-    mConstrBinList.push_back(l1);
+    mConstrBinList.push_back(BinClause(l0, l1));
 
     // watcher-list の設定
     add_watcher(~l0, SatReason(l1));
@@ -792,11 +791,10 @@ void
 YmSat::write_DIMACS(ostream& s) const
 {
   s << "p cnf " << variable_num() << " " << clause_num() << endl;
-  for (ymuint i = 0; i < mConstrBinList.size(); i += 2) {
-    SatLiteral lit0 = mConstrBinList[i + 0];
-    SatLiteral lit1 = mConstrBinList[i + 1];
-    write_lit(s, lit0);
-    write_lit(s, lit1);
+  for (ymuint i = 0; i < mConstrBinList.size(); ++ i) {
+    const BinClause& clause = mConstrBinList[i];
+    write_lit(s, clause.mLit0);
+    write_lit(s, clause.mLit1);
   }
   for (ymuint i = 0; i < mConstrClauseList.size(); ++ i) {
     SatClause* clause = mConstrClauseList[i];

@@ -484,6 +484,32 @@ private:
 
 private:
   //////////////////////////////////////////////////////////////////////
+  // 内部で用いられるデータ構造
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 二項節を表す構造体
+  struct BinClause
+  {
+    /// @brief 空のコンストラクタ
+    BinClause()
+    {
+    }
+
+    /// @brief コンストラクタ
+    BinClause(SatLiteral l0,
+	      SatLiteral l1)
+    {
+      mLit0 = l0;
+      mLit1 = l1;
+    }
+
+    SatLiteral mLit0;
+    SatLiteral mLit1;
+  };
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
@@ -501,8 +527,7 @@ private:
   vector<SatClause*> mConstrClauseList;
 
   // 二項節を表すリテラルのリスト
-  // 2つで一組
-  vector<SatLiteral> mConstrBinList;
+  vector<BinClause> mConstrBinList;
 
   // 制約節の数(二項節も含む)
   ymuint64 mConstrClauseNum;
