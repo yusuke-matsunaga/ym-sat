@@ -10,7 +10,7 @@
 #include "VarHeap.h"
 
 
-BEGIN_NAMESPACE_YM_SAT
+BEGIN_NAMESPACE_YM_SAT1
 
 //////////////////////////////////////////////////////////////////////
 // VarHeap
@@ -204,4 +204,4 @@ VarHeap::dump(ostream& s) const
   }
 }
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_SAT1

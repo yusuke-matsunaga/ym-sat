@@ -85,11 +85,6 @@ public:
   void
   stop();
 
-  /// @brief 学習節をすべて削除する．
-  virtual
-  void
-  forget_learnt_clause();
-
   /// @brief 現在の内部状態を得る．
   /// @param[out] stats 状態を格納する構造体
   virtual

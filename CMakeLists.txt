@@ -26,7 +26,9 @@
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
-
+include_directories(
+  src
+  )
 
 # ===================================================================
 #  マクロの定義
@@ -74,10 +76,22 @@ set (ym_sat_SOURCES
   src/ymsat/SaUIP1.cc
   src/ymsat/SaUIP2.cc
   src/ymsat/SatClause.cc
-  src/ymsat/VarHeap.cc
-  src/ymsat/YmSat_base.cc
-  src/ymsat/YmSat_solve.cc
+  src/ymsat/Selecter1.cc
+  src/ymsat/CoreMgr.cc
+  src/ymsat/YmSat.cc
+  src/ymsat/YmSat1.cc
   src/ymsat/YmSatMS2.cc
+  src/ymsat/YmSatPt1.cc
+  src/ymsat/YmSatPt2.cc
+
+  src/ymsat1/AssignList.cc
+  src/ymsat1/SaBase.cc
+  src/ymsat1/SaFactory.cc
+  src/ymsat1/SaUIP1.cc
+  src/ymsat1/SaUIP2.cc
+  src/ymsat1/SatClause.cc
+  src/ymsat1/VarHeap.cc
+  src/ymsat1/YmSat.cc
   )
 
 

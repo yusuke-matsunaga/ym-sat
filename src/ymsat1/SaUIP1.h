@@ -12,7 +12,7 @@
 #include "SaBase.h"
 
 
-BEGIN_NAMESPACE_YM_SAT
+BEGIN_NAMESPACE_YM_SAT1
 
 //////////////////////////////////////////////////////////////////////
 /// @class SaUIP1 SaUIP1.h "SaUIP1.h"
@@ -24,8 +24,8 @@ class SaUIP1 :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr コアマネージャ
-  SaUIP1(CoreMgr& mgr);
+  /// @param[in] solver SATソルバ
+  SaUIP1(YmSat* solver);
 
   /// @brief デストラクタ
   virtual
@@ -67,6 +67,6 @@ protected:
 
 };
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_SAT1
 
 #endif // SAUIP1_H

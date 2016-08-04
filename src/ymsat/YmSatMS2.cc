@@ -8,6 +8,8 @@
 
 
 #include "YmSatMS2.h"
+#include "SatAnalyzer.h"
+#include "Selecter1.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -39,6 +41,9 @@ YmSatMS2::YmSatMS2(const string& option) :
   if ( option == "no_phase_cache" ) {
     mParams.mPhaseCache = false;
   }
+
+  set_analyzer(SaFactory::gen_analyzer(mgr(), option));
+  set_selecter(new Selecter1());
 }
 
 // @brief デストラクタ
@@ -69,9 +74,10 @@ luby(double y,
 
 END_NONAMESPACE
 
-// @brief search() 用の条件パラメータの初期化を行う．
+
+// @brief solve() の初期化
 void
-YmSatMS2::init_control_parameters()
+YmSatMS2::_solve_init()
 {
   double restart_inc = 2.0;
   set_conflict_limit(static_cast<ymuint64>(luby(restart_inc, 0)) * 100);
@@ -81,20 +87,22 @@ YmSatMS2::init_control_parameters()
   mLearntSizeAdjustInc = 1.5;
   mLearntSizeAdjustCount = static_cast<ymuint>(mLearntSizeAdjustConfl);
   set_learnt_limit(static_cast<ymuint64>(mLearntLimitD));
+
+  mgr().set_decay(mParams.mVarDecay, mParams.mClauseDecay);
 }
 
-// @brief リスタート時に制御パラメータの更新を行う．
+// @brief リスタート時の処理
 // @param[in] restart リスタート回数
 void
-YmSatMS2::update_on_restart(ymuint restart)
+YmSatMS2::_update_on_restart(ymuint64 restart)
 {
   double restart_inc = 2.0;
   set_conflict_limit(static_cast<ymuint64>(luby(restart_inc, restart)) * 100);
 }
 
-// @brief コンフリクト時に制御パラメータの更新を行う．
+// @brief 矛盾発生時の処理
 void
-YmSatMS2::update_on_conflict()
+YmSatMS2::_update_on_conflict()
 {
   -- mLearntSizeAdjustCount;
   if ( mLearntSizeAdjustCount == 0 ) {
@@ -105,10 +113,12 @@ YmSatMS2::update_on_conflict()
   }
 }
 
+#if 0
 // 次の割り当てを選ぶ
 SatLiteral
 YmSatMS2::next_decision()
 {
+#if 0
   // 一定確率でランダムな変数を選ぶ．
   if ( mRandGen.real1() < mParams.mVarFreq && !var_heap().empty() ) {
     ymuint pos = mRandGen.int32() % variable_num();
@@ -118,7 +128,9 @@ YmSatMS2::next_decision()
       return SatLiteral(vid, inv);
     }
   }
+#endif
 
+#if 0
   while ( !var_heap().empty() ) {
     // activity の高い変数を取り出す．
     ymuint vindex = var_heap().pop_top();
@@ -131,7 +143,7 @@ YmSatMS2::next_decision()
 
     bool inv = false;
     if ( mParams.mPhaseCache ) {
-      SatBool3 val = old_val(vid);
+      SatBool3 val = prev_val(vid);
       if ( val != kB3X ) {
 	// 以前割り当てた極性を選ぶ
 	if ( val == kB3False ) {
@@ -167,71 +179,80 @@ YmSatMS2::next_decision()
   end:
     return SatLiteral(SatVarId(vindex), inv);
   }
+#else
+
+  SatVarId dvar = next_var();
+  if ( dvar != kSatVarIdIllegal ) {
+    SatLiteral dlit(dvar);
+#if 1
+    if ( true ) {
+      SatBool3 pval = prev_val(dvar);
+      if ( pval == kB3False ) {
+	return ~dlit;
+      }
+      else if ( pval == kB3True ) {
+	return dlit;
+      }
+    }
+#endif
+    // Watcher の多い方の極性を(わざと)選ぶ
+    if ( watcher_list(dlit).num() >= watcher_list(~dlit).num() ) {
+      return dlit;
+    }
+    else {
+      return ~dlit;
+    }
+  }
+
+#endif
+
   return kSatLiteralX;
 }
+#endif
 
-BEGIN_NONAMESPACE
-// reduce_learnt_clause で用いる SatClause の比較関数
-class SatClauseLess
+#if YMSAT_USE_LBD
+// @brief LBD を計算する．
+// @param[in] clause 対象の節
+ymuint
+YmSat::calc_lbd(const SatClause* clause)
 {
-public:
-  bool
-  operator()(SatClause* a,
-	     SatClause* b)
-  {
-    return a->activity() < b->activity();
+  // 割当レベルの最大値 + 1 だけ mLbdTmp を確保する．
+  ymuint max_level = decision_level() + 1;
+  ymuint32 old_size = mLbdTmpSize;
+  while ( mLbdTmpSize < max_level ) {
+    mLbdTmpSize <<= 1;
   }
-};
-END_NONAMESPACE
+  if ( mLbdTmpSize != old_size ) {
+    delete [] mLbdTmp;
+    mLbdTmp = new bool[mLbdTmpSize];
+  }
 
-// @brief 学習節の整理を行なう．
-void
-YmSatMS2::reduce_learnt_clause()
-{
-  vector<SatClause*>& lc_list = learnt_clause_list();
+  ymuint n = clause->lit_num();
 
-  ymuint n = lc_list.size();
-  ymuint n2 = n / 2;
+  // mLbdTmp をクリア
+  // ただし， clause に現れるリテラルのレベルだけでよい．
+  for (ymuint i = 0; i < n; ++ i) {
+    SatLiteral l = clause->lit(i);
+    SatVarId v = l.varid();
+    ymuint level = decision_level(v);
+    mLbdTmp[level] = false;
+  }
 
-  // 足切りのための制限値
-  double abs_limit = clause_bump() / n;
-
-  // SatClauseLess を用いて学習節をソートする．
-  sort(lc_list.begin(), lc_list.end(), SatClauseLess());
-
-  // 前半の節は基本削除する．
-  // 残す節は，
-  // - binary clause (今の実装では SatClause の形にはなっていない)
-  // - 現在の割当の理由となっている節
-  ymuint wpos = 0;
-  for (ymuint i = 0; i < n2; ++ i) {
-    SatClause* clause = lc_list[i];
-    if ( !is_locked(clause) ) {
-      delete_clause(clause);
-    }
-    else {
-      lc_list[wpos] = clause;
-      ++ wpos;
+  // 異なる決定レベルの個数を数える．
+  ymuint c = 0;
+  for (ymuint i = 0; i < n; ++ i) {
+    SatLiteral l = clause->lit(i);
+    SatVarId v = l.varid();
+    ymuint level = decision_level(v);
+    if ( !mLbdTmp[level] ) {
+      // はじめてこのレベルの変数が現れた．
+      mLbdTmp[level] = true;
+      ++ c;
     }
   }
 
-  // 残りの節はアクティビティが規定値以下の節を削除する．
-  // ただし，上と同じ例外はある．
-  for (ymuint i = n2; i < n; ++ i) {
-    SatClause* clause = lc_list[i];
-    if ( !is_locked(clause) && clause->activity() < abs_limit ) {
-      delete_clause(clause);
-    }
-    else {
-      lc_list[wpos] = clause;
-      ++ wpos;
-    }
-  }
-
-  // vector を切り詰める．
-  if ( wpos != lc_list.size() ) {
-    lc_list.erase(lc_list.begin() + wpos, lc_list.end());
-  }
+  return c;
 }
+#endif
 
 END_NAMESPACE_YM_SAT

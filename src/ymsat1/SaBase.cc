@@ -11,12 +11,12 @@
 #include "SatClause.h"
 
 
-BEGIN_NAMESPACE_YM_SAT
+BEGIN_NAMESPACE_YM_SAT1
 
 // @brief コンストラクタ
-// @param[in] mgr コアマネージャ
-SaBase::SaBase(CoreMgr& mgr) :
-  SatAnalyzer(mgr)
+// @param[in] solver SATソルバ
+SaBase::SaBase(YmSat* solver) :
+  SatAnalyzer(solver)
 {
 }
 
@@ -169,4 +169,4 @@ SaBase::clear_marks()
   mClearQueue.clear();
 }
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_SAT1

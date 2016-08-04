@@ -11,12 +11,12 @@
 #include "SatClause.h"
 
 
-BEGIN_NAMESPACE_YM_SAT
+BEGIN_NAMESPACE_YM_SAT1
 
 // @brief コンストラクタ
-// @param[in] mgr コアマネージャ
-SaUIP2::SaUIP2(CoreMgr& mgr) :
-  SaBase(mgr)
+// @param[in] solver SATソルバ
+SaUIP2::SaUIP2(YmSat* solver) :
+  SaBase(solver)
 {
 }
 
@@ -128,7 +128,10 @@ SaUIP2::capture(SatReason creason,
 	-- count;
 	break;
       }
-      ASSERT_COND( last > 0 );
+#if defined(DEBUG)
+      // ここは重いのでコメントアウトしておく
+      ASSERT_COND(last > 0 );
+#endif
     }
     if ( count == 0 ) {
       // q は first UIP だった．
@@ -137,4 +140,4 @@ SaUIP2::capture(SatReason creason,
   }
 }
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_SAT1

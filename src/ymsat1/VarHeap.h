@@ -1,5 +1,5 @@
-﻿#ifndef VARHEAP_H
-#define VARHEAP_H
+﻿#ifndef YMSAT1_VARHEAP_H
+#define YMSAT1_VARHEAP_H
 
 /// @file VarHeap.h
 /// @brief VarHeap のヘッダファイル
@@ -9,11 +9,12 @@
 /// All rights reserved.
 
 
+#include "ym_sat1.h"
 #include "ym/ym_sat.h"
 #include "ym/SatVarId.h"
 
 
-BEGIN_NAMESPACE_YM_SAT
+BEGIN_NAMESPACE_YM_SAT1
 
 //////////////////////////////////////////////////////////////////////
 /// @class VarHeap VarHeap.h "VarHeap.h"
@@ -311,6 +312,6 @@ VarHeap::parent(ymuint pos)
   return (pos - 1) >> 1;
 }
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_SAT1
 
-#endif // VARHEAP_H
+#endif // YMSAT1_VARHEAP_H

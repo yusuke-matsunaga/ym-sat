@@ -1,8 +1,8 @@
-﻿#ifndef SAUIP1_H
-#define SAUIP1_H
+﻿#ifndef SAUIP2_H
+#define SAUIP2_H
 
-/// @file SaUIP1.h
-/// @brief SaUIP1 のヘッダファイル
+/// @file SaUIP2.h
+/// @brief SaUIP2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
@@ -12,24 +12,24 @@
 #include "SaBase.h"
 
 
-BEGIN_NAMESPACE_YM_SAT
+BEGIN_NAMESPACE_YM_SAT1
 
 //////////////////////////////////////////////////////////////////////
-/// @class SaUIP1 SaUIP1.h "SaUIP1.h"
+/// @class SaUIP2 SaUIP2.h "SaUIP2.h"
 /// @brief first UIP ヒューリスティックを用いた解析器
 //////////////////////////////////////////////////////////////////////
-class SaUIP1 :
+class SaUIP2 :
   public SaBase
 {
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr コアマネージャ
-  SaUIP1(CoreMgr& mgr);
+  /// @param[in] solver SATソルバ
+  SaUIP2(YmSat* solver);
 
   /// @brief デストラクタ
   virtual
-  ~SaUIP1();
+  ~SaUIP2();
 
 
 public:
@@ -56,17 +56,8 @@ protected:
   capture(SatReason creason,
 	  vector<SatLiteral>& learnt);
 
-  /// @brief conflict 節のリテラルに対する処理を行う．
-  /// @param[in] lit リテラル
-  /// @param[in] learnt 学習節の要素リスト
-  /// @param[inout] count ペンディング状態のリテラル数
-  void
-  put_lit(SatLiteral lit,
-	  vector<SatLiteral>& learnt,
-	  ymuint& count);
-
 };
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_SAT1
 
 #endif // SAUIP1_H

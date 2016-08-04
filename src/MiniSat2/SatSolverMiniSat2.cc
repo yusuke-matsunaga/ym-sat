@@ -164,13 +164,6 @@ SatSolverMiniSat2::stop()
   mSolver.interrupt();
 }
 
-// @brief 学習節をすべて削除する．
-void
-SatSolverMiniSat2::forget_learnt_clause()
-{
-  // 未実装
-}
-
 // @brief conflict_limit の最大値
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．

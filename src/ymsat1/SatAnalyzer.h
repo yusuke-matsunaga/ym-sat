@@ -5,7 +5,7 @@
 /// @brief SatAnalyzer のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -13,7 +13,7 @@
 #include "SatReason.h"
 
 
-BEGIN_NAMESPACE_YM_SAT
+BEGIN_NAMESPACE_YM_SAT1
 
 class SatClause;
 
@@ -35,8 +35,8 @@ class SatAnalyzer
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr コアマネージャ
-  SatAnalyzer(CoreMgr& mgr);
+  /// @param[in] solver SATソルバ
+  SatAnalyzer(YmSat* solver);
 
   /// @brief デストラクタ
   virtual
@@ -107,8 +107,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // コアマネージャ
-  CoreMgr& mMgr;
+  // YmSat へのポインタ
+  YmSat* mSolver;
 
 };
 
@@ -122,11 +122,11 @@ class SaFactory
 public:
 
   /// @brief SatAnalyzerの派生クラスを生成する．
-  /// @param[in] mgr コアマネージャ
+  /// @param[in] solver SATソルバ
   /// @param[in] option どのクラスを生成するかを決めるオプション文字列
   static
   SatAnalyzer*
-  gen_analyzer(CoreMgr& mgr,
+  gen_analyzer(YmSat* solver,
 	       const string& option = string());
 
 };
@@ -137,10 +137,10 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] mgr コアマネージャ
+// @param[in] solver SATソルバ
 inline
-SatAnalyzer::SatAnalyzer(CoreMgr& mgr) :
-  mMgr(mgr)
+SatAnalyzer::SatAnalyzer(YmSat* solver) :
+  mSolver(solver)
 {
 }
 
@@ -149,7 +149,7 @@ inline
 int
 SatAnalyzer::decision_level() const
 {
-  return mMgr.decision_level();
+  return mSolver->decision_level();
 }
 
 // 割り当てリストの末尾を得る．
@@ -157,7 +157,7 @@ inline
 ymuint
 SatAnalyzer::last_assign()
 {
-  return mMgr.last_assign();
+  return mSolver->mAssignList.size() - 1;
 }
 
 // 割り当てリストの pos 番めの要素を得る．
@@ -165,7 +165,7 @@ inline
 SatLiteral
 SatAnalyzer::get_assign(ymuint pos)
 {
-  return mMgr.get_assign(pos);
+  return mSolver->mAssignList.get(pos);
 }
 
 // 変数の decision level を得る．
@@ -173,7 +173,7 @@ inline
 int
 SatAnalyzer::decision_level(SatVarId varid) const
 {
-  return mMgr.decision_level(varid);
+  return mSolver->decision_level(varid);
 }
 
 // 変数の割り当て理由を得る．
@@ -181,7 +181,7 @@ inline
 SatReason
 SatAnalyzer::reason(SatVarId varid) const
 {
-  return mMgr.reason(varid);
+  return mSolver->reason(varid);
 }
 
 // 変数のアクティビティを増加させる．
@@ -189,7 +189,7 @@ inline
 void
 SatAnalyzer::bump_var_activity(SatVarId var)
 {
-  mMgr.bump_var_activity(var);
+  mSolver->bump_var_activity(var);
 }
 
 // 学習節のアクティビティを増加させる．
@@ -197,9 +197,9 @@ inline
 void
 SatAnalyzer::bump_clause_activity(SatClause* clause)
 {
-  mMgr.bump_clause_activity(clause);
+  mSolver->bump_clause_activity(clause);
 }
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_SAT1
 
 #endif // SATANALYZER_H

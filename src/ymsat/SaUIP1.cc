@@ -8,16 +8,15 @@
 
 
 #include "SaUIP1.h"
-#include "YmSat.h"
 #include "SatClause.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 // @brief コンストラクタ
-// @param[in] solver SATソルバ
-SaUIP1::SaUIP1(YmSat* solver) :
-  SaBase(solver)
+// @param[in] mgr コアマネージャ
+SaUIP1::SaUIP1(CoreMgr& mgr) :
+  SaBase(mgr)
 {
 }
 

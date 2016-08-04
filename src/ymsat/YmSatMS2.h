@@ -105,37 +105,30 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 実装用のプライベート関数
+  // YmSat の仮想関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief search() 用の条件パラメータの初期化を行う．
+  /// @brief solve() の初期化
   virtual
   void
-  init_control_parameters();
+  _solve_init();
 
-  /// @brief リスタート時に制御パラメータの更新を行う．
+  /// @brief リスタート時の処理
   /// @param[in] restart リスタート回数
   virtual
   void
-  update_on_restart(ymuint restart);
+  _update_on_restart(ymuint64 restart);
 
-  /// @brief コンフリクト時に制御パラメータの更新を行う．
+  /// @brief 矛盾発生時の処理
   virtual
   void
-  update_on_conflict();
+  _update_on_conflict();
 
-  /// @brief 次の割り当てを選ぶ．
-  /// @note 割り当てられる変数がない場合には kSatLiteralX を返す．
-  virtual
-  SatLiteral
-  next_decision();
 
-  /// @brief 学習節の整理を行なう．
-  ///
-  /// 実際には条件が成り立った時のみ整理する．
-  virtual
-  void
-  reduce_learnt_clause();
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 実装用のプライベート関数
+  //////////////////////////////////////////////////////////////////////
 
 
 private:
@@ -145,9 +138,6 @@ private:
 
   // 制御用のパラメータ
   Params mParams;
-
-  // 変数選択用乱数発生器
-  RandGen mRandGen;
 
   // mLearntLimit の計算用の値
   double mLearntLimitD;

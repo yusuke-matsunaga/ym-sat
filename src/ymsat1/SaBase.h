@@ -5,14 +5,14 @@
 /// @brief SaBase のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "SatAnalyzer.h"
 
 
-BEGIN_NAMESPACE_YM_SAT
+BEGIN_NAMESPACE_YM_SAT1
 
 //////////////////////////////////////////////////////////////////////
 /// @class SaBase SaBase.h "SaBase.h"
@@ -26,8 +26,8 @@ class SaBase :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr コアマネージャ
-  SaBase(CoreMgr& mgr);
+  /// @param[in] solver SATソルバ
+  SaBase(YmSat* solver);
 
   /// @brief デストラクタ
   virtual
@@ -163,6 +163,6 @@ SaBase::put_var(SatLiteral lit)
   }
 }
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_SAT1
 
 #endif // SABASE_H

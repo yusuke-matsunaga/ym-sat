@@ -184,17 +184,6 @@ SatSolverR::solve(const vector<SatLiteral>& assumptions,
   return stat;
 }
 
-// @brief 学習節をすべて削除する．
-void
-SatSolverR::forget_learnt_clause()
-{
-  if ( mRecOut ) {
-    *mRecOut << "F" << endl;
-  }
-
-  SatSolver::forget_learnt_clause();
-}
-
 // @brief リテラルを出力する．
 void
 SatSolverR::put_lit(SatLiteral lit) const
