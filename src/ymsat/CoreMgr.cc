@@ -610,15 +610,20 @@ CoreMgr::assign_assumptions(const vector<SatLiteral>& assumptions)
       }
     }
 
-    if ( stat ) {
-      // 今の割当に基づく含意を行う．
-      SatReason reason = implication();
-      if ( reason != kNullSatReason ) {
-	// 矛盾が起こった．
-	backtrack(0);
-	sat_stat = kB3False;
-	break;
-      }
+    if ( !stat ) {
+      // 矛盾が起こった．
+      backtrack(0);
+      sat_stat = kB3False;
+      break;
+    }
+
+    // 今の割当に基づく含意を行う．
+    SatReason reason = implication();
+    if ( reason != kNullSatReason ) {
+      // 矛盾が起こった．
+      backtrack(0);
+      sat_stat = kB3False;
+      break;
     }
   }
 
