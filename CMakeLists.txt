@@ -49,7 +49,8 @@ include_directories(
 set (ym_sat_SOURCES
   src/SatMsgHandlerImpl1.cc
   src/SatSolver.cc
-  src/SatSolverR.cc
+  src/SatLogger.cc
+  src/SatLoggerS.cc
   src/SatStats.cc
 
   src/MiniSat/SatSolverMiniSat.cc
@@ -92,6 +93,17 @@ set (ym_sat_SOURCES
   src/ymsat1/SatClause.cc
   src/ymsat1/VarHeap.cc
   src/ymsat1/YmSat.cc
+
+  src/ymsat1old/AssignList.cc
+  src/ymsat1old/SaBase.cc
+  src/ymsat1old/SaFactory.cc
+  src/ymsat1old/SaUIP1.cc
+  src/ymsat1old/SaUIP2.cc
+  src/ymsat1old/SatClause.cc
+  src/ymsat1old/VarHeap.cc
+  src/ymsat1old/YmSat_base.cc
+  src/ymsat1old/YmSat_solve.cc
+  src/ymsat1old/YmSatMS2.cc
   )
 
 

@@ -53,6 +53,9 @@ CoreMgr::CoreMgr() :
   mLearntLimit(0),
   mMaxConflict(1024 * 100)
 {
+  mSweep_assigns = -1;
+  mSweep_props = 0;
+
   mTmpLitsSize = 1024;
   mTmpLits = new SatLiteral[mTmpLitsSize];
 
@@ -428,7 +431,7 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
       mTmpLits[i] = lits[i];
     }
     SatClause* clause = new_clause(n, true);
-    mLearntClause.push_back(clause);
+    mLearntClauseList.push_back(clause);
 
     reason = SatReason(clause);
 
@@ -476,6 +479,68 @@ CoreMgr::reduce_CNF()
     return;
   }
 
+  if ( mAssignList.size() == mSweep_assigns || mSweep_props > 0 ) {
+    // 前回から変化がなかったらスキップする．
+    return;
+  }
+
+  // 制約節をスキャンする
+  sweep_clause(mConstrClauseList);
+
+  // 学習節をスキャンする．
+  sweep_clause(mLearntClauseList);
+
+  // 変数ヒープを再構成する．
+  vector<SatVarId> var_list;
+  var_list.reserve(mVarNum);
+  for (ymuint i = 0; i < mVarNum; ++ i) {
+    SatVarId var(i);
+    if ( eval(var) == kB3X ) {
+      var_list.push_back(SatVarId(i));
+    }
+    else {
+      del_satisfied_watcher(SatLiteral(var, false));
+      del_satisfied_watcher(SatLiteral(var, true));
+    }
+  }
+  build(var_list);
+
+  // 現在の状況を記録しておく．
+  mSweep_assigns = mAssignList.size();
+  mSweep_props = mConstrLitNum + mLearntLitNum;
+}
+
+// @brief 充足している節を取り除く
+// @param[in] clause_list 節のリスト
+void
+CoreMgr::sweep_clause(vector<SatClause*>& clause_list)
+{
+  ymuint n = clause_list.size();
+  ymuint wpos = 0;
+  for (ymuint rpos = 0; rpos < n; ++ rpos) {
+    SatClause* c = clause_list[rpos];
+    ymuint nl = c->lit_num();
+    bool satisfied = false;
+    for (ymuint i = 0; i < nl; ++ i) {
+      if ( eval(c->lit(i)) == kB3True ) {
+	satisfied = true;
+	break;
+      }
+    }
+    if ( satisfied ) {
+      // c を削除する．
+      delete_clause(c);
+    }
+    else {
+      if ( wpos != rpos ) {
+	clause_list[wpos] = c;
+      }
+      ++ wpos;
+    }
+  }
+  if ( wpos != n ) {
+    clause_list.erase(clause_list.begin() + wpos, clause_list.end());
+  }
 }
 
 BEGIN_NONAMESPACE
@@ -496,17 +561,17 @@ END_NONAMESPACE
 void
 CoreMgr::reduce_learnt_clause()
 {
-  ymuint n = mLearntClause.size();
+  ymuint n = mLearntClauseList.size();
   ymuint n2 = n / 2;
 
   // 足切りのための制限値
   double abs_limit = mClauseBump / n;
 
-  sort(mLearntClause.begin(), mLearntClause.end(), SatClauseLess());
+  sort(mLearntClauseList.begin(), mLearntClauseList.end(), SatClauseLess());
 
-  vector<SatClause*>::iterator wpos = mLearntClause.begin();
+  vector<SatClause*>::iterator wpos = mLearntClauseList.begin();
   for (ymuint i = 0; i < n2; ++ i) {
-    SatClause* clause = mLearntClause[i];
+    SatClause* clause = mLearntClauseList[i];
     if ( clause->lit_num() > 2 && !is_locked(clause) ) {
       delete_clause(clause);
     }
@@ -516,7 +581,7 @@ CoreMgr::reduce_learnt_clause()
     }
   }
   for (ymuint i = n2; i < n; ++ i) {
-    SatClause* clause = mLearntClause[i];
+    SatClause* clause = mLearntClauseList[i];
     if ( clause->lit_num() > 2 && !is_locked(clause) &&
 	 clause->activity() < abs_limit ) {
       delete_clause(clause);
@@ -526,8 +591,8 @@ CoreMgr::reduce_learnt_clause()
       ++ wpos;
     }
   }
-  if ( wpos != mLearntClause.end() ) {
-    mLearntClause.erase(wpos, mLearntClause.end());
+  if ( wpos != mLearntClauseList.end() ) {
+    mLearntClauseList.erase(wpos, mLearntClauseList.end());
   }
 }
 
@@ -575,61 +640,6 @@ CoreMgr::get_model(vector<SatBool3>& model)
   }
 }
 
-// @brief パラメータの初期化を行う．
-void
-CoreMgr::init_param()
-{
-  mGoOn = true;
-  mRestartNum = 0;
-  mConflictNum = 0;
-  mDecisionNum = 0;
-  mPropagationNum = 0;
-}
-
-// @brief 仮定の割り当てを行う．
-// @param[in] assumptions 割り当てる仮定のリスト
-SatBool3
-CoreMgr::assign_assumptions(const vector<SatLiteral>& assumptions)
-{
-  SatBool3 sat_stat = kB3True;
-  for (vector<SatLiteral>::const_iterator p = assumptions.begin();
-       p != assumptions.end(); ++ p) {
-    SatLiteral lit = *p;
-
-    set_marker();
-    bool stat = check_and_assign(lit);
-
-    if ( debug & (debug_assign | debug_decision) ) {
-      cout << endl
-	   << "assume " << lit << " @" << decision_level()
-	   << endl;
-      if ( !stat )  {
-	cout << "\t--> conflict with previous assignment" << endl
-	     << "\t    " << ~lit << " was assigned at level "
-	     << decision_level(lit.varid()) << endl;
-      }
-    }
-
-    if ( !stat ) {
-      // 矛盾が起こった．
-      backtrack(0);
-      sat_stat = kB3False;
-      break;
-    }
-
-    // 今の割当に基づく含意を行う．
-    SatReason reason = implication();
-    if ( reason != kNullSatReason ) {
-      // 矛盾が起こった．
-      backtrack(0);
-      sat_stat = kB3False;
-      break;
-    }
-  }
-
-  return sat_stat;
-}
-
 // @brief SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
@@ -674,7 +684,11 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
   // パラメータの初期化
   ymsat._solve_init();
 
-  init_param();
+  mGoOn = true;
+  mRestartNum = 0;
+  mConflictNum = 0;
+  mDecisionNum = 0;
+  mPropagationNum = 0;
 
   // 最終的な結果を納める変数
   SatBool3 sat_stat = kB3X;
@@ -690,9 +704,39 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
   }
 
   // assumption の割り当てを行う．
-  sat_stat = assign_assumptions(assumptions);
-  if ( sat_stat == kB3False ) {
-    goto end;
+  for (vector<SatLiteral>::const_iterator p = assumptions.begin();
+       p != assumptions.end(); ++ p) {
+    SatLiteral lit = *p;
+
+    set_marker();
+    bool stat = check_and_assign(lit);
+
+    if ( debug & (debug_assign | debug_decision) ) {
+      cout << endl
+	   << "assume " << lit << " @" << decision_level()
+	   << endl;
+      if ( !stat )  {
+	cout << "\t--> conflict with previous assignment" << endl
+	     << "\t    " << ~lit << " was assigned at level "
+	     << decision_level(lit.varid()) << endl;
+      }
+    }
+
+    if ( stat ) {
+      // 今の割当に基づく含意を行う．
+      SatReason reason = implication();
+      if ( reason != kNullSatReason ) {
+	// 矛盾が起こった．
+	stat = false;
+      }
+    }
+
+    if ( !stat ) {
+      // 矛盾が起こった．
+      backtrack(0);
+      sat_stat = kB3False;
+      goto end;
+    }
   }
 
   // 以降，現在のレベルが基底レベルとなる．
@@ -876,10 +920,11 @@ CoreMgr::search(YmSat& ymsat,
 SatReason
 CoreMgr::implication()
 {
+  ymuint prop_num = 0;
   SatReason conflict = kNullSatReason;
   while ( mAssignList.has_elem() ) {
     SatLiteral l = mAssignList.get_next();
-    ++ mPropagationNum;
+    ++ prop_num;
 
     if ( debug & debug_implication ) {
       cout << "\tpick up " << l << endl;
@@ -1018,6 +1063,8 @@ CoreMgr::implication()
       wlist.erase(wpos);
     }
   }
+  mPropagationNum += prop_num;
+  mSweep_props -= prop_num;
 
   return conflict;
 }
@@ -1096,6 +1143,37 @@ CoreMgr::del_watcher(SatLiteral watch_lit,
   wlist.erase(n);
 }
 
+// @brief 充足された watcher を削除する．
+// @param[in] watch_lit リテラル
+void
+CoreMgr::del_satisfied_watcher(SatLiteral watch_lit)
+{
+  // watch_lit に関係する watcher リストをスキャンして
+  // literal watcher が充足していたらその watcher を削除する．
+  // watcher リストを配列で実装しているので
+  // あたまからスキャンして該当の要素以降を
+  // 1つづつ前に詰める．
+  WatcherList& wlist = watcher_list(watch_lit);
+  ymuint n = wlist.num();
+  ymuint wpos = 0;
+  for (ymuint rpos = 0; rpos < n; ++ rpos) {
+    Watcher w = wlist.elem(rpos);
+    if ( w.is_literal() ) {
+      SatLiteral l = w.literal();
+      SatBool3 val = eval(l);
+      if ( val == kB3True ) {
+	// この watcher は削除する．
+	continue;
+      }
+    }
+    if ( wpos != rpos ) {
+      wlist.set_elem(wpos, w);
+    }
+    ++ wpos;
+  }
+  wlist.erase(wpos);
+}
+
 // @brief 次に割り当てる変数を取り出す．
 //
 // アクティビティが最大で未割り当ての変数を返す．
@@ -1118,8 +1196,8 @@ CoreMgr::bump_clause_activity(SatClause* clause)
 {
   clause->increase_activity(mClauseBump);
   if ( clause->activity() > 1e+100 ) {
-    for (vector<SatClause*>::iterator p = mLearntClause.begin();
-	 p != mLearntClause.end(); ++ p) {
+    for (vector<SatClause*>::iterator p = mLearntClauseList.begin();
+	 p != mLearntClauseList.end(); ++ p) {
       SatClause* clause1 = *p;
       clause1->factor_activity(1e-100);
     }
@@ -1136,6 +1214,7 @@ CoreMgr::reset_activity()
     mActivity[i] = 0.0;
   }
 }
+#endif
 
 // @brief 与えられた変数のリストからヒープ木を構成する．
 void
@@ -1158,7 +1237,6 @@ CoreMgr::build(const vector<SatVarId>& var_list)
     move_down(i);
   }
 }
-#endif
 
 // 引数の位置にある要素を適当な位置まで沈めてゆく
 void
@@ -1244,10 +1322,10 @@ CoreMgr::get_stats(SatStats& stats) const
   stats.mConstrLitNum = literal_num();
   stats.mLearntClauseNum = learnt_clause_num() + learnt_bin_clause_num();
   stats.mLearntLitNum = learnt_literal_num();
-  stats.mRestart = restart_num();
-  stats.mDecisionNum = decision_num();
-  stats.mPropagationNum = propagation_num();
-  stats.mConflictNum = conflict_num();
+  stats.mRestart = mRestartNum;
+  stats.mDecisionNum = mDecisionNum;
+  stats.mPropagationNum = mPropagationNum;
+  stats.mConflictNum = mConflictNum;
   stats.mConflictLimit = conflict_limit();
   stats.mLearntLimit = learnt_limit();
   stats.mTime = mTimer.time();

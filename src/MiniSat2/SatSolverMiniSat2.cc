@@ -134,6 +134,11 @@ SatSolverMiniSat2::solve(const vector<SatLiteral>& assumptions,
     Lit lit = literal2lit(l);
     tmp.push(lit);
   }
+
+  mSolver.conflicts = 0;
+  mSolver.decisions = 0;
+  mSolver.propagations = 0;
+
   bool ans = mSolver.solve(tmp);
   if ( ans ) {
     ymuint n = mSolver.model.size();

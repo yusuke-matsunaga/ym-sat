@@ -12,11 +12,15 @@
 #include "ymsat/YmSatMS2.h"
 #include "ymsat/YmSat1.h"
 #include "ymsat1/YmSat.h"
+#include "ymsat1old/YmSatMS2.h"
 #include "ymsat/YmSatPt1.h"
 #include "ymsat/YmSatPt2.h"
 #include "MiniSat/SatSolverMiniSat.h"
 #include "MiniSat2/SatSolverMiniSat2.h"
 #include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
+
+#include "SatLogger.h"
+#include "SatLoggerS.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -35,8 +39,10 @@ BEGIN_NAMESPACE_YM_SAT
 // @brief コンストラクタ
 // @param[in] type 実装タイプを表す文字列
 // @param[in] option オプション文字列
+// @param[in] rec_out ログを記録するストリームへのポインタ
 SatSolver::SatSolver(const string& type,
-		     const string& option)
+		     const string& option,
+		     ostream* rec_out)
 {
   if ( type == "minisat" ) {
     // minisat-1.4
@@ -53,6 +59,9 @@ SatSolver::SatSolver(const string& type,
   else if ( type == "ymsat1" ) {
     mImpl = new YmSat1(option);
   }
+  else if ( type == "ymsat2old" ) {
+    mImpl = new nsSat1old::YmSatMS2(option);
+  }
   else if ( type == "ymsat1_old" ) {
     mImpl = new nsSat1::YmSat(option);
   }
@@ -65,12 +74,20 @@ SatSolver::SatSolver(const string& type,
   else {
     mImpl = new YmSatMS2(option);
   }
+
+  if ( rec_out ) {
+    mLogger = new SatLoggerS(rec_out);
+  }
+  else {
+    mLogger = new SatLogger();
+  }
 }
 
 // @brief デストラクタ
 SatSolver::~SatSolver()
 {
   delete mImpl;
+  delete mLogger;
 }
 
 // @brief 変数を追加する．
@@ -82,6 +99,8 @@ SatSolver::new_var(bool decision)
 {
   SatVarId id = mImpl->new_var(decision);
 
+  mLogger->new_var(id);
+
   return id;
 }
 
@@ -91,6 +110,8 @@ void
 SatSolver::add_clause(const vector<SatLiteral>& lits)
 {
   mImpl->add_clause(lits);
+
+  mLogger->add_clause(lits);
 }
 
 // @brief 1項の節を追加する．
@@ -98,6 +119,8 @@ void
 SatSolver::add_clause(SatLiteral lit1)
 {
   mImpl->add_clause(1, &lit1);
+
+  mLogger->add_clause(lit1);
 }
 
 // @brief 2項の節を追加する．
@@ -106,6 +129,8 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit2)
 {
   mImpl->add_clause(lit1, lit2);
+
+  mLogger->add_clause(lit1, lit2);
 }
 
 // @brief 3項の節を追加する．
@@ -115,6 +140,8 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit3)
 {
   mImpl->add_clause(lit1, lit2, lit3);
+
+  mLogger->add_clause(lit1, lit2, lit3);
 }
 
 // @brief 4項の節を追加する．
@@ -125,6 +152,8 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit4)
 {
   mImpl->add_clause(lit1, lit2, lit3, lit4);
+
+  mLogger->add_clause(lit1, lit2, lit3, lit4);
 }
 
 // @brief 5項の節を追加する．
@@ -136,6 +165,8 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit5)
 {
   mImpl->add_clause(lit1, lit2, lit3, lit4, lit5);
+
+  mLogger->add_clause(lit1, lit2, lit3, lit4, lit5);
 }
 
 // @brief SAT 問題を解く．
@@ -162,6 +193,8 @@ SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
 		 vector<SatBool3>& model)
 {
+  mLogger->solve(assumptions);
+
   return mImpl->solve(assumptions, model);
 }
 

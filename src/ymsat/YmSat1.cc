@@ -33,7 +33,7 @@ YmSat1::YmSat1(const string& option) :
   mParams(kDefaultParams)
 {
   set_analyzer(SaFactory::gen_analyzer(mgr(), option));
-  set_selecter(new Selecter1());
+  set_selecter(new Selecter1(true));
 }
 
 // @brief デストラクタ

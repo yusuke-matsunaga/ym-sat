@@ -33,7 +33,7 @@ YmSatPt2::YmSatPt2(const string& option) :
   mParams(kDefaultParams)
 {
   set_analyzer(new SaUIP2(mgr()));
-  set_selecter(new Selecter1());
+  set_selecter(new Selecter1(true));
 }
 
 // @brief デストラクタ

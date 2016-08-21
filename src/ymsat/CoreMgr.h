@@ -195,6 +195,11 @@ public:
   del_watcher(SatLiteral lit,
 	      SatReason reason);
 
+  /// @brief 充足された watcher を削除する．
+  /// @param[in] watch_lit リテラル
+  void
+  del_satisfied_watcher(SatLiteral watch_lit);
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -336,11 +341,11 @@ public:
   /// @brief 変数のアクティビティを初期化する．
   void
   reset_activity();
+#endif
 
   /// @brief 与えられた変数のリストからヒープ木を構成する．
   void
   build(const vector<SatVarId>& var_list);
-#endif
 
   /// @brief リスタート回数を返す．
   ymuint64
@@ -401,15 +406,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief パラメータの初期化を行う．
-  void
-  init_param();
-
-  /// @brief 仮定の割り当てを行う．
-  /// @param[in] assumptions 割り当てる仮定のリスト
-  SatBool3
-  assign_assumptions(const vector<SatLiteral>& assumptions);
 
   /// @brief 探索を行う本体の関数
   /// @param[in] ymsat YmSat オブジェクト
@@ -479,6 +475,13 @@ private:
   /// もちろん decision_level が 0 の時しか実行できない．
   void
   reduce_CNF();
+
+  /// @brief 充足している節を取り除く
+  /// @param[in] clause_list 節のリスト
+  ///
+  /// reduce_CNF() の中で用いられる．
+  void
+  sweep_clause(vector<SatClause*>& clause_list);
 
   /// @brief 学習節の整理を行なう．
   void
@@ -647,7 +650,7 @@ private:
   ymuint64 mConstrLitNum;
 
   // 学習節の配列
-  vector<SatClause*> mLearntClause;
+  vector<SatClause*> mLearntClauseList;
 
   // 二項学習節の数
   ymuint64 mLearntBinNum;
@@ -693,6 +696,12 @@ private:
 
   // 値割り当てを保持するリスト
   AssignList mAssignList;
+
+  // 前回の sweep 時の割り当て数
+  ymuint64 mSweep_assigns;
+
+  // 前回の sweep 時のリテラル数
+  ymint64 mSweep_props;
 
   // add_clause で一時的に利用するリテラル配列
   SatLiteral* mTmpLits;
@@ -840,7 +849,7 @@ inline
 ymuint
 CoreMgr::learnt_clause_num() const
 {
-  return mLearntClause.size();
+  return mLearntClauseList.size();
 }
 
 // @brief 二項学習節の数を得る．

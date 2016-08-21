@@ -17,6 +17,7 @@
 BEGIN_NAMESPACE_YM_SAT
 
 class SatSolverImpl;
+class SatLogger;
 
 //////////////////////////////////////////////////////////////////////
 /// @class SatSolver SatSolver.h "ym/SatSolver.h"
@@ -34,8 +35,10 @@ public:
   /// @brief コンストラクタ
   /// @param[in] type 実装タイプを表す文字列
   /// @param[in] option オプション文字列
+  /// @param[in] rec_out ログを記録するストリームへのポインタ
   SatSolver(const string& type = string(),
-	    const string& option = string());
+	    const string& option = string(),
+	    ostream* rec_out = nullptr);
 
   /// @brief デストラクタ
   ~SatSolver();
@@ -197,6 +200,9 @@ private:
 
   // 実際の機能を実装しているクラス
   SatSolverImpl* mImpl;
+
+  // ロガー
+  SatLogger* mLogger;
 
 };
 
