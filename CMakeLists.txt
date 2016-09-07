@@ -28,6 +28,7 @@
 # ===================================================================
 include_directories(
   src
+  src/ymsat/include
   )
 
 # ===================================================================
@@ -71,14 +72,16 @@ set (ym_sat_SOURCES
   src/dimacs/DimacsVerifier.cc
   src/dimacs/SatDimacsHandler.cc
 
-  src/ymsat/AssignList.cc
-  src/ymsat/SaBase.cc
-  src/ymsat/SaFactory.cc
-  src/ymsat/SaUIP1.cc
-  src/ymsat/SaUIP2.cc
-  src/ymsat/SatClause.cc
-  src/ymsat/Selecter1.cc
-  src/ymsat/CoreMgr.cc
+  src/ymsat/core/AssignList.cc
+  src/ymsat/core/SatClause.cc
+  src/ymsat/core/CoreMgr.cc
+  src/ymsat/controller/ControllerMS1.cc
+  src/ymsat/controller/ControllerMS2.cc
+  src/ymsat/analyzer/SaBase.cc
+  src/ymsat/analyzer/SaFactory.cc
+  src/ymsat/analyzer/SaUIP1.cc
+  src/ymsat/analyzer/SaUIP2.cc
+  src/ymsat/selecter/Selecter1.cc
   src/ymsat/YmSat.cc
   src/ymsat/YmSat1.cc
   src/ymsat/YmSatMS2.cc
@@ -102,6 +105,10 @@ set (ym_sat_SOURCES
   src/ymsat_old/YmSat_base.cc
   src/ymsat_old/YmSat_solve.cc
   src/ymsat_old/YmSatMS2.cc
+
+#  src/ymsat_old2/YmSat_base.cc
+#  src/ymsat_old2/YmSat_solve.cc
+#  src/ymsat_old2/YmSatMS2.cc
   )
 
 

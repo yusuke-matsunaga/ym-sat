@@ -17,18 +17,23 @@ BEGIN_NAMESPACE_YM_SAT
 // クラス Selecter2
 //////////////////////////////////////////////////////////////////////
 
-// @brief 次の割り当てを選ぶ．
+// @brief コンストラクタ
 // @param[in] mgr コアマネージャ
-SatLiteral
-Selecter2::next_decision(CoreMgr& mgr)
+Selecter2::Selecter2(CoreMgr& mgr) :
+  mMgr(mgr)
 {
-  SatVarId dvar = mgr.next_var();
+}
+
+// @brief 次の割り当てを選ぶ．
+SatLiteral
+Selecter2::next_decision()
+{
+  SatVarId dvar = mMgr.next_var();
   if ( dvar != kSatVarIdIllegal ) {
     SatLiteral dlit(dvar);
-#if 1
     if ( true ) {
       // 以前の割り当てを使う．
-      SatBool3 pval = mgr.prev_val(dvar);
+      SatBool3 pval = mMgr.prev_val(dvar);
       if ( pval == kB3False ) {
 	return ~dlit;
       }
@@ -36,9 +41,8 @@ Selecter2::next_decision(CoreMgr& mgr)
 	return dlit;
       }
     }
-#endif
     // Watcher の多い方の極性を(わざと)選ぶ
-    if ( mgr.watcher_list(dlit).num() >= mgr.watcher_list(~dlit).num() ) {
+    if ( mMgr.watcher_list(dlit).num() >= mMgr.watcher_list(~dlit).num() ) {
       return dlit;
     }
     else {

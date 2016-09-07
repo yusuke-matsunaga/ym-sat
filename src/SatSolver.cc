@@ -57,6 +57,9 @@ SatSolver::SatSolver(const string& type,
   else if ( type == "ymsat1" ) {
     mImpl = new YmSat1(option);
   }
+  else if ( type == "ymsat2" ) {
+    mImpl = new YmSatMS2(option);
+  }
   else if ( type == "ymsat2old" ) {
     mImpl = new nsSatold::YmSatMS2(option);
   }

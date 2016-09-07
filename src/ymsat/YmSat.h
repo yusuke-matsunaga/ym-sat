@@ -16,70 +16,31 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-class SatAnalyzer;
+class Controller;
+class Analyzer;
+class Selecter;
 
 //////////////////////////////////////////////////////////////////////
 /// @class YmSat YmSat.h "YmSat.h"
 /// @brief SatSolver の実装クラス
+///
+/// 実はこのクラスは Controller, Analyzer, Selecter の３つのオブジェクト
+/// を結びつけるだけのハブクラス<br>
+/// 実際の処理は CoreMgr が行う．<br>
+/// ヒューリスティックにより動作が変わる部分を Controller, Analyzer,
+/// Selecter で実装する<br>
+///
+/// コンストラクタで Controller, Analyzer, Selecter を指定するとシンプル
+/// になるが，これらのオブジェクトのコンストラクタが CoreMgr& を必要とする
+/// 関係で生成が YmSat よりも後になってしまう．<br>
+/// そこで継承クラス中でこれらのオブジェクトを生成して set_controller()
+/// などで設定するスタイルを取る<br>
+/// 継承クラスのみにこれらのアクセスを許すのは中途半端な状態のオブジェクト
+/// を作りたくないから
 //////////////////////////////////////////////////////////////////////
 class YmSat :
   public SatSolverImpl
 {
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  /// @class YmSat::Params YmSat.h "YmSat.h"
-  /// @brief YmSat の挙動を制御するパラメータ
-  //////////////////////////////////////////////////////////////////////
-  struct Params
-  {
-    /// @brief 変数の decay 値
-    double mVarDecay;
-
-    /// @brief 学習節の decay 値
-    double mClauseDecay;
-
-#if YMSAT_USE_LBD
-    /// @brief LBD ヒューリスティックを使うとき true
-    bool mUseLbd;
-
-    /// @brief コンストラクタ
-    Params() :
-      mVarDecay(1.0),
-      mClauseDecay(1.0),
-      mUseLbd(false)
-    {
-    }
-
-    /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay,
-	   bool use_lbd) :
-      mVarDecay(var_decay),
-      mClauseDecay(clause_decay),
-      mUseLbd(use_lbd)
-    {
-    }
-#else
-
-    /// @brief コンストラクタ
-    Params() :
-      mVarDecay(1.0),
-      mClauseDecay(1.0)
-    {
-    }
-
-    /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay) :
-      mVarDecay(var_decay),
-      mClauseDecay(clause_decay)
-    {
-    }
-#endif
-  };
-
-
 public:
   //////////////////////////////////////////////////////////////////////
   /// @name コンストラクタ/デストラクタ
@@ -87,8 +48,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] option オプション文字列
-  YmSat(const string& option = string());
+  YmSat();
 
   /// @brief デストラクタ
   virtual
@@ -267,11 +227,15 @@ protected:
   CoreMgr&
   mgr();
 
-  /// @brief SatAnalyzer をセットする．
+  /// @brief Controler をセットする．
   void
-  set_analyzer(SatAnalyzer* analyzer);
+  set_controller(Controller* controller);
 
-  /// @brief Selecter を返す．
+  /// @brief Analyzer をセットする．
+  void
+  set_analyzer(Analyzer* analyzer);
+
+  /// @brief Selecter をセットする．
   void
   set_selecter(Selecter* selecter);
 
@@ -314,28 +278,6 @@ protected:
   set_learnt_limit(ymuint64 limit);
 
 
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 継承クラスが用意する仮想関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief solve() の初期化
-  virtual
-  void
-  _solve_init() = 0;
-
-  /// @brief リスタート時の処理
-  /// @param[in] restart リスタート回数
-  virtual
-  void
-  _update_on_restart(ymuint64 restart) = 0;
-
-  /// @brief 矛盾発生時の処理
-  virtual
-  void
-  _update_on_conflict() = 0;
-
-
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
@@ -344,8 +286,11 @@ private:
   // コアマネージャ
   CoreMgr mMgr;
 
+  // コントローラー
+  Controller* mController;
+
   // 解析器
-  SatAnalyzer* mAnalyzer;
+  Analyzer* mAnalyzer;
 
   // 変数選択器
   Selecter* mSelecter;
@@ -365,10 +310,18 @@ YmSat::mgr()
   return mMgr;
 }
 
-// @brief SatAnalyzer をセットする．
+// @brief Controler をセットする．
 inline
 void
-YmSat::set_analyzer(SatAnalyzer* analyzer)
+YmSat::set_controller(Controller* controller)
+{
+  mController = controller;
+}
+
+// @brief Analyzer をセットする．
+inline
+void
+YmSat::set_analyzer(Analyzer* analyzer)
 {
   mAnalyzer = analyzer;
 }

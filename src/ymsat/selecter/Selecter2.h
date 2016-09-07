@@ -23,9 +23,13 @@ class Selecter2 :
 {
 public:
 
+  /// @brief コンストラクタ
+  /// @param[in] mgr コアマネージャ
+  Selecter2(CoreMgr& mgr);
+
   /// @brief デストラクタ
   virtual
-  ~Selecter1() { }
+  ~Selecter2();
 
 
 public:
@@ -34,10 +38,9 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の割り当てを選ぶ．
-  /// @param[in] mgr コアマネージャ
   virtual
   SatLiteral
-  next_decision(CoreMgr& mgr);
+  next_decision();
 
 
 private:
@@ -51,6 +54,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // コアマネージャ
+  CoreMgr& mMgr;
 
 };
 

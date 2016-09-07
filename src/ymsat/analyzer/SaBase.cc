@@ -16,7 +16,7 @@ BEGIN_NAMESPACE_YM_SAT
 // @brief コンストラクタ
 // @param[in] mgr コアマネージャ
 SaBase::SaBase(CoreMgr& mgr) :
-  SatAnalyzer(mgr)
+  Analyzer(mgr)
 {
 }
 

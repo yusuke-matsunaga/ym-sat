@@ -1,25 +1,27 @@
-#ifndef YMSAT1_H
-#define YMSAT1_H
+#ifndef CONTROLLERMS1_H
+#define CONTROLLERMS1_H
 
-/// @file libym_logic/sat/ymsat/YmSat1.h
-/// @brief YmSat1 のヘッダファイル
+/// @file ControllerMS1.h
+/// @brief ControllerMS1 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011 Yusuke Matsunaga
+/// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "YmSat.h"
+#include "Controller.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
+class CoreMgr;
+
 //////////////////////////////////////////////////////////////////////
-/// @class YmSat1 YmSat1.h "YmSat1.h"
-/// @brief SatSolver の実装クラス
+/// @class ControllerMS1 ControllerMS1.h "ControllerMS1.h"
+/// @brief MiniSat-1 風のControllerの実装クラス
 //////////////////////////////////////////////////////////////////////
-class YmSat1 :
-  public YmSat
+class ControllerMS1 :
+  public Controller
 {
 public:
   //////////////////////////////////////////////////////////////////////
@@ -78,12 +80,34 @@ public:
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] option オプション文字列
-  YmSat1(const string& option = string());
+  /// @param[in] mgr Coreマネージャ
+  ControllerMS1(CoreMgr& mgr);
 
   /// @brief デストラクタ
   virtual
-  ~YmSat1();
+  ~ControllerMS1();
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // Controller の仮想関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief solve() の初期化
+  virtual
+  void
+  _init();
+
+  /// @brief リスタート時の処理
+  /// @param[in] restart リスタート回数
+  virtual
+  void
+  _update_on_restart(ymuint64 restart);
+
+  /// @brief 矛盾発生時の処理
+  virtual
+  void
+  _update_on_conflict();
 
 
 private:
@@ -91,8 +115,17 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // Coreマネージャ
+  CoreMgr& mMgr;
+
   // 制御用パラメータ
   Params mParams;
+
+  // 実数版の矛盾回数の制限
+  double mRealConflLimit;
+
+  // 実数版の学習節の制限
+  double mRealLearntLimit;
 
 };
 
@@ -103,4 +136,4 @@ private:
 
 END_NAMESPACE_YM_SAT
 
-#endif // YMSAT1_H
+#endif // CONTROLLERMS1_H

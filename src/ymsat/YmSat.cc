@@ -8,27 +8,21 @@
 
 
 #include "YmSat.h"
-#include "SatAnalyzer.h"
+#include "Controller.h"
+#include "Analyzer.h"
 #include "Selecter.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
-
-#if YMSAT_USE_LBD
-const
-YmSat::Params kDefaultParams(0.95, 0.999, false);
-#else
-const
-YmSat::Params kDefaultParams(0.95, 0.999);
-#endif
 
 //////////////////////////////////////////////////////////////////////
 // YmSat
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-YmSat::YmSat(const string& option)
+YmSat::YmSat()
 {
+  mController = nullptr;
   mAnalyzer = nullptr;
   mSelecter = nullptr;
 }
@@ -36,6 +30,7 @@ YmSat::YmSat(const string& option)
 // @brief デストラクタ
 YmSat::~YmSat()
 {
+  delete mController;
   delete mAnalyzer;
   delete mSelecter;
 }
@@ -124,7 +119,7 @@ SatBool3
 YmSat::solve(const vector<SatLiteral>& assumptions,
 	      vector<SatBool3>& model)
 {
-  return mMgr.solve(assumptions, model, *this, *mAnalyzer, *mSelecter);
+  return mMgr.solve(assumptions, model, *mController, *mAnalyzer, *mSelecter);
 }
 
 // @brief 探索を中止する．

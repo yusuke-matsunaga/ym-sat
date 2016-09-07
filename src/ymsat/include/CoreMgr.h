@@ -14,16 +14,17 @@
 #include "ym/SatBool3.h"
 #include "ym/FragAlloc.h"
 #include "ym/StopWatch.h"
-#include "ymsat/SatClause.h"
-#include "ymsat/SatReason.h"
-#include "ymsat/AssignList.h"
-#include "ymsat/Watcher.h"
+
+#include "SatClause.h"
+#include "SatReason.h"
+#include "AssignList.h"
+#include "Watcher.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
-class YmSat;
-class SatAnalyzer;
+class Controller;
+class Analyzer;
 class Selecter;
 
 //////////////////////////////////////////////////////////////////////
@@ -271,6 +272,9 @@ public:
   /// @brief SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
   /// @param[out] model 充足するときの値の割り当てを格納する配列．
+  /// @param[in] controller コントローラー
+  /// @param[in] analyzer 解析器
+  /// @param[in] selecter リテラル選択器
   /// @retval kB3True 充足した．
   /// @retval kB3False 充足不能が判明した．
   /// @retval kB3X わからなかった．
@@ -278,8 +282,8 @@ public:
   SatBool3
   solve(const vector<SatLiteral>& assumptions,
 	vector<SatBool3>& model,
-	YmSat& ymsat,
-	SatAnalyzer& analyzer,
+	Controller& controller,
+	Analyzer& analyzer,
 	Selecter& selecter);
 
   /// @brief 変数の割り当て理由を返す．
@@ -408,8 +412,8 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 探索を行う本体の関数
-  /// @param[in] ymsat YmSat オブジェクト
-  /// @param[in] analyzer SatAnalyzer オブジェクト
+  /// @param[in] controller Controller オブジェクト
+  /// @param[in] analyzer Analyzer オブジェクト
   /// @param[in] selecter Selecter オブジェクト
   /// @retval kB3True 充足した．
   /// @retval kB3False 充足できないことがわかった．
@@ -419,8 +423,8 @@ private:
   /// 内部で reduce_learnt_clause() を呼んでいるので学習節が
   /// 削減される場合もある．
   SatBool3
-  search(YmSat& ymsat,
-	 SatAnalyzer& analyzer,
+  search(Controller& controller,
+	 Analyzer& analyzer,
 	 Selecter& selecter);
 
   /// @brief バックトラック用のマーカーをセットする．
@@ -998,7 +1002,7 @@ CoreMgr::prev_val(SatVarId var) const
 {
   ymuint vindex = var.val();
   ASSERT_COND( vindex < mVarNum );
-  ymuint8 x = (mVal[vindex] >> 2);
+  ymuint8 x = ((mVal[vindex] >> 2)) & 3U;
   return conv_to_Bool3(x);
 }
 

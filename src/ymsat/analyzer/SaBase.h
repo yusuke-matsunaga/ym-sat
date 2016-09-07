@@ -9,19 +9,19 @@
 /// All rights reserved.
 
 
-#include "SatAnalyzer.h"
+#include "Analyzer.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
 /// @class SaBase SaBase.h "SaBase.h"
-/// @brief SatAnalyzer のベース実装クラス
+/// @brief Analyzer のベース実装クラス
 ///
 /// 継承クラスに共通な実装を提供するためのクラス
 //////////////////////////////////////////////////////////////////////
 class SaBase :
-  public SatAnalyzer
+  public Analyzer
 {
 public:
 

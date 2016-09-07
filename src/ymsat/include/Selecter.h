@@ -1,35 +1,33 @@
-#ifndef SELECTER1_H
-#define SELECTER1_H
+#ifndef SELECTER_H
+#define SELECTER_H
 
-/// @file Selecter1.h
-/// @brief Selecter1 のヘッダファイル
+/// @file Selecter.h
+/// @brief Selecter のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "Selecter.h"
+#include "ym/ym_sat.h"
+#include "ym/SatLiteral.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
+class CoreMgr;
+
 //////////////////////////////////////////////////////////////////////
-/// @class Selecter1 Selecter1.h "Selecter1.h"
+/// @class Selecter Selecter.h "Selecter.h"
 /// @brief 次の割り当てを選ぶクラス
 //////////////////////////////////////////////////////////////////////
-class Selecter1 :
-  public Selecter
+class Selecter
 {
 public:
 
-  /// @brief コンストラクタ
-  /// @param[in] phase_cache 以前の極性を使うヒューリスティック
-  Selecter1(bool phase_cache);
-
   /// @brief デストラクタ
   virtual
-  ~Selecter1();
+  ~Selecter() { }
 
 
 public:
@@ -38,10 +36,9 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の割り当てを選ぶ．
-  /// @param[in] mgr コアマネージャ
   virtual
   SatLiteral
-  next_decision(CoreMgr& mgr);
+  next_decision() = 0;
 
 
 private:
@@ -55,10 +52,15 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // phase_cache フラグ
-  bool mPhaseCache;
 
 };
+
+/// @brief Selecter1 を生成する．
+/// @param[in] mgr Coreマネージャ
+/// @param[in] phase_cache phase キャッシュフラグ
+Selecter*
+new_Selecter1(CoreMgr& mgr,
+	      bool phase_cache);
 
 END_NAMESPACE_YM_SAT
 

@@ -22,71 +22,6 @@ class YmSatMS2 :
   public YmSat
 {
 public:
-  //////////////////////////////////////////////////////////////////////
-  /// @class YmSatMS2::Params YmSat.h "YmSat.h"
-  /// @brief YmSatMS2 の挙動を制御するパラメータ
-  //////////////////////////////////////////////////////////////////////
-  struct Params :
-    public YmSat::Params
-  {
-
-    /// @brief 変数選択用の閾値
-    double mVarFreq;
-
-    /// @brief phase-cache ヒューリスティックを使うとき true
-    bool mPhaseCache;
-
-    /// @brief watcher list の多い極性を選ぶヒューリスティックを使うとき true
-    bool mWlPosi;
-
-    /// @brief watcher list の少ない極性を選ぶヒューリスティックを使うとき true
-    bool mWlNega;
-
-    /// @brief コンストラクタ
-    Params() :
-      mVarFreq(0.0),
-      mPhaseCache(true),
-      mWlPosi(false),
-      mWlNega(false)
-    {
-    }
-
-#if YMSAT_USE_LBD
-    /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay,
-	   bool use_lbd,
-	   double var_freq,
-	   bool phase_cache,
-	   bool wl_posi,
-	   bool wl_nega) :
-      YmSat::Params(var_decay, clause_decay, use_lbd),
-      mVarFreq(var_freq),
-      mPhaseCache(phase_cache),
-      mWlPosi(wl_posi),
-      mWlNega(!wl_posi && wl_nega)
-    {
-    }
-#else
-    /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay,
-	   double var_freq,
-	   bool phase_cache,
-	   bool wl_posi,
-	   bool wl_nega) :
-      YmSat::Params(var_decay, clause_decay),
-      mVarFreq(var_freq),
-      mPhaseCache(phase_cache),
-      mWlPosi(wl_posi),
-      mWlNega(!wl_posi && wl_nega)
-    {
-    }
-#endif
-  };
-
-
-public:
 
   /// @brief コンストラクタ
   /// @param[in] option オプション文字列
@@ -105,28 +40,6 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // YmSat の仮想関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief solve() の初期化
-  virtual
-  void
-  _solve_init();
-
-  /// @brief リスタート時の処理
-  /// @param[in] restart リスタート回数
-  virtual
-  void
-  _update_on_restart(ymuint64 restart);
-
-  /// @brief 矛盾発生時の処理
-  virtual
-  void
-  _update_on_conflict();
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
   // 実装用のプライベート関数
   //////////////////////////////////////////////////////////////////////
 
@@ -135,24 +48,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // 制御用のパラメータ
-  Params mParams;
-
-  // mLearntLimit の計算用の値
-  double mLearntLimitD;
-
-  // mLearntLimit 用のパラメータ
-  // mLearntSizeAdjustCount の初期値
-  double mLearntSizeAdjustConfl;
-
-  // mLearntLimit 用のパラメータ
-  // mLearntSizeAdjustConfl の増加量
-  double mLearntSizeAdjustInc;
-
-  // mLearntLimit 用のパラメータ
-  // 矛盾の数がこの回数になった時に mLearntLimit を更新する．
-  ymuint64 mLearntSizeAdjustCount;
 
 };
 

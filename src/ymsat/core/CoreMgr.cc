@@ -8,8 +8,8 @@
 
 
 #include "CoreMgr.h"
-#include "YmSat.h"
-#include "SatAnalyzer.h"
+#include "Controller.h"
+#include "Analyzer.h"
 #include "Selecter.h"
 #include "ym/SatStats.h"
 #include "ym/SatMsgHandler.h"
@@ -643,6 +643,9 @@ CoreMgr::get_model(vector<SatBool3>& model)
 // @brief SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
+// @param[in] controller コントローラー
+// @param[in] analyzer 解析器
+// @param[in] selecter リテラル選択器
 // @retval kB3True 充足した．
 // @retval kB3False 充足不能が判明した．
 // @retval kB3X わからなかった．
@@ -650,8 +653,8 @@ CoreMgr::get_model(vector<SatBool3>& model)
 SatBool3
 CoreMgr::solve(const vector<SatLiteral>& assumptions,
 	       vector<SatBool3>& model,
-	       YmSat& ymsat,
-	       SatAnalyzer& analyzer,
+	       Controller& controller,
+	       Analyzer& analyzer,
 	       Selecter& selecter)
 {
   if ( debug & debug_solve ) {
@@ -682,7 +685,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
   analyzer.alloc_var(variable_num());
 
   // パラメータの初期化
-  ymsat._solve_init();
+  controller._init();
 
   mGoOn = true;
   mRestartNum = 0;
@@ -750,7 +753,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
   // 探索の本体
   for ( ; ; ) {
     // 探索の本体
-    sat_stat = search(ymsat, analyzer, selecter);
+    sat_stat = search(controller, analyzer, selecter);
 
     // メッセージ出力を行う．
     print_stats();
@@ -769,7 +772,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
       cout << "restart" << endl;
     }
 
-    ymsat._update_on_restart(restart_num());
+    controller._update_on_restart(restart_num());
   }
 
   if ( sat_stat == kB3True ) {
@@ -799,8 +802,8 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
 }
 
 // @brief 探索を行う本体の関数
-// @param[in] ymsat YmSat オブジェクト
-// @param[in] analyzer SatAnalyzer オブジェクト
+// @param[in] controller Controller オブジェクト
+// @param[in] analyzer Analyzer オブジェクト
 // @param[in] selecter Selecter オブジェクト
 // @retval kB3True 充足した．
 // @retval kB3False 充足できないことがわかった．
@@ -810,8 +813,8 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
 // 内部で reduce_learnt_clause() を呼んでいるので学習節が
 // 削減される場合もある．
 SatBool3
-CoreMgr::search(YmSat& ymsat,
-		SatAnalyzer& analyzer,
+CoreMgr::search(Controller& controller,
+		Analyzer& analyzer,
 		Selecter& selecter)
 {
   ymuint root_level = decision_level();
@@ -862,7 +865,7 @@ CoreMgr::search(YmSat& ymsat,
       decay_clause_activity();
 
       // パラメータの更新
-      ymsat._update_on_conflict();
+      controller._update_on_conflict();
 
       continue;
     }
@@ -885,7 +888,7 @@ CoreMgr::search(YmSat& ymsat,
     }
 
     // 次の割り当てを選ぶ．
-    SatLiteral lit = selecter.next_decision(*this);
+    SatLiteral lit = selecter.next_decision();
     if ( lit == kSatLiteralX ) {
       // すべての変数を割り当てた．
       // ということは充足しているはず．

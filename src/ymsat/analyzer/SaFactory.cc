@@ -13,10 +13,10 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-// @brief SatAnalyzerの派生クラスを生成する．
+// @brief Analyzerの派生クラスを生成する．
 // @param[in] mgr コアマネージャ
 // @param[in] option どのクラスを生成するかを決めるオプション文字列
-SatAnalyzer*
+Analyzer*
 SaFactory::gen_analyzer(CoreMgr& mgr,
 			const string& option)
 {
