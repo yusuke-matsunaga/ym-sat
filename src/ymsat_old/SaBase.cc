@@ -12,7 +12,7 @@
 #include "SatClause.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 // @brief コンストラクタ
 // @param[in] solver SATソルバ
@@ -170,4 +170,4 @@ SaBase::clear_marks()
   mClearQueue.clear();
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD

@@ -12,9 +12,7 @@
 #include "ymsat/YmSatMS2.h"
 #include "ymsat/YmSat1.h"
 #include "ymsat1/YmSat.h"
-#include "ymsat1old/YmSatMS2.h"
-#include "ymsat/YmSatPt1.h"
-#include "ymsat/YmSatPt2.h"
+#include "ymsat_old/YmSatMS2.h"
 #include "MiniSat/SatSolverMiniSat.h"
 #include "MiniSat2/SatSolverMiniSat2.h"
 #include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
@@ -60,16 +58,10 @@ SatSolver::SatSolver(const string& type,
     mImpl = new YmSat1(option);
   }
   else if ( type == "ymsat2old" ) {
-    mImpl = new nsSat1old::YmSatMS2(option);
+    mImpl = new nsSatold::YmSatMS2(option);
   }
   else if ( type == "ymsat1_old" ) {
     mImpl = new nsSat1::YmSat(option);
-  }
-  else if ( type == "ymsat_pt1" ) {
-    mImpl = new YmSatPt1(option);
-  }
-  else if ( type == "ymsat_pt2" ) {
-    mImpl = new YmSatPt2(option);
   }
   else {
     mImpl = new YmSatMS2(option);

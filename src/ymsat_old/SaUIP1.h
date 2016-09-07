@@ -12,7 +12,7 @@
 #include "SaBase.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 /// @class SaUIP1 SaUIP1.h "SaUIP1.h"
@@ -67,6 +67,6 @@ protected:
 
 };
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1OLD_SAUIP1_H

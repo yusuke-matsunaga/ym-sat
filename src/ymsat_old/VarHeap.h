@@ -11,10 +11,10 @@
 
 #include "ym/ym_sat.h"
 #include "ym/SatVarId.h"
-#include "ymsat1old.h"
+#include "ymsat_old.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 /// @class VarHeap VarHeap.h "VarHeap.h"
@@ -312,6 +312,6 @@ VarHeap::parent(ymuint pos)
   return (pos - 1) >> 1;
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1OLD_VARHEAP_H

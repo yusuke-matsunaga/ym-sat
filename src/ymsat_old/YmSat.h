@@ -1,5 +1,5 @@
-﻿#ifndef YMSAT1OLD_YMSAT_H
-#define YMSAT1OLD_YMSAT_H
+﻿#ifndef YMSATOLD_YMSAT_H
+#define YMSATOLD_YMSAT_H
 
 /// @file YmSat.h
 /// @brief YmSat のヘッダファイル
@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ymsat1old.h"
+#include "ymsat_old.h"
 #include "SatSolverImpl.h"
 #include "ym/FragAlloc.h"
 #include "ym/RandGen.h"
@@ -22,7 +22,7 @@
 #include "conf.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 class SatAnalyzer;
 
@@ -912,6 +912,6 @@ YmSat::decay_var_activity()
   mVarHeap.decay_var_activity();
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
-#endif // YMSAT1OLD_YMSAT_H
+#endif // YMSATOLD_YMSAT_H

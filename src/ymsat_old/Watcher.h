@@ -12,10 +12,10 @@
 #include "ym/ym_sat.h"
 #include "SatReason.h"
 #include "ym/Alloc.h"
-#include "ymsat1old.h"
+#include "ymsat_old.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 /// @class Watcher ImplInk.h "Watcher.h"
@@ -267,6 +267,6 @@ WatcherList::finish()
   delete [] mArray;
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1OLD_SATREASON_H

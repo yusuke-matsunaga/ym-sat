@@ -12,7 +12,7 @@
 #include "YmSat.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 /// @class YmSatMS2 YmSatMS2.h "YmSatMS2.h"
@@ -166,6 +166,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1OLD_YMSATMS2_H

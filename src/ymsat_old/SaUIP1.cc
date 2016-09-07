@@ -1,34 +1,34 @@
 ﻿
-/// @file SaUIP2.cc
-/// @brief SaUIP2 の実装ファイル
+/// @file SaUIP1.cc
+/// @brief SaUIP1 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "SaUIP2.h"
+#include "SaUIP1.h"
 #include "YmSat.h"
 #include "SatClause.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 // @brief コンストラクタ
 // @param[in] solver SATソルバ
-SaUIP2::SaUIP2(YmSat* solver) :
+SaUIP1::SaUIP1(YmSat* solver) :
   SaBase(solver)
 {
 }
 
 // @brief デストラクタ
-SaUIP2::~SaUIP2()
+SaUIP1::~SaUIP1()
 {
 }
 
 // conflict を解析する．
 int
-SaUIP2::analyze(SatReason creason,
+SaUIP1::analyze(SatReason creason,
 		vector<SatLiteral>& learnt)
 {
   capture(creason, learnt);
@@ -42,7 +42,7 @@ SaUIP2::analyze(SatReason creason,
 // - 現在のレベルよりも低いレベルの割り当て
 // からなるセパレータ集合を learnt に入れる．
 void
-SaUIP2::capture(SatReason creason,
+SaUIP1::capture(SatReason creason,
 		vector<SatLiteral>& learnt)
 {
   learnt.clear();
@@ -70,47 +70,13 @@ SaUIP2::capture(SatReason creason,
       for (ymuint i = 0; i < n; ++ i) {
 	SatLiteral q = cclause->lit(i);
 	if ( !first && q == cclause->wl0() ) continue;
-	SatVarId var = q.varid();
-	int var_level = decision_level(var);
-	if ( !get_mark(var) && var_level > 0 ) {
-	  set_mark_and_putq(var);
-	  bump_var_activity(var);
-	  if ( var_level < decision_level() ) {
-	    SatReason cr1 = reason(q.varid());
-	    if ( cr1.is_literal() ) {
-	      learnt.push_back(cr1.literal());
-	    }
-	    else {
-	      learnt.push_back(q);
-	    }
-	  }
-	  else {
-	    ++ count;
-	  }
-	}
+	put_lit(q, learnt, count);
       }
     }
     else {
       ASSERT_COND( !first );
       SatLiteral q = creason.literal();
-      SatVarId var = q.varid();
-      int var_level = decision_level(var);
-      if ( !get_mark(var) && var_level > 0 ) {
-	set_mark_and_putq(var);
-	bump_var_activity(var);
-	if ( var_level < decision_level() ) {
-	    SatReason cr1 = reason(q.varid());
-	    if ( cr1.is_literal() ) {
-	      learnt.push_back(cr1.literal());
-	    }
-	    else {
-	      learnt.push_back(q);
-	    }
-	}
-	else {
-	  ++ count;
-	}
-      }
+      put_lit(q, learnt, count);
     }
 
     first = false;
@@ -129,10 +95,7 @@ SaUIP2::capture(SatReason creason,
 	-- count;
 	break;
       }
-#if defined(DEBUG)
-      // ここは重いのでコメントアウトしておく
       ASSERT_COND(last > 0 );
-#endif
     }
     if ( count == 0 ) {
       // q は first UIP だった．
@@ -141,4 +104,27 @@ SaUIP2::capture(SatReason creason,
   }
 }
 
-END_NAMESPACE_YM_SAT1OLD
+// @brief conflict 節のリテラルに対する処理を行う．
+// @param[in] lit リテラル
+// @param[in] learnt 学習節の要素リスト
+// @param[inout] count ペンディング状態のリテラル数
+void
+SaUIP1::put_lit(SatLiteral lit,
+		vector<SatLiteral>& learnt,
+		ymuint& count)
+{
+  SatVarId var = lit.varid();
+  int var_level = decision_level(var);
+  if ( !get_mark(var) && var_level > 0 ) {
+    set_mark_and_putq(var);
+    bump_var_activity(var);
+    if ( var_level < decision_level() ) {
+      learnt.push_back(lit);
+    }
+    else {
+      ++ count;
+    }
+  }
+}
+
+END_NAMESPACE_YM_YMSATOLD

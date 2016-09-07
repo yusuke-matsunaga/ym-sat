@@ -14,7 +14,7 @@
 #include "SatClause.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 // YmSat
@@ -459,7 +459,7 @@ YmSat::implication()
 	if ( val0 == kB3X ) {
 	  assign(l0, w);
 
-#if YMSAT_USE_DVAR
+#if YMSAT_USE_LBD
 	  if ( mParams.mUseLbd ) {
 	    ymuint lbd = calc_lbd(c) + 1;
 	    if ( c->lbd() > lbd ) {
@@ -702,4 +702,4 @@ YmSat::decay_clause_activity()
   mClauseBump /= mClauseDecay;
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD

@@ -12,7 +12,7 @@
 #include "Watcher.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 // クラス SatClause
@@ -66,4 +66,4 @@ operator<<(ostream& s,
 }
 
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD

@@ -11,10 +11,10 @@
 
 #include "ym/ym_sat.h"
 #include "ym/SatLiteral.h"
-#include "ymsat1old.h"
+#include "ymsat_old.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 class SatClause;
 
@@ -183,6 +183,6 @@ operator!=(const SatReason& left,
   return !operator==(left, right);
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1OLD_SATREASON_H

@@ -12,10 +12,10 @@
 #include "ym/ym_sat.h"
 #include "ym/SatLiteral.h"
 #include "conf.h"
-#include "ymsat1old.h"
+#include "ymsat_old.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 /// @class SatClause SatClause.h "SatClause.h"
@@ -295,6 +295,6 @@ SatClause::factor_activity(double factor)
   mActivity *= factor;
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1OLD_SATCLAUSE_H

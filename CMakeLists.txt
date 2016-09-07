@@ -82,8 +82,6 @@ set (ym_sat_SOURCES
   src/ymsat/YmSat.cc
   src/ymsat/YmSat1.cc
   src/ymsat/YmSatMS2.cc
-  src/ymsat/YmSatPt1.cc
-  src/ymsat/YmSatPt2.cc
 
   src/ymsat1/AssignList.cc
   src/ymsat1/SaBase.cc
@@ -94,16 +92,16 @@ set (ym_sat_SOURCES
   src/ymsat1/VarHeap.cc
   src/ymsat1/YmSat.cc
 
-  src/ymsat1old/AssignList.cc
-  src/ymsat1old/SaBase.cc
-  src/ymsat1old/SaFactory.cc
-  src/ymsat1old/SaUIP1.cc
-  src/ymsat1old/SaUIP2.cc
-  src/ymsat1old/SatClause.cc
-  src/ymsat1old/VarHeap.cc
-  src/ymsat1old/YmSat_base.cc
-  src/ymsat1old/YmSat_solve.cc
-  src/ymsat1old/YmSatMS2.cc
+  src/ymsat_old/AssignList.cc
+  src/ymsat_old/SaBase.cc
+  src/ymsat_old/SaFactory.cc
+  src/ymsat_old/SaUIP1.cc
+  src/ymsat_old/SaUIP2.cc
+  src/ymsat_old/SatClause.cc
+  src/ymsat_old/VarHeap.cc
+  src/ymsat_old/YmSat_base.cc
+  src/ymsat_old/YmSat_solve.cc
+  src/ymsat_old/YmSatMS2.cc
   )
 
 

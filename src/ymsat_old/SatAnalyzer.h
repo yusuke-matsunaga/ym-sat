@@ -13,7 +13,7 @@
 #include "SatReason.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 class SatClause;
 
@@ -200,6 +200,6 @@ SatAnalyzer::bump_clause_activity(SatClause* clause)
   mSolver->bump_clause_activity(clause);
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1_SATANALYZER_H

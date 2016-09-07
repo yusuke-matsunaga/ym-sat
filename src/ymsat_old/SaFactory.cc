@@ -11,7 +11,7 @@
 #include "SaUIP2.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 // @brief SatAnalyzerの派生クラスを生成する．
 // @param[in] solver SATソルバ
@@ -30,4 +30,4 @@ SaFactory::gen_analyzer(YmSat* solver,
   return new SaUIP1(solver);
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD

@@ -14,7 +14,7 @@
 #include "SatClause.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 #if YMSAT_USE_LBD
 const
@@ -807,4 +807,4 @@ YmSat::write_DIMACS(ostream& s) const
   }
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD

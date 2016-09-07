@@ -10,7 +10,7 @@
 #include "AssignList.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 // @brief コンストラクタ
 AssignList::AssignList() :
@@ -59,4 +59,4 @@ AssignList::reserve(ymuint req_size)
   }
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD

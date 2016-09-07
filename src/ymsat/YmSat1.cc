@@ -46,7 +46,7 @@ void
 YmSat1::_solve_init()
 {
   mRealConflLimit = 100.0;
-  mRealLearntLimit = clause_num() / 3.0;
+  mRealLearntLimit = _clause_num() / 3.0;
 
   set_conflict_limit(static_cast<ymuint64>(mRealConflLimit));
   set_learnt_limit(static_cast<ymuint64>(mRealLearntLimit));

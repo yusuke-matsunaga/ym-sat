@@ -10,11 +10,11 @@
 
 
 #include "ym/ym_sat.h"
-#include "ymsat1old.h"
+#include "ymsat_old.h"
 #include "ym/SatLiteral.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 /// @class AssignList AssignList.h "AssignList.h"
@@ -248,6 +248,6 @@ AssignList::backtrack(int level)
   mCurLevel = level;
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1OLD_ASSIGNLIST_H

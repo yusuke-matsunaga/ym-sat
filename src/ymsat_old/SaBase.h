@@ -12,7 +12,7 @@
 #include "SatAnalyzer.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1OLD
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 /// @class SaBase SaBase.h "SaBase.h"
@@ -163,6 +163,6 @@ SaBase::put_var(SatLiteral lit)
   }
 }
 
-END_NAMESPACE_YM_SAT1OLD
+END_NAMESPACE_YM_YMSATOLD
 
 #endif // YMSAT1OLD_SABASE_H
