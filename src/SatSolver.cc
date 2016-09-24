@@ -183,14 +183,33 @@ SatSolver::solve(vector<SatBool3>& model)
 // @retval kSat 充足した．
 // @retval kUnsat 充足不能が判明した．
 // @retval kUndet わからなかった．
-// @note i 番めの変数の割り当て結果は model[i] に入る．
+//
+// i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
 		 vector<SatBool3>& model)
 {
+  // conflicts 用のダミー配列
+  vector<SatLiteral> dummy;
+  return solve(assumptions, model, dummy);
+}
+
+// @brief assumption 付きの SAT 問題を解く．
+// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
+// @param[out] model 充足するときの値の割り当てを格納する配列．
+// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
+// @retval kSat 充足した．
+// @retval kUnsat 充足不能が判明した．
+// @retval kUndet わからなかった．
+// @note i 番めの変数の割り当て結果は model[i] に入る．
+SatBool3
+SatSolver::solve(const vector<SatLiteral>& assumptions,
+		 vector<SatBool3>& model,
+		 vector<SatLiteral>& conflicts)
+{
   mLogger->solve(assumptions);
 
-  return mImpl->solve(assumptions, model);
+  return mImpl->solve(assumptions, model, conflicts);
 }
 
 // @brief 探索を中止する．
