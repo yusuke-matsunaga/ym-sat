@@ -249,7 +249,7 @@ SatLiteral::SatLiteral(SatVarId varid,
 
 // 内部でのみ用いるコンストラクタ
 inline
-SatLiteral::SatLiteral(ymuint32 body) :
+SatLiteral::SatLiteral(ymuint body) :
   mBody(body)
 {
 }
@@ -257,7 +257,7 @@ SatLiteral::SatLiteral(ymuint32 body) :
 // @brief index からの変換関数
 inline
 SatLiteral
-SatLiteral::index2literal(ymuint32 index)
+SatLiteral::index2literal(ymuint index)
 {
   return SatLiteral(index);
 }

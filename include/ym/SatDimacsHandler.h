@@ -1,7 +1,7 @@
 ﻿#ifndef YM_SATDIMACSHANDLER_H
 #define YM_SATDIMACSHANDLER_H
 
-/// @file ym/SatDimactHandler.h
+/// @file ym/SatDimacsHandler.h
 /// @brief SatDimacsHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
