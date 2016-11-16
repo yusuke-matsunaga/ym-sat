@@ -99,6 +99,7 @@ public:
   /// @brief SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
   /// @param[out] model 充足するときの値の割り当てを格納する配列．
+  /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
   /// @retval kB3True 充足した．
   /// @retval kB3False 充足不能が判明した．
   /// @retval kB3X わからなかった．
@@ -106,7 +107,8 @@ public:
   virtual
   SatBool3
   solve(const vector<SatLiteral>& assumptions,
-	vector<SatBool3>& model) = 0;
+	vector<SatBool3>& model,
+	vector<SatLiteral>& conflicts) = 0;
 
   /// @brief 探索を中止する．
   ///
@@ -114,11 +116,6 @@ public:
   virtual
   void
   stop() = 0;
-
-  /// @brief 学習節をすべて削除する．
-  virtual
-  void
-  forget_learnt_clause() = 0;
 
   /// @brief 現在の内部状態を得る．
   /// @param[out] stats 状態を格納する構造体

@@ -10,9 +10,15 @@
 #include "ym/SatSolver.h"
 
 #include "ymsat/YmSatMS2.h"
+#include "ymsat/YmSat1.h"
+#include "ymsat1/YmSat.h"
+#include "ymsat_old/YmSatMS2.h"
 #include "MiniSat/SatSolverMiniSat.h"
 #include "MiniSat2/SatSolverMiniSat2.h"
 #include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
+
+#include "SatLogger.h"
+#include "SatLoggerS.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -48,16 +54,35 @@ SatSolver::SatSolver(const string& type,
     // glueminisat-2.2.8
     mImpl = new SatSolverGlueMiniSat2(option);
   }
+  else if ( type == "ymsat1" ) {
+    mImpl = new YmSat1(option);
+  }
+  else if ( type == "ymsat2" ) {
+    mImpl = new YmSatMS2(option);
+  }
+  else if ( type == "ymsat2old" ) {
+    mImpl = new nsSatold::YmSatMS2(option);
+  }
+  else if ( type == "ymsat1_old" ) {
+    mImpl = new nsSat1::YmSat(option);
+  }
   else {
     mImpl = new YmSatMS2(option);
   }
-  mRecOut = rec_out;
+
+  if ( rec_out ) {
+    mLogger = new SatLoggerS(rec_out);
+  }
+  else {
+    mLogger = new SatLogger();
+  }
 }
 
 // @brief デストラクタ
 SatSolver::~SatSolver()
 {
   delete mImpl;
+  delete mLogger;
 }
 
 // @brief 変数を追加する．
@@ -69,10 +94,7 @@ SatSolver::new_var(bool decision)
 {
   SatVarId id = mImpl->new_var(decision);
 
-  if ( mRecOut ) {
-    *mRecOut << "N" << endl
-	     << "# varid = " << id << endl;
-  }
+  mLogger->new_var(id);
 
   return id;
 }
@@ -82,30 +104,18 @@ SatSolver::new_var(bool decision)
 void
 SatSolver::add_clause(const vector<SatLiteral>& lits)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    for (vector<SatLiteral>::const_iterator p = lits.begin();
-	 p != lits.end(); ++ p) {
-      SatLiteral l = *p;
-      put_lit(l);
-    }
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lits);
+
+  mLogger->add_clause(lits);
 }
 
 // @brief 1項の節を追加する．
 void
 SatSolver::add_clause(SatLiteral lit1)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(1, &lit1);
+
+  mLogger->add_clause(lit1);
 }
 
 // @brief 2項の節を追加する．
@@ -113,14 +123,9 @@ void
 SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit2)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    put_lit(lit2);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lit1, lit2);
+
+  mLogger->add_clause(lit1, lit2);
 }
 
 // @brief 3項の節を追加する．
@@ -129,15 +134,9 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit2,
 		      SatLiteral lit3)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    put_lit(lit2);
-    put_lit(lit3);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lit1, lit2, lit3);
+
+  mLogger->add_clause(lit1, lit2, lit3);
 }
 
 // @brief 4項の節を追加する．
@@ -147,16 +146,9 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit3,
 		      SatLiteral lit4)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    put_lit(lit2);
-    put_lit(lit3);
-    put_lit(lit4);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lit1, lit2, lit3, lit4);
+
+  mLogger->add_clause(lit1, lit2, lit3, lit4);
 }
 
 // @brief 5項の節を追加する．
@@ -167,17 +159,9 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit4,
 		      SatLiteral lit5)
 {
-  if ( mRecOut ) {
-    *mRecOut << "A";
-    put_lit(lit1);
-    put_lit(lit2);
-    put_lit(lit3);
-    put_lit(lit4);
-    put_lit(lit5);
-    *mRecOut << endl;
-  }
-
   mImpl->add_clause(lit1, lit2, lit3, lit4, lit5);
+
+  mLogger->add_clause(lit1, lit2, lit3, lit4, lit5);
 }
 
 // @brief SAT 問題を解く．
@@ -199,22 +183,33 @@ SatSolver::solve(vector<SatBool3>& model)
 // @retval kSat 充足した．
 // @retval kUnsat 充足不能が判明した．
 // @retval kUndet わからなかった．
-// @note i 番めの変数の割り当て結果は model[i] に入る．
+//
+// i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
 		 vector<SatBool3>& model)
 {
-  if ( mRecOut ) {
-    *mRecOut << "S";
-    for (vector<SatLiteral>::const_iterator p = assumptions.begin();
-	 p != assumptions.end(); ++ p) {
-      SatLiteral l = *p;
-      put_lit(l);
-    }
-    *mRecOut << endl;
-  }
+  // conflicts 用のダミー配列
+  vector<SatLiteral> dummy;
+  return solve(assumptions, model, dummy);
+}
 
-  return mImpl->solve(assumptions, model);
+// @brief assumption 付きの SAT 問題を解く．
+// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
+// @param[out] model 充足するときの値の割り当てを格納する配列．
+// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
+// @retval kSat 充足した．
+// @retval kUnsat 充足不能が判明した．
+// @retval kUndet わからなかった．
+// @note i 番めの変数の割り当て結果は model[i] に入る．
+SatBool3
+SatSolver::solve(const vector<SatLiteral>& assumptions,
+		 vector<SatBool3>& model,
+		 vector<SatLiteral>& conflicts)
+{
+  mLogger->solve(assumptions);
+
+  return mImpl->solve(assumptions, model, conflicts);
 }
 
 // @brief 探索を中止する．
@@ -224,32 +219,6 @@ void
 SatSolver::stop()
 {
   mImpl->stop();
-}
-
-// @brief リテラルを出力する．
-void
-SatSolver::put_lit(SatLiteral lit) const
-{
-  ASSERT_COND( mRecOut != nullptr );
-
-  *mRecOut << " " << lit.varid();
-  if ( lit.is_positive() ) {
-    *mRecOut << "P";
-  }
-  else {
-    *mRecOut << "N";
-  }
-}
-
-// @brief 学習節をすべて削除する．
-void
-SatSolver::forget_learnt_clause()
-{
-  if ( mRecOut ) {
-    *mRecOut << "F" << endl;
-  }
-
-  mImpl->forget_learnt_clause();
 }
 
 // @brief 正しい状態のときに true を返す．
