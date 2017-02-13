@@ -20,6 +20,8 @@
 #include "SatLogger.h"
 #include "SatLoggerS.h"
 
+#include "ym/CombiGen.h"
+
 
 BEGIN_NAMESPACE_YM
 
@@ -164,34 +166,100 @@ SatSolver::add_clause(SatLiteral lit1,
   mLogger->add_clause(lit1, lit2, lit3, lit4, lit5);
 }
 
-// @brief SAT 問題を解く．
-// @param[out] model 充足するときの値の割り当てを格納する配列．
-// @retval kB3True 充足した．
-// @retval kB3False 充足不能が判明した．
-// @retval kB3X わからなかった．
-// @note i 番めの変数の割り当て結果は model[i] に入る．
-SatBool3
-SatSolver::solve(vector<SatBool3>& model)
+// @brief n入力ANDゲートの入出力の関係を表す条件を追加する．
+// @param[in] olit 出力のリテラル
+// @param[in] lit_list 入力のリテラルのリスト
+void
+SatSolver::add_andgate_rel(SatLiteral olit,
+			   const vector<SatLiteral> lit_list)
 {
-  // 空の assumptions を付けて solve() を呼ぶだけ
-  return solve(vector<SatLiteral>(), model);
+  ymuint n = lit_list.size();
+  vector<SatLiteral> tmp_lits(n + 1);
+  for (ymuint i = 0; i < n; ++ i) {
+    SatLiteral ilit = lit_list[i];
+    tmp_lits[i] = ~ilit;
+    add_clause(ilit, ~olit);
+  }
+  tmp_lits[n] = olit;
+  add_clause(tmp_lits);
 }
 
-// @brief assumption 付きの SAT 問題を解く．
-// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-// @param[out] model 充足するときの値の割り当てを格納する配列．
-// @retval kSat 充足した．
-// @retval kUnsat 充足不能が判明した．
-// @retval kUndet わからなかった．
-//
-// i 番めの変数の割り当て結果は model[i] に入る．
-SatBool3
-SatSolver::solve(const vector<SatLiteral>& assumptions,
-		 vector<SatBool3>& model)
+// @brief n入力ORゲートの入出力の関係を表す条件を追加する．
+// @param[in] olit 出力のリテラル
+// @param[in] lit_list 入力のリテラルのリスト
+void
+SatSolver::add_orgate_rel(SatLiteral olit,
+			  const vector<SatLiteral> lit_list)
 {
-  // conflicts 用のダミー配列
-  vector<SatLiteral> dummy;
-  return solve(assumptions, model, dummy);
+  ymuint n = lit_list.size();
+  vector<SatLiteral> tmp_lits(n + 1);
+  for (ymuint i = 0; i < n; ++ i) {
+    SatLiteral ilit = lit_list[i];
+    add_clause(~ilit, olit);
+    tmp_lits[i] = ilit;
+  }
+  tmp_lits[n] = ~olit;
+  add_clause(tmp_lits);
+}
+
+// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+void
+SatSolver::add_at_most_one(const vector<SatLiteral>& lit_list)
+{
+  ymuint n = lit_list.size();
+  for (ymuint i1 = 0; i1 < n - 1; ++ i1) {
+    SatLiteral lit1 = lit_list[i1];
+    for (ymuint i2 = i1 + 1; i2 < n; ++ i2) {
+      SatLiteral lit2 = lit_list[i2];
+      add_clause(~lit1, ~lit2);
+    }
+  }
+}
+
+// @brief 与えられたリテラルのうちk個しか true にならない条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+// @param[in] k しきい値
+void
+SatSolver::add_at_most_k(const vector<SatLiteral>& lit_list,
+			 ymuint k)
+{
+  ymuint n = lit_list.size();
+  if ( k >= n ) {
+    // はじめから条件は満たされている．
+    return;
+  }
+
+  vector<SatLiteral> tmp_lits(k + 1);
+  for (CombiGen cg(n, k + 1) ; !cg.is_end(); ++ cg) {
+    for (ymuint i = 0; i <= k; ++ i) {
+      tmp_lits[i] = ~lit_list[cg(i)];
+    }
+    add_clause(tmp_lits);
+  }
+}
+
+// @brief 与えられたリテラルのうちk個以上は true になる条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+// @param[in] k しきい値
+void
+SatSolver::add_at_least_k(const vector<SatLiteral>& lit_list,
+			  ymuint k)
+{
+  ymuint n = lit_list.size();
+  if ( k == 0 ) {
+    // はじめから条件は満たされている．
+    return;
+  }
+
+  ymuint nk = n - k;
+  vector<SatLiteral> tmp_lits(nk + 1);
+  for (CombiGen cg(n, nk + 1); !cg.is_end(); ++ cg) {
+    for (ymuint i = 0; i <= nk; ++ i) {
+      tmp_lits[i] = lit_list[cg(i)];
+    }
+    add_clause(tmp_lits);
+  }
 }
 
 // @brief assumption 付きの SAT 問題を解く．
