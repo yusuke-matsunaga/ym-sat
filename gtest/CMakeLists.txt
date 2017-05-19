@@ -24,7 +24,7 @@ include_directories(
 
 add_executable ( AddClauseTest
   AddClauseTest.cc
-  $<TARGET_OBJECTS:ym_common_d>
+  $<TARGET_OBJECTS:ym_base_d>
   $<TARGET_OBJECTS:ym_sat_d>
   )
 
