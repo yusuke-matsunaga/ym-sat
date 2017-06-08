@@ -334,7 +334,7 @@ YmSat::add_clause_sub(ymuint lit_num)
   for (ymuint i = 1; i < lit_num; ++ i) {
     // この時点で [0 : i - 1] までは整列している．
     SatLiteral l = mTmpLits[i];
-    if ( mTmpLits[i - 1] <= l ) {
+    if ( mTmpLits[i - 1].index() <= l.index() ) {
       // このままで [0 : i] まで整列していることになる．
       continue;
     }
@@ -344,7 +344,7 @@ YmSat::add_clause_sub(ymuint lit_num)
     for ( ; ; ) {
       mTmpLits[j] = mTmpLits[j - 1];
       -- j;
-      if ( j == 0 || mTmpLits[j - 1] <= l ) {
+      if ( j == 0 || mTmpLits[j - 1].index() <= l.index() ) {
 	// 先頭に達するか，l よりも小さい要素があった．
 	break;
       }

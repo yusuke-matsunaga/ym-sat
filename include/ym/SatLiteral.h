@@ -17,7 +17,7 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @ingroup LogicGroup
+/// @ingroup SatGroup
 /// @class SatLiteral SatLiteral.h "ym/SatLiteral.h"
 /// @brief リテラル(変数番号＋極性)を表すクラス
 /// @sa SatVarId
@@ -32,7 +32,7 @@ public:
 
   /// @brief 変数番号と極性を指定したコンストラクタ
   /// @param[in] varid 変数番号
-  /// @param[in] inv 極性
+  /// @param[in] inv 極性フラグ
   ///                - false: 反転なし (正極性)
   ///                - true:  反転あり (負極性)
   explicit
@@ -40,7 +40,7 @@ public:
 	     bool inv = false);
 
   /// @brief index からの変換関数
-  /// @param[in] index 変数番号を極性をエンコードしたもの
+  /// @param[in] index 変数番号と極性をエンコードしたもの
   static
   SatLiteral
   index2literal(ymuint index);
@@ -68,6 +68,10 @@ public:
   //////////////////////////////////////////////////////////////////////
   // 内容を取得する関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 内容が適正の時に true を返す．
+  bool
+  is_valid() const;
 
   /// @brief 変数番号を得る．
   /// @return 変数番号
@@ -130,16 +134,6 @@ extern
 const SatLiteral kSatLiteralX;
 
 /// @relates SatLiteral
-/// @brief 比較関数
-/// @param[in] lit1, lit2 比較対象のリテラル
-/// @retval -1 lit1 < lit2
-/// @retval  0 lit1 = lit2
-/// @retval  1 lit1 > lit2
-int
-compare(SatLiteral lit1,
-	SatLiteral lit2);
-
-/// @relates SatLiteral
 /// @brief 等価比較
 /// @param[in] lit1, lit2 比較するリテラル
 /// @return lit1 と lit2 が等しいリテラルの時 true を返す．
@@ -153,38 +147,6 @@ operator==(SatLiteral lit1,
 /// @return lit1 と lit2 が等しいリテラルでないとき true を返す．
 bool
 operator!=(SatLiteral lit1,
-	   SatLiteral lit2);
-
-/// @relates SatLiteral
-/// @brief 小なり比較
-/// @param[in] lit1, lit2 比較するリテラル
-/// @return lit1 が lit2 より小さいとき true を返す．
-bool
-operator<(SatLiteral lit1,
-	  SatLiteral lit2);
-
-/// @relates SatLiteral
-/// @brief 大なり比較
-/// @param[in] lit1, lit2 比較するリテラル
-/// @return lit1 が lit2 より大きいとき true を返す．
-bool
-operator>(SatLiteral lit1,
-	  SatLiteral lit2);
-
-/// @relates SatLiteral
-/// @brief 小なりイコール比較
-/// @param[in] lit1, lit2 比較するリテラル
-/// @return lit1 が lit2 より小さいか等しいとき true を返す．
-bool
-operator<=(SatLiteral lit1,
-	   SatLiteral lit2);
-
-/// @relates SatLiteral
-/// @brief 大なりイコール比較
-/// @param[in] lit1, lit2 比較するリテラル
-/// @return lit1 が lit2 より大きいか等しいとき true を返す．
-bool
-operator>=(SatLiteral lit1,
 	   SatLiteral lit2);
 
 /// @relates SatLiteral
@@ -227,22 +189,25 @@ struct HashFunc<SatLiteral>
 inline
 void
 SatLiteral::set(SatVarId varid,
-	     bool inv)
+		bool inv)
 {
+  if ( !varid.is_valid() ) {
+    inv = false;
+  }
   mBody = (varid.val() << 1) + static_cast<ymuint>(inv);
 }
 
 // デフォルトコンストラクタ
 inline
 SatLiteral::SatLiteral() :
-  mBody(0xfffffffe)
+  mBody(0U)
 {
 }
 
 // 変数番号と極性を指定したコンストラクタ
 inline
 SatLiteral::SatLiteral(SatVarId varid,
-		 bool inv)
+		       bool inv)
 {
   set(varid, inv);
 }
@@ -260,6 +225,14 @@ SatLiteral
 SatLiteral::index2literal(ymuint index)
 {
   return SatLiteral(index);
+}
+
+// @brief 内容が適正の時に true を返す．
+inline
+bool
+SatLiteral::is_valid() const
+{
+  return varid().is_valid();
 }
 
 // 変数番号を得る．
@@ -291,7 +264,12 @@ inline
 SatLiteral
 SatLiteral::operator~() const
 {
-  return SatLiteral(mBody ^ 1U);
+  if ( is_valid() ) {
+    return SatLiteral(mBody ^ 1U);
+  }
+  else {
+    return *this;
+  }
 }
 
 // @brief 同じ変数の正極性リテラルを返す．
@@ -310,32 +288,13 @@ SatLiteral::make_negative() const
   return SatLiteral(mBody | 1U);
 }
 
-// @brief 比較関数
-// @param[in] lit1, lit2 比較対象のリテラル
-// @retval -1 lit1 < lit2
-// @retval  0 lit1 = lit2
-// @retval  1 lit1 > lit2
-inline
-int
-compare(SatLiteral lit1,
-	SatLiteral lit2)
-{
-  if ( lit1.index() < lit2.index() ) {
-    return -1;
-  }
-  if ( lit1.index() > lit2.index() ) {
-    return 1;
-  }
-  return 0;
-}
-
 // 等価比較
 inline
 bool
 operator==(SatLiteral lit1,
 	   SatLiteral lit2)
 {
-  return compare(lit1, lit2) == 0;
+  return lit1.index() == lit2.index();
 }
 inline
 bool
@@ -343,42 +302,6 @@ operator!=(SatLiteral lit1,
 	   SatLiteral lit2)
 {
   return !operator==(lit1, lit2);
-}
-
-// @brief 小なり比較
-inline
-bool
-operator<(SatLiteral lit1,
-	  SatLiteral lit2)
-{
-  return compare(lit1, lit2) == -1;
-}
-
-// @brief 大なり比較
-inline
-bool
-operator>(SatLiteral lit1,
-	  SatLiteral lit2)
-{
-  return operator<(lit2, lit1);
-}
-
-// @brief 小なりイコール比較
-inline
-bool
-operator<=(SatLiteral lit1,
-	   SatLiteral lit2)
-{
-  return !operator<(lit2, lit1);
-}
-
-// @brief 大なりイコール比較
-inline
-bool
-operator>=(SatLiteral lit1,
-	   SatLiteral lit2)
-{
-  return !operator<(lit1, lit2);
 }
 
 // ハッシュ用の関数
@@ -407,14 +330,15 @@ ostream&
 operator<<(ostream& s,
 	   const SatLiteral& lit)
 {
-  if ( lit == kSatLiteralX ) {
-    s << "-X-";
-  }
-  else {
-    s << "v_" << lit.varid();
+  SatVarId vid = lit.varid();
+  if ( vid.is_valid() ) {
+    s << "v_" << vid;
     if ( lit.is_negative() ) {
       s << "'";
     }
+  }
+  else {
+    s << "-X-";
   }
   return s;
 }

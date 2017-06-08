@@ -29,7 +29,7 @@ SatLiteral
 Selecter2::next_decision()
 {
   SatVarId dvar = mMgr.next_var();
-  if ( dvar != kSatVarIdIllegal ) {
+  if ( dvar.is_valid() ) {
     SatLiteral dlit(dvar);
     if ( true ) {
       // 以前の割り当てを使う．

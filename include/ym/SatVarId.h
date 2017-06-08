@@ -17,11 +17,13 @@ BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
 /// @class SatVarId SatVarId.h "ym/SatVarId.h"
-/// @ingroup LogicGroup
+/// @ingroup SatGroup
 /// @brief 変数番号を表す型
+///
 /// 基本的にはただの符号なし整数だが，意味のある演算がほとんどないので
 /// あえてクラスの形にしている．
 /// 例えば変数どうしの四則演算に直接的な意味はない．
+/// また，適正でない値(kSatVarIdIllegal)という特別な定数を持つ．
 //////////////////////////////////////////////////////////////////////
 class SatVarId
 {
@@ -44,19 +46,20 @@ public:
   // 外から使われる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 適正な値を持っている時に true を返す．
+  bool
+  is_valid() const;
+
   /// @brief 値を取り出す．
+  ///
+  /// is_valid() == false の時の値は不定
   ymuint
   val() const;
 
-  /// @brief 比較関数
-  /// @param[in] left, right 比較対象の変数
-  /// @retval -1 left < right
-  /// @retval  0 left = right
-  /// @retval  1 left > right
   friend
-  int
-  compare(const SatVarId& left,
-	  const SatVarId& right);
+  bool
+  operator==(const SatVarId& left,
+	     const SatVarId& right);
 
 
 private:
@@ -79,30 +82,6 @@ operator==(const SatVarId& left,
 /// @param[in] left, right 比較対象の変数
 bool
 operator!=(const SatVarId& left,
-	   const SatVarId& right);
-
-/// @brief 小なり比較
-/// @param[in] left, right 比較対象の変数
-bool
-operator<(const SatVarId& left,
-	  const SatVarId& right);
-
-/// @brief 大なり比較
-/// @param[in] left, right 比較対象の変数
-bool
-operator>(const SatVarId& left,
-	  const SatVarId& right);
-
-/// @brief 小なりイコール比較
-/// @param[in] left, right 比較対象の変数
-bool
-operator<=(const SatVarId& left,
-	   const SatVarId& right);
-
-/// @brief 大なりイコール比較
-/// @param[in] left, right 比較対象の変数
-bool
-operator>=(const SatVarId& left,
 	   const SatVarId& right);
 
 /// @relates SatVarId
@@ -158,7 +137,7 @@ const SatVarId kSatVarIdIllegal;
 // @brief 空のコンストラクタ
 inline
 SatVarId::SatVarId() :
-  mVal(0xFFFFFFFFU)
+  mVal(0)
 {
 }
 
@@ -175,31 +154,20 @@ SatVarId::~SatVarId()
 {
 }
 
+// @brief 適正な値を持っている時に true を返す．
+inline
+bool
+SatVarId::is_valid() const
+{
+  return mVal != 0U;
+}
+
 // @brief 値を取り出す．
 inline
 ymuint
 SatVarId::val() const
 {
   return mVal;
-}
-
-// @brief 比較関数
-// @param[in] left, right 比較対象の変数
-// @retval -1 left < right
-// @retval  0 left = right
-// @retval  1 left > right
-inline
-int
-compare(const SatVarId& left,
-	const SatVarId& right)
-{
-  if ( left.mVal < right.mVal ) {
-    return -1;
-  }
-  if ( left.mVal > right.mVal ) {
-    return 1;
-  }
-  return 0;
 }
 
 // @brief 等価比較
@@ -209,7 +177,7 @@ bool
 operator==(const SatVarId& left,
 	   const SatVarId& right)
 {
-  return compare(left, right) == 0;
+  return left.mVal ==  right.mVal;
 }
 
 // @brief 非等価比較
@@ -220,46 +188,6 @@ operator!=(const SatVarId& left,
 	   const SatVarId& right)
 {
   return !operator==(left, right);
-}
-
-// @brief 小なり比較
-// @param[in] left, right 比較対象の変数
-inline
-bool
-operator<(const SatVarId& left,
-	  const SatVarId& right)
-{
-  return compare(left, right) == -1;
-}
-
-// @brief 大なり比較
-// @param[in] left, right 比較対象の変数
-inline
-bool
-operator>(const SatVarId& left,
-	  const SatVarId& right)
-{
-  return operator<(right, left);
-}
-
-// @brief 小なりイコール比較
-// @param[in] left, right 比較対象の変数
-inline
-bool
-operator<=(const SatVarId& left,
-	   const SatVarId& right)
-{
-  return !operator<(right, left);
-}
-
-// @brief 大なりイコール比較
-// @param[in] left, right 比較対象の変数
-inline
-bool
-operator>=(const SatVarId& left,
-	   const SatVarId& right)
-{
-  return !operator<(left, right);
 }
 
 // @relates SatVarId

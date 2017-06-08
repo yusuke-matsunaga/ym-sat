@@ -300,7 +300,7 @@ YmSat::search()
 
     // 次の割り当てを選ぶ．
     SatLiteral lit = next_decision();
-    if ( lit == kSatLiteralX ) {
+    if ( !lit.is_valid() ) {
       // すべての変数を割り当てた．
       // ということは充足しているはず．
       return kB3True;
