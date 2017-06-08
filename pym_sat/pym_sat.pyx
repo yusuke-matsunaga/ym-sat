@@ -10,6 +10,4 @@ include "bool3.pxi"
 include "literal.pxi"
 include "varid.pxi"
 include "satsolver.pxi"
-
-if __name__ == "__main__" :
-    var = VarId()
+include "stats.pxi"

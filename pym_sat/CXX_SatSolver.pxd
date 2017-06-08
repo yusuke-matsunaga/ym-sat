@@ -7,6 +7,7 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
+from CXX_vector cimport vector
 from CXX_SatBool3 cimport SatBool3
 from CXX_SatVarId cimport SatVarId
 from CXX_SatLiteral cimport SatLiteral
@@ -14,18 +15,6 @@ from CXX_SatStats cimport SatStats
 
 ctypedef unsigned int ymuint
 ctypedef unsigned long ymuint64
-
-
-cdef extern from "<vector>" namespace "std" :
-
-    cdef cppclass vector[T] :
-        vector() except +
-        vector(vector&) except +
-        vector(size_t) except +
-        vector(size_t, T&) except +
-        T& operator[](size_t)
-        void clear()
-        void push_back(T&)
 
 
 cdef extern from "ym/SatSolver.h" namespace "nsYm" :

@@ -5,8 +5,22 @@
 # Copyright (C) 2017 Yusuke Matsunaga
 # All rights reserved.
 
+ctypedef unsigned int ymuint
+ctypedef unsigned long ymuint64
+
 
 cdef extern from "ym/SatStats.h" namespace "nsYm::SatStats" :
 
     cdef cppclass SatStats :
         void clear()
+        ymuint mRestart
+        ymuint mVarNum
+        ymuint64 mConstrClauseNum
+        ymuint64 mConstrLitNum
+        ymuint64 mLearntClauseNum
+        ymuint64 mLearntLitNum
+        ymuint64 mConflictNum
+        ymuint64 mDecisionNum
+        ymuint64 mPropagationNum
+        ymuint64 mConflictLimit
+        ymuint64 mLearntLimit
