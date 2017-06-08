@@ -5,7 +5,7 @@
 # Copyright (C) 2017 Yusuke Matsunaga
 # All rights reserved.
 
-
+from libcpp cimport bool
 ctypedef unsigned int ymuint
 
 
@@ -15,6 +15,5 @@ cdef extern from "ym/SatVarId.h" namespace "nsYm" :
     cdef cppclass SatVarId :
         SatVarId()
         SatVarId(ymuint val)
+        bool is_valid()
         ymuint val()
-
-    cdef SatVarId kSatVarIdIllegal

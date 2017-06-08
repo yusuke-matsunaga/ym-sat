@@ -6,7 +6,7 @@
 # All rights reserved.
 
 from enum import Enum
-cimport CXX_SatBool3
+from CXX_SatBool3 cimport SatBool3, kB3X, kB3True, kB3False
 
 # @brief SatBool3 の Python バージョン
 #
@@ -42,24 +42,24 @@ class Bool3(Enum) :
 
 
 # @brief Python の Bool3 を C++ の SatBool3 に変換する．
-cdef CXX_SatBool3.SatBool3 from_bool3(val) :
+cdef SatBool3 from_bool3(val) :
     if val == Bool3.UNKOWN :
-        return CXX_SatBool3.kB3X
+        return kB3X
     elif val == Bool3.TRUE :
-        return CXX_SatBool3.kB3True
+        return kB3True
     elif val == Bool3.FALSE :
-        return CXX_SatBool3.kB3False
+        return kB3False
     else :
         assert False
 
 
 # @brief C++ の SatBool3 を Python の Bool3 に変換する．
-def to_bool3(CXX_SatBool3.SatBool3 c_val) :
-    if c_val == CXX_SatBool3.kB3X :
+def to_bool3(SatBool3 c_val) :
+    if c_val == kB3X :
         return Bool3.UNKOWN
-    elif c_val == CXX_SatBool3.kB3True :
+    elif c_val == kB3True :
         return Bool3.TRUE
-    elif c_val == CXX_SatBool3.kB3False :
+    elif c_val == kB3False :
         return Bool3.FALSE
     else :
         assert False
