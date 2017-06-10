@@ -63,11 +63,12 @@ public:
 };
 
 AddClauseTest::AddClauseTest() :
+  mSolver("ymsat2"),
   mVarNum(100),
   mVarList(mVarNum)
 {
   for (ymuint i = 0; i < mVarNum; ++ i) {
-    SatVarId var = mSolver.new_var();
+    SatVarId var = mSolver.new_variable();
     mVarList[i] = var;
   }
 }
@@ -81,6 +82,7 @@ void
 AddClauseTest::check(ymuint ni,
 		     int vals[])
 {
+  try {
   ymuint np = 1U << ni;
   for (ymuint p = 0; p < np; ++ p) {
     vector<SatLiteral> assumptions;
@@ -92,6 +94,10 @@ AddClauseTest::check(ymuint ni,
     vector<SatBool3> model;
     SatBool3 stat = mSolver.solve(assumptions, model);
     EXPECT_EQ( exp_ans, stat );
+  }
+  }
+  catch (AssertError x) {
+    cout << x << endl;
   }
 }
 
