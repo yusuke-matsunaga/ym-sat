@@ -21,8 +21,13 @@ BEGIN_NAMESPACE_YM_SAT
 /// @brief SAT ソルバの状態を表すクラス
 /// @sa SatSolver
 //////////////////////////////////////////////////////////////////////
-struct SatStats
+class SatStats
 {
+public:
+
+  /// @brief 空のコンストラクタ
+  SatStats();
+
   /// @brief 内容をクリアする ．
   void
   clear();
