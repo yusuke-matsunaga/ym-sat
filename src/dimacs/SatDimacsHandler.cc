@@ -42,7 +42,7 @@ SatDimacsHandler::read_p(const FileRegion& loc,
 			 ymuint nc)
 {
   for (ymuint i = 0; i < nv; ++ i) {
-    mSolver.new_var();
+    mSolver.new_variable();
   }
 
   return true;

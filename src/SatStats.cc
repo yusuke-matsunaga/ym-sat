@@ -16,6 +16,12 @@ BEGIN_NAMESPACE_YM_SAT
 // クラス SatStats
 //////////////////////////////////////////////////////////////////////
 
+// @brief 空のコンストラクタ
+SatStats::SatStats()
+{
+  clear();
+}
+
 // @brief 内容をクリアする ．
 void
 SatStats::clear()

@@ -92,7 +92,7 @@ SatSolver::~SatSolver()
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
 SatVarId
-SatSolver::new_var(bool decision)
+SatSolver::new_variable(bool decision)
 {
   SatVarId id = mImpl->new_var(decision);
 
