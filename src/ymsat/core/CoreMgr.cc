@@ -178,7 +178,7 @@ CoreMgr::expand_var()
     delete [] old_activity;
     delete [] old_heap;
   }
-  mAssignList.reserve(mVarSize);
+  mAssignList.reserve(mVarNum);
 }
 
 // @brief 節を追加する．

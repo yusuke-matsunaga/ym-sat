@@ -889,8 +889,8 @@ CoreMgr::clause(ymuint pos) const
 inline
 void
 CoreMgr::bin_clause(ymuint pos,
-		   SatLiteral& lit0,
-		   SatLiteral& lit1) const
+		    SatLiteral& lit0,
+		    SatLiteral& lit1) const
 {
   ASSERT_COND( pos < bin_clause_num() );
   lit0 = mConstrBinList[pos].mLit0;
@@ -903,7 +903,7 @@ CoreMgr::bin_clause(ymuint pos,
 inline
 void
 CoreMgr::set_decay(double var_decay,
-		  double clause_decay)
+		   double clause_decay)
 {
   mVarDecay = var_decay;
   mClauseDecay = clause_decay;
@@ -945,7 +945,7 @@ CoreMgr::watcher_list(SatLiteral lit)
 inline
 void
 CoreMgr::add_watcher(SatLiteral watch_lit,
-		    SatReason reason)
+		     SatReason reason)
 {
   watcher_list(watch_lit).add(Watcher(reason));
 }
@@ -1010,7 +1010,7 @@ CoreMgr::prev_val(SatVarId var) const
 inline
 void
 CoreMgr::assign(SatLiteral lit,
-	       SatReason reason)
+		SatReason reason)
 {
   ymuint lindex = lit.index();
   ymuint vindex = lindex / 2;
@@ -1183,7 +1183,7 @@ CoreMgr::move_up(ymuint pos)
 inline
 void
 CoreMgr::set(ymuint vindex,
-		ymuint pos)
+	     ymuint pos)
 {
   mHeap[pos] = vindex;
   mHeapPos[vindex] = pos;
