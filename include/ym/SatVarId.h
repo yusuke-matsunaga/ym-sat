@@ -137,7 +137,7 @@ const SatVarId kSatVarIdIllegal;
 // @brief 空のコンストラクタ
 inline
 SatVarId::SatVarId() :
-  mVal(0)
+  mVal(-1)
 {
 }
 
@@ -159,7 +159,7 @@ inline
 bool
 SatVarId::is_valid() const
 {
-  return mVal != 0U;
+  return mVal != -1;
 }
 
 // @brief 値を取り出す．

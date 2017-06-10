@@ -200,7 +200,7 @@ SatLiteral::set(SatVarId varid,
 // デフォルトコンストラクタ
 inline
 SatLiteral::SatLiteral() :
-  mBody(0U)
+  mBody(-2)
 {
 }
 
@@ -232,7 +232,7 @@ inline
 bool
 SatLiteral::is_valid() const
 {
-  return varid().is_valid();
+  return mBody < static_cast<ymuint>(-2);
 }
 
 // 変数番号を得る．
