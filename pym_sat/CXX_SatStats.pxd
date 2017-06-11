@@ -9,9 +9,10 @@ ctypedef unsigned int ymuint
 ctypedef unsigned long ymuint64
 
 
-cdef extern from "ym/SatStats.h" namespace "nsYm::SatStats" :
+cdef extern from "ym/SatStats.h" namespace "nsYm" :
 
     cdef cppclass SatStats :
+        SatStats()
         void clear()
         ymuint mRestart
         ymuint mVarNum

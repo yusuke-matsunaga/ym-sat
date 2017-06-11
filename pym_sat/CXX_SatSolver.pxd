@@ -22,7 +22,7 @@ cdef extern from "ym/SatSolver.h" namespace "nsYm" :
     # SatSolver クラスの cython バージョン
     cdef cppclass SatSolver :
         SatSolver(string sat_type, string sat_opt)
-        SatVarId new_var(bool decision)
+        SatVarId new_variable(bool decision)
         void add_clause(vector[SatLiteral]& lits)
         SatBool3 solve(vector[SatBool3]& model)
         SatBool3 solve(vector[SatLiteral]& assumptions, vector[SatBool3]& model)

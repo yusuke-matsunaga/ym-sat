@@ -15,8 +15,8 @@ cdef class Stats :
     cdef SatStats _body
 
     ## @brief 初期化
-    def __init__(Stats self, SatStats c_stats) :
-        self._body = c_stats
+    def __init__(Stats self) :
+        pass
 
     ## @brief 内容をクリアする．
     def clear(Stats self) :
@@ -76,3 +76,8 @@ cdef class Stats :
     @property
     def learnt_limit(Stats self) :
         return self._body.mLearntLimit
+
+cdef to_stats(SatStats c_stats) :
+    ans = Stats()
+    ans._body = c_stats
+    return ans

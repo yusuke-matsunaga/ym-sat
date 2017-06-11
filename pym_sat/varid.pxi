@@ -37,5 +37,5 @@ cdef SatVarId from_varid(varid) :
 
 
 ## @brief C++ の SatVarId を Python の VarId に変換する．
-def to_varid(c_varid) :
+cdef to_varid(SatVarId c_varid) :
     return VarId(c_varid.val())

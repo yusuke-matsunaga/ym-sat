@@ -60,6 +60,6 @@ cdef SatLiteral from_literal(literal) :
     return SatLiteral(c_varid, literal.is_negative())
 
 ## @brief C++ の SatLiteral を Python の Literal に変換する．
-def to_literal(c_literal) :
+cdef to_literal(SatLiteral c_literal) :
     varid = to_varid(c_literal.varid())
     return Literal(varid, c_literal.is_negative())
