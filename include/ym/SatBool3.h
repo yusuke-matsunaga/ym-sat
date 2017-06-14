@@ -9,13 +9,13 @@
 /// All rights reserved.
 
 
-#include "ym_config.h"
+#include "ym/ym_sat.h"
 
 
 BEGIN_NAMESPACE_YM
 
 /// @brief 不定値を含む論理値
-/// @ingroup LogicGroup
+/// @ingroup SatGroup
 enum SatBool3 {
   /// @brief false
   kB3False = -1,
@@ -26,7 +26,7 @@ enum SatBool3 {
 };
 
 /// @brief SatBool3 の否定演算
-/// @ingroup LogicGroup
+/// @ingroup SatGroup
 inline
 SatBool3
 operator~(SatBool3 val)
@@ -36,6 +36,7 @@ operator~(SatBool3 val)
 }
 
 /// @brief SatBool3 の inplace XOR 演算
+/// @ingroup SatGroup
 inline
 SatBool3
 operator^=(SatBool3& left,
@@ -45,6 +46,7 @@ operator^=(SatBool3& left,
 }
 
 /// @brief SatBool3 の XOR 演算
+/// @ingroup SatGroup
 inline
 SatBool3
 operator^(SatBool3 left,
@@ -54,7 +56,7 @@ operator^(SatBool3 left,
 }
 
 /// @brief bool からのキャスト演算子
-/// @ingroup LogicGroup
+/// @ingroup SatGroup
 inline
 SatBool3
 b2B3(bool b)
@@ -65,7 +67,7 @@ b2B3(bool b)
 }
 
 /// @brief SatBool3 の内容を出力するストリーム演算子
-/// @ingroup LogicGroup
+/// @ingroup SatGroup
 inline
 ostream&
 operator<<(ostream& s,

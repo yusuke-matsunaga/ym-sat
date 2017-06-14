@@ -19,6 +19,8 @@ BEGIN_NAMESPACE_YM_SAT
 /// @ingroup SatGroup
 /// @brief SAT ソルバの内部状態を出力するためのメッセージハンドラ
 /// @sa SatSolver
+///
+/// SatSolver.reg_msg_handler(msg_handler) で登録する．
 //////////////////////////////////////////////////////////////////////
 class SatMsgHandler
 {

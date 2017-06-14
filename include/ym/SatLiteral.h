@@ -5,11 +5,11 @@
 /// @brief SatLiteral のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym_config.h"
+#include "ym/ym_sat.h"
 #include "ym/SatVarId.h"
 #include "ym/HashFunc.h"
 
@@ -20,6 +20,10 @@ BEGIN_NAMESPACE_YM
 /// @ingroup SatGroup
 /// @class SatLiteral SatLiteral.h "ym/SatLiteral.h"
 /// @brief リテラル(変数番号＋極性)を表すクラス
+///
+/// 単純には最下位ビットで極性を表すだけだが，
+/// 不正な値のときにはこのビットに1を立てない．
+/// そのために neg_mask() というメンバ関数を用意している．
 /// @sa SatVarId
 //////////////////////////////////////////////////////////////////////
 class SatLiteral
@@ -27,6 +31,7 @@ class SatLiteral
 public:
 
   /// @brief デフォルトコンストラクタ
+  ///
   /// 内容は不定なのであまり使わない方が良い．
   SatLiteral();
 
@@ -86,16 +91,29 @@ public:
   bool
   is_negative() const;
 
+  /// @brief 自身の極性を反転させる．
+  /// @return 自身の参照を返す．
+  ///
+  /// 不正な値の場合は変化しない．
+  const SatLiteral&
+  negate();
+
   /// @brief 極性の反転
   /// @return 極性を反転させたリテラルを返す．
+  ///
+  /// 不正な値の場合は変化しない．
   SatLiteral
   operator~() const;
 
   /// @brief 同じ変数の正極性リテラルを返す．
+  ///
+  /// 不正な値の場合は変化しない．
   SatLiteral
   make_positive() const;
 
   /// @brief 同じ変数の負極性リテラルを返す．
+  ///
+  /// 不正な値の場合は変化しない．
   SatLiteral
   make_negative() const;
 
@@ -116,6 +134,12 @@ private:
   /// @brief 内部でのみ用いるコンストラクタ
   explicit
   SatLiteral(ymuint body);
+
+  /// @brief 反転用のビットマスクを返す．
+  ///
+  /// 普通は 1U だが不正な値のときは 0U となる．
+  ymuint
+  neg_mask() const;
 
 
 private:
@@ -169,7 +193,7 @@ typedef vector<SatLiteral> SatLiteralVector;
 /// @brief リテラルのリスト
 typedef list<SatLiteral> SatLiteralList;
 
-// SatLiteral をキーにしたハッシュ関数クラス
+/// @brief SatLiteral をキーにしたハッシュ関数クラス
 template <>
 struct HashFunc<SatLiteral>
 {
@@ -200,7 +224,7 @@ SatLiteral::set(SatVarId varid,
 // デフォルトコンストラクタ
 inline
 SatLiteral::SatLiteral() :
-  mBody(-2)
+  mBody(static_cast<ymuint>(-1) << 1)
 {
 }
 
@@ -259,17 +283,22 @@ SatLiteral::is_negative() const
   return static_cast<bool>(mBody & 1U);
 }
 
+// @brief 自身の極性を反転させる．
+// @return 自身の参照を返す．
+inline
+const SatLiteral&
+SatLiteral::negate()
+{
+  mBody ^= neg_mask();
+  return *this;
+}
+
 // 極性を反転させたリテラルを返す．
 inline
 SatLiteral
 SatLiteral::operator~() const
 {
-  if ( is_valid() ) {
-    return SatLiteral(mBody ^ 1U);
-  }
-  else {
-    return *this;
-  }
+  return SatLiteral(mBody ^ neg_mask());
 }
 
 // @brief 同じ変数の正極性リテラルを返す．
@@ -277,6 +306,7 @@ inline
 SatLiteral
 SatLiteral::make_positive() const
 {
+  // 不正な値の場合でもこれはOK
   return SatLiteral(mBody & ~1U);
 }
 
@@ -285,7 +315,7 @@ inline
 SatLiteral
 SatLiteral::make_negative() const
 {
-  return SatLiteral(mBody | 1U);
+  return SatLiteral(mBody | neg_mask());
 }
 
 // 等価比較
@@ -318,6 +348,16 @@ ymuint
 SatLiteral::index() const
 {
   return mBody;
+}
+
+// @brief 反転用のビットマスクを返す．
+//
+// 普通は 1U だが不正な値のときは 0U となる．
+inline
+ymuint
+SatLiteral::neg_mask() const
+{
+  return is_valid() ? 1U : 0U;
 }
 
 // @relates SatLiteral

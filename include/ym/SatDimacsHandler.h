@@ -18,6 +18,20 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 /// @class SatDimacsHandler SatDimacsHandler.h "ym/SatDimacsHandler.h"
 /// @brief SatSolver 用の DimacsHandler
+/// @ingroup SatGroup
+///
+/// 使い方．
+/// @code
+/// SatSolver solver();
+/// SatDimacsHandler handler(solver);
+/// DimacsParser parser;
+/// parser.add_handler(handler);
+///
+/// if ( parser.read(ido) ) {
+///    solver.solve(model);
+///    ...
+/// }
+/// @endcode
 //////////////////////////////////////////////////////////////////////
 class SatDimacsHandler :
   public DimacsHandler

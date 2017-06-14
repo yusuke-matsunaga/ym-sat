@@ -5,11 +5,11 @@
 /// @brief SatVarId の定義ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym_config.h"
+#include "ym/ym_sat.h"
 #include "ym/HashFunc.h"
 
 
@@ -30,10 +30,12 @@ class SatVarId
 public:
 
   /// @brief 空のコンストラクタ
-  /// @note 不正な値(kSatVarIdIllegal)になる．
+  ///
+  /// 不正な値(kSatVarIdIllegal)になる．
   SatVarId();
 
   /// @brief 値を指定したコンストラクタ
+  /// @param[in] val 値
   explicit
   SatVarId(ymuint val);
 
@@ -107,7 +109,7 @@ typedef list<SatVarId> SatVarList;
 
 
 //////////////////////////////////////////////////////////////////////
-// HashBase<SatVarId> 用のハッシュ関数
+/// @brief HashBase<SatVarId> 用のハッシュ関数
 //////////////////////////////////////////////////////////////////////
 template<>
 struct
@@ -137,7 +139,7 @@ const SatVarId kSatVarIdIllegal;
 // @brief 空のコンストラクタ
 inline
 SatVarId::SatVarId() :
-  mVal(-1)
+  mVal(static_cast<ymuint>(-1))
 {
 }
 
@@ -159,7 +161,7 @@ inline
 bool
 SatVarId::is_valid() const
 {
-  return mVal != -1;
+  return mVal != static_cast<ymuint>(-1);
 }
 
 // @brief 値を取り出す．
@@ -199,7 +201,7 @@ ostream&
 operator<<(ostream& s,
 	   const SatVarId& varid)
 {
-  return s << varid.val();
+  return s << "V" << varid.val();
 }
 
 END_NAMESPACE_YM

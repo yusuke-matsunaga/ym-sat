@@ -52,6 +52,8 @@ public:
   /// @param[in] nc 節の数
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
+  ///
+  /// p行を読み込んだときのアクションを定義する関数
   virtual
   bool
   read_p(const FileRegion& loc,
@@ -63,6 +65,8 @@ public:
   /// @param[in] lits リテラルの配列．最後の0は含まない
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
+  ///
+  /// 通常の1行(clause行)を読み込んだときのアクションを定義する関数
   virtual
   bool
   read_clause(const FileRegion& loc,
@@ -71,11 +75,15 @@ public:
   /// @brief 終了処理
   /// @retval true 処理が成功した．
   /// @retval false エラーが起こった．
+  ///
+  /// EOFを読み込んだときのアクションを定義する関数
   virtual
   bool
   end();
 
   /// @brief エラー終了時の処理
+  ///
+  /// エラー終了時のアクションを定義する関数
   virtual
   void
   error_exit();

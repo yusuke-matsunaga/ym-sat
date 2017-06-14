@@ -23,6 +23,11 @@ class DimacsParserImpl;
 /// @ingroup SatGroup
 /// @brief DIMACS形式の CNFファイルを読み込むパーサークラス
 /// @sa DimacsHandler
+///
+/// 使い方は DimacsHandler (の派生クラス)を add_handler() で登録しておいて
+/// read() で読み込む．
+/// 読み込み時のアクションは DimacsHandler の派生クラスの仮想関数として
+/// 定義しておく．
 //////////////////////////////////////////////////////////////////////
 class DimacsParser
 {

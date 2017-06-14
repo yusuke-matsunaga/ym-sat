@@ -18,6 +18,9 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 /// @class DimacsVerifier DimacsVerifier.h "ym/DimacsVerifier.h"
 /// @brief 検証用のDimacsHandler
+///
+/// 内部ですべての節を保存しておき，与えられたモデルが充足解になっている
+/// かどうかの検証を行えるようになっている．
 //////////////////////////////////////////////////////////////////////
 class DimacsVerifier :
   public DimacsHandler
