@@ -38,7 +38,7 @@ target_link_libraries ( SatVarIdTest
   ${GTEST_BOTH_LIBRARIES}
   )
 
-add_test ( SatSatVarIdTest
+add_test ( SatVarIdTest
   SatVarIdTest
   )
 
