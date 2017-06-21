@@ -87,7 +87,7 @@ CoreMgr::~CoreMgr()
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
 SatVarId
-CoreMgr::new_var(bool decision)
+CoreMgr::new_variable(bool decision)
 {
   if ( decision_level() != 0 ) {
     // エラー

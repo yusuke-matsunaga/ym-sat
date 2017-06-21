@@ -33,7 +33,7 @@ SatLogger::~SatLogger()
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
 void
-SatLogger::new_var(SatVarId id)
+SatLogger::new_variable(SatVarId id)
 {
 }
 

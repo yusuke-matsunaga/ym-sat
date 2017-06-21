@@ -94,9 +94,9 @@ SatSolver::~SatSolver()
 SatVarId
 SatSolver::new_variable(bool decision)
 {
-  SatVarId id = mImpl->new_var(decision);
+  SatVarId id = mImpl->new_variable(decision);
 
-  mLogger->new_var(id);
+  mLogger->new_variable(id);
 
   return id;
 }

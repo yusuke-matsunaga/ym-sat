@@ -40,9 +40,9 @@ YmSat::~YmSat()
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
 SatVarId
-YmSat::new_var(bool decision)
+YmSat::new_variable(bool decision)
 {
-  return mMgr.new_var(decision);
+  return mMgr.new_variable(decision);
 }
 
 // @brief 節を追加する．

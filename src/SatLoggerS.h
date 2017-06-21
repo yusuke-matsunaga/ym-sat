@@ -43,7 +43,7 @@ public:
   /// @note 変数番号は 0 から始まる．
   virtual
   void
-  new_var(SatVarId id);
+  new_variable(SatVarId id);
 
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ

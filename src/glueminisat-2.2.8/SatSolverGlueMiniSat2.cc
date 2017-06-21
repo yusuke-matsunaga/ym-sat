@@ -65,7 +65,7 @@ SatSolverGlueMiniSat2::sane() const
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
 SatVarId
-SatSolverGlueMiniSat2::new_var(bool decision)
+SatSolverGlueMiniSat2::new_variable(bool decision)
 {
   return SatVarId(mSolver.newVar(true, decision));
 }

@@ -107,7 +107,7 @@ public:
   /// 実際には変数番号を割り当てるだけで alloc_var()
   /// を呼ばれてはじめて実際の領域を確保する．
   SatVarId
-  new_var(bool decision);
+  new_variable(bool decision);
 
   /// @brief 変数に関する領域を実際に確保する．
   void

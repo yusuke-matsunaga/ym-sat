@@ -44,7 +44,7 @@ SatSolverMiniSat::sane() const
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
 SatVarId
-SatSolverMiniSat::new_var(bool decision)
+SatSolverMiniSat::new_variable(bool decision)
 {
   return SatVarId(mSolver.newVar());
 }

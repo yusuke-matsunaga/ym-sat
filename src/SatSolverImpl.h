@@ -45,7 +45,7 @@ public:
   /// @note 変数番号は 0 から始まる．
   virtual
   SatVarId
-  new_var(bool decition) = 0;
+  new_variable(bool decition) = 0;
 
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
