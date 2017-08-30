@@ -166,6 +166,20 @@ SatSolver::add_clause(SatLiteral lit1,
   mLogger->add_clause(lit1, lit2, lit3, lit4, lit5);
 }
 
+// @brief 6項の節を追加する．
+void
+SatSolver::add_clause(SatLiteral lit1,
+		      SatLiteral lit2,
+		      SatLiteral lit3,
+		      SatLiteral lit4,
+		      SatLiteral lit5,
+		      SatLiteral lit6)
+{
+  mImpl->add_clause(lit1, lit2, lit3, lit4, lit5, lit6);
+
+  mLogger->add_clause(lit1, lit2, lit3, lit4, lit5, lit6);
+}
+
 // @brief n入力ANDゲートの入出力の関係を表す条件を追加する．
 // @param[in] olit 出力のリテラル
 // @param[in] lit_list 入力のリテラルのリスト
@@ -412,6 +426,19 @@ SatSolverImpl::add_clause(SatLiteral lit1,
 {
   SatLiteral tmp_lits[5] = {lit1, lit2, lit3, lit4, lit5};
   add_clause(5, tmp_lits);
+}
+
+// @brief 6項の節を追加する．
+void
+SatSolverImpl::add_clause(SatLiteral lit1,
+			  SatLiteral lit2,
+			  SatLiteral lit3,
+			  SatLiteral lit4,
+			  SatLiteral lit5,
+			  SatLiteral lit6)
+{
+  SatLiteral tmp_lits[6] = {lit1, lit2, lit3, lit4, lit5, lit6};
+  add_clause(6, tmp_lits);
 }
 
 END_NAMESPACE_YM_SAT

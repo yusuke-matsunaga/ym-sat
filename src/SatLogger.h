@@ -84,6 +84,16 @@ public:
 	     SatLiteral lit4,
 	     SatLiteral lit5);
 
+  /// @brief 6項の節を追加する．
+  virtual
+  void
+  add_clause(SatLiteral lit1,
+	     SatLiteral lit2,
+	     SatLiteral lit3,
+	     SatLiteral lit4,
+	     SatLiteral lit5,
+	     SatLiteral lit6);
+
   /// @brief assumption 付きの SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
   /// @param[out] model 充足するときの値の割り当てを格納する配列．

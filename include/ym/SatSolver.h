@@ -96,6 +96,15 @@ public:
 	     SatLiteral lit4,
 	     SatLiteral lit5);
 
+  /// @brief 6項の節を追加する．
+  void
+  add_clause(SatLiteral lit1,
+	     SatLiteral lit2,
+	     SatLiteral lit3,
+	     SatLiteral lit4,
+	     SatLiteral lit5,
+	     SatLiteral lit6);
+
   /// @brief 2つのリテラルが等しいという条件を追加する．
   /// @param[in] lit1, lit2 対象のリテラル
   ///

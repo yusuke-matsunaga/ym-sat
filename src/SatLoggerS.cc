@@ -120,6 +120,25 @@ SatLoggerS::add_clause(SatLiteral lit1,
   *mS << endl;
 }
 
+// @brief 6項の節を追加する．
+void
+SatLoggerS::add_clause(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3,
+		       SatLiteral lit4,
+		       SatLiteral lit5,
+		       SatLiteral lit6)
+{
+  *mS << "A";
+  put_lit(lit1);
+  put_lit(lit2);
+  put_lit(lit3);
+  put_lit(lit4);
+  put_lit(lit5);
+  put_lit(lit6);
+  *mS << endl;
+}
+
 // @brief assumption 付きの SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
