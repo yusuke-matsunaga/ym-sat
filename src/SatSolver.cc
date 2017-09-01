@@ -125,7 +125,9 @@ void
 SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit2)
 {
-  mImpl->add_clause(lit1, lit2);
+  SatLiteral tmp_lits[] = {lit1, lit2};
+
+  mImpl->add_clause(2, tmp_lits);
 
   mLogger->add_clause(lit1, lit2);
 }
@@ -136,7 +138,9 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit2,
 		      SatLiteral lit3)
 {
-  mImpl->add_clause(lit1, lit2, lit3);
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3};
+
+  mImpl->add_clause(3, tmp_lits);
 
   mLogger->add_clause(lit1, lit2, lit3);
 }
@@ -148,7 +152,9 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit3,
 		      SatLiteral lit4)
 {
-  mImpl->add_clause(lit1, lit2, lit3, lit4);
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3, lit4};
+
+  mImpl->add_clause(4, tmp_lits);
 
   mLogger->add_clause(lit1, lit2, lit3, lit4);
 }
@@ -161,7 +167,9 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit4,
 		      SatLiteral lit5)
 {
-  mImpl->add_clause(lit1, lit2, lit3, lit4, lit5);
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3, lit4, lit5};
+
+  mImpl->add_clause(5, tmp_lits);
 
   mLogger->add_clause(lit1, lit2, lit3, lit4, lit5);
 }
@@ -175,7 +183,9 @@ SatSolver::add_clause(SatLiteral lit1,
 		      SatLiteral lit5,
 		      SatLiteral lit6)
 {
-  mImpl->add_clause(lit1, lit2, lit3, lit4, lit5, lit6);
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3, lit4, lit5, lit6};
+
+  mImpl->add_clause(6, tmp_lits);
 
   mLogger->add_clause(lit1, lit2, lit3, lit4, lit5, lit6);
 }
@@ -276,6 +286,96 @@ SatSolver::add_at_least_k(const vector<SatLiteral>& lit_list,
   }
 }
 
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit_lit 入力のリテラルのリスト
+void
+SatSolver::add_not_one(const vector<SatLiteral>& lit_list)
+{
+  ymuint n = lit_list.size();
+  for (ymuint i = 0; i < n; ++ i) {
+    vector<SatLiteral> tmp_lits(n);
+    for (ymuint j = 0; j < n; ++ j) {
+      if ( j == i ) {
+	tmp_lits[j] = ~lit_list[j];
+      }
+      else {
+	tmp_lits[j] =  lit_list[j];
+      }
+    }
+    add_clause(tmp_lits);
+  }
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2 入力のリテラル
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2)
+{
+  add_clause( lit1, ~lit2);
+  add_clause(~lit1,  lit2);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2, lit3 入力のリテラル
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3)
+{
+  add_clause( lit1,  lit2, ~lit3);
+  add_clause( lit1, ~lit2,  lit3);
+  add_clause(~lit1,  lit2,  lit3);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4 入力のリテラル
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3,
+		       SatLiteral lit4)
+{
+  add_clause( lit1,  lit2,  lit3, ~lit4);
+  add_clause( lit1,  lit2, ~lit3,  lit4);
+  add_clause( lit1, ~lit2,  lit3,  lit4);
+  add_clause(~lit1,  lit2,  lit3,  lit4);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4, lit5 入力のリテラル
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3,
+		       SatLiteral lit4,
+		       SatLiteral lit5)
+{
+  add_clause( lit1,  lit2,  lit3,  lit4, ~lit5);
+  add_clause( lit1,  lit2,  lit3, ~lit4,  lit5);
+  add_clause( lit1,  lit2, ~lit3,  lit4,  lit5);
+  add_clause( lit1, ~lit2,  lit3,  lit4,  lit5);
+  add_clause(~lit1,  lit2,  lit3,  lit4,  lit5);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4, lit5, lit6 入力のリテラル
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3,
+		       SatLiteral lit4,
+		       SatLiteral lit5,
+		       SatLiteral lit6)
+{
+  add_clause( lit1,  lit2,  lit3,  lit4,  lit5, ~lit6);
+  add_clause( lit1,  lit2,  lit3,  lit4, ~lit5,  lit6);
+  add_clause( lit1,  lit2,  lit3, ~lit4,  lit5,  lit6);
+  add_clause( lit1,  lit2, ~lit3,  lit4,  lit5,  lit6);
+  add_clause( lit1, ~lit2,  lit3,  lit4,  lit5,  lit6);
+  add_clause(~lit1,  lit2,  lit3,  lit4,  lit5,  lit6);
+}
+
 // @brief assumption 付きの SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
@@ -369,76 +469,6 @@ void
 SatSolver::timer_on(bool enable)
 {
   mImpl->timer_on(enable);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス SatSolverImpl
-//
-// ここでは add_clause() のバリエーションのデフォルト実装を
-// 提供している．
-//////////////////////////////////////////////////////////////////////
-
-// @brief 1項の節を追加する．
-void
-SatSolverImpl::add_clause(SatLiteral lit1)
-{
-  add_clause(1, &lit1);
-}
-
-// @brief 2項の節を追加する．
-void
-SatSolverImpl::add_clause(SatLiteral lit1,
-			  SatLiteral lit2)
-{
-  SatLiteral tmp_lits[2] = {lit1, lit2};
-  add_clause(2, tmp_lits);
-}
-
-// @brief 3項の節を追加する．
-void
-SatSolverImpl::add_clause(SatLiteral lit1,
-			  SatLiteral lit2,
-			  SatLiteral lit3)
-{
-  SatLiteral tmp_lits[3] = {lit1, lit2, lit3};
-  add_clause(3, tmp_lits);
-}
-
-// @brief 4項の節を追加する．
-void
-SatSolverImpl::add_clause(SatLiteral lit1,
-			  SatLiteral lit2,
-			  SatLiteral lit3,
-			  SatLiteral lit4)
-{
-  SatLiteral tmp_lits[4] = {lit1, lit2, lit3, lit4};
-  add_clause(4, tmp_lits);
-}
-
-// @brief 5項の節を追加する．
-void
-SatSolverImpl::add_clause(SatLiteral lit1,
-			  SatLiteral lit2,
-			  SatLiteral lit3,
-			  SatLiteral lit4,
-			  SatLiteral lit5)
-{
-  SatLiteral tmp_lits[5] = {lit1, lit2, lit3, lit4, lit5};
-  add_clause(5, tmp_lits);
-}
-
-// @brief 6項の節を追加する．
-void
-SatSolverImpl::add_clause(SatLiteral lit1,
-			  SatLiteral lit2,
-			  SatLiteral lit3,
-			  SatLiteral lit4,
-			  SatLiteral lit5,
-			  SatLiteral lit6)
-{
-  SatLiteral tmp_lits[6] = {lit1, lit2, lit3, lit4, lit5, lit6};
-  add_clause(6, tmp_lits);
 }
 
 END_NAMESPACE_YM_SAT

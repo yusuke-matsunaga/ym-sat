@@ -101,30 +101,6 @@ SatSolverGlueMiniSat2::add_clause(ymuint lit_num,
   mSolver.addClause_(tmp);
 }
 
-// @brief 1項の節(リテラル)を追加する．
-void
-SatSolverGlueMiniSat2::add_clause(SatLiteral lit1)
-{
-  mSolver.addClause(literal2lit(lit1));
-}
-
-// @brief 2項の節を追加する．
-void
-SatSolverGlueMiniSat2::add_clause(SatLiteral lit1,
-				  SatLiteral lit2)
-{
-  mSolver.addClause(literal2lit(lit1), literal2lit(lit2));
-}
-
-// @brief 3項の節を追加する．
-void
-SatSolverGlueMiniSat2::add_clause(SatLiteral lit1,
-				  SatLiteral lit2,
-				  SatLiteral lit3)
-{
-  mSolver.addClause(literal2lit(lit1), literal2lit(lit2), literal2lit(lit3));
-}
-
 // @brief SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．

@@ -61,51 +61,6 @@ public:
   add_clause(ymuint lit_num,
 	     const SatLiteral* lits) = 0;
 
-  /// @brief 1項の節(リテラル)を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1);
-
-  /// @brief 2項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2);
-
-  /// @brief 3項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3);
-
-  /// @brief 4項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3,
-	     SatLiteral lit4);
-
-  /// @brief 5項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3,
-	     SatLiteral lit4,
-	     SatLiteral lit5);
-
-  /// @brief 6項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3,
-	     SatLiteral lit4,
-	     SatLiteral lit5,
-	     SatLiteral lit6);
-
   /// @brief SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
   /// @param[out] model 充足するときの値の割り当てを格納する配列．
