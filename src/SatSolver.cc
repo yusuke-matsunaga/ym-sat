@@ -241,6 +241,24 @@ SatSolver::add_at_most_one(const vector<SatLiteral>& lit_list)
   }
 }
 
+// @brief 与えられたリテラルのうち2つしか true にならない条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+void
+SatSolver::add_at_most_two(const vector<SatLiteral>& lit_list)
+{
+  ymuint n = lit_list.size();
+  for (ymuint i1 = 0; i1 < n - 1; ++ i1) {
+    SatLiteral lit1 = lit_list[i1];
+    for (ymuint i2 = i1 + 1; i2 < n; ++ i2) {
+      SatLiteral lit2 = lit_list[i2];
+      for (ymuint i3 = i2 + 1; i3 < n; ++ i3) {
+	SatLiteral lit3 = lit_list[i3];
+	add_clause(~lit1, ~lit2, ~lit3);
+      }
+    }
+  }
+}
+
 // @brief 与えられたリテラルのうちk個しか true にならない条件を追加する．
 // @param[in] lit_list 入力のリテラルのリスト
 // @param[in] k しきい値
@@ -260,6 +278,24 @@ SatSolver::add_at_most_k(const vector<SatLiteral>& lit_list,
       tmp_lits[i] = ~lit_list[cg(i)];
     }
     add_clause(tmp_lits);
+  }
+}
+
+// @brief 与えられたリテラルのうち2つ以上は true になる条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+void
+SatSolver::add_at_least_two(const vector<SatLiteral>& lit_list)
+{
+  ymuint n = lit_list.size();
+  for (ymuint i1 = 0; i1 < n - 1; ++ i1) {
+    SatLiteral lit1 = lit_list[i1];
+    for (ymuint i2 = i1 + 1; i2 < n; ++ i2) {
+      SatLiteral lit2 = lit_list[i2];
+      for (ymuint i3 = i2 + 1; i3 < n; ++ i3) {
+	SatLiteral lit3 = lit_list[i3];
+	add_clause( lit1,  lit2,  lit3);
+      }
+    }
   }
 }
 
