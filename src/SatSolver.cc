@@ -226,6 +226,38 @@ SatSolver::add_orgate_rel(SatLiteral olit,
   add_clause(tmp_lits);
 }
 
+// @brief n入力XORゲートの入出力の関係を表す条件を追加する．
+// @param[in] olit 出力のリテラル
+// @param[in] lit_list 入力のリテラルのリスト
+void
+SatSolver::add_xorgate_rel(SatLiteral olit,
+			   const vector<SatLiteral> lit_list)
+{
+  ymuint n = lit_list.size();
+  ymuint n_exp = 1 << n;
+  vector<SatLiteral> tmp_lits(n + 1);
+  for (ymuint p = 0; p < n_exp; ++ p) {
+    ymuint c = 0;
+    for (ymuint i = 0; i < n; ++ i) {
+      SatLiteral ilit = lit_list[i];
+      if ( p & (1 << i) ) {
+	tmp_lits[i] =  ilit;
+	++ c;
+      }
+      else {
+	tmp_lits[i] = ~ilit;
+      }
+    }
+    if ( (c % 2) == 1 ) {
+      tmp_lits[n] =  olit;
+    }
+    else {
+      tmp_lits[n] = ~olit;
+    }
+    add_clause(tmp_lits);
+  }
+}
+
 // @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
 // @param[in] lit_list 入力のリテラルのリスト
 void
@@ -287,15 +319,17 @@ void
 SatSolver::add_at_least_two(const vector<SatLiteral>& lit_list)
 {
   ymuint n = lit_list.size();
-  for (ymuint i1 = 0; i1 < n - 1; ++ i1) {
-    SatLiteral lit1 = lit_list[i1];
-    for (ymuint i2 = i1 + 1; i2 < n; ++ i2) {
-      SatLiteral lit2 = lit_list[i2];
-      for (ymuint i3 = i2 + 1; i3 < n; ++ i3) {
-	SatLiteral lit3 = lit_list[i3];
-	add_clause( lit1,  lit2,  lit3);
+  vector<SatLiteral> tmp_lits;
+  tmp_lits.reserve(n - 1);
+  for (ymuint i = 0; i < n; ++ i) {
+    tmp_lits.clear();
+    for (ymuint j = 0; j < n; ++ j) {
+      SatLiteral lit = lit_list[j];
+      if ( i != j ) {
+	tmp_lits.push_back(lit);
       }
     }
+    add_clause(tmp_lits);
   }
 }
 

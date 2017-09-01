@@ -284,6 +284,13 @@ public:
 		  SatLiteral lit3,
 		  SatLiteral lit4);
 
+  /// @brief n入力XORゲートの入出力の関係を表す条件を追加する．
+  /// @param[in] olit 出力のリテラル
+  /// @param[in] lit_list 入力のリテラルのリスト
+  void
+  add_xorgate_rel(SatLiteral olit,
+		  const vector<SatLiteral> lit_list);
+
   /// @brief 2入力XNORゲートの入出力の関係を表す条件を追加する．
   /// @param[in] olit 出力のリテラル
   /// @param[in] lit1, lit2 入力のリテラル
@@ -310,6 +317,13 @@ public:
 		   SatLiteral lit2,
 		   SatLiteral lit3,
 		   SatLiteral lit4);
+
+  /// @brief n入力XNORゲートの入出力の関係を表す条件を追加する．
+  /// @param[in] olit 出力のリテラル
+  /// @param[in] lit_list 入力のリテラルのリスト
+  void
+  add_xnorgate_rel(SatLiteral olit,
+		   const vector<SatLiteral> lit_list);
 
   /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
@@ -506,11 +520,6 @@ public:
 		 ymuint k);
 
   /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
-  /// @param[in] lit_lit 入力のリテラルのリスト
-  void
-  add_not_one(const vector<SatLiteral>& lit_list);
-
-  /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
   void
   add_not_one(SatLiteral lit1,
@@ -549,6 +558,11 @@ public:
 	      SatLiteral lit4,
 	      SatLiteral lit5,
 	      SatLiteral lit6);
+
+  /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+  /// @param[in] lit_lit 入力のリテラルのリスト
+  void
+  add_not_one(const vector<SatLiteral>& lit_list);
 
 
   //////////////////////////////////////////////////////////////////////
@@ -1004,6 +1018,17 @@ SatSolver::add_xnorgate_rel(SatLiteral olit,
   add_xorgate_rel(~olit, lit1, lit2, lit3, lit4);
 }
 
+// @brief n入力XNORゲートの入出力の関係を表す条件を追加する．
+// @param[in] olit 出力のリテラル
+// @param[in] lit_list 入力のリテラルのリスト
+inline
+void
+SatSolver::add_xnorgate_rel(SatLiteral olit,
+			    const vector<SatLiteral> lit_list)
+{
+  add_xorgate_rel(~olit, lit_list);
+}
+
 // @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
 // @param[in] lit1, lit2 入力のリテラル
 inline
@@ -1288,12 +1313,11 @@ SatSolver::add_at_least_two(SatLiteral lit1,
 			    SatLiteral lit3,
 			    SatLiteral lit4)
 {
-  add_clause( lit1,  lit2              );
-  add_clause( lit1,         lit3       );
-  add_clause( lit1,                lit4);
-  add_clause(        lit2,  lit3       );
-  add_clause(        lit2,         lit4);
-  add_clause(               lit3,  lit4);
+  // 3つ以上が False にならない．
+  add_clause( lit1,  lit2,  lit3       );
+  add_clause( lit1,  lit2,         lit4);
+  add_clause( lit1,         lit3,  lit4);
+  add_clause(        lit2,  lit3,  lit4);
 }
 
 // @brief 与えられたリテラルのうち2つ以上が true になる条件を追加する．
@@ -1306,16 +1330,12 @@ SatSolver::add_at_least_two(SatLiteral lit1,
 			    SatLiteral lit4,
 			    SatLiteral lit5)
 {
-  add_clause( lit1,  lit2,  lit3              );
-  add_clause( lit1,  lit2,         lit4       );
-  add_clause( lit1,  lit2,                lit5);
-  add_clause( lit1,         lit3,  lit4       );
-  add_clause( lit1,         lit3,         lit5);
-  add_clause( lit1,                lit4,  lit5);
-  add_clause(        lit2,  lit3,  lit4       );
-  add_clause(        lit2,  lit3,         lit5);
-  add_clause(        lit2,         lit4,  lit5);
-  add_clause(               lit3,  lit4,  lit5);
+  // 4つ以上が False にならない．
+  add_clause( lit1,  lit2,  lit3,  lit4       );
+  add_clause( lit1,  lit2,  lit3,         lit5);
+  add_clause( lit1,  lit2,         lit4,  lit5);
+  add_clause( lit1,         lit3,  lit4,  lit5);
+  add_clause(        lit2,  lit3,  lit4,  lit5);
 }
 
 // @brief 与えられたリテラルのうち2つ以上が true になる条件を追加する．
@@ -1329,26 +1349,13 @@ SatSolver::add_at_least_two(SatLiteral lit1,
 			    SatLiteral lit5,
 			    SatLiteral lit6)
 {
-  add_clause( lit1,  lit2,  lit3                     );
-  add_clause( lit1,  lit2,         lit4              );
-  add_clause( lit1,  lit2,                lit5       );
-  add_clause( lit1,  lit2,                       lit6);
-  add_clause( lit1,         lit3,  lit4              );
-  add_clause( lit1,         lit3,         lit5       );
-  add_clause( lit1,         lit3,                lit6);
-  add_clause( lit1,                lit4,  lit5       );
-  add_clause( lit1,                lit4,         lit6);
-  add_clause( lit1,                       lit5,  lit6);
-  add_clause(        lit2,  lit3,  lit4              );
-  add_clause(        lit2,  lit3,         lit5       );
-  add_clause(        lit2,  lit3,                lit6);
-  add_clause(        lit2,         lit4,  lit5       );
-  add_clause(        lit2,         lit4,         lit6);
-  add_clause(        lit2,                lit5,  lit6);
-  add_clause(               lit3,  lit4,  lit5       );
-  add_clause(               lit3,  lit4,         lit6);
-  add_clause(               lit3,         lit5,  lit6);
-  add_clause(                      lit4,  lit5,  lit6);
+  // 5つ以上が False にならない．
+  add_clause( lit1,  lit2,  lit3,  lit4,  lit5       );
+  add_clause( lit1,  lit2,  lit3,  lit4,         lit6);
+  add_clause( lit1,  lit2,  lit3,         lit5,  lit6);
+  add_clause( lit1,  lit2,         lit4,  lit5,  lit6);
+  add_clause( lit1,         lit3,  lit4,  lit5,  lit6);
+  add_clause(        lit2,  lit3,  lit4,  lit5,  lit6);
 }
 
 // @brief SAT 問題を解く．
