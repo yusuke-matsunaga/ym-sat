@@ -119,6 +119,18 @@ public:
   // 節の追加に関する関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 条件リテラルのリストを設定する．
+  /// @param[in] lits リテラルのベクタ
+  void
+  set_conditional_literals(const vector<SatLiteral>& lits);
+
+  /// @brief 条件リテラルのリストを設定する．
+  /// @param[in] lit_num リテラル数
+  /// @param[in] lits リテラルの配列
+  void
+  set_conditional_literals(ymuint lit_num,
+			   const SatLiteral* lits);
+
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   void
@@ -130,41 +142,6 @@ public:
   void
   add_clause(ymuint lit_num,
 	     const SatLiteral* lits);
-
-  /// @brief 1項の節(リテラル)を追加する．
-  /// @param[in] lit1 追加するリテラル
-  void
-  add_clause(SatLiteral lit1);
-
-  /// @brief 2項の節を追加する．
-  /// @param[in] lit1, lit2 追加するリテラル
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2);
-
-  /// @brief 3項の節を追加する．
-  /// @param[in] lit1, lit2, lit3 追加するリテラル
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3);
-
-  /// @brief 4項の節を追加する．
-  /// @param[in] lit1, lit2, lit3, lit4 追加するリテラル
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3,
-	     SatLiteral lit4);
-
-  /// @brief 5項の節を追加する．
-  /// @param[in] lit1, lit2, lit3, lit4, lit5 追加するリテラル
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3,
-	     SatLiteral lit4,
-	     SatLiteral lit5);
 
   /// @brief 学習節を追加する．
   /// @param[in] lits 追加するリテラルのリスト
@@ -643,6 +620,9 @@ private:
 
   // 正常の時に true となっているフラグ
   bool mSane;
+
+  // 条件リテラルのリスト
+  vector<SatLiteral> mCondLits;
 
   // 制約節の配列
   vector<SatClause*> mConstrClauseList;

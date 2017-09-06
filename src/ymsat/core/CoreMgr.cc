@@ -181,17 +181,48 @@ CoreMgr::expand_var()
   mAssignList.reserve(mVarNum);
 }
 
+// @brief 条件リテラルのリストを設定する．
+// @param[in] lits リテラルのベクタ
+void
+CoreMgr::set_conditional_literals(const vector<SatLiteral>& lits)
+{
+  ymuint lit_num = lits.size();
+  mCondLits.clear();
+  mCondLits.resize(lit_num);
+  for (ymuint i = 0; i < lit_num; ++ i) {
+    mCondLits[i] = lits[i];
+  }
+}
+
+// @brief 条件リテラルのリストを設定する．
+// @param[in] lit_num リテラル数
+// @param[in] lits リテラルの配列
+void
+CoreMgr::set_conditional_literals(ymuint lit_num,
+				  const SatLiteral* lits)
+{
+  mCondLits.clear();
+  mCondLits.resize(lit_num);
+  for (ymuint i = 0; i < lit_num; ++ i) {
+    mCondLits[i] = lits[i];
+  }
+}
+
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
 CoreMgr::add_clause(const vector<SatLiteral>& lits)
 {
-  ymuint n = lits.size();
-  alloc_lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  ymuint lit_num = lits.size();
+  ymuint n2 = mCondLits.size();
+  alloc_lits(lit_num + n2);
+  for (ymuint i = 0; i < lit_num; ++ i) {
     mTmpLits[i] = lits[i];
   }
-  add_clause_sub(n);
+  for (ymuint i = 0; i < n2; ++ i) {
+    mTmpLits[lit_num + i] = ~mCondLits[i];
+  }
+  add_clause_sub(lit_num + n2);
 }
 
 // @brief 節を追加する．
@@ -199,88 +230,17 @@ CoreMgr::add_clause(const vector<SatLiteral>& lits)
 // @param[in] lits リテラルの配列
 void
 CoreMgr::add_clause(ymuint lit_num,
-		   const SatLiteral* lits)
+		    const SatLiteral* lits)
 {
-  alloc_lits(lit_num);
+  ymuint n2 = mCondLits.size();
+  alloc_lits(lit_num + n2);
   for (ymuint i = 0; i < lit_num; ++ i) {
     mTmpLits[i] = lits[i];
   }
-  add_clause_sub(lit_num);
-}
-
-// @brief 1項の節(リテラル)を追加する．
-void
-CoreMgr::add_clause(SatLiteral lit1)
-{
-  alloc_lits(1);
-  mTmpLits[0] = lit1;
-
-  // 節を追加する本体
-  add_clause_sub(1);
-}
-
-// @brief 2項の節を追加する．
-void
-CoreMgr::add_clause(SatLiteral lit1,
-		   SatLiteral lit2)
-{
-  alloc_lits(2);
-  mTmpLits[0] = lit1;
-  mTmpLits[1] = lit2;
-
-  // 節を追加する本体
-  add_clause_sub(2);
-}
-
-// @brief 3項の節を追加する．
-void
-CoreMgr::add_clause(SatLiteral lit1,
-		   SatLiteral lit2,
-		   SatLiteral lit3)
-{
-  alloc_lits(3);
-  mTmpLits[0] = lit1;
-  mTmpLits[1] = lit2;
-  mTmpLits[2] = lit3;
-
-  // 節を追加する本体
-  add_clause_sub(3);
-}
-
-// @brief 4項の節を追加する．
-void
-CoreMgr::add_clause(SatLiteral lit1,
-		   SatLiteral lit2,
-		   SatLiteral lit3,
-		   SatLiteral lit4)
-{
-  alloc_lits(4);
-  mTmpLits[0] = lit1;
-  mTmpLits[1] = lit2;
-  mTmpLits[2] = lit3;
-  mTmpLits[3] = lit4;
-
-  // 節を追加する本体
-  add_clause_sub(4);
-}
-
-// @brief 5項の節を追加する．
-void
-CoreMgr::add_clause(SatLiteral lit1,
-		   SatLiteral lit2,
-		   SatLiteral lit3,
-		   SatLiteral lit4,
-		   SatLiteral lit5)
-{
-  alloc_lits(5);
-  mTmpLits[0] = lit1;
-  mTmpLits[1] = lit2;
-  mTmpLits[2] = lit3;
-  mTmpLits[3] = lit4;
-  mTmpLits[4] = lit5;
-
-  // 節を追加する本体
-  add_clause_sub(5);
+  for (ymuint i = 0; i < n2; ++ i) {
+    mTmpLits[lit_num + i] = ~mCondLits[i];
+  }
+  add_clause_sub(lit_num + n2);
 }
 
 // @brief add_clause() の下請け関数

@@ -45,56 +45,33 @@ public:
   void
   new_variable(SatVarId id);
 
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] lits リテラルのベクタ
+  virtual
+  void
+  set_conditional_literals(const vector<SatLiteral>& lits);
+
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] n_lits リテラル数
+  /// @param[in] lits リテラルの配列
+  virtual
+  void
+  set_conditional_literals(ymuint n_lits,
+			   const SatLiteral* lits);
+
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   virtual
   void
   add_clause(const vector<SatLiteral>& lits);
 
-  /// @brief 1項の節(リテラル)を追加する．
+  /// @brief 節を追加する．
+  /// @param[in] n_lits リテラル数
+  /// @param[in] lits リテラルの配列
   virtual
   void
-  add_clause(SatLiteral lit1);
-
-  /// @brief 2項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2);
-
-  /// @brief 3項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3);
-
-  /// @brief 4項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3,
-	     SatLiteral lit4);
-
-  /// @brief 5項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3,
-	     SatLiteral lit4,
-	     SatLiteral lit5);
-
-  /// @brief 6項の節を追加する．
-  virtual
-  void
-  add_clause(SatLiteral lit1,
-	     SatLiteral lit2,
-	     SatLiteral lit3,
-	     SatLiteral lit4,
-	     SatLiteral lit5,
-	     SatLiteral lit6);
+  add_clause(ymuint n_lits,
+	     const SatLiteral* lits);
 
   /// @brief assumption 付きの SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
@@ -127,6 +104,9 @@ private:
 
   // 出力先のストリーム
   ostream* mS;
+
+  // 条件リテラルのリスト
+  vector<SatLiteral> mCondLits;
 
 };
 

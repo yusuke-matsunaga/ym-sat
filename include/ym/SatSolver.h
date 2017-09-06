@@ -5,7 +5,7 @@
 /// @brief SatSolver のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -23,6 +23,8 @@ class SatLogger;
 /// @class SatSolver SatSolver.h "ym/SatSolver.h"
 /// @ingroup SatGroup
 /// @brief CNF-SAT エンジンのインターフェイスを表すクラス
+///
+/// 実際の処理は SatSolverImpl (の継承クラス)が行う．
 //////////////////////////////////////////////////////////////////////
 class SatSolver
 {
@@ -61,27 +63,81 @@ public:
   SatVarId
   new_variable(bool decision = true);
 
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] lit_list 条件リテラルのリスト
+  ///
+  /// 以降の add_clause() にはこのリテラルの否定が追加される．
+  /// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+  void
+  set_conditional_literals(const vector<SatLiteral>& lit_list);
+
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] lit1 条件リテラル
+  ///
+  /// 以降の add_clause() にはこのリテラルの否定が追加される．
+  /// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+  void
+  set_conditional_literals(SatLiteral lit1);
+
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] lit1, lit2 条件リテラル
+  ///
+  /// 以降の add_clause() にはこのリテラルの否定が追加される．
+  /// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+  void
+  set_conditional_literals(SatLiteral lit1,
+			   SatLiteral lit2);
+
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] lit1, lit2, lit3 条件リテラル
+  ///
+  /// 以降の add_clause() にはこのリテラルの否定が追加される．
+  /// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+  void
+  set_conditional_literals(SatLiteral lit1,
+			   SatLiteral lit2,
+			   SatLiteral lit3);
+
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] lit1, lit2, lit3, lit4 条件リテラル
+  ///
+  /// 以降の add_clause() にはこのリテラルの否定が追加される．
+  /// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+  void
+  set_conditional_literals(SatLiteral lit1,
+			   SatLiteral lit2,
+			   SatLiteral lit3,
+			   SatLiteral lit4);
+
+  /// @brief 条件リテラルをクリアする．
+  void
+  clear_conditional_literals();
+
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   void
   add_clause(const vector<SatLiteral>& lits);
 
   /// @brief 1項の節(リテラル)を追加する．
+  /// @param[in] lit リテラル
   void
   add_clause(SatLiteral lit1);
 
   /// @brief 2項の節を追加する．
+  /// @param[in] lit1, lit2 リテラル
   void
   add_clause(SatLiteral lit1,
 	     SatLiteral lit2);
 
   /// @brief 3項の節を追加する．
+  /// @param[in] lit1, lit2, lit3 リテラル
   void
   add_clause(SatLiteral lit1,
 	     SatLiteral lit2,
 	     SatLiteral lit3);
 
   /// @brief 4項の節を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4 リテラル
   void
   add_clause(SatLiteral lit1,
 	     SatLiteral lit2,
@@ -89,6 +145,7 @@ public:
 	     SatLiteral lit4);
 
   /// @brief 5項の節を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4, lit5 リテラル
   void
   add_clause(SatLiteral lit1,
 	     SatLiteral lit2,
@@ -97,6 +154,7 @@ public:
 	     SatLiteral lit5);
 
   /// @brief 6項の節を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4, lit5, lit6 リテラル
   void
   add_clause(SatLiteral lit1,
 	     SatLiteral lit2,
@@ -519,6 +577,103 @@ public:
   add_at_least_k(const vector<SatLiteral>& lit_list,
 		 ymuint k);
 
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  /// @param[in] lit1, lit2 入力のリテラル
+  void
+  add_exact_one(SatLiteral lit1,
+		SatLiteral lit2);
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  /// @param[in] lit1, lit2, lit3 入力のリテラル
+  void
+  add_exact_one(SatLiteral lit1,
+		SatLiteral lit2,
+		SatLiteral lit3);
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4 入力のリテラル
+  void
+  add_exact_one(SatLiteral lit1,
+		SatLiteral lit2,
+		SatLiteral lit3,
+		SatLiteral lit4);
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4, lit5 入力のリテラル
+  void
+  add_exact_one(SatLiteral lit1,
+		SatLiteral lit2,
+		SatLiteral lit3,
+		SatLiteral lit4,
+		SatLiteral lit5);
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4, lit5, lit6 入力のリテラル
+  void
+  add_exact_one(SatLiteral lit1,
+		SatLiteral lit2,
+		SatLiteral lit3,
+		SatLiteral lit4,
+		SatLiteral lit5,
+		SatLiteral lit6);
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  /// @param[in] lit_list 入力のリテラルのリスト
+  void
+  add_exact_one(const vector<SatLiteral>& lit_list);
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  /// @param[in] lit1, lit2 入力のリテラル
+  void
+  add_exact_two(SatLiteral lit1,
+		SatLiteral lit2);
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  /// @param[in] lit1, lit2, lit3 入力のリテラル
+  void
+  add_exact_two(SatLiteral lit1,
+		SatLiteral lit2,
+		SatLiteral lit3);
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4 入力のリテラル
+  void
+  add_exact_two(SatLiteral lit1,
+		SatLiteral lit2,
+		SatLiteral lit3,
+		SatLiteral lit4);
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4, lit5 入力のリテラル
+  void
+  add_exact_two(SatLiteral lit1,
+		SatLiteral lit2,
+		SatLiteral lit3,
+		SatLiteral lit4,
+		SatLiteral lit5);
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  /// @param[in] lit1, lit2, lit3, lit4, lit5, lit6 入力のリテラル
+  void
+  add_exact_two(SatLiteral lit1,
+		SatLiteral lit2,
+		SatLiteral lit3,
+		SatLiteral lit4,
+		SatLiteral lit5,
+		SatLiteral lit6);
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  /// @param[in] lit_list 入力のリテラルのリスト
+  void
+  add_exact_two(const vector<SatLiteral>& lit_list);
+
+  /// @brief 与えられたリテラルのうち厳密にk個が true になる条件を追加する．
+  /// @param[in] lit_list 入力のリテラルのリスト
+  /// @param[in] k しきい値
+  void
+  add_exact_k(const vector<SatLiteral>& lit_list,
+	      ymuint k);
+
   /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
   void
@@ -563,7 +718,6 @@ public:
   /// @param[in] lit_lit 入力のリテラルのリスト
   void
   add_not_one(const vector<SatLiteral>& lit_list);
-
 
   //////////////////////////////////////////////////////////////////////
   /// @}
@@ -686,6 +840,9 @@ private:
 
   // ロガー
   SatLogger* mLogger;
+
+  // 条件リテラル
+  vector<SatLiteral> mConditionalLits;
 
 };
 
@@ -1356,6 +1513,243 @@ SatSolver::add_at_least_two(SatLiteral lit1,
   add_clause( lit1,  lit2,         lit4,  lit5,  lit6);
   add_clause( lit1,         lit3,  lit4,  lit5,  lit6);
   add_clause(        lit2,  lit3,  lit4,  lit5,  lit6);
+}
+
+// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+// @param[in] lit1, lit2 入力のリテラル
+inline
+void
+SatSolver::add_exact_one(SatLiteral lit1,
+			 SatLiteral lit2)
+{
+  add_at_most_one(lit1, lit2);
+  add_at_least_one(lit1, lit2);
+}
+
+// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+// @param[in] lit1, lit2, lit3 入力のリテラル
+inline
+void
+SatSolver::add_exact_one(SatLiteral lit1,
+			 SatLiteral lit2,
+			 SatLiteral lit3)
+{
+  add_at_most_one(lit1, lit2, lit3);
+  add_at_least_one(lit1, lit2, lit3);
+}
+
+// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4 入力のリテラル
+inline
+void
+SatSolver::add_exact_one(SatLiteral lit1,
+			 SatLiteral lit2,
+			 SatLiteral lit3,
+			 SatLiteral lit4)
+{
+  add_at_most_one(lit1, lit2, lit3, lit4);
+  add_at_least_one(lit1, lit2, lit3, lit4);
+}
+
+// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4, lit5 入力のリテラル
+inline
+void
+SatSolver::add_exact_one(SatLiteral lit1,
+			 SatLiteral lit2,
+			 SatLiteral lit3,
+			 SatLiteral lit4,
+			 SatLiteral lit5)
+{
+  add_at_most_one(lit1, lit2, lit3, lit4, lit5);
+  add_at_least_one(lit1, lit2, lit3, lit4, lit5);
+}
+
+// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4, lit5, lit6 入力のリテラル
+inline
+void
+SatSolver::add_exact_one(SatLiteral lit1,
+			 SatLiteral lit2,
+			 SatLiteral lit3,
+			 SatLiteral lit4,
+			 SatLiteral lit5,
+			 SatLiteral lit6)
+{
+  add_at_most_one(lit1, lit2, lit3, lit4, lit5, lit6);
+  add_at_least_one(lit1, lit2, lit3, lit4, lit5, lit6);
+}
+
+// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+inline
+void
+SatSolver::add_exact_one(const vector<SatLiteral>& lit_list)
+{
+  add_at_most_one(lit_list);
+  add_at_least_one(lit_list);
+}
+
+// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+// @param[in] lit1, lit2 入力のリテラル
+inline
+void
+SatSolver::add_exact_two(SatLiteral lit1,
+			 SatLiteral lit2)
+{
+  add_at_most_two(lit1, lit2);
+  add_at_least_two(lit1, lit2);
+}
+
+// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+// @param[in] lit1, lit2, lit3 入力のリテラル
+inline
+void
+SatSolver::add_exact_two(SatLiteral lit1,
+			 SatLiteral lit2,
+			 SatLiteral lit3)
+{
+  add_at_most_two(lit1, lit2, lit3);
+  add_at_least_two(lit1, lit2, lit3);
+}
+
+// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4 入力のリテラル
+inline
+void
+SatSolver::add_exact_two(SatLiteral lit1,
+			 SatLiteral lit2,
+			 SatLiteral lit3,
+			 SatLiteral lit4)
+{
+  add_at_most_two(lit1, lit2, lit3, lit4);
+  add_at_least_two(lit1, lit2, lit3, lit4);
+}
+
+// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4, lit5 入力のリテラル
+inline
+void
+SatSolver::add_exact_two(SatLiteral lit1,
+			 SatLiteral lit2,
+			 SatLiteral lit3,
+			 SatLiteral lit4,
+			 SatLiteral lit5)
+{
+  add_at_most_two(lit1, lit2, lit3, lit4, lit5);
+  add_at_least_two(lit1, lit2, lit3, lit4, lit5);
+}
+
+// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4, lit5, lit6 入力のリテラル
+inline
+void
+SatSolver::add_exact_two(SatLiteral lit1,
+			 SatLiteral lit2,
+			 SatLiteral lit3,
+			 SatLiteral lit4,
+			 SatLiteral lit5,
+			 SatLiteral lit6)
+{
+  add_at_most_two(lit1, lit2, lit3, lit4, lit5, lit6);
+  add_at_least_two(lit1, lit2, lit3, lit4, lit5, lit6);
+}
+
+// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+inline
+void
+SatSolver::add_exact_two(const vector<SatLiteral>& lit_list)
+{
+  add_at_most_two(lit_list);
+  add_at_least_two(lit_list);
+}
+
+// @brief 与えられたリテラルのうち厳密にk個が true になる条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+// @param[in] k しきい値
+inline
+void
+SatSolver::add_exact_k(const vector<SatLiteral>& lit_list,
+		       ymuint k)
+{
+  add_at_most_k(lit_list, k);
+  add_at_least_k(lit_list, k);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2 入力のリテラル
+inline
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2)
+{
+  add_clause( lit1, ~lit2);
+  add_clause(~lit1,  lit2);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2, lit3 入力のリテラル
+inline
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3)
+{
+  add_clause( lit1,  lit2, ~lit3);
+  add_clause( lit1, ~lit2,  lit3);
+  add_clause(~lit1,  lit2,  lit3);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4 入力のリテラル
+inline
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3,
+		       SatLiteral lit4)
+{
+  add_clause( lit1,  lit2,  lit3, ~lit4);
+  add_clause( lit1,  lit2, ~lit3,  lit4);
+  add_clause( lit1, ~lit2,  lit3,  lit4);
+  add_clause(~lit1,  lit2,  lit3,  lit4);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4, lit5 入力のリテラル
+inline
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3,
+		       SatLiteral lit4,
+		       SatLiteral lit5)
+{
+  add_clause( lit1,  lit2,  lit3,  lit4, ~lit5);
+  add_clause( lit1,  lit2,  lit3, ~lit4,  lit5);
+  add_clause( lit1,  lit2, ~lit3,  lit4,  lit5);
+  add_clause( lit1, ~lit2,  lit3,  lit4,  lit5);
+  add_clause(~lit1,  lit2,  lit3,  lit4,  lit5);
+}
+
+// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+// @param[in] lit1, lit2, lit3, lit4, lit5, lit6 入力のリテラル
+inline
+void
+SatSolver::add_not_one(SatLiteral lit1,
+		       SatLiteral lit2,
+		       SatLiteral lit3,
+		       SatLiteral lit4,
+		       SatLiteral lit5,
+		       SatLiteral lit6)
+{
+  add_clause( lit1,  lit2,  lit3,  lit4,  lit5, ~lit6);
+  add_clause( lit1,  lit2,  lit3,  lit4, ~lit5,  lit6);
+  add_clause( lit1,  lit2,  lit3, ~lit4,  lit5,  lit6);
+  add_clause( lit1,  lit2, ~lit3,  lit4,  lit5,  lit6);
+  add_clause( lit1, ~lit2,  lit3,  lit4,  lit5,  lit6);
+  add_clause(~lit1,  lit2,  lit3,  lit4,  lit5,  lit6);
 }
 
 // @brief SAT 問題を解く．

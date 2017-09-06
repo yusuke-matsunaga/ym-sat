@@ -52,6 +52,24 @@ public:
   SatVarId
   new_variable(bool decision);
 
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] lit_list 条件リテラルのリスト
+  ///
+  /// 以降の add_clause() にはこのリテラルの否定が追加される．
+  virtual
+  void
+  set_conditional_literals(const vector<SatLiteral>& lit_list);
+
+  /// @brief 条件リテラルを設定する．
+  /// @param[in] lit_num リテラル数
+  /// @param[in] lits リテラルの配列
+  ///
+  /// 以降の add_clause() にはこのリテラルの否定が追加される．
+  virtual
+  void
+  set_conditional_literals(ymuint lit_num,
+			   const SatLiteral* lits);
+
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   virtual
@@ -138,7 +156,11 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // ソルバ本体
   Solver mSolver;
+
+  // 条件リテラルのリスト
+  vector<SatLiteral> mCondLits;
 
 };
 

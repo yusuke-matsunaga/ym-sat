@@ -70,6 +70,37 @@ SatSolverGlueMiniSat2::new_variable(bool decision)
   return SatVarId(mSolver.newVar(true, decision));
 }
 
+// @brief 条件リテラルを設定する．
+// @param[in] lit_list 条件リテラルのリスト
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+void
+SatSolverGlueMiniSat2::set_conditional_literals(const vector<SatLiteral>& lit_list)
+{
+  mCondLits.clear();
+  ymuint lit_num = lit_list.size();
+  mCondLits.resize(lit_num);
+  for (ymuint i = 0; i < lit_num; ++ i) {
+    mCondLits[i] = lit_list[i];
+  }
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] lit_num リテラル数
+// @param[in] lits リテラルの配列
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+void
+SatSolverGlueMiniSat2::set_conditional_literals(ymuint lit_num,
+						const SatLiteral* lits)
+{
+  mCondLits.clear();
+  mCondLits.resize(lit_num);
+  for (ymuint i = 0; i < lit_num; ++ i) {
+    mCondLits[i] = lits[i];
+  }
+}
+
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
@@ -81,6 +112,13 @@ SatSolverGlueMiniSat2::add_clause(const vector<SatLiteral>& lits)
     SatLiteral l = *p;
     Lit lit = literal2lit(l);
     tmp.push(lit);
+  }
+  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
+       p != mCondLits.end(); ++ p) {
+    SatLiteral l = *p;
+    // 極性が反転することに注意
+    Lit lit = literal2lit(l);
+    tmp.push(~lit);
   }
   mSolver.addClause_(tmp);
 }
@@ -97,6 +135,13 @@ SatSolverGlueMiniSat2::add_clause(ymuint lit_num,
     SatLiteral l = lits[i];
     Lit lit = literal2lit(l);
     tmp.push(lit);
+  }
+  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
+       p != mCondLits.end(); ++ p) {
+    SatLiteral l = *p;
+    // 極性が反転することに注意
+    Lit lit = literal2lit(l);
+    tmp.push(~lit);
   }
   mSolver.addClause_(tmp);
 }

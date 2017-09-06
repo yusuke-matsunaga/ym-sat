@@ -134,6 +134,37 @@ YmSat::new_variable(bool decision)
   return SatVarId(n);
 }
 
+// @brief 条件リテラルを設定する．
+// @param[in] lit_list 条件リテラルのリスト
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+void
+YmSat::set_conditional_literals(const vector<SatLiteral>& lit_list)
+{
+  mCondLits.clear();
+  ymuint lit_num = lit_list.size();
+  mCondLits.resize(lit_num);
+  for (ymuint i = 0; i < lit_num; ++ i) {
+    mCondLits[i] = lit_list[i];
+  }
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] lit_num リテラル数
+// @param[in] lits リテラルの配列
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+void
+YmSat::set_conditional_literals(ymuint lit_num,
+				const SatLiteral* lits)
+{
+  mCondLits.clear();
+  mCondLits.resize(lit_num);
+  for (ymuint i = 0; i < lit_num; ++ i) {
+    mCondLits[i] = lits[i];
+  }
+}
+
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
@@ -141,14 +172,20 @@ YmSat::add_clause(const vector<SatLiteral>& lits)
 {
   // add_clause_sub() 中でリテラルの並び替えを行うので
   // 一旦 mTmpLits にコピーする．
-  ymuint n = lits.size();
-  alloc_lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  ymuint lit_num = lits.size();
+  ymuint n2 = mCondLits.size();
+  alloc_lits(lit_num + n2);
+  for (ymuint i = 0; i < lit_num; ++ i) {
     mTmpLits[i] = lits[i];
+  }
+  for (ymuint i = 0; i < n2; ++ i) {
+    SatLiteral l = mCondLits[i];
+    // 極性が反転することに注意
+    mTmpLits[lit_num + i] = ~l;
   }
 
   // 節を追加する本体
-  add_clause_sub(n);
+  add_clause_sub(lit_num + n2);
 }
 
 // @brief 節を追加する．
@@ -160,13 +197,19 @@ YmSat::add_clause(ymuint lit_num,
 {
   // add_clause_sub() 中でリテラルの並び替えを行うので
   // 一旦 mTmpLits にコピーする．
-  alloc_lits(lit_num);
+  ymuint n2 = mCondLits.size();
+  alloc_lits(lit_num + n2);
   for (ymuint i = 0; i < lit_num; ++ i) {
     mTmpLits[i] = lits[i];
   }
+  for (ymuint i = 0; i < n2; ++ i) {
+    SatLiteral l = mCondLits[i];
+    // 極性が反転することに注意
+    mTmpLits[lit_num + i] = ~l;
+  }
 
   // 節を追加する本体
-  add_clause_sub(lit_num);
+  add_clause_sub(lit_num + n2);
 }
 
 // @brief 現在の内部状態を得る．

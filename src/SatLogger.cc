@@ -37,6 +37,22 @@ SatLogger::new_variable(SatVarId id)
 {
 }
 
+// @brief 条件リテラルを設定する．
+// @param[in] lits リテラルのベクタ
+void
+SatLogger::set_conditional_literals(const vector<SatLiteral>& lits)
+{
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] n_lits リテラル数
+// @param[in] lits リテラルの配列
+void
+SatLogger::set_conditional_literals(ymuint n_lits,
+				    const SatLiteral* lits)
+{
+}
+
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
@@ -44,54 +60,12 @@ SatLogger::add_clause(const vector<SatLiteral>& lits)
 {
 }
 
-// @brief 1項の節(リテラル)を追加する．
+// @brief 節を追加する．
+// @param[in] n_lits リテラル数
+// @param[in] lits リテラルの配列
 void
-SatLogger::add_clause(SatLiteral lit1)
-{
-}
-
-// @brief 2項の節を追加する．
-void
-SatLogger::add_clause(SatLiteral lit1,
-		      SatLiteral lit2)
-{
-}
-
-// @brief 3項の節を追加する．
-void
-SatLogger::add_clause(SatLiteral lit1,
-		      SatLiteral lit2,
-		      SatLiteral lit3)
-{
-}
-
-// @brief 4項の節を追加する．
-void
-SatLogger::add_clause(SatLiteral lit1,
-		      SatLiteral lit2,
-		      SatLiteral lit3,
-		      SatLiteral lit4)
-{
-}
-
-// @brief 5項の節を追加する．
-void
-SatLogger::add_clause(SatLiteral lit1,
-		      SatLiteral lit2,
-		      SatLiteral lit3,
-		      SatLiteral lit4,
-		      SatLiteral lit5)
-{
-}
-
-// @brief 6項の節を追加する．
-void
-SatLogger::add_clause(SatLiteral lit1,
-		      SatLiteral lit2,
-		      SatLiteral lit3,
-		      SatLiteral lit4,
-		      SatLiteral lit5,
-		      SatLiteral lit6)
+SatLogger::add_clause(ymuint n_lits,
+		      const SatLiteral* lits)
 {
 }
 

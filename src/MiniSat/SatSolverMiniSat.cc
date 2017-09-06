@@ -49,6 +49,37 @@ SatSolverMiniSat::new_variable(bool decision)
   return SatVarId(mSolver.newVar());
 }
 
+// @brief 条件リテラルを設定する．
+// @param[in] lit_list 条件リテラルのリスト
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+void
+SatSolverMiniSat::set_conditional_literals(const vector<SatLiteral>& lit_list)
+{
+  mCondLits.clear();
+  ymuint lit_num = lit_list.size();
+  mCondLits.resize(lit_num);
+  for (ymuint i = 0; i < lit_num; ++ i) {
+    mCondLits[i] = lit_list[i];
+  }
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] lit_num リテラル数
+// @param[in] lits リテラルの配列
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+void
+SatSolverMiniSat::set_conditional_literals(ymuint lit_num,
+					   const SatLiteral* lits)
+{
+  mCondLits.clear();
+  mCondLits.resize(lit_num);
+  for (ymuint i = 0; i < lit_num; ++ i) {
+    mCondLits[i] = lits[i];
+  }
+}
+
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
@@ -59,6 +90,13 @@ SatSolverMiniSat::add_clause(const vector<SatLiteral>& lits)
        p != lits.end(); ++ p) {
     SatLiteral l = *p;
     Lit lit(l.varid().val(), l.is_negative());
+    tmp.push(lit);
+  }
+  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
+       p != mCondLits.end(); ++ p) {
+    SatLiteral l = *p;
+    // 極性が反転することに注意
+    Lit lit(l.varid().val(), l.is_positive());
     tmp.push(lit);
   }
   mSolver.addClause(tmp);
@@ -75,6 +113,13 @@ SatSolverMiniSat::add_clause(ymuint lit_num,
   for (ymuint i = 0; i < lit_num; ++ i) {
     SatLiteral l = lits[i];
     Lit lit(l.varid().val(), l.is_negative());
+    tmp.push(lit);
+  }
+  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
+       p != mCondLits.end(); ++ p) {
+    SatLiteral l = *p;
+    // 極性が反転することに注意
+    Lit lit(l.varid().val(), l.is_positive());
     tmp.push(lit);
   }
   mSolver.addClause(tmp);

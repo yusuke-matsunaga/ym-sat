@@ -41,6 +41,33 @@ SatLoggerS::new_variable(SatVarId id)
       << "# varid = " << id << endl;
 }
 
+// @brief 条件リテラルを設定する．
+// @param[in] lits リテラルのベクタ
+void
+SatLoggerS::set_conditional_literals(const vector<SatLiteral>& lits)
+{
+  mCondLits.clear();
+  ymuint n = lits.size();
+  mCondLits.resize(n);
+  for (ymuint i = 0; i < n; ++ i) {
+    mCondLits[i] = lits[i];
+  }
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] n_lits リテラル数
+// @param[in] lits リテラルの配列
+void
+SatLoggerS::set_conditional_literals(ymuint n_lits,
+				    const SatLiteral* lits)
+{
+  mCondLits.clear();
+  mCondLits.resize(n_lits);
+  for (ymuint i = 0; i < n_lits; ++ i) {
+    mCondLits[i] = lits[i];
+  }
+}
+
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
@@ -52,90 +79,31 @@ SatLoggerS::add_clause(const vector<SatLiteral>& lits)
     SatLiteral l = *p;
     put_lit(l);
   }
+  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
+       p != mCondLits.end(); ++ p) {
+    SatLiteral l = *p;
+    put_lit(~l);
+  }
   *mS << endl;
 }
 
-// @brief 1項の節(リテラル)を追加する．
+// @brief 節を追加する．
+// @param[in] n_lits リテラル数
+// @param[in] lits リテラルの配列
 void
-SatLoggerS::add_clause(SatLiteral lit1)
+SatLoggerS::add_clause(ymuint n_lits,
+		       const SatLiteral* lits)
 {
   *mS << "A";
-  put_lit(lit1);
-  *mS << endl;
-}
-
-// @brief 2項の節を追加する．
-void
-SatLoggerS::add_clause(SatLiteral lit1,
-		       SatLiteral lit2)
-{
-  *mS << "A";
-  put_lit(lit1);
-  put_lit(lit2);
-  *mS << endl;
-}
-
-// @brief 3項の節を追加する．
-void
-SatLoggerS::add_clause(SatLiteral lit1,
-		       SatLiteral lit2,
-		       SatLiteral lit3)
-{
-  *mS << "A";
-  put_lit(lit1);
-  put_lit(lit2);
-  put_lit(lit3);
-  *mS << endl;
-}
-
-// @brief 4項の節を追加する．
-void
-SatLoggerS::add_clause(SatLiteral lit1,
-		       SatLiteral lit2,
-		       SatLiteral lit3,
-		       SatLiteral lit4)
-{
-  *mS << "A";
-  put_lit(lit1);
-  put_lit(lit2);
-  put_lit(lit3);
-  put_lit(lit4);
-  *mS << endl;
-}
-
-// @brief 5項の節を追加する．
-void
-SatLoggerS::add_clause(SatLiteral lit1,
-		       SatLiteral lit2,
-		       SatLiteral lit3,
-		       SatLiteral lit4,
-		       SatLiteral lit5)
-{
-  *mS << "A";
-  put_lit(lit1);
-  put_lit(lit2);
-  put_lit(lit3);
-  put_lit(lit4);
-  put_lit(lit5);
-  *mS << endl;
-}
-
-// @brief 6項の節を追加する．
-void
-SatLoggerS::add_clause(SatLiteral lit1,
-		       SatLiteral lit2,
-		       SatLiteral lit3,
-		       SatLiteral lit4,
-		       SatLiteral lit5,
-		       SatLiteral lit6)
-{
-  *mS << "A";
-  put_lit(lit1);
-  put_lit(lit2);
-  put_lit(lit3);
-  put_lit(lit4);
-  put_lit(lit5);
-  put_lit(lit6);
+  for (ymuint i = 0; i < n_lits; ++ i) {
+    SatLiteral l = lits[i];
+    put_lit(l);
+  }
+  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
+       p != mCondLits.end(); ++ p) {
+    SatLiteral l = *p;
+    put_lit(~l);
+  }
   *mS << endl;
 }
 
