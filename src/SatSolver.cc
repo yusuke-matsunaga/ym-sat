@@ -350,6 +350,10 @@ void
 SatSolver::add_at_most_one(const vector<SatLiteral>& lit_list)
 {
   ymuint n = lit_list.size();
+  if ( n <= 1 ) {
+    // はじめから条件は満たされている．
+    return;
+  }
   for (ymuint i1 = 0; i1 < n - 1; ++ i1) {
     SatLiteral lit1 = lit_list[i1];
     for (ymuint i2 = i1 + 1; i2 < n; ++ i2) {
@@ -365,6 +369,10 @@ void
 SatSolver::add_at_most_two(const vector<SatLiteral>& lit_list)
 {
   ymuint n = lit_list.size();
+  if ( n <= 2 ) {
+    // はじめから条件は満たされている．
+    return;
+  }
   for (ymuint i1 = 0; i1 < n - 1; ++ i1) {
     SatLiteral lit1 = lit_list[i1];
     for (ymuint i2 = i1 + 1; i2 < n; ++ i2) {
@@ -385,7 +393,7 @@ SatSolver::add_at_most_k(const vector<SatLiteral>& lit_list,
 			 ymuint k)
 {
   ymuint n = lit_list.size();
-  if ( k >= n ) {
+  if ( n <= k) {
     // はじめから条件は満たされている．
     return;
   }
