@@ -293,8 +293,6 @@ CoreMgr::add_clause_sub(ymuint lit_num)
   }
   lit_num = wpos;
 
-  mConstrLitNum += lit_num;
-
   if ( lit_num == 0 ) {
     // empty clause があったら unsat
     mSane = false;
@@ -319,6 +317,8 @@ CoreMgr::add_clause_sub(ymuint lit_num)
     }
     return;
   }
+
+  mConstrLitNum += lit_num;
 
   SatLiteral l1 = mTmpLits[1];
 
