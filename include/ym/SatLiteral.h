@@ -48,7 +48,7 @@ public:
   /// @param[in] index 変数番号と極性をエンコードしたもの
   static
   SatLiteral
-  index2literal(ymuint index);
+  index2literal(int index);
 
   // コピーコンストラクタ,代入演算子,デストラクタはデフォルト
   // のものがそのまま使える．
@@ -118,11 +118,11 @@ public:
   make_negative() const;
 
   /// @brief ハッシュ用の関数
-  ymuint
+  HashType
   hash() const;
 
   /// @brief 配列のインデックスとして使用可能な数を返す．
-  ymuint
+  int
   index() const;
 
 
@@ -133,12 +133,12 @@ private:
 
   /// @brief 内部でのみ用いるコンストラクタ
   explicit
-  SatLiteral(ymuint body);
+  SatLiteral(int body);
 
   /// @brief 反転用のビットマスクを返す．
   ///
   /// 普通は 1U だが不正な値のときは 0U となる．
-  ymuint
+  int
   neg_mask() const;
 
 
@@ -148,7 +148,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数番号と極性をパックしたもの
-  ymuint mBody;
+  int mIndex;
 
 };
 
@@ -197,7 +197,7 @@ typedef list<SatLiteral> SatLiteralList;
 template <>
 struct HashFunc<SatLiteral>
 {
-  ymuint
+  HashType
   operator()(SatLiteral lit) const
   {
     return lit.hash();
@@ -218,13 +218,13 @@ SatLiteral::set(SatVarId varid,
   if ( !varid.is_valid() ) {
     inv = false;
   }
-  mBody = (varid.val() << 1) + static_cast<ymuint>(inv);
+  mIndex = (varid.val() << 1) + static_cast<int>(inv);
 }
 
 // デフォルトコンストラクタ
 inline
 SatLiteral::SatLiteral() :
-  mBody(static_cast<ymuint>(-1) << 1)
+  mIndex(-1)
 {
 }
 
@@ -238,15 +238,15 @@ SatLiteral::SatLiteral(SatVarId varid,
 
 // 内部でのみ用いるコンストラクタ
 inline
-SatLiteral::SatLiteral(ymuint body) :
-  mBody(body)
+SatLiteral::SatLiteral(int body) :
+  mIndex(body)
 {
 }
 
 // @brief index からの変換関数
 inline
 SatLiteral
-SatLiteral::index2literal(ymuint index)
+SatLiteral::index2literal(int index)
 {
   return SatLiteral(index);
 }
@@ -256,7 +256,7 @@ inline
 bool
 SatLiteral::is_valid() const
 {
-  return mBody < static_cast<ymuint>(-2);
+  return mIndex >= 0;
 }
 
 // 変数番号を得る．
@@ -264,7 +264,7 @@ inline
 SatVarId
 SatLiteral::varid() const
 {
-  return SatVarId(mBody >> 1);
+  return SatVarId(mIndex >> 1);
 }
 
 // @brief 正極性のリテラルの時 true を返す．
@@ -280,7 +280,7 @@ inline
 bool
 SatLiteral::is_negative() const
 {
-  return static_cast<bool>(mBody & 1U);
+  return static_cast<bool>(mIndex & 1);
 }
 
 // @brief 自身の極性を反転させる．
@@ -289,7 +289,7 @@ inline
 const SatLiteral&
 SatLiteral::negate()
 {
-  mBody ^= neg_mask();
+  mIndex ^= neg_mask();
   return *this;
 }
 
@@ -298,7 +298,7 @@ inline
 SatLiteral
 SatLiteral::operator~() const
 {
-  return SatLiteral(mBody ^ neg_mask());
+  return SatLiteral(mIndex ^ neg_mask());
 }
 
 // @brief 同じ変数の正極性リテラルを返す．
@@ -307,7 +307,7 @@ SatLiteral
 SatLiteral::make_positive() const
 {
   // 不正な値の場合でもこれはOK
-  return SatLiteral(mBody & ~1U);
+  return SatLiteral(mIndex & ~1U);
 }
 
 // @brief 同じ変数の負極性リテラルを返す．
@@ -315,7 +315,7 @@ inline
 SatLiteral
 SatLiteral::make_negative() const
 {
-  return SatLiteral(mBody | neg_mask());
+  return SatLiteral(mIndex | neg_mask());
 }
 
 // 等価比較
@@ -336,25 +336,25 @@ operator!=(SatLiteral lit1,
 
 // ハッシュ用の関数
 inline
-ymuint
+HashType
 SatLiteral::hash() const
 {
-  return mBody;
+  return static_cast<HashType>(mIndex);
 }
 
 // @brief 配列のインデックスとして使用可能な数を返す．
 inline
-ymuint
+int
 SatLiteral::index() const
 {
-  return mBody;
+  return mIndex;
 }
 
 // @brief 反転用のビットマスクを返す．
 //
 // 普通は 1U だが不正な値のときは 0U となる．
 inline
-ymuint
+int
 SatLiteral::neg_mask() const
 {
   return is_valid() ? 1U : 0U;

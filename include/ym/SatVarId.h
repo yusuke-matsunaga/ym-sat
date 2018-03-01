@@ -115,9 +115,9 @@ template<>
 struct
 HashFunc<SatVarId>
 {
-  ymuint
+  HashType
   operator()(SatVarId key) const {
-    return key.val();
+    return static_cast<HashType>(key.val());
   }
 };
 
