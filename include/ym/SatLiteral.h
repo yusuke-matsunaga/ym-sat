@@ -118,7 +118,7 @@ public:
   make_negative() const;
 
   /// @brief ハッシュ用の関数
-  HashType
+  SizeType
   hash() const;
 
   /// @brief 配列のインデックスとして使用可能な数を返す．
@@ -197,7 +197,7 @@ typedef list<SatLiteral> SatLiteralList;
 template <>
 struct HashFunc<SatLiteral>
 {
-  HashType
+  SizeType
   operator()(SatLiteral lit) const
   {
     return lit.hash();
@@ -336,10 +336,10 @@ operator!=(SatLiteral lit1,
 
 // ハッシュ用の関数
 inline
-HashType
+SizeType
 SatLiteral::hash() const
 {
-  return static_cast<HashType>(mIndex);
+  return static_cast<SizeType>(mIndex);
 }
 
 // @brief 配列のインデックスとして使用可能な数を返す．
