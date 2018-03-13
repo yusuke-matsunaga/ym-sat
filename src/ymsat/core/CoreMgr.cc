@@ -116,7 +116,7 @@ CoreMgr::alloc_var()
       expand_var();
     }
     for (ymuint i = mOldVarNum; i < mVarNum; ++ i) {
-      mVal[i] = conv_from_Bool3(kB3X) | (conv_from_Bool3(kB3X) << 2);
+      mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
       add_var(SatVarId(i));
     }
     mOldVarNum = mVarNum;
@@ -273,11 +273,11 @@ CoreMgr::add_clause_sub(ymuint lit_num)
       continue;
     }
     SatBool3 v = eval(l);
-    if ( v == kB3False ) {
+    if ( v == SatBool3::False ) {
       // false literal は追加しない．
       continue;
     }
-    if ( v == kB3True ) {
+    if ( v == SatBool3::True ) {
       // true literal があったら既に充足している
       return;
     }
@@ -401,7 +401,7 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
   }
 
   // learnt clause の場合には必ず unit clause になっているはず．
-  ASSERT_COND( eval(l0) != kB3False );
+  ASSERT_COND( eval(l0) != SatBool3::False );
   if ( debug & debug_assign ) {
     cout << "\tassign " << l0 << " @" << decision_level()
 	 << " from " << reason << endl;
@@ -455,7 +455,7 @@ CoreMgr::reduce_CNF()
   var_list.reserve(mVarNum);
   for (ymuint i = 0; i < mVarNum; ++ i) {
     SatVarId var(i);
-    if ( eval(var) == kB3X ) {
+    if ( eval(var) == SatBool3::X ) {
       var_list.push_back(SatVarId(i));
     }
     else {
@@ -482,7 +482,7 @@ CoreMgr::sweep_clause(vector<SatClause*>& clause_list)
     ymuint nl = c->lit_num();
     bool satisfied = false;
     for (ymuint i = 0; i < nl; ++ i) {
-      if ( eval(c->lit(i)) == kB3True ) {
+      if ( eval(c->lit(i)) == SatBool3::True ) {
 	satisfied = true;
 	break;
       }
@@ -595,7 +595,7 @@ CoreMgr::get_model(vector<SatBool3>& model)
   model.resize(mVarNum);
   for (ymuint i = 0; i < mVarNum; ++ i) {
     SatBool3 val = eval(SatVarId(i));
-    ASSERT_COND( val == kB3True || val == kB3False );
+    ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
     model[i] = val;
   }
 }
@@ -606,9 +606,9 @@ CoreMgr::get_model(vector<SatBool3>& model)
 // @param[in] controller コントローラー
 // @param[in] analyzer 解析器
 // @param[in] selecter リテラル選択器
-// @retval kB3True 充足した．
-// @retval kB3False 充足不能が判明した．
-// @retval kB3X わからなかった．
+// @retval SatBool3::True 充足した．
+// @retval SatBool3::False 充足不能が判明した．
+// @retval SatBool3::X わからなかった．
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 CoreMgr::solve(const vector<SatLiteral>& assumptions,
@@ -654,7 +654,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
   mPropagationNum = 0;
 
   // 最終的な結果を納める変数
-  SatBool3 sat_stat = kB3X;
+  SatBool3 sat_stat = SatBool3::X;
 
   ASSERT_COND( decision_level() == 0 );
 
@@ -662,7 +662,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
   reduce_CNF();
   if ( !sane() ) {
     // その時点で充足不可能なら終わる．
-    sat_stat = kB3False;
+    sat_stat = SatBool3::False;
     goto end;
   }
 
@@ -697,7 +697,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
     if ( !stat ) {
       // 矛盾が起こった．
       backtrack(0);
-      sat_stat = kB3False;
+      sat_stat = SatBool3::False;
       goto end;
     }
   }
@@ -718,7 +718,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
     // メッセージ出力を行う．
     print_stats();
 
-    if ( sat_stat != kB3X ) {
+    if ( sat_stat != SatBool3::X ) {
       // 結果が求められた．
       break;
     }
@@ -735,7 +735,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
     controller._update_on_restart(restart_num());
   }
 
-  if ( sat_stat == kB3True ) {
+  if ( sat_stat == SatBool3::True ) {
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
     get_model(model);
   }
@@ -751,9 +751,9 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
 
   if ( debug & debug_solve ) {
     switch ( sat_stat ) {
-    case kB3True:  cout << "SAT" << endl; break;
-    case kB3False: cout << "UNSAT" << endl; break;
-    case kB3X:     cout << "UNKNOWN" << endl; break;
+    case SatBool3::True:  cout << "SAT" << endl; break;
+    case SatBool3::False: cout << "UNSAT" << endl; break;
+    case SatBool3::X:     cout << "UNKNOWN" << endl; break;
     default: ASSERT_NOT_REACHED;
     }
   }
@@ -765,9 +765,9 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
 // @param[in] controller Controller オブジェクト
 // @param[in] analyzer Analyzer オブジェクト
 // @param[in] selecter Selecter オブジェクト
-// @retval kB3True 充足した．
-// @retval kB3False 充足できないことがわかった．
-// @retval kB3X 矛盾の生起回数が mConflictLimit を超えた．
+// @retval SatBool3::True 充足した．
+// @retval SatBool3::False 充足できないことがわかった．
+// @retval SatBool3::X 矛盾の生起回数が mConflictLimit を超えた．
 //
 // 矛盾の結果新たな学習節が追加される場合もあるし，
 // 内部で reduce_learnt_clause() を呼んでいるので学習節が
@@ -791,7 +791,7 @@ CoreMgr::search(Controller& controller,
       ++ cur_confl_num;
       if ( decision_level() == root_level ) {
 	// トップレベルで矛盾が起きたら充足不可能
-	return kB3False;
+	return SatBool3::False;
       }
 
       // 今の矛盾の解消に必要な条件を「学習」する．
@@ -833,7 +833,7 @@ CoreMgr::search(Controller& controller,
     if ( !mGoOn || (cur_confl_num >= mConflictLimit) ) {
       // 矛盾の回数が制限値を越えた．
       backtrack(root_level);
-      return kB3X;
+      return SatBool3::X;
     }
 
     if ( decision_level() == 0 ) {
@@ -852,7 +852,7 @@ CoreMgr::search(Controller& controller,
     if ( !lit.is_valid() ) {
       // すべての変数を割り当てた．
       // ということは充足しているはず．
-      return kB3True;
+      return SatBool3::True;
     }
     ++ mDecisionNum;
 
@@ -908,14 +908,14 @@ CoreMgr::implication()
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
 	SatLiteral l0 = w.literal();
 	SatBool3 val0 = eval(l0);
-	if ( val0 == kB3X ) {
+	if ( val0 == SatBool3::X ) {
 	  if ( debug & debug_assign ) {
 	    cout << "\tassign " << l0 << " @" << decision_level()
 		 << " from " << l << endl;
 	  }
 	  assign(l0, SatReason(nl));
 	}
-	else if ( val0 == kB3False ) {
+	else if ( val0 == SatBool3::False ) {
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
 	    cout << "\t--> conflict with previous assignment" << endl
@@ -952,7 +952,7 @@ CoreMgr::implication()
 	}
 
 	SatBool3 val0 = eval(l0);
-	if ( val0 == kB3True ) {
+	if ( val0 == SatBool3::True ) {
 	  // すでに充足していた．
 	  continue;
 	}
@@ -968,7 +968,7 @@ CoreMgr::implication()
 	ymuint n = c->lit_num();
 	for (ymuint i = 2; i < n; ++ i) {
 	  SatLiteral l2 = c->lit(i);
-	  if ( eval(l2) != kB3False ) {
+	  if ( eval(l2) != SatBool3::False ) {
 	    // l2 を 1番めの watch literal にする．
 	    c->xchange_wl1(i);
 	    if ( debug & debug_implication ) {
@@ -993,7 +993,7 @@ CoreMgr::implication()
 	}
 
 	// 見付からなかったので l0 に従った割り当てを行う．
-	if ( val0 == kB3X ) {
+	if ( val0 == SatBool3::X ) {
 	  if ( debug & debug_assign ) {
 	    cout << "\tassign " << l0 << " @" << decision_level()
 		 << " from " << w << endl;
@@ -1048,7 +1048,7 @@ CoreMgr::backtrack(int level)
       SatLiteral p = mAssignList.get_prev();
       SatVarId varid = p.varid();
       ymuint vindex = varid.val();
-      mVal[vindex] = (mVal[vindex] << 2) | conv_from_Bool3(kB3X);
+      mVal[vindex] = (mVal[vindex] << 2) | conv_from_Bool3(SatBool3::X);
       push(varid);
       if ( debug & debug_assign ) {
 	cout << "\tdeassign " << p << endl;
@@ -1124,7 +1124,7 @@ CoreMgr::del_satisfied_watcher(SatLiteral watch_lit)
     if ( w.is_literal() ) {
       SatLiteral l = w.literal();
       SatBool3 val = eval(l);
-      if ( val == kB3True ) {
+      if ( val == SatBool3::True ) {
 	// この watcher は削除する．
 	continue;
       }
@@ -1146,7 +1146,7 @@ CoreMgr::next_var()
   while ( !empty() ) {
     ymuint vindex = pop_top();
     SatVarId dvar(vindex);
-    if ( eval(dvar) == kB3X ) {
+    if ( eval(dvar) == SatBool3::X ) {
       return dvar;
     }
   }

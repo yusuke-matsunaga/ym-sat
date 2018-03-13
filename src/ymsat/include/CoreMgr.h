@@ -252,9 +252,9 @@ public:
   /// @param[in] controller コントローラー
   /// @param[in] analyzer 解析器
   /// @param[in] selecter リテラル選択器
-  /// @retval kB3True 充足した．
-  /// @retval kB3False 充足不能が判明した．
-  /// @retval kB3X わからなかった．
+  /// @retval SatBool3::True 充足した．
+  /// @retval SatBool3::False 充足不能が判明した．
+  /// @retval SatBool3::X わからなかった．
   /// @note i 番めの変数の割り当て結果は model[i] に入る．
   SatBool3
   solve(const vector<SatLiteral>& assumptions,
@@ -392,9 +392,9 @@ private:
   /// @param[in] controller Controller オブジェクト
   /// @param[in] analyzer Analyzer オブジェクト
   /// @param[in] selecter Selecter オブジェクト
-  /// @retval kB3True 充足した．
-  /// @retval kB3False 充足できないことがわかった．
-  /// @retval kB3X 矛盾の生起回数が mConflictLimit を超えた．
+  /// @retval SatBool3::True 充足した．
+  /// @retval SatBool3::False 充足できないことがわかった．
+  /// @retval SatBool3::X 矛盾の生起回数が mConflictLimit を超えた．
   ///
   /// 矛盾の結果新たな学習節が追加される場合もあるし，
   /// 内部で reduce_learnt_clause() を呼んでいるので学習節が
@@ -997,7 +997,7 @@ CoreMgr::assign(SatLiteral lit,
   ymuint inv = lindex & 1U;
   ymuint8 x = 2 - inv * 2;
   ASSERT_COND( vindex < mVarNum );
-  mVal[vindex] = x | (conv_from_Bool3(kB3X) << 2);
+  mVal[vindex] = x | (conv_from_Bool3(SatBool3::X) << 2);
   mDecisionLevel[vindex] = decision_level();
   mReason[vindex] = reason;
 
@@ -1016,8 +1016,8 @@ bool
 CoreMgr::check_and_assign(SatLiteral lit)
 {
   SatBool3 old_val = eval(lit);
-  if ( old_val != kB3X ) {
-    return old_val == kB3True;
+  if ( old_val != SatBool3::X ) {
+    return old_val == SatBool3::True;
   }
   assign(lit);
   return true;

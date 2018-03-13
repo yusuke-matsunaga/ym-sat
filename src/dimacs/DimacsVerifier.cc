@@ -83,13 +83,13 @@ DimacsVerifier::verify(const vector<SatBool3>& model) const
 	 q != lits.end(); ++ q) {
       int l = *q;
       if ( l > 0 ) {
-	if ( model[l - 1] == kB3True ) {
+	if ( model[l - 1] == SatBool3::True ) {
 	  sat = true;
 	  break;
 	}
       }
       else {
-	if ( model[-l - 1] == kB3False ) {
+	if ( model[-l - 1] == SatBool3::False ) {
 	  sat = true;
 	  break;
 	}

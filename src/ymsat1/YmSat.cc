@@ -231,11 +231,11 @@ YmSat::add_clause_sub(ymuint lit_num)
       continue;
     }
     SatBool3 v = eval(l);
-    if ( v == kB3False ) {
+    if ( v == SatBool3::False ) {
       // false literal は追加しない．
       continue;
     }
-    if ( v == kB3True ) {
+    if ( v == SatBool3::True ) {
       // true literal があったら既に充足している
       return;
     }
@@ -358,7 +358,7 @@ YmSat::add_learnt_clause()
   }
 
   // learnt clause の場合には必ず unit clause になっているはず．
-  ASSERT_COND( eval(l0) != kB3False );
+  ASSERT_COND( eval(l0) != SatBool3::False );
   if ( debug & debug_assign ) {
     cout << "\tassign " << l0 << " @" << decision_level()
 	 << " from " << reason << endl;
@@ -397,9 +397,9 @@ YmSat::del_watcher(SatLiteral watch_lit,
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
 // @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
-// @retval kB3True 充足した．
-// @retval kB3False 充足不能が判明した．
-// @retval kB3X わからなかった．
+// @retval SatBool3::True 充足した．
+// @retval SatBool3::False 充足不能が判明した．
+// @retval SatBool3::X わからなかった．
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 YmSat::solve(const vector<SatLiteral>& assumptions,
@@ -436,7 +436,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     if ( debug & debug_solve ) {
       cout << "UNSAT in simplifyDB()" << endl;
     }
-    return kB3False;
+    return SatBool3::False;
   }
 
   // パラメータの初期化
@@ -475,7 +475,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
 	cout << "UNSAT" << endl;
       }
 
-      return kB3False;
+      return SatBool3::False;
     }
   }
 
@@ -485,7 +485,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     cout << "RootLevel = " << mRootLevel << endl;
   }
 
-  SatBool3 stat = kB3X;
+  SatBool3 stat = SatBool3::X;
   for ( ; ; ) {
     // 実際の探索を行う．
     mConflictLimit = static_cast<ymuint64>(confl_limit);
@@ -502,7 +502,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     }
     ++ mRestart;
     stat = search();
-    if ( stat != kB3X ) {
+    if ( stat != SatBool3::X ) {
       // 結果が求められた．
       break;
     }
@@ -515,12 +515,12 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     confl_limit = confl_limit * 1.5;
     learnt_limit = learnt_limit * 1.1;
   }
-  if ( stat == kB3True ) {
+  if ( stat == SatBool3::True ) {
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
     model.resize(mVarNum);
     for (ymuint i = 0; i < mVarNum; ++ i) {
       SatBool3 val = eval(SatVarId(i));
-      ASSERT_COND( val == kB3True || val == kB3False );
+      ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
       model[i] = val;
     }
   }
@@ -532,9 +532,9 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
 
   if ( debug & debug_solve ) {
     switch ( stat ) {
-    case kB3True:  cout << "SAT" << endl; break;
-    case kB3False: cout << "UNSAT" << endl; break;
-    case kB3X:     cout << "UNKNOWN" << endl; break;
+    case SatBool3::True:  cout << "SAT" << endl; break;
+    case SatBool3::False: cout << "UNSAT" << endl; break;
+    case SatBool3::X:     cout << "UNKNOWN" << endl; break;
     default: ASSERT_NOT_REACHED;
     }
   }
@@ -623,12 +623,12 @@ YmSat::search()
       ++ mConflictNum;
       if ( decision_level() == mRootLevel ) {
 	// トップレベルで矛盾が起きたら充足不可能
-	return kB3False;
+	return SatBool3::False;
       }
       if ( n_confl > mConflictLimit ) {
 	// 矛盾の回数が制限値を越えた．
 	backtrack(mRootLevel);
-	return kB3X;
+	return SatBool3::X;
       }
 
       // 今の矛盾の解消に必要な条件を「学習」する．
@@ -672,7 +672,7 @@ YmSat::search()
       if ( !lit.is_valid() ) {
 	// すべての変数を割り当てた．
 	// ということは充足しているはず．
-	return kB3True;
+	return SatBool3::True;
       }
       ++ mDecisionNum;
 
@@ -717,14 +717,14 @@ YmSat::implication()
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
 	SatLiteral l0 = w.literal();
 	SatBool3 val0 = eval(l0);
-	if ( val0 == kB3X ) {
+	if ( val0 == SatBool3::X ) {
 	  if ( debug & debug_assign ) {
 	    cout << "\tassign " << l0 << " @" << decision_level()
 		 << " from " << l << endl;
 	  }
 	  assign(l0, SatReason(nl));
 	}
-	else if ( val0 == kB3False ) {
+	else if ( val0 == SatBool3::False ) {
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
 	    cout << "\t--> conflict with previous assignment" << endl
@@ -761,7 +761,7 @@ YmSat::implication()
 	}
 
 	SatBool3 val0 = eval(l0);
-	if ( val0 == kB3True ) {
+	if ( val0 == SatBool3::True ) {
 	  // すでに充足していた．
 	  continue;
 	}
@@ -777,7 +777,7 @@ YmSat::implication()
 	ymuint n = c->lit_num();
 	for (ymuint i = 2; i < n; ++ i) {
 	  SatLiteral l2 = c->lit(i);
-	  if ( eval(l2) != kB3False ) {
+	  if ( eval(l2) != SatBool3::False ) {
 	    // l2 を 1番めの watch literal にする．
 	    c->xchange_wl1(i);
 	    if ( debug & debug_implication ) {
@@ -802,7 +802,7 @@ YmSat::implication()
 	}
 
 	// 見付からなかったので l0 に従った割り当てを行う．
-	if ( val0 == kB3X ) {
+	if ( val0 == SatBool3::X ) {
 	  if ( debug & debug_assign ) {
 	    cout << "\tassign " << l0 << " @" << decision_level()
 		 << " from " << w << endl;
@@ -854,7 +854,7 @@ YmSat::backtrack(int level)
       SatLiteral p = mAssignList.get_prev();
       SatVarId varid = p.varid();
       ymuint vindex = varid.val();
-      mVal[vindex] = conv_from_Bool3(kB3X);
+      mVal[vindex] = conv_from_Bool3(SatBool3::X);
       mVarHeap.push(varid);
       if ( debug & debug_assign ) {
 	cout << "\tdeassign " << p << endl;
@@ -877,14 +877,14 @@ YmSat::next_decision()
     ymuint pos = mRandGen.int32() % mVarNum;
     SatVarId vid(pos);
     tPol pol = kPolNega;
-    if ( eval(SatVarId(vid)) == kB3X ) {
+    if ( eval(SatVarId(vid)) == SatBool3::X ) {
       return SatLiteral(vid, pol);
     }
   }
 #endif
   while ( !mVarHeap.empty() ) {
     ymuint vindex = mVarHeap.pop_top();
-    if ( mVal[vindex] == conv_from_Bool3(kB3X) ) {
+    if ( mVal[vindex] == conv_from_Bool3(SatBool3::X) ) {
       // Watcher の多い方の極性を(わざと)選ぶ
       ymuint v2 = vindex * 2;
       SatVarId dvar(vindex);

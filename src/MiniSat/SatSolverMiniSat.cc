@@ -129,9 +129,9 @@ SatSolverMiniSat::add_clause(ymuint lit_num,
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
 // @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
-// @retval kB3True 充足した．
-// @retval kB3False 充足不能が判明した．
-// @retval kB3X わからなかった．
+// @retval SatBool3::True 充足した．
+// @retval SatBool3::False 充足不能が判明した．
+// @retval SatBool3::X わからなかった．
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 SatSolverMiniSat::solve(const vector<SatLiteral>& assumptions,
@@ -152,20 +152,20 @@ SatSolverMiniSat::solve(const vector<SatLiteral>& assumptions,
     for (ymuint i = 0; i < n; ++ i) {
       lbool lb = mSolver.model[i];
       if ( lb == l_True ) {
-	model[i] = kB3True;
+	model[i] = SatBool3::True;
       }
       else if ( lb == l_False ) {
-	model[i] = kB3False;
+	model[i] = SatBool3::False;
       }
       else {
-	model[i] = kB3X;
+	model[i] = SatBool3::X;
       }
     }
-    return kB3True;
+    return SatBool3::True;
   }
   else {
     // conflicts は未実装
-    return kB3False;
+    return SatBool3::False;
   }
 }
 

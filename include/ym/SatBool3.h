@@ -5,7 +5,7 @@
 /// @brief SatBool3 の定義ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -16,13 +16,13 @@ BEGIN_NAMESPACE_YM
 
 /// @brief 不定値を含む論理値
 /// @ingroup SatGroup
-enum SatBool3 {
+enum class SatBool3 {
   /// @brief false
-  kB3False = -1,
+  False = -1,
   /// @brief true
-  kB3True  = 1,
+  True  = 1,
   /// @brief unknown
-  kB3X     = 0
+  X     = 0
 };
 
 /// @brief SatBool3 の否定演算
@@ -74,9 +74,9 @@ operator<<(ostream& s,
 	   SatBool3 val)
 {
   switch ( val ) {
-  case kB3False: s << "false"; break;
-  case kB3True:  s << "true"; break;
-  case kB3X:     s << "unknown"; break;
+  case SatBool3::False: s << "false"; break;
+  case SatBool3::True:  s << "true"; break;
+  case SatBool3::X:     s << "unknown"; break;
   }
   return s;
 }

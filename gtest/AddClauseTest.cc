@@ -111,7 +111,7 @@ AddClauseTest::check(ymuint ni,
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
-      SatBool3 exp_ans = vals[p] ? kB3True : kB3False;
+      SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
       vector<SatBool3> model;
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
@@ -138,7 +138,7 @@ AddClauseTest::check_with_cond1(ymuint ni,
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
-      SatBool3 exp_ans = kB3True;
+      SatBool3 exp_ans = SatBool3::True;
       vector<SatBool3> model;
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
@@ -150,7 +150,7 @@ AddClauseTest::check_with_cond1(ymuint ni,
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
-      SatBool3 exp_ans = vals[p] ? kB3True : kB3False;
+      SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
       vector<SatBool3> model;
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
@@ -181,7 +181,7 @@ AddClauseTest::check_at_most(ymuint n,
       }
       assumptions.push_back(SatLiteral(mVarList[i], inv));
     }
-    SatBool3 exp_ans = (c <= k) ? kB3True : kB3False;
+    SatBool3 exp_ans = (c <= k) ? SatBool3::True : SatBool3::False;
     vector<SatBool3> model;
     SatBool3 stat = mSolver.solve(assumptions, model);
     EXPECT_EQ( exp_ans, stat );
@@ -208,7 +208,7 @@ AddClauseTest::check_at_least(ymuint n,
       }
       assumptions.push_back(SatLiteral(mVarList[i], inv));
     }
-    SatBool3 exp_ans = (c >= k) ? kB3True : kB3False;
+    SatBool3 exp_ans = (c >= k) ? SatBool3::True : SatBool3::False;
     vector<SatBool3> model;
     SatBool3 stat = mSolver.solve(assumptions, model);
     EXPECT_EQ( exp_ans, stat );
@@ -235,7 +235,7 @@ AddClauseTest::check_exact(ymuint n,
       }
       assumptions.push_back(SatLiteral(mVarList[i], inv));
     }
-    SatBool3 exp_ans = (c == k) ? kB3True : kB3False;
+    SatBool3 exp_ans = (c == k) ? SatBool3::True : SatBool3::False;
     vector<SatBool3> model;
     SatBool3 stat = mSolver.solve(assumptions, model);
     EXPECT_EQ( exp_ans, stat );
@@ -261,7 +261,7 @@ AddClauseTest::check_not_one(ymuint n)
       }
       assumptions.push_back(SatLiteral(mVarList[i], inv));
     }
-    SatBool3 exp_ans = (c != 1) ? kB3True : kB3False;
+    SatBool3 exp_ans = (c != 1) ? SatBool3::True : SatBool3::False;
     vector<SatBool3> model;
     SatBool3 stat = mSolver.solve(assumptions, model);
     EXPECT_EQ( exp_ans, stat );

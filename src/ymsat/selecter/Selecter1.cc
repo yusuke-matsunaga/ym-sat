@@ -52,10 +52,10 @@ Selecter1::next_decision()
     if ( mPhaseCache ) {
       // 以前の割り当てを使う．
       SatBool3 pval = mMgr.prev_val(dvar);
-      if ( pval == kB3False ) {
+      if ( pval == SatBool3::False ) {
 	return ~dlit;
       }
-      else if ( pval == kB3True ) {
+      else if ( pval == SatBool3::True ) {
 	return dlit;
       }
     }

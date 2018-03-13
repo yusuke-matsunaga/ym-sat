@@ -341,11 +341,11 @@ YmSat::add_clause_sub(ymuint lit_num)
     }
 
     SatBool3 v = eval(l);
-    if ( v == kB3False ) {
+    if ( v == SatBool3::False ) {
       // false literal は追加しない．
       continue;
     }
-    if ( v == kB3True ) {
+    if ( v == SatBool3::True ) {
       // true literal があったら既に充足している
       return;
     }
@@ -536,7 +536,7 @@ YmSat::add_learnt_clause(const vector<SatLiteral>& learnt_lits)
   }
 
   // learnt clause の場合には必ず unit clause になっているはず．
-  ASSERT_COND( eval(l0) != kB3False );
+  ASSERT_COND( eval(l0) != SatBool3::False );
 
   assign(l0, reason);
 }
@@ -645,7 +645,7 @@ YmSat::del_satisfied_watcher(SatLiteral watch_lit)
     if ( w.is_literal() ) {
       SatLiteral l = w.literal();
       SatBool3 val = eval(l);
-      if ( val == kB3True ) {
+      if ( val == SatBool3::True ) {
 	// この watcher は削除する．
 	continue;
       }
@@ -667,7 +667,7 @@ YmSat::alloc_var()
       expand_var();
     }
     for (ymuint i = mOldVarNum; i < mVarNum; ++ i) {
-      mVal[i] = conv_from_Bool3(kB3X) | (conv_from_Bool3(kB3X) << 2);
+      mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
 #if YMSAT_USE_WEIGHTARRAY
       mWeightArray[i * 2 + 0] = 0.0;
       mWeightArray[i * 2 + 1] = 0.0;

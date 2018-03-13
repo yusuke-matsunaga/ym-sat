@@ -154,9 +154,9 @@ public:
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
   /// @param[out] model 充足するときの値の割り当てを格納する配列．
   /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
-  /// @retval kB3True 充足した．
-  /// @retval kB3False 充足不能が判明した．
-  /// @retval kB3X わからなかった．
+  /// @retval SatBool3::True 充足した．
+  /// @retval SatBool3::False 充足不能が判明した．
+  /// @retval SatBool3::X わからなかった．
   /// @note i 番めの変数の割り当て結果は model[i] に入る．
   virtual
   SatBool3
@@ -228,9 +228,9 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 探索を行う本体の関数
-  /// @retval kB3True 充足した．
-  /// @retval kB3False 充足できないことがわかった．
-  /// @retval kB3X 矛盾の生起回数が mConflictLimit を超えた．
+  /// @retval SatBool3::True 充足した．
+  /// @retval SatBool3::False 充足できないことがわかった．
+  /// @retval SatBool3::X 矛盾の生起回数が mConflictLimit を超えた．
   ///
   /// 矛盾の結果新たな学習節が追加される場合もあるし，
   /// 内部で reduce_learnt_clause() を呼んでいるので学習節が
@@ -693,8 +693,8 @@ bool
 YmSat::check_and_assign(SatLiteral lit)
 {
   SatBool3 old_val = eval(lit);
-  if ( old_val != kB3X ) {
-    return old_val == kB3True;
+  if ( old_val != SatBool3::X ) {
+    return old_val == SatBool3::True;
   }
   assign(lit);
   return true;
@@ -711,7 +711,7 @@ YmSat::assign(SatLiteral lit,
   ASSERT_COND( vindex < mVarNum );
   ymuint inv = lindex & 1U;
   ymuint8 x = 2 - inv * 2;
-  mVal[vindex] = x | ((conv_from_Bool3(kB3X)) << 2);
+  mVal[vindex] = x | ((conv_from_Bool3(SatBool3::X)) << 2);
   mDecisionLevel[vindex] = decision_level();
   mReason[vindex] = reason;
 
@@ -768,7 +768,7 @@ YmSat::alloc_var()
       expand_var();
     }
     for (ymuint i = mOldVarNum; i < mVarNum; ++ i) {
-      mVal[i] = conv_from_Bool3(kB3X);
+      mVal[i] = conv_from_Bool3(SatBool3::X);
       mVarHeap.add_var(SatVarId(i));
     }
     mOldVarNum = mVarNum;

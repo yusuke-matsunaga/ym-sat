@@ -113,7 +113,7 @@ YmSatMS2::next_decision()
   if ( mRandGen.real1() < mParams.mVarFreq && !var_heap().empty() ) {
     ymuint pos = mRandGen.int32() % variable_num();
     SatVarId vid(pos);
-    if ( eval(vid) == kB3X ) {
+    if ( eval(vid) == SatBool3::X ) {
       bool inv = mRandGen.real1() < 0.5;
       return SatLiteral(vid, inv);
     }
@@ -123,7 +123,7 @@ YmSatMS2::next_decision()
     // activity の高い変数を取り出す．
     ymuint vindex = var_heap().pop_top();
     SatVarId vid(vindex);
-    if ( eval(vid) != kB3X ) {
+    if ( eval(vid) != SatBool3::X ) {
       // すでに確定していたらスキップする．
       // もちろん，ヒープからも取り除く．
       continue;
@@ -132,9 +132,9 @@ YmSatMS2::next_decision()
     bool inv = false;
     if ( mParams.mPhaseCache ) {
       SatBool3 val = old_val(vid);
-      if ( val != kB3X ) {
+      if ( val != SatBool3::X ) {
 	// 以前割り当てた極性を選ぶ
-	if ( val == kB3False ) {
+	if ( val == SatBool3::False ) {
 	  inv = true;
 	}
 	goto end;
