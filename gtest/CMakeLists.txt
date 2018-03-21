@@ -22,6 +22,12 @@ include_directories(
 #  テスト用のターゲットの設定
 # ===================================================================
 
+ym_add_gtest ( SatBool3Test
+  SatBool3Test.cc
+  $<TARGET_OBJECTS:ym_base_d>
+  $<TARGET_OBJECTS:ym_sat_d>
+  )
+
 ym_add_gtest ( SatVarIdTest
   SatVarIdTest.cc
   $<TARGET_OBJECTS:ym_base_d>
