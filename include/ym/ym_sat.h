@@ -44,16 +44,12 @@ END_NAMESPACE_YM
 
 BEGIN_NAMESPACE_YM_SAT
 
+class SatDimacs;
 class SatSolver;
 class SatSolverR;
 class SatStats;
 class SatMsgHandler;
 class SatMsgHandlerImpl1;
-
-class DimacsParser;
-class DimacsHandler;
-class DimacsVerifier;
-class SatDimacsHandler;
 
 END_NAMESPACE_YM_SAT
 
@@ -62,16 +58,12 @@ BEGIN_NAMESPACE_YM
 class SatVarId;
 class SatLiteral;
 
+using nsSat::SatDimacs;
 using nsSat::SatSolver;
 using nsSat::SatSolverR;
 using nsSat::SatStats;
 using nsSat::SatMsgHandler;
 using nsSat::SatMsgHandlerImpl1;
-
-using nsSat::DimacsParser;
-using nsSat::DimacsHandler;
-using nsSat::DimacsVerifier;
-using nsSat::SatDimacsHandler;
 
 END_NAMESPACE_YM
 

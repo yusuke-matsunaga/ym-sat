@@ -1,40 +1,112 @@
-﻿
-/// @file DimacsParser.cc
-/// @brief DimacsParser の実装ファイル
+
+/// @file SatDimacs.cc
+/// @brief SatDimacs の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym/DimacsParser.h"
-#include "ym/DimacsHandler.h"
+#include "ym/SatDimacs.h"
+#include "ym/FileIDO.h"
+#include "ym/StreamIDO.h"
 #include "DimacsScanner.h"
-#include "ym/MsgMgr.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
-//////////////////////////////////////////////////////////////////////
-// DimacsParser
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-DimacsParser::DimacsParser()
+// @brief 評価する．
+// @param[in] model モデル
+// @retval true 充足した．
+// @retval false 充足しなかった．
+//
+// model[i] に i 番目の変数の値 ( 0 or 1 ) を入れる．
+bool
+SatDimacs::eval(const vector<int>& model) const
 {
+  for ( auto lit_list: mClauseList ) {
+    bool sat = false;
+    for ( auto lit: lit_list ) {
+      int var;
+      int pol;
+      decode_lit(lit, var, pol);
+      if ( model[var] == pol ) {
+	sat = true;
+	break;
+      }
+    }
+    if ( !sat ) {
+      // この節は充足していない．
+      return false;
+    }
+  }
+  return true;
 }
 
-// @brief デストラクタ
-DimacsParser::~DimacsParser()
+// @brief 内容を DIMACS 形式で出力する．
+// @param[in] s 出力先のストリーム
+void
+SatDimacs::write_dimacs(ostream& s) const
 {
+  s << "p cnf " << variable_num() << " " << clause_num() << endl;
+  for ( auto lit_list: mClauseList ) {
+    const char* sp = "";
+    for ( auto lit: lit_list ) {
+      s << sp << lit;
+      sp = " ";
+    }
+    s << " 0" << endl;
+  }
 }
 
-// @brief 読み込みを行なう．
-// @param[in] ido 入力データ
+// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
+// @param[in] s 入力元のストリーム
 // @retval true 読み込みが成功した．
 // @retval false 読み込みが失敗した．
 bool
-DimacsParser::read(IDO& ido)
+SatDimacs::read_dimacs(istream& s)
+{
+  StreamIDO ido(s);
+
+  return _read_dimacs(ido);
+}
+
+// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
+// @param[in] filename ファイル名
+// @retval true 読み込みが成功した．
+// @retval false 読み込みが失敗した．
+bool
+SatDimacs::read_dimacs(const char* filename)
+{
+  FileIDO ido;
+  if ( !ido.open(filename) ) {
+    return false;
+  }
+
+  return _read_dimacs(ido);
+}
+
+// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
+// @param[in] filename ファイル名
+// @retval true 読み込みが成功した．
+// @retval false 読み込みが失敗した．
+bool
+SatDimacs::read_dimacs(const string& filename)
+{
+  FileIDO ido;
+  if ( !ido.open(filename) ) {
+    return false;
+  }
+
+  return _read_dimacs(ido);
+}
+
+// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
+// @param[in] ido 入力元のデータオブジェクト
+// @retval true 読み込みが成功した．
+// @retval false 読み込みが失敗した．
+bool
+SatDimacs::_read_dimacs(IDO& ido)
 {
   // 読込用の内部状態
   enum {
@@ -61,15 +133,7 @@ DimacsParser::read(IDO& ido)
 
   DimacsScanner scanner(ido);
 
-  bool stat = true;
-  for ( auto handler: mHandlerList ) {
-    if ( !handler->init() ) {
-      stat = false;
-    }
-  }
-  if ( !stat ) {
-    goto error;
-  }
+  clear();
 
   for ( ; ; ) {
     FileRegion loc;
@@ -109,14 +173,7 @@ DimacsParser::read(IDO& ido)
       if ( tk != Token::kNL ) {
 	goto p_error;
       }
-      for ( auto handler: mHandlerList ) {
-	if ( !handler->read_p(loc, dec_nv, dec_nc) ) {
-	  stat = false;
-	}
-      }
-      if ( !stat ) {
-	goto error;
-      }
+      // p 行は無視する．
       state = ST_BODY1;
       break;
 
@@ -181,14 +238,7 @@ DimacsParser::read(IDO& ido)
 	goto n_error;
       }
       ++ act_nc;
-      for ( auto handler: mHandlerList ) {
-	if ( !handler->read_clause(loc, lits) ) {
-	  stat = false;
-	}
-      }
-      if ( !stat ) {
-	goto error;
-      }
+      add_clause(lits);
       state = ST_BODY1;
       break;
     }
@@ -234,14 +284,6 @@ DimacsParser::read(IDO& ido)
 #endif
   }
 
-  for ( auto handler: mHandlerList ) {
-    if ( !handler->end() ) {
-      stat = false;
-    }
-  }
-  if ( !stat ) {
-    goto error;
-  }
   return true;
 
  p_error:
@@ -272,18 +314,8 @@ DimacsParser::read(IDO& ido)
   goto error;
 
  error:
-  for ( auto handler: mHandlerList ) {
-    handler->error_exit();
-  }
 
   return false;
-}
-
-// @brief イベントハンドラの登録
-void
-DimacsParser::add_handler(DimacsHandler* handler)
-{
-  mHandlerList.push_back(handler);
 }
 
 END_NAMESPACE_YM_SAT

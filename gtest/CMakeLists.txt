@@ -45,3 +45,9 @@ ym_add_gtest ( AddClauseTest
   $<TARGET_OBJECTS:ym_base_d>
   $<TARGET_OBJECTS:ym_sat_d>
   )
+
+ym_add_gtest ( DimacsTest
+  DimacsTest.cc
+  $<TARGET_OBJECTS:ym_base_d>
+  $<TARGET_OBJECTS:ym_sat_d>
+  )

@@ -53,6 +53,8 @@ set (ym_sat_SOURCES
   src/SatLogger.cc
   src/SatLoggerS.cc
   src/SatStats.cc
+  src/SatDimacs.cc
+  src/DimacsScanner.cc
 
   src/MiniSat/SatSolverMiniSat.cc
   src/MiniSat/Solver.C
@@ -67,10 +69,6 @@ set (ym_sat_SOURCES
   src/glueminisat-2.2.8/Solver.cc
   src/glueminisat-2.2.8/System.cc
 
-  src/dimacs/DimacsParser.cc
-  src/dimacs/DimacsScanner.cc
-  src/dimacs/DimacsVerifier.cc
-  src/dimacs/SatDimacsHandler.cc
 
   src/ymsat/core/AssignList.cc
   src/ymsat/core/SatClause.cc
