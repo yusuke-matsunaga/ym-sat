@@ -67,7 +67,7 @@ public:
   /// 以降の add_clause() にはこのリテラルの否定が追加される．
   virtual
   void
-  set_conditional_literals(ymuint lit_num,
+  set_conditional_literals(int lit_num,
 			   const SatLiteral* lits);
 
   /// @brief 節を追加する．
@@ -81,7 +81,7 @@ public:
   /// @param[in] lits リテラルの配列
   virtual
   void
-  add_clause(ymuint lit_num,
+  add_clause(int lit_num,
 	     const SatLiteral* lits);
 
   /// @brief SAT 問題を解く．
@@ -113,25 +113,25 @@ public:
 
   /// @brief 変数の数を得る．
   virtual
-  ymuint
+  int
   variable_num() const;
 
   /// @brief 制約節の数を得る．
   virtual
-  ymuint
+  int
   clause_num() const;
 
   /// @brief 制約節のリテラルの総数を得る．
   virtual
-  ymuint
+  int
   literal_num() const;
 
   /// @brief conflict_limit の最大値
   /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
   virtual
-  ymuint64
-  set_max_conflict(ymuint64 val);
+  int
+  set_max_conflict(int val);
 
   /// @brief DIMACS 形式で制約節を出力する．
   /// @param[in] s 出力先のストリーム

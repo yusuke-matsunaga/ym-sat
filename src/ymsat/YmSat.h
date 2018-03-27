@@ -5,7 +5,7 @@
 /// @brief YmSat のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -90,7 +90,7 @@ public:
   /// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
   virtual
   void
-  set_conditional_literals(ymuint lit_num,
+  set_conditional_literals(int lit_num,
 			   const SatLiteral* lits);
 
   /// @brief 節を追加する．
@@ -104,7 +104,7 @@ public:
   /// @param[in] lits リテラルの配列
   virtual
   void
-  add_clause(ymuint lit_num,
+  add_clause(int lit_num,
 	     const SatLiteral* lits);
 
   //////////////////////////////////////////////////////////////////////
@@ -148,8 +148,8 @@ public:
   /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
   virtual
-  ymuint64
-  set_max_conflict(ymuint64 val);
+  int
+  set_max_conflict(int val);
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
   /// @param[in] msg_handler 登録するメッセージハンドラ
@@ -181,17 +181,17 @@ public:
 
   /// @brief 変数の数を得る．
   virtual
-  ymuint
+  int
   variable_num() const;
 
   /// @brief 制約節の数を得る．
   virtual
-  ymuint
+  int
   clause_num() const;
 
   /// @brief 制約節のリテラルの総数を得る．
   virtual
-  ymuint
+  int
   literal_num() const;
 
   /// @brief DIMACS 形式で制約節を出力する．
@@ -227,42 +227,42 @@ protected:
   set_selecter(Selecter* selecter);
 
   /// @brief 制約節の数を得る．
-  ymuint
+  int
   _clause_num() const;
 
   /// @brief 総矛盾数を返す．
-  ymuint64
+  int
   conflict_num() const;
 
   /// @brief 総分岐数を返す．
-  ymuint64
+  int
   decision_num() const;
 
   /// @brief 総インプリケーション数を返す．
-  ymuint64
+  int
   propagation_num() const;
 
   /// @brief 矛盾回数の制限値を得る．
-  ymuint64
+  int
   conflict_limit() const;
 
   /// @brief 学習節の制限値を得る．
-  ymuint64
+  int
   learnt_limit() const;
 
   /// @brief conflict_limit の最大値を返す．
-  ymuint64
+  int
   max_conflict() const;
 
   /// @brief 矛盾回数の制限値を設定する．
   /// @param[in] limit 設定する値
   void
-  set_conflict_limit(ymuint64 limit);
+  set_conflict_limit(int limit);
 
   /// @brief 学習節の制限値を設定する．
   /// @param[in] limit 設定する値
   void
-  set_learnt_limit(ymuint64 limit);
+  set_learnt_limit(int limit);
 
 
 private:
@@ -323,7 +323,7 @@ YmSat::set_selecter(Selecter* selecter)
 
 // @brief 制約節の数を得る．
 inline
-ymuint
+int
 YmSat::_clause_num() const
 {
   return mMgr.clause_num();
@@ -331,7 +331,7 @@ YmSat::_clause_num() const
 
 // @brief 総矛盾数を返す．
 inline
-ymuint64
+int
 YmSat::conflict_num() const
 {
   return mMgr.conflict_num();
@@ -339,7 +339,7 @@ YmSat::conflict_num() const
 
 // @brief 総分岐数を返す．
 inline
-ymuint64
+int
 YmSat::decision_num() const
 {
   return mMgr.decision_num();
@@ -347,7 +347,7 @@ YmSat::decision_num() const
 
 // @brief 総インプリケーション数を返す．
 inline
-ymuint64
+int
 YmSat::propagation_num() const
 {
   return mMgr.propagation_num();
@@ -355,7 +355,7 @@ YmSat::propagation_num() const
 
 // @brief 矛盾回数の制限値を得る．
 inline
-ymuint64
+int
 YmSat::conflict_limit() const
 {
   return mMgr.conflict_limit();
@@ -363,7 +363,7 @@ YmSat::conflict_limit() const
 
 // @brief 学習節の制限値を得る．
 inline
-ymuint64
+int
 YmSat::learnt_limit() const
 {
   return mMgr.learnt_limit();
@@ -373,7 +373,7 @@ YmSat::learnt_limit() const
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．
 inline
-ymuint64
+int
 YmSat::max_conflict() const
 {
   return mMgr.max_conflict();
@@ -383,7 +383,7 @@ YmSat::max_conflict() const
 // @param[in] limit 設定する値
 inline
 void
-YmSat::set_conflict_limit(ymuint64 limit)
+YmSat::set_conflict_limit(int limit)
 {
   mMgr.set_conflict_limit(limit);
 }
@@ -392,7 +392,7 @@ YmSat::set_conflict_limit(ymuint64 limit)
 // @param[in] limit 設定する値
 inline
 void
-YmSat::set_learnt_limit(ymuint64 limit)
+YmSat::set_learnt_limit(int limit)
 {
   mMgr.set_learnt_limit(limit);
 }

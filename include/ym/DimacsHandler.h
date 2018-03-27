@@ -5,7 +5,7 @@
 /// @brief DimacsHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2013-2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2013-2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -25,12 +25,9 @@ class DimacsHandler
 {
 protected:
 
-  /// @brief コンストラクタ
-  DimacsHandler();
-
   /// @brief デストラクタ
   virtual
-  ~DimacsHandler();
+  ~DimacsHandler() { }
 
 
 public:
@@ -44,7 +41,7 @@ public:
   /// @retval false エラーが起こった．
   virtual
   bool
-  init();
+  init() = 0;
 
   /// @brief p 行の読込み
   /// @param[in] loc ファイル上の位置情報
@@ -57,8 +54,8 @@ public:
   virtual
   bool
   read_p(const FileRegion& loc,
-	 ymuint nv,
-	 ymuint nc);
+	 int nv,
+	 int nc) = 0;
 
   /// @brief clause 行の読込み
   /// @param[in] loc ファイル上の位置情報
@@ -70,7 +67,7 @@ public:
   virtual
   bool
   read_clause(const FileRegion& loc,
-	      const vector<int>& lits);
+	      const vector<int>& lits) = 0;
 
   /// @brief 終了処理
   /// @retval true 処理が成功した．
@@ -79,14 +76,14 @@ public:
   /// EOFを読み込んだときのアクションを定義する関数
   virtual
   bool
-  end();
+  end() = 0;
 
   /// @brief エラー終了時の処理
   ///
   /// エラー終了時のアクションを定義する関数
   virtual
   void
-  error_exit();
+  error_exit() = 0;
 
 };
 

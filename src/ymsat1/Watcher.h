@@ -5,7 +5,7 @@
 /// @brief Watcher のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -65,7 +65,7 @@ public:
   clear();
 
   /// @brief 要素数を返す．
-  ymuint
+  int
   num() const;
 
   /// @brief 要素を追加する．
@@ -76,19 +76,19 @@ public:
   /// @brief pos 番目の要素を返す．
   /// @param[in] pos 位置
   Watcher
-  elem(ymuint pos) const;
+  elem(int pos) const;
 
   /// @brief pos 番目の要素を設定する．
   /// @param[in] pos 位置
   /// @param[in] elem 要素
   void
-  set_elem(ymuint pos,
+  set_elem(int pos,
 	   Watcher elem);
 
   /// @brief 要素を切り詰める．
   /// @param[in] num 切り詰めるサイズ
   void
-  erase(ymuint num);
+  erase(int num);
 
   /// @brief from の内容を移す．
   /// @param[in] from もとのリスト
@@ -111,7 +111,7 @@ private:
   /// @brief 配列を拡張する．
   /// @param[in] req_size 拡張するサイズ
   void
-  expand(ymuint req_size);
+  expand(int req_size);
 
 
 private:
@@ -120,10 +120,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 配列のサイズ
-  ymuint32 mSize;
+  int mSize;
 
   // 要素数
-  ymuint32 mNum;
+  int mNum;
 
   // 配列
   Watcher* mArray;
@@ -185,7 +185,7 @@ WatcherList::add(Watcher elem)
 
 // @brief 要素数を返す．
 inline
-ymuint
+int
 WatcherList::num() const
 {
   return mNum;
@@ -194,7 +194,7 @@ WatcherList::num() const
 // @brief pos 番目の要素を返す．
 inline
 Watcher
-WatcherList::elem(ymuint pos) const
+WatcherList::elem(int pos) const
 {
   ASSERT_COND( pos < mNum );
   return mArray[pos];
@@ -203,7 +203,7 @@ WatcherList::elem(ymuint pos) const
 // @brief pos 番目の要素を設定する．
 inline
 void
-WatcherList::set_elem(ymuint pos,
+WatcherList::set_elem(int pos,
 		      Watcher elem)
 {
   ASSERT_COND( pos < mSize );
@@ -213,7 +213,7 @@ WatcherList::set_elem(ymuint pos,
 // @brief 要素を切り詰める．
 inline
 void
-WatcherList::erase(ymuint num)
+WatcherList::erase(int num)
 {
   mNum = num;
 }
@@ -235,10 +235,10 @@ WatcherList::move(WatcherList& from)
 // @brief 配列を拡張する．
 inline
 void
-WatcherList::expand(ymuint req_size)
+WatcherList::expand(int req_size)
 {
   if ( mSize < req_size ) {
-    ymuint old_size = mSize;
+    int old_size = mSize;
     Watcher* old_array = mArray;
     if ( mSize == 0 ) {
       mSize = 4;
@@ -249,7 +249,7 @@ WatcherList::expand(ymuint req_size)
     mArray = new Watcher[mSize];
 
     if ( old_size > 0 ) {
-      for (ymuint i = 0; i < old_size; ++ i) {
+      for ( int i = 0; i < old_size; ++ i ) {
 	mArray[i] = old_array[i];
       }
       delete [] old_array;

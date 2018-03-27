@@ -5,7 +5,7 @@
 /// @brief AssignList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -67,7 +67,7 @@ public:
 
   /// @brief 必要なサイズを指定する．
   void
-  reserve(ymuint req_size);
+  reserve(int req_size);
 
 
 public:
@@ -82,7 +82,7 @@ public:
   put(SatLiteral lit);
 
   /// @brief 記録されている割り当ての要素数を得る．
-  ymuint
+  int
   size() const;
 
   /// @brief 読み出す要素があるとき true を返す．
@@ -108,7 +108,7 @@ public:
 
   /// @brief pos 番目の要素を得る．
   SatLiteral
-  get(ymuint pos) const;
+  get(int pos) const;
 
 
 public:
@@ -138,22 +138,22 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // リストの実際の容量
-  ymuint32 mSize;
+  int mSize;
 
   // 値割り当てを保持するリスト(配列)
   SatLiteral* mList;
 
   // 書き込み位置
-  ymuint32 mTail;
+  int mTail;
 
   // 読み出し位置
-  ymuint32 mHead;
+  int mHead;
 
   // 各 decision-level ごとの marker の配列
-  ymuint32* mMarker;
+  int* mMarker;
 
   // 現在の decision_level
-  ymuint32 mCurLevel;
+  int mCurLevel;
 
 };
 
@@ -173,7 +173,7 @@ AssignList::put(SatLiteral lit)
 
 // @brief 記録されている割り当ての要素数を得る．
 inline
-ymuint
+int
 AssignList::size() const
 {
   return mTail;
@@ -214,7 +214,7 @@ AssignList::skip_all()
 // @brief pos 番目の要素を得る．
 inline
 SatLiteral
-AssignList::get(ymuint pos) const
+AssignList::get(int pos) const
 {
   ASSERT_COND( pos < mSize );
   return mList[pos];

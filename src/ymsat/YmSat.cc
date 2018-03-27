@@ -3,7 +3,7 @@
 /// @brief YmSat の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -63,7 +63,7 @@ YmSat::set_conditional_literals(const vector<SatLiteral>& lit_list)
 // 以降の add_clause() にはこのリテラルの否定が追加される．
 // 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
 void
-YmSat::set_conditional_literals(ymuint lit_num,
+YmSat::set_conditional_literals(int lit_num,
 				const SatLiteral* lits)
 {
   mMgr.set_conditional_literals(lit_num, lits);
@@ -81,7 +81,7 @@ YmSat::add_clause(const vector<SatLiteral>& lits)
 // @param[in] lit_num リテラル数
 // @param[in] lits リテラルの配列
 void
-YmSat::add_clause(ymuint lit_num,
+YmSat::add_clause(int lit_num,
 		  const SatLiteral* lits)
 {
   mMgr.add_clause(lit_num, lits);
@@ -122,8 +122,8 @@ YmSat::timer_on(bool enable)
 // @brief conflict_limit の最大値
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．
-ymuint64
-YmSat::set_max_conflict(ymuint64 val)
+int
+YmSat::set_max_conflict(int val)
 {
   return mMgr.set_max_conflict(val);
 }
@@ -152,21 +152,21 @@ YmSat::get_stats(SatStats& stats) const
 }
 
 // @brief 変数の数を得る．
-ymuint
+int
 YmSat::variable_num() const
 {
   return mMgr.variable_num();
 }
 
 // @brief 制約節の数を得る．
-ymuint
+int
 YmSat::clause_num() const
 {
   return mMgr.clause_num();
 }
 
 // @brief 制約節のリテラルの総数を得る．
-ymuint
+int
 YmSat::literal_num() const
 {
   return mMgr.literal_num();
@@ -198,17 +198,17 @@ void
 YmSat::write_DIMACS(ostream& s) const
 {
   s << "p cnf " << variable_num() << " " << clause_num() << endl;
-  for (ymuint i = 0; i < mMgr.bin_clause_num(); ++ i) {
+  for ( int i = 0; i < mMgr.bin_clause_num(); ++ i ) {
     SatLiteral lit1;
     SatLiteral lit2;
     mMgr.bin_clause(i, lit1, lit2);
     write_lit(s, lit1);
     write_lit(s, lit2);
   }
-  for (ymuint i = 0; i < mMgr.clause_num(); ++ i) {
+  for ( int i = 0; i < mMgr.clause_num(); ++ i ) {
     const SatClause* clause = mMgr.clause(i);
-    ymuint nl = clause->lit_num();
-    for (ymuint j = 0; j < nl; ++ j) {
+    int nl = clause->lit_num();
+    for ( int j = 0; j < nl; ++ j ) {
       SatLiteral lit = clause->lit(j);
       write_lit(s, lit);
     }

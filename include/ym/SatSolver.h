@@ -5,7 +5,7 @@
 /// @brief SatSolver のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -478,7 +478,7 @@ public:
   /// @param[in] k しきい値
   void
   add_at_most_k(const vector<SatLiteral>& lit_list,
-		ymuint k);
+		int k);
 
   /// @brief 与えられたリテラルのうち1以上は true になる条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
@@ -575,7 +575,7 @@ public:
   /// @param[in] k しきい値
   void
   add_at_least_k(const vector<SatLiteral>& lit_list,
-		 ymuint k);
+		 int k);
 
   /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
@@ -672,7 +672,7 @@ public:
   /// @param[in] k しきい値
   void
   add_exact_k(const vector<SatLiteral>& lit_list,
-	      ymuint k);
+	      int k);
 
   /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
@@ -780,8 +780,8 @@ public:
   /// @brief conflict_limit の最大値
   /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
-  ymuint64
-  set_max_conflict(ymuint64 val);
+  int
+  set_max_conflict(int val);
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
   /// @param[in] msg_handler 登録するメッセージハンドラ
@@ -809,15 +809,15 @@ public:
   get_stats(SatStats& stats) const;
 
   /// @brief 変数の数を得る．
-  ymuint
+  int
   variable_num() const;
 
   /// @brief 制約節の数を得る．
-  ymuint
+  int
   clause_num() const;
 
   /// @brief 制約節のリテラルの総数を得る．
-  ymuint
+  int
   literal_num() const;
 
   /// @brief DIMACS 形式で制約節を出力する．
@@ -1671,7 +1671,7 @@ SatSolver::add_exact_two(const vector<SatLiteral>& lit_list)
 inline
 void
 SatSolver::add_exact_k(const vector<SatLiteral>& lit_list,
-		       ymuint k)
+		       int k)
 {
   add_at_most_k(lit_list, k);
   add_at_least_k(lit_list, k);

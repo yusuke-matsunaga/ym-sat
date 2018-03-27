@@ -5,7 +5,7 @@
 /// @brief SatClause のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -39,7 +39,7 @@ public:
   /// @param[in] lits リテラルの配列
   /// @param[in] learnt 学習節の場合 true
   /// @note 上に書いたように普通にこのコンストラクタを呼んではいけない．
-  SatClause(ymuint lit_num,
+  SatClause(int lit_num,
 	    SatLiteral* lits,
 	    bool learnt);
 
@@ -67,11 +67,11 @@ public:
   /// @note 互いに位置を交換する．
   /// @note 間のリテラルは不変
   void
-  xchange_wl1(ymuint src_pos);
+  xchange_wl1(int src_pos);
 
   /// @brief literal block distance を設定する．
   void
-  set_lbd(ymuint lbd);
+  set_lbd(int lbd);
 
   /// @brief アクティビティを増加させる．
   void
@@ -88,13 +88,13 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief リテラル数の取得
-  ymuint
+  int
   lit_num() const;
 
   /// @brief リテラルのアクセス
   /// @param[in] pos リテラルの位置 ( 0 <= pos < lit_num() )
   SatLiteral
-  lit(ymuint pos) const;
+  lit(int pos) const;
 
   /// @brief 0番めの watch literal を得る．
   SatLiteral
@@ -110,7 +110,7 @@ public:
 
 #if YMSAT_USE_LBD
   /// @brief SatLiteral Block Distance を返す．
-  ymuint
+  int
   lbd() const;
 #endif
 
@@ -129,7 +129,7 @@ private:
 
 #if YMSAT_USE_LBD
   // リテラルブロック距離
-  ymuint32 mLBD;
+  int mLBD;
 #endif
 
   // activity
@@ -157,7 +157,7 @@ operator<<(ostream& s,
 // @param[in] lits リテラルの配列
 // @param[in] learnt 学習節の場合 true
 inline
-SatClause::SatClause(ymuint lit_num,
+SatClause::SatClause(int lit_num,
 		     SatLiteral* lits,
 		     bool learnt)
 {
@@ -166,7 +166,7 @@ SatClause::SatClause(ymuint lit_num,
   mLBD = lit_num;
 #endif
   mActivity = 0.0;
-  for (ymuint i = 0; i < lit_num; ++ i) {
+  for ( int i = 0; i < lit_num; ++ i ) {
     mLits[i] = lits[i];
   }
 }
@@ -203,7 +203,7 @@ SatClause::xchange_wl()
 // @note 間のリテラルは不変
 inline
 void
-SatClause::xchange_wl1(ymuint src_pos)
+SatClause::xchange_wl1(int src_pos)
 {
   SatLiteral tmp = mLits[src_pos];
   mLits[src_pos] = mLits[1];
@@ -214,7 +214,7 @@ SatClause::xchange_wl1(ymuint src_pos)
 // @brief literal block distance を設定する．
 inline
 void
-SatClause::set_lbd(ymuint lbd)
+SatClause::set_lbd(int lbd)
 {
   mLBD = lbd;
 }
@@ -222,7 +222,7 @@ SatClause::set_lbd(ymuint lbd)
 
 // @brief リテラル数の取得
 inline
-ymuint
+int
 SatClause::lit_num() const
 {
   return (mSizeLearnt >> 1);
@@ -231,7 +231,7 @@ SatClause::lit_num() const
 // @brief リテラルのアクセス
 inline
 SatLiteral
-SatClause::lit(ymuint pos) const
+SatClause::lit(int pos) const
 {
   return mLits[pos];
 }
@@ -263,7 +263,7 @@ SatClause::is_learnt() const
 #if YMSAT_USE_LBD
 // @brief SatLiteral Block Distance を返す．
 inline
-ymuint
+int
 SatClause::lbd() const
 {
   return mLBD;

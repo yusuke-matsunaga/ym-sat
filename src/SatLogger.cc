@@ -3,7 +3,7 @@
 /// @brief SatLogger の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -48,7 +48,7 @@ SatLogger::set_conditional_literals(const vector<SatLiteral>& lits)
 // @param[in] n_lits リテラル数
 // @param[in] lits リテラルの配列
 void
-SatLogger::set_conditional_literals(ymuint n_lits,
+SatLogger::set_conditional_literals(int n_lits,
 				    const SatLiteral* lits)
 {
 }
@@ -64,7 +64,7 @@ SatLogger::add_clause(const vector<SatLiteral>& lits)
 // @param[in] n_lits リテラル数
 // @param[in] lits リテラルの配列
 void
-SatLogger::add_clause(ymuint n_lits,
+SatLogger::add_clause(int n_lits,
 		      const SatLiteral* lits)
 {
 }

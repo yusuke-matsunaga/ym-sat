@@ -3,7 +3,7 @@
 /// @brief SaUIP1 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -48,8 +48,8 @@ SaUIP1::capture(SatReason creason,
   learnt.push_back(SatLiteral()); // place holder
 
   bool first = true;
-  ymuint count = 0;
-  ymuint last = last_assign();
+  int count = 0;
+  int last = last_assign();
   for ( ; ; ) {
     if ( creason.is_clause() ) {
       SatClause* cclause = creason.clause();
@@ -63,10 +63,10 @@ SaUIP1::capture(SatReason creason,
       // で割り当てられていたら学習節に加える．
       // 現在の decision level なら count を増やすだけ．
       // あとで mAssignList をたどれば該当のリテラルは捜し出せる．
-      ymuint n = cclause->lit_num();
+      int n = cclause->lit_num();
       // 最初の節は全てのリテラルを対象にするが，
       // 二番目以降の節の最初のリテラルは割り当て結果なので除外する．
-      for (ymuint i = 0; i < n; ++ i) {
+      for ( int i = 0; i < n; ++ i ) {
 	SatLiteral q = cclause->lit(i);
 	if ( !first && q == cclause->wl0() ) continue;
 	put_lit(q, learnt, count);
@@ -110,7 +110,7 @@ SaUIP1::capture(SatReason creason,
 void
 SaUIP1::put_lit(SatLiteral lit,
 		vector<SatLiteral>& learnt,
-		ymuint& count)
+		int& count)
 {
   SatVarId var = lit.varid();
   int var_level = decision_level(var);

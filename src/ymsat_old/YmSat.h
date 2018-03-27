@@ -5,7 +5,7 @@
 /// @brief YmSat のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -133,7 +133,7 @@ public:
   /// 以降の add_clause() にはこのリテラルの否定が追加される．
   virtual
   void
-  set_conditional_literals(ymuint lit_num,
+  set_conditional_literals(int lit_num,
 			   const SatLiteral* lits);
 
   /// @brief 節を追加する．
@@ -147,7 +147,7 @@ public:
   /// @param[in] lits リテラルの配列
   virtual
   void
-  add_clause(ymuint lit_num,
+  add_clause(int lit_num,
 	     const SatLiteral* lits);
 
   /// @brief SAT 問題を解く．
@@ -184,17 +184,17 @@ public:
 
   /// @brief 変数の数を得る．
   virtual
-  ymuint
+  int
   variable_num() const;
 
   /// @brief 制約節の数を得る．
   virtual
-  ymuint
+  int
   clause_num() const;
 
   /// @brief 制約節のリテラルの総数を得る．
   virtual
-  ymuint
+  int
   literal_num() const;
 
   /// @brief DIMACS 形式で制約節を出力する．
@@ -207,8 +207,8 @@ public:
   /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
   virtual
-  ymuint64
-  set_max_conflict(ymuint64 val);
+  int
+  set_max_conflict(int val);
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
   /// @param[in] msg_handler 登録するメッセージハンドラ
@@ -247,7 +247,7 @@ private:
   /// @param[in] restart リスタート回数
   virtual
   void
-  update_on_restart(ymuint restart) = 0;
+  update_on_restart(int restart) = 0;
 
   /// @brief コンフリクト時に制御パラメータの更新を行う．
   virtual
@@ -276,12 +276,12 @@ protected:
   /// @brief 矛盾回数の制限値を設定する．
   /// @param[in] limit 設定する値
   void
-  set_conflict_limit(ymuint64 limit);
+  set_conflict_limit(int limit);
 
   /// @brief 学習節の制限値を設定する．
   /// @param[in] limit 設定する値
   void
-  set_learnt_limit(ymuint64 limit);
+  set_learnt_limit(int limit);
 
   /// @brief 変数ヒープを得る．
   VarHeap&
@@ -331,7 +331,7 @@ protected:
 #if YMSAT_USE_LBD
   /// @brief LBD を計算する．
   /// @param[in] clause 対象の節
-  ymuint
+  int
   calc_lbd(const SatClause* clause);
 #endif
 
@@ -401,7 +401,7 @@ private:
   ///
   /// リテラルの実体は mTmpLits[] に入っている．
   void
-  add_clause_sub(ymuint lit_num);
+  add_clause_sub(int lit_num);
 
   /// @brief 学習節を追加する．
   /// @param[in] learnt_lits 追加する節のもととなるリテラルのリスト
@@ -411,7 +411,7 @@ private:
   /// @brief mTmpLits を確保する．
   /// @param[in] lit_num リテラル数
   void
-  alloc_lits(ymuint lit_num);
+  alloc_lits(int lit_num);
 
   /// @brief 新しい節を生成する．
   /// @param[in] lit_num リテラル数
@@ -419,7 +419,7 @@ private:
   /// @param[in] lbd 学習節のときの literal block distance
   /// @note リテラルは mTmpLits に格納されている．
   SatClause*
-  new_clause(ymuint lit_num,
+  new_clause(int lit_num,
 	     bool learnt = false);
 
   /// @brief Watcher を追加する．
@@ -519,19 +519,19 @@ private:
   vector<BinClause> mConstrBinList;
 
   // 制約節の数(二項節も含む)
-  ymuint64 mConstrClauseNum;
+  int mConstrClauseNum;
 
   // 制約節の総リテラル数 (二項制約節も含む)
-  ymuint64 mConstrLitNum;
+  int mConstrLitNum;
 
   // 学習節のリスト
   vector<SatClause*> mLearntClauseList;
 
   // 二項学習節の数
-  ymuint64 mLearntBinNum;
+  int mLearntBinNum;
 
   // 学習節の総リテラル数 (二項制約節も含む)
-  ymuint64 mLearntLitNum;
+  int mLearntLitNum;
 
 #if YMSAT_USE_DVAR
   // dvar 配列
@@ -539,13 +539,13 @@ private:
 #endif
 
   // 変数の数
-  ymuint32 mVarNum;
+  int mVarNum;
 
   // 前回の alloc_var で処理した時の変数の数
-  ymuint32 mOldVarNum;
+  int mOldVarNum;
 
   // 変数関係の配列のサイズ
-  ymuint32 mVarSize;
+  int mVarSize;
 
   // 値の配列
   // サイズは mVarSize
@@ -578,7 +578,7 @@ private:
   bool* mLbdTmp;
 
   // mLbdTmp のサイズ．
-  ymuint32 mLbdTmpSize;
+  int mLbdTmpSize;
 #endif
 
   // 矛盾の解析時にテンポラリに使用される節
@@ -591,10 +591,10 @@ private:
   AssignList mAssignList;
 
   // 前回の sweep 時の割り当て数
-  ymuint64 mSweep_assigns;
+  int mSweep_assigns;
 
   // 前回の sweep 時のリテラル数
-  ymint64 mSweep_props;
+  int mSweep_props;
 
   // 学習節のアクティビティの増加量
   double mClauseBump;
@@ -612,37 +612,37 @@ private:
   Params mParams;
 
   // restart 数
-  ymuint mRestart;
+  int mRestart;
 
   // 総コンフリクト数
-  ymuint64 mConflictNum;
+  int mConflictNum;
 
   // 総 decision 数
-  ymuint64 mDecisionNum;
+  int mDecisionNum;
 
   // 総 implication 数
-  ymuint64 mPropagationNum;
+  int mPropagationNum;
 
   // コンフリクト数の制限
-  ymuint64 mConflictLimit;
+  int mConflictLimit;
 
   // 学習節の制限
-  ymuint64 mLearntLimit;
+  int mLearntLimit;
 
   // トータルのコンフリクト数の制限
-  ymuint64 mMaxConflict;
+  int mMaxConflict;
 
   // stop() が用いるフラグ
   bool mGoOn;
 
   // メッセージハンドラのリスト
-  list<SatMsgHandler*> mMsgHandlerList;
+  vector<SatMsgHandler*> mMsgHandlerList;
 
   // add_clause で一時的に利用するリテラル配列
   SatLiteral* mTmpLits;
 
   // mTmpLits のサイズ
-  ymuint32 mTmpLitsSize;
+  int mTmpLitsSize;
 
 
 private:
@@ -692,7 +692,7 @@ private:
 // @param[in] limit 設定する値
 inline
 void
-YmSat::set_conflict_limit(ymuint64 limit)
+YmSat::set_conflict_limit(int limit)
 {
   mConflictLimit = limit;
 }
@@ -701,7 +701,7 @@ YmSat::set_conflict_limit(ymuint64 limit)
 // @param[in] limit 設定する値
 inline
 void
-YmSat::set_learnt_limit(ymuint64 limit)
+YmSat::set_learnt_limit(int limit)
 {
   mLearntLimit = limit;
 }
@@ -735,7 +735,7 @@ inline
 WatcherList&
 YmSat::watcher_list(SatLiteral lit)
 {
-  ymuint index = lit.index();
+  int index = lit.index();
   ASSERT_COND( index < (mVarNum * 2) );
   return mWatcherList[index];
 }
@@ -782,10 +782,10 @@ inline
 SatBool3
 YmSat::eval(SatLiteral l) const
 {
-  ymuint index = l.index();
+  int index = l.index();
   ASSERT_COND( (index / 2) < mVarNum );
-  ymuint x = mVal[index / 2] & 3U;
-  ymuint inv = index & 1U;
+  int x = mVal[index / 2] & 3U;
+  int inv = index & 1U;
   int d = 1 - (inv * 2);
   return static_cast<SatBool3>((static_cast<int>(x) - 1) * d);
 }
@@ -831,9 +831,9 @@ void
 YmSat::assign(SatLiteral lit,
 	      SatReason reason)
 {
-  ymuint lindex = lit.index();
-  ymuint vindex = lindex / 2;
-  ymuint inv = lindex & 1U;
+  int lindex = lit.index();
+  int vindex = lindex / 2;
+  int inv = lindex & 1U;
   ymuint8 x = 2 - inv * 2;
   ASSERT_COND( vindex < mVarNum );
   mVal[vindex] = x;

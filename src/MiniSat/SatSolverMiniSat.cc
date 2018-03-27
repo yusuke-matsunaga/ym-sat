@@ -57,9 +57,9 @@ void
 SatSolverMiniSat::set_conditional_literals(const vector<SatLiteral>& lit_list)
 {
   mCondLits.clear();
-  ymuint lit_num = lit_list.size();
+  int lit_num = lit_list.size();
   mCondLits.resize(lit_num);
-  for (ymuint i = 0; i < lit_num; ++ i) {
+  for ( int i = 0; i < lit_num; ++ i ) {
     mCondLits[i] = lit_list[i];
   }
 }
@@ -70,12 +70,12 @@ SatSolverMiniSat::set_conditional_literals(const vector<SatLiteral>& lit_list)
 //
 // 以降の add_clause() にはこのリテラルの否定が追加される．
 void
-SatSolverMiniSat::set_conditional_literals(ymuint lit_num,
+SatSolverMiniSat::set_conditional_literals(int lit_num,
 					   const SatLiteral* lits)
 {
   mCondLits.clear();
   mCondLits.resize(lit_num);
-  for (ymuint i = 0; i < lit_num; ++ i) {
+  for ( int i = 0; i < lit_num; ++ i ) {
     mCondLits[i] = lits[i];
   }
 }
@@ -86,15 +86,11 @@ void
 SatSolverMiniSat::add_clause(const vector<SatLiteral>& lits)
 {
   vec<Lit> tmp;
-  for (vector<SatLiteral>::const_iterator p = lits.begin();
-       p != lits.end(); ++ p) {
-    SatLiteral l = *p;
+  for ( auto l: lits ) {
     Lit lit(l.varid().val(), l.is_negative());
     tmp.push(lit);
   }
-  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
-       p != mCondLits.end(); ++ p) {
-    SatLiteral l = *p;
+  for ( auto l: mCondLits ) {
     // 極性が反転することに注意
     Lit lit(l.varid().val(), l.is_positive());
     tmp.push(lit);
@@ -106,18 +102,16 @@ SatSolverMiniSat::add_clause(const vector<SatLiteral>& lits)
 // @param[in] lit_num リテラル数
 // @param[in] lits リテラルの配列
 void
-SatSolverMiniSat::add_clause(ymuint lit_num,
+SatSolverMiniSat::add_clause(int lit_num,
 			     const SatLiteral* lits)
 {
   vec<Lit> tmp;
-  for (ymuint i = 0; i < lit_num; ++ i) {
+  for ( int i = 0; i < lit_num; ++ i ) {
     SatLiteral l = lits[i];
     Lit lit(l.varid().val(), l.is_negative());
     tmp.push(lit);
   }
-  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
-       p != mCondLits.end(); ++ p) {
-    SatLiteral l = *p;
+  for ( auto l: mCondLits ) {
     // 極性が反転することに注意
     Lit lit(l.varid().val(), l.is_positive());
     tmp.push(lit);
@@ -139,17 +133,15 @@ SatSolverMiniSat::solve(const vector<SatLiteral>& assumptions,
 			vector<SatLiteral>& conflicts)
 {
   vec<Lit> tmp;
-  for (vector<SatLiteral>::const_iterator p = assumptions.begin();
-       p != assumptions.end(); ++ p) {
-    SatLiteral l = *p;
+  for ( auto l: assumptions ) {
     Lit lit(l.varid().val(), l.is_negative());
     tmp.push(lit);
   }
   bool ans = mSolver.solve(tmp);
   if ( ans ) {
-    ymuint n = mSolver.model.size();
+    int n = mSolver.model.size();
     model.resize(n);
-    for (ymuint i = 0; i < n; ++ i) {
+    for ( int i = 0; i < n; ++ i ) {
       lbool lb = mSolver.model[i];
       if ( lb == l_True ) {
 	model[i] = SatBool3::True;
@@ -181,8 +173,8 @@ SatSolverMiniSat::stop()
 // @brief conflict_limit の最大値
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．
-ymuint64
-SatSolverMiniSat::set_max_conflict(ymuint64 val)
+int
+SatSolverMiniSat::set_max_conflict(int val)
 {
   // 無効
   return 0;
@@ -207,21 +199,21 @@ SatSolverMiniSat::get_stats(SatStats& stats) const
 }
 
 // @brief 変数の数を得る．
-ymuint
+int
 SatSolverMiniSat::variable_num() const
 {
   return mSolver.nVars();
 }
 
 // @brief 制約節の数を得る．
-ymuint
+int
 SatSolverMiniSat::clause_num() const
 {
   return mSolver.nClauses();
 }
 
 // @brief 制約節のリテラルの総数を得る．
-ymuint
+int
 SatSolverMiniSat::literal_num() const
 {
   return mSolver.stats.clauses_literals;

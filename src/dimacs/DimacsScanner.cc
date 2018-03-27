@@ -3,7 +3,7 @@
 /// @brief DimacsScanner の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -34,23 +34,23 @@ DimacsScanner::~DimacsScanner()
 
 // @brief トークンの読込み
 // @param[out] loc 対応するファイル上の位置情報を格納する変数
-tToken
+Token
 DimacsScanner::read_token(FileRegion& loc)
 {
-  tToken token = scan();
+  Token token = scan();
   loc = cur_loc();
 
   if ( debug_read_token ) {
     cerr << "read_token() --> "
 	 << loc << ": ";
     switch ( token ) {
-    case kC:    cerr << "C"; break;
-    case kP:    cerr << "P"; break;
-    case kNUM:  cerr << "NUM(" << mCurVal << ")"; break;
-    case kZERO: cerr << "ZERO"; break;
-    case kNL:   cerr << "NL"; break;
-    case kEOF:  cerr << "EOF"; break;
-    case kERR:  cerr << "ERR"; break;
+    case Token::kC:    cerr << "C"; break;
+    case Token::kP:    cerr << "P"; break;
+    case Token::kNUM:  cerr << "NUM(" << mCurVal << ")"; break;
+    case Token::kZERO: cerr << "ZERO"; break;
+    case Token::kNL:   cerr << "NL"; break;
+    case Token::kEOF:  cerr << "EOF"; break;
+    case Token::kERR:  cerr << "ERR"; break;
     }
     cerr << endl;
   }
@@ -60,7 +60,7 @@ DimacsScanner::read_token(FileRegion& loc)
 
 // @brief read_token() の下請け関数
 // @return トークンを返す．
-tToken
+Token
 DimacsScanner::scan()
 {
   // トークンとは空白もしくは改行で区切られたもの
@@ -73,10 +73,10 @@ DimacsScanner::scan()
   for ( ; ; ) {
     c = get();
     if ( c == EOF ) {
-      return kEOF;
+      return Token::kEOF;
     }
     if ( c == '\n' ) {
-      return kNL;
+      return Token::kNL;
     }
     if ( c != ' ' && c != '\t' ) {
       break;
@@ -86,7 +86,7 @@ DimacsScanner::scan()
   if ( c == 'c' ) {
     // 手抜きで次の NL まで読み飛ばす．
     while ( (c = get()) != '\n' && c != EOF ) ;
-    return kC;
+    return Token::kC;
   }
   if ( c == 'p' ) {
     c = get();
@@ -118,7 +118,7 @@ DimacsScanner::scan()
     if ( c != ' ' && c != '\t' ) {
       goto p_error;
     }
-    return kP;
+    return Token::kP;
 
   p_error:
 #if 0
@@ -128,7 +128,7 @@ DimacsScanner::scan()
 	    "ERR05",
 	    "syntax error");
 #endif
-    return kERR;
+    return Token::kERR;
   }
 
   bool minus_flag = false;
@@ -147,7 +147,7 @@ DimacsScanner::scan()
 	      "ERR06",
 	      "syntax error");
 #endif
-      return kERR;
+      return Token::kERR;
     }
     val = val * 10 + (c - '0');
 
@@ -160,9 +160,9 @@ DimacsScanner::scan()
 	mCurVal = val;
       }
       if ( mCurVal == 0 ) {
-	return kZERO;
+	return Token::kZERO;
       }
-      return kNUM;
+      return Token::kNUM;
     }
     accept();
   }

@@ -1,11 +1,11 @@
-﻿#ifndef YMYMLOGIC_DIMACSVERIFIER_H
-#define YMYMLOGIC_DIMACSVERIFIER_H
+﻿#ifndef YM_DIMACSVERIFIER_H
+#define YM_DIMACSVERIFIER_H
 
 /// @file ym/DimacsVerifier.h
 /// @brief DimacsVerifier のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2013 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2013, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -54,8 +54,8 @@ public:
   virtual
   bool
   read_p(const FileRegion& loc,
-	 ymuint nv,
-	 ymuint nc);
+	 int nv,
+	 int nc);
 
   /// @brief clause 行の読込み
   /// @param[in] loc ファイル上の位置情報
@@ -104,4 +104,4 @@ private:
 
 END_NAMESPACE_YM_SAT
 
-#endif // YMYMLOGIC_DIMACSVERIFIER_H
+#endif // YM_DIMACSVERIFIER_H

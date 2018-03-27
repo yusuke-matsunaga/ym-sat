@@ -37,8 +37,8 @@ DimacsVerifier::init()
 // @retval false エラーが起こった．
 bool
 DimacsVerifier::read_p(const FileRegion& loc,
-		       ymuint nv,
-		       ymuint nc)
+		       int nv,
+		       int nc)
 {
   return true;
 }

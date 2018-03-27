@@ -5,7 +5,7 @@
 /// @brief SatAnalyzer のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -60,7 +60,7 @@ public:
   /// @brief 新しい変数が追加されたときに呼ばれる仮想関数
   virtual
   void
-  alloc_var(ymuint size) = 0;
+  alloc_var(int size) = 0;
 
 
 protected:
@@ -73,13 +73,13 @@ protected:
   decision_level() const;
 
   /// @brief 割り当てリストの末尾の位置を得る．
-  ymuint
+  int
   last_assign();
 
   /// @brief 割り当てリストの pos 番めの要素を得る．
   /// @param[in] pos 位置番号
   SatLiteral
-  get_assign(ymuint pos);
+  get_assign(int pos);
 
   /// @brief 変数の decision level を得る．
   /// @param[in] varid 対象の変数
@@ -154,7 +154,7 @@ SatAnalyzer::decision_level() const
 
 // 割り当てリストの末尾を得る．
 inline
-ymuint
+int
 SatAnalyzer::last_assign()
 {
   return mSolver->mAssignList.size() - 1;
@@ -163,7 +163,7 @@ SatAnalyzer::last_assign()
 // 割り当てリストの pos 番めの要素を得る．
 inline
 SatLiteral
-SatAnalyzer::get_assign(ymuint pos)
+SatAnalyzer::get_assign(int pos)
 {
   return mSolver->mAssignList.get(pos);
 }

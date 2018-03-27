@@ -3,7 +3,7 @@
 /// @brief SatLoggerS の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -47,9 +47,9 @@ void
 SatLoggerS::set_conditional_literals(const vector<SatLiteral>& lits)
 {
   mCondLits.clear();
-  ymuint n = lits.size();
+  int n = lits.size();
   mCondLits.resize(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     mCondLits[i] = lits[i];
   }
 }
@@ -58,12 +58,12 @@ SatLoggerS::set_conditional_literals(const vector<SatLiteral>& lits)
 // @param[in] n_lits リテラル数
 // @param[in] lits リテラルの配列
 void
-SatLoggerS::set_conditional_literals(ymuint n_lits,
+SatLoggerS::set_conditional_literals(int n_lits,
 				    const SatLiteral* lits)
 {
   mCondLits.clear();
   mCondLits.resize(n_lits);
-  for (ymuint i = 0; i < n_lits; ++ i) {
+  for ( int i = 0; i < n_lits; ++ i ) {
     mCondLits[i] = lits[i];
   }
 }
@@ -74,14 +74,10 @@ void
 SatLoggerS::add_clause(const vector<SatLiteral>& lits)
 {
   *mS << "A";
-  for (vector<SatLiteral>::const_iterator p = lits.begin();
-       p != lits.end(); ++ p) {
-    SatLiteral l = *p;
+  for ( auto l: lits ) {
     put_lit(l);
   }
-  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
-       p != mCondLits.end(); ++ p) {
-    SatLiteral l = *p;
+  for ( auto l: mCondLits ) {
     put_lit(~l);
   }
   *mS << endl;
@@ -91,17 +87,15 @@ SatLoggerS::add_clause(const vector<SatLiteral>& lits)
 // @param[in] n_lits リテラル数
 // @param[in] lits リテラルの配列
 void
-SatLoggerS::add_clause(ymuint n_lits,
+SatLoggerS::add_clause(int n_lits,
 		       const SatLiteral* lits)
 {
   *mS << "A";
-  for (ymuint i = 0; i < n_lits; ++ i) {
+  for ( int i = 0; i < n_lits; ++ i ) {
     SatLiteral l = lits[i];
     put_lit(l);
   }
-  for (vector<SatLiteral>::const_iterator p = mCondLits.begin();
-       p != mCondLits.end(); ++ p) {
-    SatLiteral l = *p;
+  for ( auto l: mCondLits ) {
     put_lit(~l);
   }
   *mS << endl;
@@ -119,9 +113,7 @@ void
 SatLoggerS::solve(const vector<SatLiteral>& assumptions)
 {
   *mS << "S";
-  for (vector<SatLiteral>::const_iterator p = assumptions.begin();
-       p != assumptions.end(); ++ p) {
-    SatLiteral l = *p;
+  for ( auto l: assumptions ) {
     put_lit(l);
   }
   *mS << endl;

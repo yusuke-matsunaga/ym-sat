@@ -3,7 +3,7 @@
 /// @brief AddClauseTest の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -32,33 +32,33 @@ public:
 
   /// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
   void
-  check(ymuint ni,
+  check(int ni,
 	int vals[]);
 
   /// @brief at_most_k のチェックを行う．
   void
-  check_at_most(ymuint n,
-		ymuint k);
+  check_at_most(int n,
+		int k);
 
   /// @brief at_least_k のチェックを行う．
   void
-  check_at_least(ymuint n,
-		 ymuint k);
+  check_at_least(int n,
+		 int k);
 
   /// @brief exact_k のチェックを行う．
   void
-  check_exact(ymuint n,
-	      ymuint k);
+  check_exact(int n,
+	      int k);
 
   /// @brief not_one のチェックを行う．
   void
-  check_not_one(ymuint n);
+  check_not_one(int n);
 
   /// @brief check の条件リテラル付き版
   ///
   /// 最初の変数が1のときのみ意味を持つ．
   void
-  check_with_cond1(ymuint ni,
+  check_with_cond1(int ni,
 		   int vals[]);
 
 
@@ -71,7 +71,7 @@ public:
   SatSolver mSolver;
 
   // 変数の数
-  ymuint mVarNum;
+  int mVarNum;
 
   // 変数のリスト
   vector<SatVarId> mVarList;
@@ -86,7 +86,7 @@ AddClauseTest::AddClauseTest() :
   mVarList(mVarNum),
   mCondVarList(2)
 {
-  for (ymuint i = 0; i < mVarNum; ++ i) {
+  for ( int i = 0; i < mVarNum; ++ i ) {
     SatVarId var = mSolver.new_variable();
     mVarList[i] = var;
   }
@@ -100,14 +100,14 @@ AddClauseTest::~AddClauseTest()
 
 // @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
 void
-AddClauseTest::check(ymuint ni,
+AddClauseTest::check(int ni,
 		     int vals[])
 {
   try {
-    ymuint np = 1U << ni;
-    for (ymuint p = 0; p < np; ++ p) {
+    int np = 1U << ni;
+    for ( int p = 0; p < np; ++ p ) {
       vector<SatLiteral> assumptions;
-      for (ymuint i = 0; i < ni; ++ i) {
+      for ( int i = 0; i < ni; ++ i ) {
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
@@ -117,7 +117,7 @@ AddClauseTest::check(ymuint ni,
       EXPECT_EQ( exp_ans, stat );
     }
   }
-  catch (AssertError x) {
+  catch ( AssertError x ) {
     cout << x << endl;
   }
 }
@@ -126,15 +126,15 @@ AddClauseTest::check(ymuint ni,
 //
 // 最初の変数が1のときのみ意味を持つ．
 void
-AddClauseTest::check_with_cond1(ymuint ni,
+AddClauseTest::check_with_cond1(int ni,
 				int vals[])
 {
   try {
-    ymuint np = 1U << ni;
-    for (ymuint p = 0; p < np; ++ p) {
+    int np = 1U << ni;
+    for ( int p = 0; p < np; ++ p ) {
       vector<SatLiteral> assumptions;
       assumptions.push_back(~SatLiteral(mCondVarList[0]));
-      for (ymuint i = 0; i < ni; ++ i) {
+      for ( int i = 0; i < ni; ++ i ) {
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
@@ -143,10 +143,10 @@ AddClauseTest::check_with_cond1(ymuint ni,
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
     }
-    for (ymuint p = 0; p < np; ++ p) {
+    for ( int p = 0; p < np; ++ p ) {
       vector<SatLiteral> assumptions;
       assumptions.push_back(SatLiteral(mCondVarList[0]));
-      for (ymuint i = 0; i < ni; ++ i) {
+      for ( int i = 0; i < ni; ++ i ) {
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
@@ -156,21 +156,21 @@ AddClauseTest::check_with_cond1(ymuint ni,
       EXPECT_EQ( exp_ans, stat );
     }
   }
-  catch (AssertError x) {
+  catch ( AssertError x ) {
     cout << x << endl;
   }
 }
 
 // @brief at_most_k のチェックを行う．
 void
-AddClauseTest::check_at_most(ymuint n,
-			     ymuint k)
+AddClauseTest::check_at_most(int n,
+			     int k)
 {
-  ymuint np = 1U << n;
-  for (ymuint p = 0; p < np; ++ p) {
+  int np = 1U << n;
+  for ( int p = 0; p < np; ++ p ) {
     vector<SatLiteral> assumptions;
-    ymuint c = 0;
-    for (ymuint i = 0; i < n; ++ i) {
+    int c = 0;
+    for ( int i = 0; i < n; ++ i ) {
       bool inv;
       if ( p & (1U << i) ) {
 	++ c;
@@ -190,14 +190,14 @@ AddClauseTest::check_at_most(ymuint n,
 
 // @brief at_least_k のチェックを行う．
 void
-AddClauseTest::check_at_least(ymuint n,
-			      ymuint k)
+AddClauseTest::check_at_least(int n,
+			      int k)
 {
-  ymuint np = 1U << n;
-  for (ymuint p = 0; p < np; ++ p) {
+  int np = 1U << n;
+  for ( int p = 0; p < np; ++ p ) {
     vector<SatLiteral> assumptions;
-    ymuint c = 0;
-    for (ymuint i = 0; i < n; ++ i) {
+    int c = 0;
+    for ( int i = 0; i < n; ++ i ) {
       bool inv;
       if ( p & (1U << i) ) {
 	++ c;
@@ -217,14 +217,14 @@ AddClauseTest::check_at_least(ymuint n,
 
 // @brief exact_k のチェックを行う．
 void
-AddClauseTest::check_exact(ymuint n,
-			   ymuint k)
+AddClauseTest::check_exact(int n,
+			   int k)
 {
-  ymuint np = 1U << n;
-  for (ymuint p = 0; p < np; ++ p) {
+  int np = 1U << n;
+  for ( int p = 0; p < np; ++ p ) {
     vector<SatLiteral> assumptions;
-    ymuint c = 0;
-    for (ymuint i = 0; i < n; ++ i) {
+    int c = 0;
+    for ( int i = 0; i < n; ++ i ) {
       bool inv;
       if ( p & (1U << i) ) {
 	++ c;
@@ -244,13 +244,13 @@ AddClauseTest::check_exact(ymuint n,
 
 // @brief not_one のチェックを行う．
 void
-AddClauseTest::check_not_one(ymuint n)
+AddClauseTest::check_not_one(int n)
 {
-  ymuint np = 1U << n;
-  for (ymuint p = 0; p < np; ++ p) {
+  int np = 1U << n;
+  for ( int p = 0; p < np; ++ p ) {
     vector<SatLiteral> assumptions;
-    ymuint c = 0;
-    for (ymuint i = 0; i < n; ++ i) {
+    int c = 0;
+    for ( int i = 0; i < n; ++ i ) {
       bool inv;
       if ( p & (1U << i) ) {
 	++ c;
@@ -1363,10 +1363,10 @@ TEST_P(AddClauseTest, add_at_most_twoN)
 
 TEST_P(AddClauseTest, add_at_most_10_3)
 {
-  ymuint n = 10;
-  ymuint k = 3;
+  int n = 10;
+  int k = 3;
   vector<SatLiteral> lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1377,10 +1377,10 @@ TEST_P(AddClauseTest, add_at_most_10_3)
 
 TEST_P(AddClauseTest, add_at_most_10_5)
 {
-  ymuint n = 10;
-  ymuint k = 5;
+  int n = 10;
+  int k = 5;
   vector<SatLiteral> lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1559,10 +1559,10 @@ TEST_P(AddClauseTest, add_at_least_twoN)
 
 TEST_P(AddClauseTest, add_at_least_10_3)
 {
-  ymuint n = 10;
-  ymuint k = 3;
+  int n = 10;
+  int k = 3;
   vector<SatLiteral> lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1573,10 +1573,10 @@ TEST_P(AddClauseTest, add_at_least_10_3)
 
 TEST_P(AddClauseTest, add_at_least_10_5)
 {
-  ymuint n = 10;
-  ymuint k = 5;
+  int n = 10;
+  int k = 5;
   vector<SatLiteral> lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1747,10 +1747,10 @@ TEST_P(AddClauseTest, add_exact_twoN)
 
 TEST_P(AddClauseTest, add_exact_10_3)
 {
-  ymuint n = 10;
-  ymuint k = 3;
+  int n = 10;
+  int k = 3;
   vector<SatLiteral> lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1761,10 +1761,10 @@ TEST_P(AddClauseTest, add_exact_10_3)
 
 TEST_P(AddClauseTest, add_exact_10_5)
 {
-  ymuint n = 10;
-  ymuint k = 5;
+  int n = 10;
+  int k = 5;
   vector<SatLiteral> lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1835,9 +1835,9 @@ TEST_P(AddClauseTest, add_not_one6)
 
 TEST_P(AddClauseTest, add_not_oneN)
 {
-  ymuint n = 10;
+  int n = 10;
   vector<SatLiteral> lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 

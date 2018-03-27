@@ -5,7 +5,7 @@
 /// @brief SatSolverImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -62,7 +62,7 @@ public:
   /// 以降の add_clause() にはこのリテラルの否定が追加される．
   virtual
   void
-  set_conditional_literals(ymuint lit_num,
+  set_conditional_literals(int lit_num,
 			   const SatLiteral* lits) = 0;
 
   /// @brief 節を追加する．
@@ -76,7 +76,7 @@ public:
   /// @param[in] lits リテラルの配列
   virtual
   void
-  add_clause(ymuint lit_num,
+  add_clause(int lit_num,
 	     const SatLiteral* lits) = 0;
 
   /// @brief SAT 問題を解く．
@@ -108,17 +108,17 @@ public:
 
   /// @brief 変数の数を得る．
   virtual
-  ymuint
+  int
   variable_num() const = 0;
 
   /// @brief 制約節の数を得る．
   virtual
-  ymuint
+  int
   clause_num() const = 0;
 
   /// @brief 制約節のリテラルの総数を得る．
   virtual
-  ymuint
+  int
   literal_num() const = 0;
 
   /// @brief DIMACS 形式で制約節を出力する．
@@ -131,8 +131,8 @@ public:
   /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
   virtual
-  ymuint64
-  set_max_conflict(ymuint64 val) = 0;
+  int
+  set_max_conflict(int val) = 0;
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
   /// @param[in] msg_handler 登録するメッセージハンドラ

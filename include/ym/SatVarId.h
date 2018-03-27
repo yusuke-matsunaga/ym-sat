@@ -5,7 +5,7 @@
 /// @brief SatVarId の定義ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM
 /// @ingroup SatGroup
 /// @brief 変数番号を表す型
 ///
-/// 基本的にはただの符号なし整数だが，意味のある演算がほとんどないので
+/// 基本的にはただの整数だが，意味のある演算がほとんどないので
 /// あえてクラスの形にしている．
 /// 例えば変数どうしの四則演算に直接的な意味はない．
 /// また，適正でない値(kSatVarIdIllegal)という特別な定数を持つ．
@@ -37,7 +37,7 @@ public:
   /// @brief 値を指定したコンストラクタ
   /// @param[in] val 値
   explicit
-  SatVarId(ymuint val);
+  SatVarId(int val);
 
   /// @brief デストラクタ
   ~SatVarId();
@@ -55,7 +55,7 @@ public:
   /// @brief 値を取り出す．
   ///
   /// is_valid() == false の時の値は不定
-  ymuint
+  int
   val() const;
 
   friend
@@ -70,7 +70,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 実際の値
-  ymuint mVal;
+  int mVal;
 
 };
 
@@ -139,13 +139,14 @@ const SatVarId kSatVarIdIllegal;
 // @brief 空のコンストラクタ
 inline
 SatVarId::SatVarId() :
-  mVal(static_cast<ymuint>(-1))
+  mVal(-1)
 {
+  // kSatVarIdIllegal を作るために使われる．
 }
 
 // @brief 値を指定したコンストラクタ
 inline
-SatVarId::SatVarId(ymuint val) :
+SatVarId::SatVarId(int val) :
   mVal(val)
 {
 }
@@ -161,12 +162,12 @@ inline
 bool
 SatVarId::is_valid() const
 {
-  return mVal != static_cast<ymuint>(-1);
+  return mVal != -1;
 }
 
 // @brief 値を取り出す．
 inline
-ymuint
+int
 SatVarId::val() const
 {
   return mVal;

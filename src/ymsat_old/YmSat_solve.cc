@@ -3,7 +3,7 @@
 /// @brief YmSat の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2015, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -37,15 +37,13 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     cout << "YmSat::solve starts" << endl;
     cout << " Assumptions: ";
     const char* and_str = "";
-    for (vector<SatLiteral>::const_iterator p = assumptions.begin();
-	 p != assumptions.end(); ++ p) {
-      cout << and_str << *p;
+    for ( auto lit: assumptions ) {
+      cout << and_str << lit;
       and_str = " & ";
     }
     cout << endl;
     cout << " Clauses:" << endl;
-    for (ymuint i = 0; i < mConstrClauseList.size(); ++ i) {
-      const SatClause* clause = mConstrClauseList[i];
+    for ( auto clause: mConstrClauseList ) {
       cout << "  " << *clause << endl;
     }
     cout << " VarNum: " << mVarNum << endl;
@@ -55,10 +53,8 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   model.resize(mVarNum, SatBool3::X);
 
   // メッセージハンドラにヘッダの出力を行わせる．
-  for (list<SatMsgHandler*>::iterator p = mMsgHandlerList.begin();
-       p != mMsgHandlerList.end(); ++ p) {
-    SatMsgHandler& handler = *(*p);
-    handler.print_header();
+  for ( auto handler: mMsgHandlerList ) {
+    handler->print_header();
   }
 
   if ( mTimerOn ) {
@@ -96,10 +92,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   }
 
   // assumption の割り当てを行う．
-  for (vector<SatLiteral>::const_iterator p = assumptions.begin();
-       p != assumptions.end(); ++ p) {
-    SatLiteral lit = *p;
-
+  for ( auto lit: assumptions ) {
     mAssignList.set_marker();
     bool stat = check_and_assign(lit);
 
@@ -145,10 +138,8 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     {
       SatStats stats;
       get_stats(stats);
-      for (list<SatMsgHandler*>::iterator p = mMsgHandlerList.begin();
-	   p != mMsgHandlerList.end(); ++ p) {
-	SatMsgHandler& handler = *(*p);
-	handler.print_message(stats);
+      for ( auto handler: mMsgHandlerList ) {
+	handler->print_message(stats);
       }
     }
 
@@ -174,7 +165,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
 
   if ( sat_stat == SatBool3::True ) {
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
-    for (ymuint i = 0; i < mVarNum; ++ i) {
+    for ( int i = 0; i < mVarNum; ++ i ) {
       SatBool3 val = cur_val(mVal[i]);
       ASSERT_COND(val != SatBool3::X );
       model[i] = val;
@@ -193,10 +184,8 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   {
     SatStats stats;
     get_stats(stats);
-    for (list<SatMsgHandler*>::iterator p = mMsgHandlerList.begin();
-	 p != mMsgHandlerList.end(); ++ p) {
-      SatMsgHandler& handler = *(*p);
-      handler.print_footer(stats);
+    for ( auto handler: mMsgHandlerList ) {
+      handler->print_footer(stats);
     }
   }
 
@@ -232,7 +221,7 @@ YmSat::stop()
 SatBool3
 YmSat::search()
 {
-  ymuint cur_confl_num = 0;
+  int cur_confl_num = 0;
   for ( ; ; ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
     SatReason conflict = implication();
@@ -255,7 +244,7 @@ YmSat::search()
 	     << endl
 	     << "learnt clause is ";
 	const char* plus = "";
-	for (ymuint i = 0; i < learnt_lits.size(); ++ i) {
+	for ( int i = 0; i < learnt_lits.size(); ++ i ) {
 	  SatLiteral l = learnt_lits[i];
 	  cout << plus << l << " @" << decision_level(l.varid());
 	  plus = " + ";
@@ -330,7 +319,7 @@ YmSat::search()
 SatReason
 YmSat::implication()
 {
-  ymuint prop_num = 0;
+  int prop_num = 0;
   SatReason conflict = kNullSatReason;
   while ( mAssignList.has_elem() ) {
     SatLiteral l = mAssignList.get_next();
@@ -343,9 +332,9 @@ YmSat::implication()
     SatLiteral nl = ~l;
 
     WatcherList& wlist = watcher_list(l);
-    ymuint n = wlist.num();
-    ymuint rpos = 0;
-    ymuint wpos = 0;
+    int n = wlist.num();
+    int rpos = 0;
+    int wpos = 0;
     while ( rpos < n ) {
       Watcher w = wlist.elem(rpos);
       wlist.set_elem(wpos, w);
@@ -425,8 +414,8 @@ YmSat::implication()
 	// この時，替わりのリテラルが未定かすでに充足しているかどうか
 	// は問題でない．
 	bool found = false;
-	ymuint n = c->lit_num();
-	for (ymuint i = 2; i < n; ++ i) {
+	int n = c->lit_num();
+	for ( int i = 2; i < n; ++ i ) {
 	  SatLiteral l2 = c->lit(i);
 	  SatBool3 v = eval(l2);
 	  if ( v != SatBool3::False ) {
@@ -463,7 +452,7 @@ YmSat::implication()
 
 #if YMSAT_USE_LBD
 	  if ( mParams.mUseLbd ) {
-	    ymuint lbd = calc_lbd(c) + 1;
+	    int lbd = calc_lbd(c) + 1;
 	    if ( c->lbd() > lbd ) {
 	      c->set_lbd(lbd);
 	    }
@@ -520,7 +509,7 @@ YmSat::backtrack(int level)
 	cout << "\tdeassign " << p << endl;
       }
       SatVarId varid = p.varid();
-      ymuint vindex = varid.val();
+      int vindex = varid.val();
       mVal[vindex] = (mVal[vindex] << 2) | conv_from_Bool3(SatBool3::X);
       mVarHeap.push(varid);
     }
@@ -559,7 +548,7 @@ YmSat::reduce_CNF()
   // 変数ヒープを再構成する．
   vector<SatVarId> var_list;
   var_list.reserve(mVarNum);
-  for (ymuint i = 0; i < mVarNum; ++ i) {
+  for ( int i = 0; i < mVarNum; ++ i ) {
     SatVarId var(i);
     if ( eval(var) == SatBool3::X ) {
       var_list.push_back(SatVarId(i));
@@ -581,13 +570,13 @@ YmSat::reduce_CNF()
 void
 YmSat::sweep_clause(vector<SatClause*>& clause_list)
 {
-  ymuint n = clause_list.size();
-  ymuint wpos = 0;
-  for (ymuint rpos = 0; rpos < n; ++ rpos) {
+  int n = clause_list.size();
+  int wpos = 0;
+  for ( int rpos = 0; rpos < n; ++ rpos ) {
     SatClause* c = clause_list[rpos];
-    ymuint nl = c->lit_num();
+    int nl = c->lit_num();
     bool satisfied = false;
-    for (ymuint i = 0; i < nl; ++ i) {
+    for ( int i = 0; i < nl; ++ i ) {
       if ( eval(c->lit(i)) == SatBool3::True ) {
 	satisfied = true;
 	break;
@@ -617,9 +606,7 @@ YmSat::forget_learnt_clause()
   ASSERT_COND( decision_level() == 0 );
 
   // 学習節を本当に削除する．
-  for (vector<SatClause*>::iterator p = mLearntClauseList.begin();
-       p != mLearntClauseList.end(); ++ p) {
-    SatClause* clause = *p;
+  for ( auto clause: mLearntClauseList ) {
     delete_clause(clause);
   }
   mLearntClauseList.clear();
@@ -629,7 +616,7 @@ YmSat::forget_learnt_clause()
   mVarHeap.reset_activity();
   vector<SatVarId> var_list;
   var_list.reserve(mVarSize);
-  for (ymuint i = 0; i < mVarSize; ++ i) {
+  for ( int i = 0; i < mVarSize; ++ i ) {
     var_list.push_back(SatVarId(i));
     mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
   }
@@ -639,12 +626,12 @@ YmSat::forget_learnt_clause()
 #if YMSAT_USE_LBD
 // @brief LBD を計算する．
 // @param[in] clause 対象の節
-ymuint
+int
 YmSat::calc_lbd(const SatClause* clause)
 {
   // 割当レベルの最大値 + 1 だけ mLbdTmp を確保する．
-  ymuint max_level = decision_level() + 1;
-  ymuint32 old_size = mLbdTmpSize;
+  int max_level = decision_level() + 1;
+  int old_size = mLbdTmpSize;
   while ( mLbdTmpSize < max_level ) {
     mLbdTmpSize <<= 1;
   }
@@ -653,23 +640,23 @@ YmSat::calc_lbd(const SatClause* clause)
     mLbdTmp = new bool[mLbdTmpSize];
   }
 
-  ymuint n = clause->lit_num();
+  int n = clause->lit_num();
 
   // mLbdTmp をクリア
   // ただし， clause に現れるリテラルのレベルだけでよい．
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     SatLiteral l = clause->lit(i);
     SatVarId v = l.varid();
-    ymuint level = decision_level(v);
+    int level = decision_level(v);
     mLbdTmp[level] = false;
   }
 
   // 異なる決定レベルの個数を数える．
-  ymuint c = 0;
-  for (ymuint i = 0; i < n; ++ i) {
+  int c = 0;
+  for ( int i = 0; i < n; ++ i ) {
     SatLiteral l = clause->lit(i);
     SatVarId v = l.varid();
-    ymuint level = decision_level(v);
+    int level = decision_level(v);
     if ( !mLbdTmp[level] ) {
       // はじめてこのレベルの変数が現れた．
       mLbdTmp[level] = true;
@@ -688,9 +675,7 @@ YmSat::bump_clause_activity(SatClause* clause)
 {
   clause->increase_activity(mClauseBump);
   if ( clause->activity() > 1e+100 ) {
-    for (vector<SatClause*>::iterator p = mLearntClauseList.begin();
-	 p != mLearntClauseList.end(); ++ p) {
-      SatClause* clause1 = *p;
+    for ( auto clause1: mLearntClauseList ) {
       clause1->factor_activity(1e-100);
     }
     mClauseBump *= 1e-100;

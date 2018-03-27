@@ -5,7 +5,7 @@
 /// @brief YmSatMS2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2015, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -117,7 +117,7 @@ private:
   /// @param[in] restart リスタート回数
   virtual
   void
-  update_on_restart(ymuint restart);
+  update_on_restart(int restart);
 
   /// @brief コンフリクト時に制御パラメータの更新を行う．
   virtual
@@ -162,7 +162,7 @@ private:
 
   // mLearntLimit 用のパラメータ
   // 矛盾の数がこの回数になった時に mLearntLimit を更新する．
-  ymuint64 mLearntSizeAdjustCount;
+  int mLearntSizeAdjustCount;
 
 };
 

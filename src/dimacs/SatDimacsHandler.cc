@@ -38,10 +38,10 @@ SatDimacsHandler::init()
 // @retval false エラーが起こった．
 bool
 SatDimacsHandler::read_p(const FileRegion& loc,
-			 ymuint nv,
-			 ymuint nc)
+			 int nv,
+			 int nc)
 {
-  for (ymuint i = 0; i < nv; ++ i) {
+  for ( int i = 0; i < nv; ++ i ) {
     mSolver.new_variable();
   }
 
@@ -58,16 +58,14 @@ SatDimacsHandler::read_clause(const FileRegion& loc,
 			      const vector<int>& lits)
 {
   vector<SatLiteral> tmp;
-  for (vector<int>::const_iterator p = lits.begin();
-       p != lits.end(); ++ p) {
-    int i = *p;
+  for ( auto lit: lits ) {
     SatVarId vid;
     bool inv = false;
-    if ( i > 0 ) {
-      vid = SatVarId(i - 1);
+    if ( lit > 0 ) {
+      vid = SatVarId(lit - 1);
     }
     else {
-      vid = SatVarId(- i - 1);
+      vid = SatVarId(- lit - 1);
       inv = true;
     }
     tmp.push_back(SatLiteral(vid, inv));

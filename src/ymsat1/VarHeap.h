@@ -5,7 +5,7 @@
 /// @brief VarHeap のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -59,7 +59,7 @@ public:
   /// @brief size 個の要素を格納出来るだけの領域を確保する．
   /// @param[in] size 必要なサイズ
   void
-  alloc_var(ymuint size);
+  alloc_var(int size);
 
   /// @brief 要素が空の時 true を返す．
   bool
@@ -77,7 +77,7 @@ public:
 
   /// @brief アクティビティ最大の変数番号を取り出す．
   /// @note 該当の変数はヒープから取り除かれる．
-  ymuint
+  int
   pop_top();
 
   /// @brief 変数のアクティビティを返す．
@@ -107,39 +107,39 @@ private:
   /// @brief 引数の位置にある要素を適当な位置まで沈めてゆく
   /// @param[in] pos 対象の要素の位置
   void
-  move_down(ymuint pos);
+  move_down(int pos);
 
   /// @brief 引数の位置にある要素を適当な位置まで上げてゆく
   /// @param[in] vindex 対象の変数番号
   void
-  move_up(ymuint vindex);
+  move_up(int vindex);
 
   /// @brief 変数を配列にセットする．
   /// @param[in] vindex 対象の変数番号
   /// @param[in] pos 位置
   /// @note mHeap と mHeapPos の一貫性を保つためにはこの関数を使うこと．
   void
-  set(ymuint vindex,
-      ymuint pos);
+  set(int vindex,
+      int pos);
 
   /// @brief 左の子供の位置を計算する
   /// @param[in] pos 親の位置
   static
-  ymuint
-  left(ymuint pos);
+  int
+  left(int pos);
 
   /// @brief 右の子供の位置を計算する．
   /// @param[in] pos 親の位置
   static
-  ymuint
-  right(ymuint pos);
+  int
+  right(int pos);
 
   /// @brief 親の位置を計算する．
   /// @param[in] pos 子供の位置
   /// @note 左の子供でも右の子供でも同じ
   static
-  ymuint
-  parent(ymuint pos);
+  int
+  parent(int pos);
 
 
 private:
@@ -154,14 +154,14 @@ private:
   double mVarDecay;
 
   // 変数の数
-  ymuint32 mVarNum;
+  int mVarNum;
 
   // 変数関係の配列のサイズ
-  ymuint32 mVarSize;
+  int mVarSize;
 
   // ヒープ上の位置の配列
   // サイズは mVarSize
-  ymint32* mHeapPos;
+  int* mHeapPos;
 
   // アクティビティ
   // サイズは mVarSize
@@ -169,10 +169,10 @@ private:
 
   // ヒープ用の配列
   // サイズは mVarSize
-  ymuint32* mHeap;
+  int* mHeap;
 
   // ヒープの要素数
-  ymuint32 mHeapNum;
+  int mHeapNum;
 
 };
 
@@ -211,7 +211,7 @@ inline
 void
 VarHeap::add_var(SatVarId var)
 {
-  ymuint vindex = var.val();
+  int vindex = var.val();
   set(vindex, mHeapNum);
   mActivity[vindex] = 0.0;
   ++ mHeapNum;
@@ -231,9 +231,9 @@ inline
 void
 VarHeap::push(SatVarId var)
 {
-  ymuint vindex = var.val();
+  int vindex = var.val();
   if ( mHeapPos[vindex] == -1 ) {
-    ymuint pos = mHeapNum;
+    int pos = mHeapNum;
     ++ mHeapNum;
     set(vindex, pos);
     move_up(pos);
@@ -242,16 +242,16 @@ VarHeap::push(SatVarId var)
 
 // @brief もっともアクティビティの高い変数を返す．
 inline
-ymuint
+int
 VarHeap::pop_top()
 {
   ASSERT_COND(mHeapNum > 0 );
 
-  ymuint ans = mHeap[0];
+  int ans = mHeap[0];
   mHeapPos[ans] = -1;
   -- mHeapNum;
   if ( mHeapNum > 0 ) {
-    ymuint vindex = mHeap[mHeapNum];
+    int vindex = mHeap[mHeapNum];
     set(vindex, 0);
     move_down(0);
   }
@@ -261,13 +261,13 @@ VarHeap::pop_top()
 // 引数の位置にある要素を適当な位置まで上げてゆく
 inline
 void
-VarHeap::move_up(ymuint pos)
+VarHeap::move_up(int pos)
 {
-  ymuint vindex = mHeap[pos];
+  int vindex = mHeap[pos];
   double val = mActivity[vindex];
   while ( pos > 0 ) {
-    ymuint pos_p = parent(pos);
-    ymuint vindex_p = mHeap[pos_p];
+    int pos_p = parent(pos);
+    int vindex_p = mHeap[pos_p];
     double val_p = mActivity[vindex_p];
     if ( val_p >= val ) {
       break;
@@ -281,8 +281,8 @@ VarHeap::move_up(ymuint pos)
 // 変数を配列にセットする．
 inline
 void
-VarHeap::set(ymuint vindex,
-		ymuint pos)
+VarHeap::set(int vindex,
+	     int pos)
 {
   mHeap[pos] = vindex;
   mHeapPos[vindex] = pos;
@@ -290,24 +290,24 @@ VarHeap::set(ymuint vindex,
 
 // @brief 左の子供の位置を計算する
 inline
-ymuint
-VarHeap::left(ymuint pos)
+int
+VarHeap::left(int pos)
 {
   return pos + pos + 1;
 }
 
 // @brief 右の子供の位置を計算する．
 inline
-ymuint
-VarHeap::right(ymuint pos)
+int
+VarHeap::right(int pos)
 {
   return pos + pos + 2;
 }
 
 // @brief 親の位置を計算する．
 inline
-ymuint
-VarHeap::parent(ymuint pos)
+int
+VarHeap::parent(int pos)
 {
   return (pos - 1) >> 1;
 }

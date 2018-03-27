@@ -5,7 +5,7 @@
 /// @brief SatLoggerS のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -56,7 +56,7 @@ public:
   /// @param[in] lits リテラルの配列
   virtual
   void
-  set_conditional_literals(ymuint n_lits,
+  set_conditional_literals(int n_lits,
 			   const SatLiteral* lits);
 
   /// @brief 節を追加する．
@@ -70,7 +70,7 @@ public:
   /// @param[in] lits リテラルの配列
   virtual
   void
-  add_clause(ymuint n_lits,
+  add_clause(int n_lits,
 	     const SatLiteral* lits);
 
   /// @brief assumption 付きの SAT 問題を解く．

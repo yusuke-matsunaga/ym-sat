@@ -3,7 +3,7 @@
 /// @brief SatClause の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -23,21 +23,21 @@ ostream&
 operator<<(ostream& s,
 	   const SatClause& c)
 {
-  ymuint n = c.lit_num();
+  int n = c.lit_num();
   if ( n == 2 ) {
     s << "(" << c.lit(0) << " + " << c.lit(1) << ")";
   }
   else {
     // 一旦 vector に入れてソートする．
     vector<SatLiteral> tmp(n);
-    for (ymuint i = 0; i < n; ++ i) {
+    for ( int i = 0; i < n; ++ i ) {
       tmp[i] = c.lit(i);
     }
     //sort(tmp.begin() + 1, tmp.end());
 
     s << "(";
     const char* plus = "";
-    for (ymuint i = 0; i < n; ++ i) {
+    for ( int i = 0; i < n; ++ i ) {
       s << plus << tmp[i];
       plus = " + ";
     }

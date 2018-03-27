@@ -5,7 +5,7 @@
 /// @brief SatDimacsHandler のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2013-2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2013-2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -66,8 +66,8 @@ public:
   virtual
   bool
   read_p(const FileRegion& loc,
-	 ymuint nv,
-	 ymuint nc);
+	 int nv,
+	 int nc);
 
   /// @brief clause 行の読込み
   /// @param[in] loc ファイル上の位置情報

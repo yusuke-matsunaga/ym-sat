@@ -5,7 +5,7 @@
 /// @brief DimacsScanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -16,7 +16,7 @@
 BEGIN_NAMESPACE_YM_SAT
 
 /// @brief トークンの型定義
-enum tToken {
+enum class Token {
   kC,
   kP,
   kNUM,
@@ -51,7 +51,7 @@ public:
 
   /// @brief トークンの読込み
   /// @param[out] loc 対応するファイル上の位置情報を格納する変数
-  tToken
+  Token
   read_token(FileRegion& loc);
 
   /// @brief 直前の read_token() が kNUM だった場合の値を返す．
@@ -66,7 +66,7 @@ private:
 
   /// @brief read_token() の下請け関数
   /// @return トークンを返す．
-  tToken
+  Token
   scan();
 
 

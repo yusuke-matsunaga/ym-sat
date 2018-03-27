@@ -3,7 +3,7 @@
 /// @brief ControllerMS2 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2015, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -82,14 +82,14 @@ void
 ControllerMS2::_init()
 {
   double restart_inc = 2.0;
-  mMgr.set_conflict_limit(static_cast<ymuint64>(luby(restart_inc, 0)) * 100);
+  mMgr.set_conflict_limit(static_cast<int>(luby(restart_inc, 0)) * 100);
 
   mLearntLimitD = mMgr.clause_num() / 3.0;
   mLearntSizeAdjustConfl = 100.0;
   mLearntSizeAdjustInc = 1.5;
-  mLearntSizeAdjustCount = static_cast<ymuint>(mLearntSizeAdjustConfl);
+  mLearntSizeAdjustCount = static_cast<int>(mLearntSizeAdjustConfl);
 
-  mMgr.set_learnt_limit(static_cast<ymuint64>(mLearntLimitD));
+  mMgr.set_learnt_limit(static_cast<int>(mLearntLimitD));
 
   mMgr.set_decay(mParams.mVarDecay, mParams.mClauseDecay);
 }
@@ -97,10 +97,10 @@ ControllerMS2::_init()
 // @brief リスタート時の処理
 // @param[in] restart リスタート回数
 void
-ControllerMS2::_update_on_restart(ymuint64 restart)
+ControllerMS2::_update_on_restart(int restart)
 {
   double restart_inc = 2.0;
-  mMgr.set_conflict_limit(static_cast<ymuint64>(luby(restart_inc, restart)) * 100);
+  mMgr.set_conflict_limit(static_cast<int>(luby(restart_inc, restart)) * 100);
 }
 
 // @brief 矛盾発生時の処理
@@ -110,9 +110,9 @@ ControllerMS2::_update_on_conflict()
   -- mLearntSizeAdjustCount;
   if ( mLearntSizeAdjustCount == 0 ) {
     mLearntSizeAdjustConfl *= mLearntSizeAdjustInc;
-    mLearntSizeAdjustCount = static_cast<ymuint>(mLearntSizeAdjustConfl);
+    mLearntSizeAdjustCount = static_cast<int>(mLearntSizeAdjustConfl);
     mLearntLimitD *= 1.1;
-    mMgr.set_learnt_limit(static_cast<ymuint64>(mLearntLimitD));
+    mMgr.set_learnt_limit(static_cast<int>(mLearntLimitD));
   }
 }
 

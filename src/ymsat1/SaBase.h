@@ -5,7 +5,7 @@
 /// @brief SaBase のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -42,7 +42,7 @@ public:
   /// @brief 新しい変数が追加されたときに呼ばれる仮想関数
   virtual
   void
-  alloc_var(ymuint size);
+  alloc_var(int size);
 
 
 protected:

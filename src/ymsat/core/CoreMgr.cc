@@ -3,7 +3,7 @@
 /// @brief CoreMgr の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -65,7 +65,7 @@ CoreMgr::CoreMgr() :
 // @brief デストラクタ
 CoreMgr::~CoreMgr()
 {
-  for (ymuint i = 0; i < mVarSize * 2; ++ i) {
+  for ( int i = 0; i < mVarSize * 2; ++ i ) {
     mWatcherList[i].finish();
   }
 
@@ -102,7 +102,7 @@ CoreMgr::new_variable(bool decision)
 
   // ここではカウンタを増やすだけ
   // 実際の処理は alloc_var() でまとめて行う．
-  ymuint n = mVarNum;
+  int n = mVarNum;
   ++ mVarNum;
   return SatVarId(n);
 }
@@ -115,7 +115,7 @@ CoreMgr::alloc_var()
     if ( mVarSize < mVarNum ) {
       expand_var();
     }
-    for (ymuint i = mOldVarNum; i < mVarNum; ++ i) {
+    for ( int i = mOldVarNum; i < mVarNum; ++ i ) {
       mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
       add_var(SatVarId(i));
     }
@@ -128,14 +128,14 @@ void
 CoreMgr::expand_var()
 {
   // 古い配列を保存しておく．
-  ymuint old_size = mVarSize;
+  int old_size = mVarSize;
   ymuint8* old_val = mVal;
   int* old_decision_level = mDecisionLevel;
   SatReason* old_reason = mReason;
   WatcherList* old_watcher_list = mWatcherList;
-  ymint32* old_heap_pos = mHeapPos;
+  int* old_heap_pos = mHeapPos;
   double* old_activity = mActivity;
-  ymuint32* old_heap = mHeap;
+  int* old_heap = mHeap;
 
   // 新しいサイズを計算する．
   if ( mVarSize == 0 ) {
@@ -150,23 +150,23 @@ CoreMgr::expand_var()
   mDecisionLevel = new int[mVarSize];
   mReason = new SatReason[mVarSize];
   mWatcherList = new WatcherList[mVarSize * 2];
-  mHeapPos = new ymint32[mVarSize];
+  mHeapPos = new int[mVarSize];
   mActivity = new double[mVarSize];
-  mHeap = new ymuint32[mVarSize];
+  mHeap = new int[mVarSize];
 
   // 古い配列から新しい配列へ内容をコピーする．
-  for (ymuint i = 0; i < mOldVarNum; ++ i) {
+  for ( int i = 0; i < mOldVarNum; ++ i ) {
     mVal[i] = old_val[i];
     mDecisionLevel[i] = old_decision_level[i];
     mReason[i] = old_reason[i];
     mHeapPos[i] = old_heap_pos[i];
     mActivity[i] = old_activity[i];
   }
-  ymuint n2 = mOldVarNum * 2;
-  for (ymuint i = 0; i < n2; ++ i) {
+  int n2 = mOldVarNum * 2;
+  for ( int i = 0; i < n2; ++ i ) {
     mWatcherList[i].move(old_watcher_list[i]);
   }
-  for (ymuint i = 0; i < mHeapNum; ++ i) {
+  for ( int i = 0; i < mHeapNum; ++ i ) {
     mHeap[i] = old_heap[i];
   }
   if ( old_size > 0 ) {
@@ -186,10 +186,10 @@ CoreMgr::expand_var()
 void
 CoreMgr::set_conditional_literals(const vector<SatLiteral>& lits)
 {
-  ymuint lit_num = lits.size();
+  int lit_num = lits.size();
   mCondLits.clear();
   mCondLits.resize(lit_num);
-  for (ymuint i = 0; i < lit_num; ++ i) {
+  for ( int i = 0; i < lit_num; ++ i ) {
     mCondLits[i] = lits[i];
   }
 }
@@ -198,12 +198,12 @@ CoreMgr::set_conditional_literals(const vector<SatLiteral>& lits)
 // @param[in] lit_num リテラル数
 // @param[in] lits リテラルの配列
 void
-CoreMgr::set_conditional_literals(ymuint lit_num,
+CoreMgr::set_conditional_literals(int lit_num,
 				  const SatLiteral* lits)
 {
   mCondLits.clear();
   mCondLits.resize(lit_num);
-  for (ymuint i = 0; i < lit_num; ++ i) {
+  for ( int i = 0; i < lit_num; ++ i ) {
     mCondLits[i] = lits[i];
   }
 }
@@ -213,13 +213,13 @@ CoreMgr::set_conditional_literals(ymuint lit_num,
 void
 CoreMgr::add_clause(const vector<SatLiteral>& lits)
 {
-  ymuint lit_num = lits.size();
-  ymuint n2 = mCondLits.size();
+  int lit_num = lits.size();
+  int n2 = mCondLits.size();
   alloc_lits(lit_num + n2);
-  for (ymuint i = 0; i < lit_num; ++ i) {
+  for ( int i = 0; i < lit_num; ++ i ) {
     mTmpLits[i] = lits[i];
   }
-  for (ymuint i = 0; i < n2; ++ i) {
+  for ( int i = 0; i < n2; ++ i ) {
     mTmpLits[lit_num + i] = ~mCondLits[i];
   }
   add_clause_sub(lit_num + n2);
@@ -229,15 +229,15 @@ CoreMgr::add_clause(const vector<SatLiteral>& lits)
 // @param[in] lit_num リテラル数
 // @param[in] lits リテラルの配列
 void
-CoreMgr::add_clause(ymuint lit_num,
+CoreMgr::add_clause(int lit_num,
 		    const SatLiteral* lits)
 {
-  ymuint n2 = mCondLits.size();
+  int n2 = mCondLits.size();
   alloc_lits(lit_num + n2);
-  for (ymuint i = 0; i < lit_num; ++ i) {
+  for ( int i = 0; i < lit_num; ++ i ) {
     mTmpLits[i] = lits[i];
   }
-  for (ymuint i = 0; i < n2; ++ i) {
+  for ( int i = 0; i < n2; ++ i ) {
     mTmpLits[lit_num + i] = ~mCondLits[i];
   }
   add_clause_sub(lit_num + n2);
@@ -247,7 +247,7 @@ CoreMgr::add_clause(ymuint lit_num,
 //
 // リテラルの実体は mTmpLits[] に入っている．
 void
-CoreMgr::add_clause_sub(ymuint lit_num)
+CoreMgr::add_clause_sub(int lit_num)
 {
   if ( decision_level() != 0 ) {
     // エラー
@@ -265,8 +265,8 @@ CoreMgr::add_clause_sub(ymuint lit_num)
   // - 重複したリテラルの除去
   // - false literal の除去
   // - true literal を持つかどうかのチェック
-  ymuint wpos = 0;
-  for (ymuint rpos = 0; rpos < lit_num; ++ rpos) {
+  int wpos = 0;
+  for ( int rpos = 0; rpos < lit_num; ++ rpos ) {
     SatLiteral l = mTmpLits[rpos];
     if ( wpos != 0 && mTmpLits[wpos - 1] == l ) {
       // 重複している．
@@ -345,7 +345,7 @@ CoreMgr::add_clause_sub(ymuint lit_num)
 void
 CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
 {
-  ymuint n = lits.size();
+  int n = lits.size();
   mLearntLitNum += n;
 
   if ( n == 0 ) {
@@ -387,7 +387,7 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
   else {
     // 節の生成
     alloc_lits(n);
-    for (ymuint i = 0; i < n; ++ i) {
+    for ( int i = 0; i < n; ++ i ) {
       mTmpLits[i] = lits[i];
     }
     SatClause* clause = new_clause(n, true);
@@ -415,10 +415,10 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
 // @param[in] learnt 学習節のとき true とするフラグ
 // @note リテラルは mTmpLits に格納されている．
 SatClause*
-CoreMgr::new_clause(ymuint lit_num,
-		   bool learnt)
+CoreMgr::new_clause(int lit_num,
+		    bool learnt)
 {
-  ymuint size = sizeof(SatClause) + sizeof(SatLiteral) * (lit_num - 1);
+  int size = sizeof(SatClause) + sizeof(SatLiteral) * (lit_num - 1);
   void* p = mAlloc.get_memory(size);
   SatClause* clause = new (p) SatClause(lit_num, mTmpLits, learnt);
 
@@ -453,7 +453,7 @@ CoreMgr::reduce_CNF()
   // 変数ヒープを再構成する．
   vector<SatVarId> var_list;
   var_list.reserve(mVarNum);
-  for (ymuint i = 0; i < mVarNum; ++ i) {
+  for ( int i = 0; i < mVarNum; ++ i ) {
     SatVarId var(i);
     if ( eval(var) == SatBool3::X ) {
       var_list.push_back(SatVarId(i));
@@ -475,13 +475,13 @@ CoreMgr::reduce_CNF()
 void
 CoreMgr::sweep_clause(vector<SatClause*>& clause_list)
 {
-  ymuint n = clause_list.size();
-  ymuint wpos = 0;
-  for (ymuint rpos = 0; rpos < n; ++ rpos) {
+  int n = clause_list.size();
+  int wpos = 0;
+  for ( int rpos = 0; rpos < n; ++ rpos ) {
     SatClause* c = clause_list[rpos];
-    ymuint nl = c->lit_num();
+    int nl = c->lit_num();
     bool satisfied = false;
-    for (ymuint i = 0; i < nl; ++ i) {
+    for ( int i = 0; i < nl; ++ i ) {
       if ( eval(c->lit(i)) == SatBool3::True ) {
 	satisfied = true;
 	break;
@@ -521,8 +521,8 @@ END_NONAMESPACE
 void
 CoreMgr::reduce_learnt_clause()
 {
-  ymuint n = mLearntClauseList.size();
-  ymuint n2 = n / 2;
+  int n = mLearntClauseList.size();
+  int n2 = n / 2;
 
   // 足切りのための制限値
   double abs_limit = mClauseBump / n;
@@ -530,7 +530,7 @@ CoreMgr::reduce_learnt_clause()
   sort(mLearntClauseList.begin(), mLearntClauseList.end(), SatClauseLess());
 
   vector<SatClause*>::iterator wpos = mLearntClauseList.begin();
-  for (ymuint i = 0; i < n2; ++ i) {
+  for ( int i = 0; i < n2; ++ i ) {
     SatClause* clause = mLearntClauseList[i];
     if ( clause->lit_num() > 2 && !is_locked(clause) ) {
       delete_clause(clause);
@@ -540,7 +540,7 @@ CoreMgr::reduce_learnt_clause()
       ++ wpos;
     }
   }
-  for (ymuint i = n2; i < n; ++ i) {
+  for ( int i = n2; i < n; ++ i ) {
     SatClause* clause = mLearntClauseList[i];
     if ( clause->lit_num() > 2 && !is_locked(clause) &&
 	 clause->activity() < abs_limit ) {
@@ -558,9 +558,9 @@ CoreMgr::reduce_learnt_clause()
 
 // @brief mTmpLits を確保する．
 void
-CoreMgr::alloc_lits(ymuint lit_num)
+CoreMgr::alloc_lits(int lit_num)
 {
-  ymuint old_size = mTmpLitsSize;
+  int old_size = mTmpLitsSize;
   while ( mTmpLitsSize <= lit_num ) {
     mTmpLitsSize <<= 1;
   }
@@ -583,7 +583,7 @@ CoreMgr::delete_clause(SatClause* clause)
 
   mLearntLitNum -= clause->lit_num();
 
-  ymuint size = sizeof(SatClause) + sizeof(SatLiteral) * (clause->lit_num() - 1);
+  int size = sizeof(SatClause) + sizeof(SatLiteral) * (clause->lit_num() - 1);
   mAlloc.put_memory(size, static_cast<void*>(clause));
 }
 
@@ -593,7 +593,7 @@ void
 CoreMgr::get_model(vector<SatBool3>& model)
 {
   model.resize(mVarNum);
-  for (ymuint i = 0; i < mVarNum; ++ i) {
+  for ( int i = 0; i < mVarNum; ++ i ) {
     SatBool3 val = eval(SatVarId(i));
     ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
     model[i] = val;
@@ -628,7 +628,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
     }
     cout << endl;
     cout << " Clauses:" << endl;
-    for (ymuint i = 0; i < mConstrClauseList.size(); ++ i) {
+    for ( int i = 0; i < mConstrClauseList.size(); ++ i ) {
       const SatClause* clause = mConstrClauseList[i];
       cout << "  " << *clause << endl;
     }
@@ -704,7 +704,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
 
   // 以降，現在のレベルが基底レベルとなる．
   {
-    ymuint root_level = decision_level();
+    int root_level = decision_level();
     if ( debug & (debug_assign | debug_decision) ) {
       cout << "RootLevel = " << root_level << endl;
     }
@@ -777,11 +777,11 @@ CoreMgr::search(Controller& controller,
 		Analyzer& analyzer,
 		Selecter& selecter)
 {
-  ymuint root_level = decision_level();
+  int root_level = decision_level();
 
   ++ mRestartNum;
 
-  ymuint cur_confl_num = 0;
+  int cur_confl_num = 0;
   for ( ; ; ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
     SatReason conflict = implication();
@@ -804,7 +804,7 @@ CoreMgr::search(Controller& controller,
 	     << endl
 	     << "learnt clause is ";
 	const char* plus = "";
-	for (ymuint i = 0; i < learnt_lits.size(); ++ i) {
+	for ( int i = 0; i < learnt_lits.size(); ++ i ) {
 	  SatLiteral l = learnt_lits[i];
 	  cout << plus << l << " @" << decision_level(l.varid());
 	  plus = " + ";
@@ -883,7 +883,7 @@ CoreMgr::search(Controller& controller,
 SatReason
 CoreMgr::implication()
 {
-  ymuint prop_num = 0;
+  int prop_num = 0;
   SatReason conflict = kNullSatReason;
   while ( mAssignList.has_elem() ) {
     SatLiteral l = mAssignList.get_next();
@@ -896,9 +896,9 @@ CoreMgr::implication()
     SatLiteral nl = ~l;
 
     WatcherList& wlist = watcher_list(l);
-    ymuint n = wlist.num();
-    ymuint rpos = 0;
-    ymuint wpos = 0;
+    int n = wlist.num();
+    int rpos = 0;
+    int wpos = 0;
     while ( rpos < n ) {
       Watcher w = wlist.elem(rpos);
       wlist.set_elem(wpos, w);
@@ -965,8 +965,8 @@ CoreMgr::implication()
 	// この時，替わりのリテラルが未定かすでに充足しているかどうか
 	// は問題でない．
 	bool found = false;
-	ymuint n = c->lit_num();
-	for (ymuint i = 2; i < n; ++ i) {
+	int n = c->lit_num();
+	for ( int i = 2; i < n; ++ i ) {
 	  SatLiteral l2 = c->lit(i);
 	  if ( eval(l2) != SatBool3::False ) {
 	    // l2 を 1番めの watch literal にする．
@@ -1047,7 +1047,7 @@ CoreMgr::backtrack(int level)
     while ( mAssignList.has_elem() ) {
       SatLiteral p = mAssignList.get_prev();
       SatVarId varid = p.varid();
-      ymuint vindex = varid.val();
+      int vindex = varid.val();
       mVal[vindex] = (mVal[vindex] << 2) | conv_from_Bool3(SatBool3::X);
       push(varid);
       if ( debug & debug_assign ) {
@@ -1065,16 +1065,16 @@ CoreMgr::backtrack(int level)
 void
 CoreMgr::bump_var_activity(SatVarId varid)
 {
-  ymuint vindex = varid.val();
+  int vindex = varid.val();
   double& act = mActivity[vindex];
   act += mVarBump;
   if ( act > 1e+100 ) {
-    for (ymuint i = 0; i < mVarNum; ++ i) {
+    for ( int i = 0; i < mVarNum; ++ i ) {
       mActivity[i] *= 1e-100;
     }
     mVarBump *= 1e-100;
   }
-  ymint pos = mHeapPos[vindex];
+  int pos = mHeapPos[vindex];
   if ( pos > 0 ) {
     move_up(pos);
   }
@@ -1089,8 +1089,8 @@ CoreMgr::del_watcher(SatLiteral watch_lit,
 {
   Watcher w0(reason);
   WatcherList& wlist = watcher_list(watch_lit);
-  ymuint n = wlist.num();
-  ymuint wpos = 0;
+  int n = wlist.num();
+  int wpos = 0;
   for ( ; wpos < n; ++ wpos) {
     Watcher w = wlist.elem(wpos);
     if ( w == w0 ) {
@@ -1117,9 +1117,9 @@ CoreMgr::del_satisfied_watcher(SatLiteral watch_lit)
   // あたまからスキャンして該当の要素以降を
   // 1つづつ前に詰める．
   WatcherList& wlist = watcher_list(watch_lit);
-  ymuint n = wlist.num();
-  ymuint wpos = 0;
-  for (ymuint rpos = 0; rpos < n; ++ rpos) {
+  int n = wlist.num();
+  int wpos = 0;
+  for ( int rpos = 0; rpos < n; ++ rpos ) {
     Watcher w = wlist.elem(rpos);
     if ( w.is_literal() ) {
       SatLiteral l = w.literal();
@@ -1144,7 +1144,7 @@ SatVarId
 CoreMgr::next_var()
 {
   while ( !empty() ) {
-    ymuint vindex = pop_top();
+    int vindex = pop_top();
     SatVarId dvar(vindex);
     if ( eval(dvar) == SatBool3::X ) {
       return dvar;
@@ -1173,7 +1173,7 @@ CoreMgr::bump_clause_activity(SatClause* clause)
 void
 CoreMgr::reset_activity()
 {
-  for (ymuint i = 0; i < mVarSize; ++ i) {
+  for ( int i = 0; i < mVarSize; ++ i) {
     mActivity[i] = 0.0;
   }
 }
@@ -1183,19 +1183,19 @@ CoreMgr::reset_activity()
 void
 CoreMgr::build(const vector<SatVarId>& var_list)
 {
-  for (ymuint i = 0; i < mVarSize; ++ i) {
+  for ( int i = 0; i < mVarSize; ++ i ) {
     mHeapPos[i] = -1;
   }
   mHeapNum = 0;
   ASSERT_COND( var_list.size() <= mVarSize );
 
-  for (ymuint i = 0; i < var_list.size(); ++ i) {
+  for ( int i = 0; i < var_list.size(); ++ i ) {
     SatVarId var = var_list[i];
-    ymuint vindex = var.val();
+    int vindex = var.val();
     ++ mHeapNum;
     set(vindex, i);
   }
-  for (ymuint i = (mHeapNum / 2); i > 0; ) {
+  for ( int i = (mHeapNum / 2); i > 0; ) {
     -- i;
     move_down(i);
   }
@@ -1203,25 +1203,25 @@ CoreMgr::build(const vector<SatVarId>& var_list)
 
 // 引数の位置にある要素を適当な位置まで沈めてゆく
 void
-CoreMgr::move_down(ymuint pos)
+CoreMgr::move_down(int pos)
 {
-  ymuint vindex_p = mHeap[pos];
+  int vindex_p = mHeap[pos];
   double val_p = mActivity[vindex_p];
   for ( ; ; ) {
     // ヒープ木の性質から親から子の位置がわかる
-    ymuint pos_l = left(pos);
-    ymuint pos_r = pos_l + 1;
+    int pos_l = left(pos);
+    int pos_r = pos_l + 1;
     if ( pos_r > mHeapNum ) {
       // 左右の子どもを持たない場合
       break;
     }
     // 左右の子供のうちアクティビティの大きい方を pos_c とする．
     // 同点なら左を選ぶ．
-    ymuint pos_c = pos_l;
-    ymuint vindex_c = mHeap[pos_c];
+    int pos_c = pos_l;
+    int vindex_c = mHeap[pos_c];
     double val_c = mActivity[vindex_c];
     if ( pos_r < mHeapNum ) {
-      ymuint vindex_r = mHeap[pos_r];
+      int vindex_r = mHeap[pos_r];
       double val_r = mActivity[vindex_r];
       if ( val_c < val_r ) {
 	pos_c = pos_r;
@@ -1245,15 +1245,15 @@ void
 CoreMgr::dump_heap(ostream& s) const
 {
   s << "heap num = " << mHeapNum << endl;
-  ymuint j = 0;
-  ymuint nc = 1;
+  int j = 0;
+  int nc = 1;
   const char* spc = "";
-  for (ymuint i = 0; i < mHeapNum; ++ i) {
-    ymuint vindex = mHeap[i];
-    ASSERT_COND( mHeapPos[vindex] == static_cast<ymint>(i) );
+  for ( int i = 0; i < mHeapNum; ++ i ) {
+    int vindex = mHeap[i];
+    ASSERT_COND( mHeapPos[vindex] == i );
     if ( i > 0 ) {
-      ymint p = parent(i);
-      ymuint pindex = mHeap[p];
+      int p = parent(i);
+      int pindex = mHeap[p];
       ASSERT_COND( mActivity[pindex] >= mActivity[vindex] );
     }
     s << spc << vindex << "("

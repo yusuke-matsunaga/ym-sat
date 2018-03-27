@@ -3,7 +3,7 @@
 /// @brief SaBase の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -27,7 +27,7 @@ SaBase::~SaBase()
 
 // @brief 新しい変数が追加されたときに呼ばれる仮想関数
 void
-SaBase::alloc_var(ymuint size)
+SaBase::alloc_var(int size)
 {
   mMark.resize(size, false);
 }
@@ -41,29 +41,29 @@ SaBase::alloc_var(ymuint size)
 void
 SaBase::make_minimal(vector<SatLiteral>& lit_list)
 {
-  ymuint nl = lit_list.size();
+  int nl = lit_list.size();
 
   // lit_list に含まれているリテラルのレベルのビットマップ
   // ただし 64 のモジュロをとっている．
   ymuint64 lmask = 0ULL;
-  for (ymuint i = 0; i < nl; ++ i) {
+  for ( int i = 0; i < nl; ++ i ) {
     SatLiteral p = lit_list[i];
     int level = decision_level(p.varid());
     lmask |= (1ULL << (level & 63));
   }
 
-  ymuint wpos = 0;
-  for (ymuint i = 0; i < nl; ++ i) {
+  int wpos = 0;
+  for ( int i = 0; i < nl; ++ i ) {
     SatLiteral p = lit_list[i];
     SatVarId var = p.varid();
-    ymuint top = mClearQueue.size();
+    int top = mClearQueue.size();
     if ( check_recur(var, lmask) ) {
       if ( wpos != i ) {
 	lit_list[wpos] = p;
       }
       ++ wpos;
     }
-    for (ymuint j = top; j < mClearQueue.size(); ++ j) {
+    for ( int j = top; j < mClearQueue.size(); ++ j ) {
       set_mark(mClearQueue[j], false);
     }
     mClearQueue.erase(mClearQueue.begin() + top, mClearQueue.end());
@@ -104,9 +104,9 @@ SaBase::check_recur(SatVarId varid,
 
     if ( r.is_clause() ) {
       SatClause* clause = r.clause();
-      ymuint n = clause->lit_num();
+      int n = clause->lit_num();
       SatLiteral p = clause->wl0();
-      for (ymuint i = 0; i < n; ++ i) {
+      for ( int i = 0; i < n; ++ i ) {
 	SatLiteral q = clause->lit(i);
 	if ( q != p ) {
 	  put_var(q);
@@ -126,14 +126,14 @@ SaBase::check_recur(SatVarId varid,
 int
 SaBase::reorder(vector<SatLiteral>& lit_list)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   if ( n < 2 ) {
     return 0;
   }
   SatLiteral lit1 = lit_list[1];
   int level = decision_level(lit1.varid());
-  ymuint pos = 1;
-  for (ymuint i = 2; i < n; ++ i) {
+  int pos = 1;
+  for ( int i = 2; i < n; ++ i ) {
     SatLiteral lit2 = lit_list[i];
     int level2 = decision_level(lit2.varid());
     if ( level < level2 ) {

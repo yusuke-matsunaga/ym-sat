@@ -3,13 +3,12 @@
 /// @brief DimacsParser の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "ym/DimacsParser.h"
 #include "ym/DimacsHandler.h"
-#include "DimacsParserImpl.h"
 #include "DimacsScanner.h"
 #include "ym/MsgMgr.h"
 
@@ -17,112 +16,16 @@
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-// DimacsHandler
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-DimacsHandler::DimacsHandler()
-{
-}
-
-// @brief デストラクタ
-DimacsHandler::~DimacsHandler()
-{
-}
-
-// @brief 初期化
-bool
-DimacsHandler::init()
-{
-  return true;
-}
-
-// @brief p 行の読込み
-// @param[in] loc ファイル上の位置情報
-// @param[in] nv 変数の数
-// @param[in] nc 節の数
-// @retval true 処理が成功した．
-// @retval false エラーが起こった．
-bool
-DimacsHandler::read_p(const FileRegion& loc,
-		      ymuint nv,
-		      ymuint nc)
-{
-  return true;
-}
-
-// @brief clause 行の読込み
-// @param[in] loc ファイル上の位置情報
-// @param[in] lits リテラルの配列．最後の0は含まない
-// @retval true 処理が成功した．
-// @retval false エラーが起こった．
-bool
-DimacsHandler::read_clause(const FileRegion& loc,
-			   const vector<int>& lits)
-{
-  return true;
-}
-
-// @brief 終了処理
-// @param[in] loc 位置情報
-bool
-DimacsHandler::end()
-{
-  return true;
-}
-
-// @brief エラー終了時の処理
-void
-DimacsHandler::error_exit()
-{
-}
-
-
-//////////////////////////////////////////////////////////////////////
 // DimacsParser
 //////////////////////////////////////////////////////////////////////
 
-// コンストラクタ
-DimacsParser::DimacsParser() :
-  mImpl(new DimacsParserImpl)
-{
-}
-
-// デストラクタ
-DimacsParser::~DimacsParser()
-{
-  delete mImpl;
-}
-
-// @brief 読み込みを行う．
-// @param[in] ido 入力データ
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
-bool
-DimacsParser::read(IDO& ido)
-{
-  return mImpl->read(ido);
-}
-
-// @brief イベントハンドラの登録
-void
-DimacsParser::add_handler(DimacsHandler* handler)
-{
-  mImpl->add_handler(handler);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// クラス DimacsParserImpl
-//////////////////////////////////////////////////////////////////////
-
 // @brief コンストラクタ
-DimacsParserImpl::DimacsParserImpl()
+DimacsParser::DimacsParser()
 {
 }
 
 // @brief デストラクタ
-DimacsParserImpl::~DimacsParserImpl()
+DimacsParser::~DimacsParser()
 {
 }
 
@@ -131,7 +34,7 @@ DimacsParserImpl::~DimacsParserImpl()
 // @retval true 読み込みが成功した．
 // @retval false 読み込みが失敗した．
 bool
-DimacsParserImpl::read(IDO& ido)
+DimacsParser::read(IDO& ido)
 {
   // 読込用の内部状態
   enum {
@@ -154,29 +57,12 @@ DimacsParserImpl::read(IDO& ido)
   // 実際に読み込んだ節の数
   int act_nc = 0;
 
-#if 0
-  FileIDO ido;
-  if ( !ido.open(filename) ) {
-    // ファイルが開けなかった．
-    ostringstream buf;
-    buf << filename << " : No such file.";
-    MsgMgr::put_msg(__FILE__, __LINE__,
-		    FileRegion(),
-		    kMsgFailure,
-		    "DIMACS_PARSER",
-		    buf.str());
-    return false;
-  }
-#endif
-
   vector<int> lits;
 
   DimacsScanner scanner(ido);
 
   bool stat = true;
-  for (list<DimacsHandler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    DimacsHandler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     if ( !handler->init() ) {
       stat = false;
     }
@@ -187,24 +73,24 @@ DimacsParserImpl::read(IDO& ido)
 
   for ( ; ; ) {
     FileRegion loc;
-    tToken tk = scanner.read_token(loc);
-    if ( tk == kERR ) {
+    Token tk = scanner.read_token(loc);
+    if ( tk == Token::kERR ) {
       return false;
     }
-    if ( tk == kC ) {
+    if ( tk == Token::kC ) {
       // コメント行なのでなにもしない．
       continue;
     }
 
     switch ( state ) {
     case ST_INIT:
-      if ( tk == kP ) {
+      if ( tk == Token::kP ) {
 	state = ST_P1;
       }
       break;
 
     case ST_P1:
-      if ( tk != kNUM ) {
+      if ( tk != Token::kNUM ) {
 	goto p_error;
       }
       dec_nv = scanner.cur_val();
@@ -212,7 +98,7 @@ DimacsParserImpl::read(IDO& ido)
       break;
 
     case ST_P2:
-      if ( tk != kNUM ) {
+      if ( tk != Token::kNUM ) {
 	goto p_error;
       }
       dec_nc = scanner.cur_val();
@@ -220,12 +106,10 @@ DimacsParserImpl::read(IDO& ido)
       break;
 
     case ST_P3:
-      if ( tk != kNL ) {
+      if ( tk != Token::kNL ) {
 	goto p_error;
       }
-      for (list<DimacsHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	DimacsHandler* handler = *p;
+      for ( auto handler: mHandlerList ) {
 	if ( !handler->read_p(loc, dec_nv, dec_nc) ) {
 	  stat = false;
 	}
@@ -237,7 +121,7 @@ DimacsParserImpl::read(IDO& ido)
       break;
 
     case ST_BODY1:
-      if ( tk == kP ) {
+      if ( tk == Token::kP ) {
 #if 0
 	put_msg(__FILE__, __LINE__,
 		loc,
@@ -248,13 +132,13 @@ DimacsParserImpl::read(IDO& ido)
 	cout << "ERR01: duplicated 'p' lines" << endl;
 	return false;
       }
-      if ( tk == kEOF ) {
+      if ( tk == Token::kEOF ) {
 	goto normal_end;
       }
-      if ( tk == kNL ) {
+      if ( tk == Token::kNL ) {
 	continue;
       }
-      if ( tk == kNUM ) {
+      if ( tk == Token::kNUM ) {
 	int v = scanner.cur_val();
 	lits.clear();
 	lits.push_back(v);
@@ -271,13 +155,13 @@ DimacsParserImpl::read(IDO& ido)
       goto n_error;
 
     case ST_BODY2:
-      if ( tk == kZERO ) {
+      if ( tk == Token::kZERO ) {
 	state = ST_BODY3;
       }
-      else if ( tk == kNL ) {
+      else if ( tk == Token::kNL ) {
 	continue;
       }
-      else if ( tk == kNUM ) {
+      else if ( tk == Token::kNUM ) {
 	int v = scanner.cur_val();
 	lits.push_back(v);
 	if ( v < 0 ) {
@@ -293,13 +177,11 @@ DimacsParserImpl::read(IDO& ido)
       break;
 
     case ST_BODY3:
-      if ( tk != kNL && tk != kEOF ) {
+      if ( tk != Token::kNL && tk != Token::kEOF ) {
 	goto n_error;
       }
       ++ act_nc;
-      for (list<DimacsHandler*>::iterator p = mHandlerList.begin();
-	   p != mHandlerList.end(); ++ p) {
-	DimacsHandler* handler = *p;
+      for ( auto handler: mHandlerList ) {
 	if ( !handler->read_clause(loc, lits) ) {
 	  stat = false;
 	}
@@ -352,11 +234,9 @@ DimacsParserImpl::read(IDO& ido)
 #endif
   }
 
-  for (list<DimacsHandler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    DimacsHandler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     if ( !handler->end() ) {
-	 stat = false;
+      stat = false;
     }
   }
   if ( !stat ) {
@@ -392,9 +272,7 @@ DimacsParserImpl::read(IDO& ido)
   goto error;
 
  error:
-  for (list<DimacsHandler*>::iterator p = mHandlerList.begin();
-       p != mHandlerList.end(); ++ p) {
-    DimacsHandler* handler = *p;
+  for ( auto handler: mHandlerList ) {
     handler->error_exit();
   }
 
@@ -403,11 +281,8 @@ DimacsParserImpl::read(IDO& ido)
 
 // @brief イベントハンドラの登録
 void
-DimacsParserImpl::add_handler(DimacsHandler* handler)
+DimacsParser::add_handler(DimacsHandler* handler)
 {
-#if 0
-  handler->mParser = this;
-#endif
   mHandlerList.push_back(handler);
 }
 

@@ -1,11 +1,11 @@
-﻿#ifndef YMYMLOGIC_DIMACSPARSER_H
-#define YMYMLOGIC_DIMACSPARSER_H
+﻿#ifndef YM_DIMACSPARSER_H
+#define YM_DIMACSPARSER_H
 
 /// @file ym/DimacsParser.h
 /// @brief DimacsParser のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -14,9 +14,6 @@
 
 
 BEGIN_NAMESPACE_YM_SAT
-
-// クラスの前方宣言
-class DimacsParserImpl;
 
 //////////////////////////////////////////////////////////////////////
 /// @class DimacsParser DimacsParser.h "ym/DimacsParser.h"
@@ -41,6 +38,9 @@ public:
 
 
 public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief 読み込みを行う．
   /// @param[in] ido 入力データ
@@ -59,11 +59,11 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 実際の処理を行うクラス
-  DimacsParserImpl* mImpl;
+  // イベントハンドラのリスト
+  vector<DimacsHandler*> mHandlerList;
 
 };
 
 END_NAMESPACE_YM_SAT
 
-#endif // YMYMLOGIC_DIMACSPARSER_H
+#endif // YM_DIMACSPARSER_H

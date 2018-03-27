@@ -5,7 +5,7 @@
 /// @brief CoreMgr のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -53,44 +53,44 @@ public:
   sane() const;
 
   /// @brief 変数の数を得る．
-  ymuint
+  int
   variable_num() const;
 
   /// @brief 制約節の数を得る．
-  ymuint
+  int
   clause_num() const;
 
   /// @brief 二項制約節の数を得る．
-  ymuint
+  int
   bin_clause_num() const;
 
   /// @brief 制約節のリテラルの総数を得る．
-  ymuint
+  int
   literal_num() const;
 
   /// @brief 学習節の数を得る．
-  ymuint
+  int
   learnt_clause_num() const;
 
   /// @brief 二項学習節の数を得る．
-  ymuint
+  int
   learnt_bin_clause_num() const;
 
   /// @brief 学習節のリテラルの総数を得る．
-  ymuint
+  int
   learnt_literal_num() const;
 
   /// @brief 制約節を得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < clause_num() )
   /// @return 制約節を返す．
   const SatClause*
-  clause(ymuint pos) const;
+  clause(int pos) const;
 
   /// @brief 二項制約節の内容を得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < bin_clause_num() )
   /// @param[out] lit0, lit1 リテラル
   void
-  bin_clause(ymuint pos,
+  bin_clause(int pos,
 	     SatLiteral& lit0,
 	     SatLiteral& lit1) const;
 
@@ -128,7 +128,7 @@ public:
   /// @param[in] lit_num リテラル数
   /// @param[in] lits リテラルの配列
   void
-  set_conditional_literals(ymuint lit_num,
+  set_conditional_literals(int lit_num,
 			   const SatLiteral* lits);
 
   /// @brief 節を追加する．
@@ -140,7 +140,7 @@ public:
   /// @param[in] lit_num リテラル数
   /// @param[in] lits リテラルの配列
   void
-  add_clause(ymuint lit_num,
+  add_clause(int lit_num,
 	     const SatLiteral* lits);
 
   /// @brief 学習節を追加する．
@@ -227,13 +227,13 @@ public:
   decision_level() const;
 
   /// @brief 割り当てリストの末尾の位置を得る．
-  ymuint
+  int
   last_assign() const;
 
   /// @brief 割り当てリストの pos 番めの要素を得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < last_assign() )
   SatLiteral
-  get_assign(ymuint pos) const;
+  get_assign(int pos) const;
 
   /// @brief 変数の decision level を返す．
   /// @param[in] var 変数番号
@@ -329,48 +329,48 @@ public:
   build(const vector<SatVarId>& var_list);
 
   /// @brief リスタート回数を返す．
-  ymuint64
+  int
   restart_num() const;
 
   /// @brief 総矛盾数を返す．
-  ymuint64
+  int
   conflict_num() const;
 
   /// @brief 総分岐数を返す．
-  ymuint64
+  int
   decision_num() const;
 
   /// @brief 総インプリケーション数を返す．
-  ymuint64
+  int
   propagation_num() const;
 
   /// @brief 矛盾回数の制限値を得る．
-  ymuint64
+  int
   conflict_limit() const;
 
   /// @brief 学習節の制限値を得る．
-  ymuint64
+  int
   learnt_limit() const;
 
   /// @brief conflict_limit の最大値を返す．
-  ymuint64
+  int
   max_conflict() const;
 
   /// @brief conflict_limit の最大値を設定する．
   /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
-  ymuint64
-  set_max_conflict(ymuint64 val);
+  int
+  set_max_conflict(int val);
 
   /// @brief 矛盾回数の制限値を設定する．
   /// @param[in] limit 設定する値
   void
-  set_conflict_limit(ymuint64 limit);
+  set_conflict_limit(int limit);
 
   /// @brief 学習節の制限値を設定する．
   /// @param[in] limit 設定する値
   void
-  set_learnt_limit(ymuint64 limit);
+  set_learnt_limit(int limit);
 
   /// @brief 現在の内部状態を得る．
   /// @param[out] stats 状態を格納する構造体
@@ -428,13 +428,13 @@ private:
   /// @brief mTmpLits を確保する．
   /// @param[in] lit_num 必要なサイズ
   void
-  alloc_lits(ymuint lit_num);
+  alloc_lits(int lit_num);
 
   /// @brief add_clause() の下請け関数
   ///
   /// リテラルの実体は mTmpLits[] に入れておく．
   void
-  add_clause_sub(ymuint lit_num);
+  add_clause_sub(int lit_num);
 
   /// @brief 新しい節を生成する．
   /// @param[in] lit_num リテラル数
@@ -442,7 +442,7 @@ private:
   ///
   /// リテラルは mTmpLits[] に入れておく．
   SatClause*
-  new_clause(ymuint lit_num,
+  new_clause(int lit_num,
 	     bool learnt = false);
 
   /// @brief 節を削除する．
@@ -497,45 +497,45 @@ private:
 
   /// @brief アクティビティ最大の変数番号を取り出す．
   /// @note 該当の変数はヒープから取り除かれる．
-  ymuint
+  int
   pop_top();
 
   /// @brief 引数の位置にある要素を適当な位置まで沈めてゆく
   /// @param[in] pos 対象の要素の位置
   void
-  move_down(ymuint pos);
+  move_down(int pos);
 
   /// @brief 引数の位置にある要素を適当な位置まで上げてゆく
   /// @param[in] vindex 対象の変数番号
   void
-  move_up(ymuint vindex);
+  move_up(int vindex);
 
   /// @brief 変数を配列にセットする．
   /// @param[in] vindex 対象の変数番号
   /// @param[in] pos 位置
   /// @note mHeap と mHeapPos の一貫性を保つためにはこの関数を使うこと．
   void
-  set(ymuint vindex,
-      ymuint pos);
+  set(int vindex,
+      int pos);
 
   /// @brief 左の子供の位置を計算する
   /// @param[in] pos 親の位置
   static
-  ymuint
-  left(ymuint pos);
+  int
+  left(int pos);
 
   /// @brief 右の子供の位置を計算する．
   /// @param[in] pos 親の位置
   static
-  ymuint
-  right(ymuint pos);
+  int
+  right(int pos);
 
   /// @brief 親の位置を計算する．
   /// @param[in] pos 子供の位置
   /// @note 左の子供でも右の子供でも同じ
   static
-  ymuint
-  parent(ymuint pos);
+  int
+  parent(int pos);
 
   /// @brief mVal[] で用いているエンコーディングを SatBool3 に変換する．
   static
@@ -631,16 +631,16 @@ private:
   vector<BinClause> mConstrBinList;
 
   // 制約節の総リテラル数 (二項制約節も含む)
-  ymuint64 mConstrLitNum;
+  int mConstrLitNum;
 
   // 学習節の配列
   vector<SatClause*> mLearntClauseList;
 
   // 二項学習節の数
-  ymuint64 mLearntBinNum;
+  int mLearntBinNum;
 
   // 学習節の総リテラル数 (二項制約節も含む)
-  ymuint64 mLearntLitNum;
+  int mLearntLitNum;
 
 #if YMSAT_USE_DVAR
   // dvar 配列
@@ -648,13 +648,13 @@ private:
 #endif
 
   // 変数の数
-  ymuint32 mVarNum;
+  int mVarNum;
 
   // 前回の alloc_var で処理した時の変数の数
-  ymuint32 mOldVarNum;
+  int mOldVarNum;
 
   // 変数関係の配列のサイズ
-  ymuint32 mVarSize;
+  int mVarSize;
 
   // 値の配列
   // サイズは mVarSize
@@ -682,23 +682,23 @@ private:
   AssignList mAssignList;
 
   // 前回の sweep 時の割り当て数
-  ymuint64 mSweep_assigns;
+  int mSweep_assigns;
 
   // 前回の sweep 時のリテラル数
-  ymint64 mSweep_props;
+  int mSweep_props;
 
   // add_clause で一時的に利用するリテラル配列
   SatLiteral* mTmpLits;
 
   // mTmpLits のサイズ
-  ymuint32 mTmpLitsSize;
+  int mTmpLitsSize;
 
   // 矛盾の解析時にテンポラリに使用される節
   SatClause* mTmpBinClause;
 
   // ヒープ上の位置の配列
   // サイズは mVarSize
-  ymint32* mHeapPos;
+  int* mHeapPos;
 
   // アクティビティの配列
   // サイズは mVarSize
@@ -706,34 +706,34 @@ private:
 
   // ヒープ用の配列
   // サイズは mVarSize
-  ymuint32* mHeap;
+  int* mHeap;
 
   // ヒープの要素数
-  ymuint32 mHeapNum;
+  int mHeapNum;
 
   // 動作フラグ
   bool mGoOn;
 
   // リスタート回数
-  ymuint64 mRestartNum;
+  int mRestartNum;
 
   // 総コンフリクト数
-  ymuint64 mConflictNum;
+  int mConflictNum;
 
   // 総 decision 数
-  ymuint64 mDecisionNum;
+  int mDecisionNum;
 
   // 総 implication 数
-  ymuint64 mPropagationNum;
+  int mPropagationNum;
 
   // コンフリクト数の制限
-  ymuint64 mConflictLimit;
+  int mConflictLimit;
 
   // 学習節の制限
-  ymuint64 mLearntLimit;
+  int mLearntLimit;
 
   // トータルのコンフリクト数の制限
-  ymuint64 mMaxConflict;
+  int mMaxConflict;
 
   // mTimer を使うとき true にするフラグ
   bool mTimerOn;
@@ -798,7 +798,7 @@ CoreMgr::sane() const
 
 // @brief 変数の数を得る．
 inline
-ymuint
+int
 CoreMgr::variable_num() const
 {
   return mVarNum;
@@ -806,7 +806,7 @@ CoreMgr::variable_num() const
 
 // @brief 制約節の数を得る．
 inline
-ymuint
+int
 CoreMgr::clause_num() const
 {
   return mConstrClauseList.size();
@@ -814,7 +814,7 @@ CoreMgr::clause_num() const
 
 // @brief 二項制約節の数を得る．
 inline
-ymuint
+int
 CoreMgr::bin_clause_num() const
 {
   return mConstrBinList.size();
@@ -822,7 +822,7 @@ CoreMgr::bin_clause_num() const
 
 // @brief 制約節のリテラルの総数を得る．
 inline
-ymuint
+int
 CoreMgr::literal_num() const
 {
   return mConstrLitNum;
@@ -830,7 +830,7 @@ CoreMgr::literal_num() const
 
 // @brief 学習節の数を得る．
 inline
-ymuint
+int
 CoreMgr::learnt_clause_num() const
 {
   return mLearntClauseList.size();
@@ -838,7 +838,7 @@ CoreMgr::learnt_clause_num() const
 
 // @brief 二項学習節の数を得る．
 inline
-ymuint
+int
 CoreMgr::learnt_bin_clause_num() const
 {
   return mLearntBinNum;
@@ -846,7 +846,7 @@ CoreMgr::learnt_bin_clause_num() const
 
 // @brief 学習節のリテラルの総数を得る．
 inline
-ymuint
+int
 CoreMgr::learnt_literal_num() const
 {
   return mLearntLitNum;
@@ -857,7 +857,7 @@ CoreMgr::learnt_literal_num() const
 // @return 制約節を返す．
 inline
 const SatClause*
-CoreMgr::clause(ymuint pos) const
+CoreMgr::clause(int pos) const
 {
   ASSERT_COND( pos < clause_num() );
   return mConstrClauseList[pos];
@@ -868,7 +868,7 @@ CoreMgr::clause(ymuint pos) const
 // @param[out] lit0, lit1 リテラル
 inline
 void
-CoreMgr::bin_clause(ymuint pos,
+CoreMgr::bin_clause(int pos,
 		    SatLiteral& lit0,
 		    SatLiteral& lit1) const
 {
@@ -903,7 +903,7 @@ inline
 void
 CoreMgr::add_var(SatVarId var)
 {
-  ymuint vindex = var.val();
+  int vindex = var.val();
   set(vindex, mHeapNum);
   mActivity[vindex] = 0.0;
   ++ mHeapNum;
@@ -914,7 +914,7 @@ inline
 WatcherList&
 CoreMgr::watcher_list(SatLiteral lit)
 {
-  ymuint index = lit.index();
+  int index = lit.index();
   ASSERT_COND( index < mVarNum * 2 );
   return mWatcherList[index];
 }
@@ -954,7 +954,7 @@ inline
 SatBool3
 CoreMgr::eval(SatVarId var) const
 {
-  ymuint vindex = var.val();
+  int vindex = var.val();
   ASSERT_COND( vindex < mVarNum );
   ymuint8 x = mVal[vindex] & 3U;
   return conv_to_Bool3(x);
@@ -966,11 +966,11 @@ inline
 SatBool3
 CoreMgr::eval(SatLiteral lit) const
 {
-  ymuint index = lit.index();
-  ymuint vindex = index >> 1;
+  int index = lit.index();
+  int vindex = index >> 1;
   ASSERT_COND( vindex < mVarNum );
-  ymuint x = mVal[vindex] & 3U;
-  ymuint inv = index & 1U;
+  int x = mVal[vindex] & 3U;
+  int inv = index & 1U;
   int d = 1 - (inv * 2);
   return static_cast<SatBool3>((static_cast<int>(x) - 1) * d);
 }
@@ -980,7 +980,7 @@ inline
 SatBool3
 CoreMgr::prev_val(SatVarId var) const
 {
-  ymuint vindex = var.val();
+  int vindex = var.val();
   ASSERT_COND( vindex < mVarNum );
   ymuint8 x = ((mVal[vindex] >> 2)) & 3U;
   return conv_to_Bool3(x);
@@ -992,9 +992,9 @@ void
 CoreMgr::assign(SatLiteral lit,
 		SatReason reason)
 {
-  ymuint lindex = lit.index();
-  ymuint vindex = lindex / 2;
-  ymuint inv = lindex & 1U;
+  int lindex = lit.index();
+  int vindex = lindex / 2;
+  int inv = lindex & 1U;
   ymuint8 x = 2 - inv * 2;
   ASSERT_COND( vindex < mVarNum );
   mVal[vindex] = x | (conv_from_Bool3(SatBool3::X) << 2);
@@ -1033,7 +1033,7 @@ CoreMgr::decision_level() const
 
 // @brief 割り当てリストの末尾の位置を得る．
 inline
-ymuint
+int
 CoreMgr::last_assign() const
 {
   return mAssignList.size() - 1;
@@ -1043,7 +1043,7 @@ CoreMgr::last_assign() const
 // @param[in] pos 位置番号
 inline
 SatLiteral
-CoreMgr::get_assign(ymuint pos) const
+CoreMgr::get_assign(int pos) const
 {
   return mAssignList.get(pos);
 }
@@ -1054,7 +1054,7 @@ inline
 int
 CoreMgr::decision_level(SatVarId var) const
 {
-  ymuint vindex = var.val();
+  int vindex = var.val();
   ASSERT_COND( vindex < mVarNum );
   return mDecisionLevel[vindex];
 }
@@ -1073,7 +1073,7 @@ inline
 SatReason
 CoreMgr::reason(SatVarId var) const
 {
-  ymuint vindex = var.val();
+  int vindex = var.val();
   ASSERT_COND( vindex < mVarNum );
   return mReason[vindex];
 }
@@ -1112,9 +1112,9 @@ inline
 void
 CoreMgr::push(SatVarId var)
 {
-  ymuint vindex = var.val();
+  int vindex = var.val();
   if ( mHeapPos[vindex] == -1 ) {
-    ymuint pos = mHeapNum;
+    int pos = mHeapNum;
     ++ mHeapNum;
     set(vindex, pos);
     move_up(pos);
@@ -1123,16 +1123,16 @@ CoreMgr::push(SatVarId var)
 
 // @brief もっともアクティビティの高い変数を返す．
 inline
-ymuint
+int
 CoreMgr::pop_top()
 {
   ASSERT_COND(mHeapNum > 0 );
 
-  ymuint ans = mHeap[0];
+  int ans = mHeap[0];
   mHeapPos[ans] = -1;
   -- mHeapNum;
   if ( mHeapNum > 0 ) {
-    ymuint vindex = mHeap[mHeapNum];
+    int vindex = mHeap[mHeapNum];
     set(vindex, 0);
     move_down(0);
   }
@@ -1142,13 +1142,13 @@ CoreMgr::pop_top()
 // 引数の位置にある要素を適当な位置まで上げてゆく
 inline
 void
-CoreMgr::move_up(ymuint pos)
+CoreMgr::move_up(int pos)
 {
-  ymuint vindex = mHeap[pos];
+  int vindex = mHeap[pos];
   double val = mActivity[vindex];
   while ( pos > 0 ) {
-    ymuint pos_p = parent(pos);
-    ymuint vindex_p = mHeap[pos_p];
+    int pos_p = parent(pos);
+    int vindex_p = mHeap[pos_p];
     double val_p = mActivity[vindex_p];
     if ( val_p >= val ) {
       break;
@@ -1162,8 +1162,8 @@ CoreMgr::move_up(ymuint pos)
 // 変数を配列にセットする．
 inline
 void
-CoreMgr::set(ymuint vindex,
-	     ymuint pos)
+CoreMgr::set(int vindex,
+	     int pos)
 {
   mHeap[pos] = vindex;
   mHeapPos[vindex] = pos;
@@ -1171,24 +1171,24 @@ CoreMgr::set(ymuint vindex,
 
 // @brief 左の子供の位置を計算する
 inline
-ymuint
-CoreMgr::left(ymuint pos)
+int
+CoreMgr::left(int pos)
 {
   return pos + pos + 1;
 }
 
 // @brief 右の子供の位置を計算する．
 inline
-ymuint
-CoreMgr::right(ymuint pos)
+int
+CoreMgr::right(int pos)
 {
   return pos + pos + 2;
 }
 
 // @brief 親の位置を計算する．
 inline
-ymuint
-CoreMgr::parent(ymuint pos)
+int
+CoreMgr::parent(int pos)
 {
   return (pos - 1) >> 1;
 }
@@ -1211,7 +1211,7 @@ CoreMgr::decay_clause_activity()
 
 // @brief リスタート回数を返す．
 inline
-ymuint64
+int
 CoreMgr::restart_num() const
 {
   return mRestartNum;
@@ -1219,7 +1219,7 @@ CoreMgr::restart_num() const
 
 // @brief 総矛盾数を返す．
 inline
-ymuint64
+int
 CoreMgr::conflict_num() const
 {
   return mConflictNum;
@@ -1227,7 +1227,7 @@ CoreMgr::conflict_num() const
 
 // @brief 総分岐数を返す．
 inline
-ymuint64
+int
 CoreMgr::decision_num() const
 {
   return mDecisionNum;
@@ -1235,7 +1235,7 @@ CoreMgr::decision_num() const
 
 // @brief 総インプリケーション数を返す．
 inline
-ymuint64
+int
 CoreMgr::propagation_num() const
 {
   return mPropagationNum;
@@ -1243,7 +1243,7 @@ CoreMgr::propagation_num() const
 
 // @brief 矛盾回数の制限値を得る．
 inline
-ymuint64
+int
 CoreMgr::conflict_limit() const
 {
   return mConflictLimit;
@@ -1251,7 +1251,7 @@ CoreMgr::conflict_limit() const
 
 // @brief 学習節の制限値を得る．
 inline
-ymuint64
+int
 CoreMgr::learnt_limit() const
 {
   return mLearntLimit;
@@ -1259,7 +1259,7 @@ CoreMgr::learnt_limit() const
 
 // @brief conflict_limit の最大値を返す．
 inline
-ymuint64
+int
 CoreMgr::max_conflict() const
 {
   return mMaxConflict;
@@ -1269,10 +1269,10 @@ CoreMgr::max_conflict() const
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．
 inline
-ymuint64
-CoreMgr::set_max_conflict(ymuint64 val)
+int
+CoreMgr::set_max_conflict(int val)
 {
-  ymuint64 old_val = mMaxConflict;
+  int old_val = mMaxConflict;
   mMaxConflict = val;
   return old_val;
 }
@@ -1281,7 +1281,7 @@ CoreMgr::set_max_conflict(ymuint64 val)
 // @param[in] limit 設定する値
 inline
 void
-CoreMgr::set_conflict_limit(ymuint64 limit)
+CoreMgr::set_conflict_limit(int limit)
 {
   mConflictLimit = limit;
   if ( mConflictLimit > mMaxConflict ) {
@@ -1293,7 +1293,7 @@ CoreMgr::set_conflict_limit(ymuint64 limit)
 // @param[in] limit 設定する値
 inline
 void
-CoreMgr::set_learnt_limit(ymuint64 limit)
+CoreMgr::set_learnt_limit(int limit)
 {
   mLearntLimit = limit;
 }

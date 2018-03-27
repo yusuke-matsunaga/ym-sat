@@ -5,7 +5,7 @@
 /// @brief ControllerMS2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -124,7 +124,7 @@ private:
   /// @param[in] restart リスタート回数
   virtual
   void
-  _update_on_restart(ymuint64 restart);
+  _update_on_restart(int restart);
 
   /// @brief 矛盾発生時の処理
   virtual
@@ -162,7 +162,7 @@ private:
 
   // mLearntLimit 用のパラメータ
   // 矛盾の数がこの回数になった時に mLearntLimit を更新する．
-  ymuint64 mLearntSizeAdjustCount;
+  int mLearntSizeAdjustCount;
 
 };
 

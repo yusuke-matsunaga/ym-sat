@@ -3,7 +3,7 @@
 /// @brief SatSolver の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -283,9 +283,9 @@ void
 SatSolver::add_andgate_rel(SatLiteral olit,
 			   const vector<SatLiteral> lit_list)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   vector<SatLiteral> tmp_lits(n + 1);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     SatLiteral ilit = lit_list[i];
     tmp_lits[i] = ~ilit;
     add_clause(ilit, ~olit);
@@ -301,9 +301,9 @@ void
 SatSolver::add_orgate_rel(SatLiteral olit,
 			  const vector<SatLiteral> lit_list)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   vector<SatLiteral> tmp_lits(n + 1);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     SatLiteral ilit = lit_list[i];
     add_clause(~ilit, olit);
     tmp_lits[i] = ilit;
@@ -319,12 +319,12 @@ void
 SatSolver::add_xorgate_rel(SatLiteral olit,
 			   const vector<SatLiteral> lit_list)
 {
-  ymuint n = lit_list.size();
-  ymuint n_exp = 1 << n;
+  int n = lit_list.size();
+  int n_exp = 1 << n;
   vector<SatLiteral> tmp_lits(n + 1);
-  for (ymuint p = 0; p < n_exp; ++ p) {
-    ymuint c = 0;
-    for (ymuint i = 0; i < n; ++ i) {
+  for ( int p = 0; p < n_exp; ++ p ) {
+    int c = 0;
+    for ( int i = 0; i < n; ++ i ) {
       SatLiteral ilit = lit_list[i];
       if ( p & (1 << i) ) {
 	tmp_lits[i] =  ilit;
@@ -349,14 +349,14 @@ SatSolver::add_xorgate_rel(SatLiteral olit,
 void
 SatSolver::add_at_most_one(const vector<SatLiteral>& lit_list)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   if ( n <= 1 ) {
     // はじめから条件は満たされている．
     return;
   }
-  for (ymuint i1 = 0; i1 < n - 1; ++ i1) {
+  for ( int i1 = 0; i1 < n - 1; ++ i1 ) {
     SatLiteral lit1 = lit_list[i1];
-    for (ymuint i2 = i1 + 1; i2 < n; ++ i2) {
+    for ( int i2 = i1 + 1; i2 < n; ++ i2 ) {
       SatLiteral lit2 = lit_list[i2];
       add_clause(~lit1, ~lit2);
     }
@@ -368,16 +368,16 @@ SatSolver::add_at_most_one(const vector<SatLiteral>& lit_list)
 void
 SatSolver::add_at_most_two(const vector<SatLiteral>& lit_list)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   if ( n <= 2 ) {
     // はじめから条件は満たされている．
     return;
   }
-  for (ymuint i1 = 0; i1 < n - 1; ++ i1) {
+  for ( int i1 = 0; i1 < n - 1; ++ i1 ) {
     SatLiteral lit1 = lit_list[i1];
-    for (ymuint i2 = i1 + 1; i2 < n; ++ i2) {
+    for ( int i2 = i1 + 1; i2 < n; ++ i2 ) {
       SatLiteral lit2 = lit_list[i2];
-      for (ymuint i3 = i2 + 1; i3 < n; ++ i3) {
+      for ( int i3 = i2 + 1; i3 < n; ++ i3 ) {
 	SatLiteral lit3 = lit_list[i3];
 	add_clause(~lit1, ~lit2, ~lit3);
       }
@@ -390,17 +390,17 @@ SatSolver::add_at_most_two(const vector<SatLiteral>& lit_list)
 // @param[in] k しきい値
 void
 SatSolver::add_at_most_k(const vector<SatLiteral>& lit_list,
-			 ymuint k)
+			 int k)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   if ( n <= k) {
     // はじめから条件は満たされている．
     return;
   }
 
   vector<SatLiteral> tmp_lits(k + 1);
-  for (CombiGen cg(n, k + 1) ; !cg.is_end(); ++ cg) {
-    for (ymuint i = 0; i <= k; ++ i) {
+  for ( CombiGen cg(n, k + 1) ; !cg.is_end(); ++ cg ) {
+    for ( int i = 0; i <= k; ++ i ) {
       tmp_lits[i] = ~lit_list[cg(i)];
     }
     add_clause(tmp_lits);
@@ -412,12 +412,12 @@ SatSolver::add_at_most_k(const vector<SatLiteral>& lit_list,
 void
 SatSolver::add_at_least_two(const vector<SatLiteral>& lit_list)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   vector<SatLiteral> tmp_lits;
   tmp_lits.reserve(n - 1);
-  for (ymuint i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     tmp_lits.clear();
-    for (ymuint j = 0; j < n; ++ j) {
+    for ( int j = 0; j < n; ++ j ) {
       SatLiteral lit = lit_list[j];
       if ( i != j ) {
 	tmp_lits.push_back(lit);
@@ -432,18 +432,18 @@ SatSolver::add_at_least_two(const vector<SatLiteral>& lit_list)
 // @param[in] k しきい値
 void
 SatSolver::add_at_least_k(const vector<SatLiteral>& lit_list,
-			  ymuint k)
+			  int k)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   if ( k == 0 ) {
     // はじめから条件は満たされている．
     return;
   }
 
-  ymuint nk = n - k;
+  int nk = n - k;
   vector<SatLiteral> tmp_lits(nk + 1);
-  for (CombiGen cg(n, nk + 1); !cg.is_end(); ++ cg) {
-    for (ymuint i = 0; i <= nk; ++ i) {
+  for ( CombiGen cg(n, nk + 1); !cg.is_end(); ++ cg ) {
+    for ( int i = 0; i <= nk; ++ i ) {
       tmp_lits[i] = lit_list[cg(i)];
     }
     add_clause(tmp_lits);
@@ -455,10 +455,10 @@ SatSolver::add_at_least_k(const vector<SatLiteral>& lit_list,
 void
 SatSolver::add_not_one(const vector<SatLiteral>& lit_list)
 {
-  ymuint n = lit_list.size();
+  int n = lit_list.size();
   vector<SatLiteral> tmp_lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
-    for (ymuint j = 0; j < n; ++ j) {
+  for ( int i = 0; i < n; ++ i ) {
+    for ( int j = 0; j < n; ++ j ) {
       SatLiteral lit = lit_list[j];
       if ( j == i ) {
 	tmp_lits[j] = ~lit;
@@ -514,21 +514,21 @@ SatSolver::get_stats(SatStats& stats) const
 }
 
 // @brief 変数の数を得る．
-ymuint
+int
 SatSolver::variable_num() const
 {
   return mImpl->variable_num();
 }
 
 // @brief 制約節の数を得る．
-ymuint
+int
 SatSolver::clause_num() const
 {
   return mImpl->clause_num();
 }
 
 // @brief 制約節のリテラルの総数を得る．
-ymuint
+int
 SatSolver::literal_num() const
 {
   return mImpl->literal_num();
@@ -545,8 +545,8 @@ SatSolver::write_DIMACS(ostream& s) const
 // @brief conflict_limit の最大値
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．
-ymuint64
-SatSolver::set_max_conflict(ymuint64 val)
+int
+SatSolver::set_max_conflict(int val)
 {
   return mImpl->set_max_conflict(val);
 }

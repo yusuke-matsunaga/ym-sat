@@ -5,7 +5,7 @@
 /// @brief SatStats のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -45,37 +45,37 @@ public:
   max_assign(const SatStats& right);
 
   /// @brief restartの回数
-  ymuint mRestart;
+  int mRestart;
 
   /// @brief 変数の数．
-  ymuint mVarNum;
+  int mVarNum;
 
   /// @brief 制約節の数
-  ymuint64 mConstrClauseNum;
+  int mConstrClauseNum;
 
   /// @brief 制約節のリテラル数
-  ymuint64 mConstrLitNum;
+  int mConstrLitNum;
 
   /// @brief 学習節の数
-  ymuint64 mLearntClauseNum;
+  int mLearntClauseNum;
 
   /// @brief 学習節のリテラル数
-  ymuint64 mLearntLitNum;
+  int mLearntLitNum;
 
   /// @brief コンフリクト数
-  ymuint64 mConflictNum;
+  int mConflictNum;
 
   /// @brief decision 数
-  ymuint64 mDecisionNum;
+  int mDecisionNum;
 
   /// @brief implication数
-  ymuint64 mPropagationNum;
+  int mPropagationNum;
 
   /// @brief コンフリクト数の制限
-  ymuint64 mConflictLimit;
+  int mConflictLimit;
 
   /// @brief 学習節の制限
-  ymuint64 mLearntLimit;
+  int mLearntLimit;
 
   /// @brief 計算時間
   USTime mTime;

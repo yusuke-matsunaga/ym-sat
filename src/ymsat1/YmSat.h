@@ -133,7 +133,7 @@ public:
   /// 以降の add_clause() にはこのリテラルの否定が追加される．
   virtual
   void
-  set_conditional_literals(ymuint lit_num,
+  set_conditional_literals(int lit_num,
 			   const SatLiteral* lits);
 
   /// @brief 節を追加する．
@@ -147,7 +147,7 @@ public:
   /// @param[in] lits リテラルの配列
   virtual
   void
-  add_clause(ymuint lit_num,
+  add_clause(int lit_num,
 	     const SatLiteral* lits);
 
   /// @brief SAT 問題を解く．
@@ -184,17 +184,17 @@ public:
 
   /// @brief 変数の数を得る．
   virtual
-  ymuint
+  int
   variable_num() const;
 
   /// @brief 制約節の数を得る．
   virtual
-  ymuint
+  int
   clause_num() const;
 
   /// @brief 制約節のリテラルの総数を得る．
   virtual
-  ymuint
+  int
   literal_num() const;
 
   /// @brief DIMACS 形式で制約節を出力する．
@@ -207,8 +207,8 @@ public:
   /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
   virtual
-  ymuint64
-  set_max_conflict(ymuint64 val);
+  int
+  set_max_conflict(int val);
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
   /// @param[in] msg_handler 登録するメッセージハンドラ
@@ -296,19 +296,19 @@ private:
   ///
   /// リテラルの実体は mTmpLits[] に入っている．
   void
-  add_clause_sub(ymuint lit_num);
+  add_clause_sub(int lit_num);
 
   /// @brief 新しい節を生成する．
   /// @param[in] lit_num リテラル数
   /// @param[in] learnt 学習節のとき true とするフラグ
   /// @note リテラルは mTmpLits に格納されている．
   SatClause*
-  new_clause(ymuint lit_num,
+  new_clause(int lit_num,
 	     bool learnt = false);
 
   /// @brief mTmpLits を確保する．
   void
-  alloc_lits(ymuint lit_num);
+  alloc_lits(int lit_num);
 
   /// @brief 節を削除する．
   /// @param[in] clause 削除する節
@@ -356,7 +356,7 @@ private:
 #if YMSAT_USE_LBD
   /// @brief LBD を計算する．
   /// @param[in] clause 対象の節
-  ymuint
+  int
   calc_lbd(const SatClause* clause);
 #endif
 
@@ -430,19 +430,19 @@ private:
   vector<SatClause*> mConstrClauseList;
 
   // 二項制約節の数
-  ymuint64 mConstrBinNum;
+  int mConstrBinNum;
 
   // 制約節の総リテラル数 (二項制約節も含む)
-  ymuint64 mConstrLitNum;
+  int mConstrLitNum;
 
   // 学習節の配列
   vector<SatClause*> mLearntClause;
 
   // 二項学習節の数
-  ymuint64 mLearntBinNum;
+  int mLearntBinNum;
 
   // 学習節の総リテラル数 (二項制約節も含む)
-  ymuint64 mLearntLitNum;
+  int mLearntLitNum;
 
 #if YMSAT_USE_DVAR
   // dvar 配列
@@ -450,13 +450,13 @@ private:
 #endif
 
   // 変数の数
-  ymuint32 mVarNum;
+  int mVarNum;
 
   // 前回の alloc_var で処理した時の変数の数
-  ymuint32 mOldVarNum;
+  int mOldVarNum;
 
   // 変数関係の配列のサイズ
-  ymuint32 mVarSize;
+  int mVarSize;
 
   // 値の配列
   // サイズは mVarSize
@@ -489,7 +489,7 @@ private:
   bool* mLbdTmp;
 
   // mLbdTmp のサイズ．
-  ymuint32 mLbdTmpSize;
+  int mLbdTmpSize;
 #endif
 
   // 矛盾の解析時にテンポラリに使用される節
@@ -520,25 +520,25 @@ private:
   Params mParams;
 
   // restart 数
-  ymuint mRestart;
+  int mRestart;
 
   // 総コンフリクト数
-  ymuint64 mConflictNum;
+  int mConflictNum;
 
   // 総 decision 数
-  ymuint64 mDecisionNum;
+  int mDecisionNum;
 
   // 総 implication 数
-  ymuint64 mPropagationNum;
+  int mPropagationNum;
 
   // コンフリクト数の制限
-  ymuint64 mConflictLimit;
+  int mConflictLimit;
 
   // 学習節の制限
-  ymuint64 mLearntLimit;
+  int mLearntLimit;
 
   // トータルのコンフリクト数の制限
-  ymuint64 mMaxConflict;
+  int mMaxConflict;
 
   // stop() が用いるフラグ
   bool mGoOn;
@@ -550,7 +550,7 @@ private:
   SatLiteral* mTmpLits;
 
   // mTmpLits のサイズ
-  ymuint32 mTmpLitsSize;
+  int mTmpLitsSize;
 
   // search() で用いられるリテラル配列
   vector<SatLiteral> mLearntLits;
@@ -601,7 +601,7 @@ protected:
 
 // @brief 変数の数を得る．
 inline
-ymuint
+int
 YmSat::variable_num() const
 {
   return mVarNum;
@@ -609,7 +609,7 @@ YmSat::variable_num() const
 
 // @brief 制約節の数を得る．
 inline
-ymuint
+int
 YmSat::clause_num() const
 {
   return mConstrClauseList.size() + mConstrBinNum;
@@ -617,7 +617,7 @@ YmSat::clause_num() const
 
 // @brief 制約節のリテラルの総数を得る．
 inline
-ymuint
+int
 YmSat::literal_num() const
 {
   return mConstrLitNum;
@@ -628,7 +628,7 @@ inline
 WatcherList&
 YmSat::watcher_list(SatLiteral lit)
 {
-  ymuint index = lit.index();
+  int index = lit.index();
   return mWatcherList[index];
 }
 
@@ -678,10 +678,10 @@ inline
 SatBool3
 YmSat::eval(SatLiteral l) const
 {
-  ymuint index = l.index();
+  int index = l.index();
   ASSERT_COND( (index / 2) < mVarNum );
-  ymuint x = mVal[index / 2] & 3U;
-  ymuint inv = index & 1U;
+  int x = mVal[index / 2] & 3U;
+  int inv = index & 1U;
   int d = 1 - (inv * 2);
   return static_cast<SatBool3>((static_cast<int>(x) - 1) * d);
 }
@@ -706,10 +706,10 @@ void
 YmSat::assign(SatLiteral lit,
 	      SatReason reason)
 {
-  ymuint lindex = lit.index();
-  ymuint vindex = lindex / 2;
+  int lindex = lit.index();
+  int vindex = lindex / 2;
   ASSERT_COND( vindex < mVarNum );
-  ymuint inv = lindex & 1U;
+  int inv = lindex & 1U;
   ymuint8 x = 2 - inv * 2;
   mVal[vindex] = x | ((conv_from_Bool3(SatBool3::X)) << 2);
   mDecisionLevel[vindex] = decision_level();
@@ -767,7 +767,7 @@ YmSat::alloc_var()
     if ( mVarSize < mVarNum ) {
       expand_var();
     }
-    for (ymuint i = mOldVarNum; i < mVarNum; ++ i) {
+    for ( int i = mOldVarNum; i < mVarNum; ++ i ) {
       mVal[i] = conv_from_Bool3(SatBool3::X);
       mVarHeap.add_var(SatVarId(i));
     }
