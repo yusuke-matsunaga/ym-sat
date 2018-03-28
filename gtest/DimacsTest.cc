@@ -49,7 +49,7 @@ TEST(DimacsTest, add_clause2)
 
   dimacs.add_clause(tmp_lits);
 
-  EXPECT_EQ( 1, dimacs.variable_num() );
+  EXPECT_EQ( 2, dimacs.variable_num() );
   EXPECT_EQ( 1, dimacs.clause_num() );
 
   const vector<int>& lits1 = dimacs.clause_list()[0];
