@@ -81,6 +81,28 @@ operator<<(ostream& s,
   return s;
 }
 
+/// @brief 整数値に変換する関数(Cython用)
+inline
+int
+__SatBool3_to_int(SatBool3 val)
+{
+  return static_cast<int>(val);
+}
+
+/// @brief 整数値から SatBool3 に変換する関数(Cython用)
+inline
+SatBool3
+__int_to_SatBool3(int ival)
+{
+  switch ( ival ) {
+  case  0: return SatBool3::X;
+  case  1: return SatBool3::True;
+  case -1: return SatBool3::False;
+  }
+  ASSERT_NOT_REACHED;
+  return SatBool3::X;
+}
+
 END_NAMESPACE_YM
 
 #endif // YM_SATBOOL3_H
