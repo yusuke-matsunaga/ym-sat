@@ -24,30 +24,30 @@ include_directories(
 
 ym_add_gtest ( SatBool3Test
   SatBool3Test.cc
-  $<TARGET_OBJECTS:ym_base_d>
-  $<TARGET_OBJECTS:ym_sat_d>
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   )
 
 ym_add_gtest ( SatVarIdTest
   SatVarIdTest.cc
-  $<TARGET_OBJECTS:ym_base_d>
-  $<TARGET_OBJECTS:ym_sat_d>
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   )
 
 ym_add_gtest ( SatLiteralTest
   SatLiteralTest.cc
-  $<TARGET_OBJECTS:ym_base_d>
-  $<TARGET_OBJECTS:ym_sat_d>
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   )
 
 ym_add_gtest ( AddClauseTest
   AddClauseTest.cc
-  $<TARGET_OBJECTS:ym_base_d>
-  $<TARGET_OBJECTS:ym_sat_d>
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   )
 
 ym_add_gtest ( DimacsTest
   DimacsTest.cc
-  $<TARGET_OBJECTS:ym_base_d>
-  $<TARGET_OBJECTS:ym_sat_d>
+  $<TARGET_OBJECTS:ym_base_ad>
+  $<TARGET_OBJECTS:ym_sat_ad>
   )
