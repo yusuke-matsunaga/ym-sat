@@ -7,7 +7,7 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
-from CXX_vector cimport vector
+from libcpp.vector cimport vector
 from CXX_SatBool3 cimport SatBool3
 from CXX_SatVarId cimport SatVarId
 from CXX_SatLiteral cimport SatLiteral
