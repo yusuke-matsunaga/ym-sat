@@ -37,13 +37,11 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] type 実装タイプを表す文字列
-// @param[in] option オプション文字列
-// @param[in] rec_out ログを記録するストリームへのポインタ
-SatSolver::SatSolver(const string& type,
-		     const string& option,
-		     ostream* rec_out)
+// @param[in] type 実装タイプ
+SatSolver::SatSolver(const SatSolverType& solver_type)
 {
+  const string& type = solver_type.type();
+  const string& option = solver_type.option();
   if ( type == "minisat" ) {
     // minisat-1.4
     mImpl = new SatSolverMiniSat(option);
@@ -72,8 +70,9 @@ SatSolver::SatSolver(const string& type,
     mImpl = new YmSatMS2(option);
   }
 
-  if ( rec_out ) {
-    mLogger = new SatLoggerS(rec_out);
+  ostream* log_out = solver_type.log_out();
+  if ( log_out ) {
+    mLogger = new SatLoggerS(log_out);
   }
   else {
     mLogger = new SatLogger();

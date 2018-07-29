@@ -46,7 +46,7 @@ BEGIN_NAMESPACE_YM_SAT
 
 class SatDimacs;
 class SatSolver;
-class SatSolverR;
+class SatSolverType;
 class SatStats;
 class SatMsgHandler;
 class SatMsgHandlerImpl1;
@@ -60,7 +60,7 @@ class SatLiteral;
 
 using nsSat::SatDimacs;
 using nsSat::SatSolver;
-using nsSat::SatSolverR;
+using nsSat::SatSolverType;
 using nsSat::SatStats;
 using nsSat::SatMsgHandler;
 using nsSat::SatMsgHandlerImpl1;

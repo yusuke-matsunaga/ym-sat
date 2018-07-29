@@ -11,6 +11,7 @@ from CXX_vector cimport vector
 from CXX_SatBool3 cimport SatBool3, kB3X, kB3True, kB3False
 from CXX_SatVarId cimport SatVarId
 from CXX_SatLiteral cimport SatLiteral
+from CXX_SatSolverType cimport SatSolverType
 from CXX_SatStats cimport SatStats
 
 
@@ -23,12 +24,8 @@ cdef class SatSolver :
     ### @brief 初期化
     ### @param[in] sat_type SATソルバの種類を表す文字列
     ### @param[in] sat_option SATソルバに対するオプションを表す文字列
-    def __cinit__(SatSolver self, sat_type, sat_option = None) :
-        cdef string c_sat_type = sat_type.encode('UTF-8')
-        cdef string c_sat_option
-        if sat_option != None :
-            c_sat_option = sat_option.encode('UTF-8')
-        self._this_ptr = new CXX_SatSolver(c_sat_type, c_sat_option)
+    def __cinit__(SatSolver self, SatSolverType solver_type = new SatSolverType()) :
+        self._this_ptr = new CXX_SatSolver(solver_type._this)
 
     ### @brief 終了処理
     def __dealloc__(SatSolver self) :

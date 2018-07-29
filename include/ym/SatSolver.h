@@ -12,6 +12,7 @@
 #include "ym/ym_sat.h"
 #include "ym/SatBool3.h"
 #include "ym/SatLiteral.h"
+#include "ym/SatSolverType.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -35,12 +36,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] type 実装タイプを表す文字列
-  /// @param[in] option オプション文字列
-  /// @param[in] rec_out ログを記録するストリームへのポインタ
-  SatSolver(const string& type = string(),
-	    const string& option = string(),
-	    ostream* rec_out = nullptr);
+  /// @param[in] type 実装タイプ
+  SatSolver(const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
   ~SatSolver();

@@ -11,6 +11,7 @@ from libcpp.vector cimport vector
 from CXX_SatBool3 cimport SatBool3
 from CXX_SatVarId cimport SatVarId
 from CXX_SatLiteral cimport SatLiteral
+from CXX_SatSolverType cimport SatSolverType
 from CXX_SatStats cimport SatStats
 
 ctypedef unsigned int ymuint
@@ -21,7 +22,7 @@ cdef extern from "ym/SatSolver.h" namespace "nsYm" :
 
     # SatSolver クラスの cython バージョン
     cdef cppclass SatSolver :
-        SatSolver(string sat_type, string sat_opt)
+        SatSolver(const SatSolverType& solver_type)
         SatVarId new_variable(bool decision)
         void set_conditional_literals(vector[SatLiteral]& lits)
         void clear_conditional_literals()
