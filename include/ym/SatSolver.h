@@ -36,7 +36,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] type 実装タイプ
+  /// @param[in] solver_type 実装タイプ
   SatSolver(const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
@@ -116,7 +116,7 @@ public:
   add_clause(const vector<SatLiteral>& lits);
 
   /// @brief 1項の節(リテラル)を追加する．
-  /// @param[in] lit リテラル
+  /// @param[in] lit1 リテラル
   void
   add_clause(SatLiteral lit1);
 
@@ -712,7 +712,7 @@ public:
 	      SatLiteral lit6);
 
   /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
-  /// @param[in] lit_lit 入力のリテラルのリスト
+  /// @param[in] lit_list 入力のリテラルのリスト
   void
   add_not_one(const vector<SatLiteral>& lit_list);
 
