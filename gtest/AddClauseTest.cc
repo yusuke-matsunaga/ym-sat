@@ -9,6 +9,7 @@
 
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -33,7 +34,31 @@ public:
   /// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
   void
   check(int ni,
-	int vals[]);
+	const vector<int>& vals);
+
+  /// @brief AND ゲートのチェックを行う．
+  void
+  check_and(int ni);
+
+  /// @brief NAND ゲートのチェックを行う．
+  void
+  check_nand(int ni);
+
+  /// @brief OR ゲートのチェックを行う．
+  void
+  check_or(int ni);
+
+  /// @brief NOR ゲートのチェックを行う．
+  void
+  check_nor(int ni);
+
+  /// @brief XOR ゲートのチェックを行う．
+  void
+  check_xor(int ni);
+
+  /// @brief XNOR ゲートのチェックを行う．
+  void
+  check_xnor(int ni);
 
   /// @brief at_most_k のチェックを行う．
   void
@@ -59,7 +84,14 @@ public:
   /// 最初の変数が1のときのみ意味を持つ．
   void
   check_with_cond1(int ni,
-		   int vals[]);
+		   const vector<int>& vals);
+
+  /// @brief 論理ゲートの真理値表からチェック用のベクタを作る．
+  void
+  make_vals(int ni,
+	    const vector<int>& tv,
+	    bool inv,
+	    vector<int>& vals);
 
 
 public:
@@ -86,7 +118,7 @@ AddClauseTest::AddClauseTest() :
   mVarList(mVarNum),
   mCondVarList(2)
 {
-  for ( int i = 0; i < mVarNum; ++ i ) {
+  for ( int i: Range(mVarNum) ) {
     SatVarId var = mSolver.new_variable();
     mVarList[i] = var;
   }
@@ -101,13 +133,13 @@ AddClauseTest::~AddClauseTest()
 // @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
 void
 AddClauseTest::check(int ni,
-		     int vals[])
+		     const vector<int>& vals)
 {
   try {
     int np = 1U << ni;
-    for ( int p = 0; p < np; ++ p ) {
+    for ( int p: Range(np) ) {
       vector<SatLiteral> assumptions;
-      for ( int i = 0; i < ni; ++ i ) {
+      for ( int i: Range(ni) ) {
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
@@ -127,14 +159,14 @@ AddClauseTest::check(int ni,
 // 最初の変数が1のときのみ意味を持つ．
 void
 AddClauseTest::check_with_cond1(int ni,
-				int vals[])
+				const vector<int>& vals)
 {
   try {
     int np = 1U << ni;
-    for ( int p = 0; p < np; ++ p ) {
+    for ( int p: Range(np) ) {
       vector<SatLiteral> assumptions;
       assumptions.push_back(~SatLiteral(mCondVarList[0]));
-      for ( int i = 0; i < ni; ++ i ) {
+      for ( int i: Range(ni) ) {
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
@@ -143,10 +175,10 @@ AddClauseTest::check_with_cond1(int ni,
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
     }
-    for ( int p = 0; p < np; ++ p ) {
+    for ( int p: Range(np) ) {
       vector<SatLiteral> assumptions;
       assumptions.push_back(SatLiteral(mCondVarList[0]));
-      for ( int i = 0; i < ni; ++ i ) {
+      for ( int i: Range(ni) ) {
 	bool inv = (p & (1U << i)) ? false : true;
 	assumptions.push_back(SatLiteral(mVarList[i], inv));
       }
@@ -161,16 +193,152 @@ AddClauseTest::check_with_cond1(int ni,
   }
 }
 
+// @brief AND ゲートのチェックを行う．
+void
+AddClauseTest::check_and(int ni)
+{
+  int np = 1 << ni;
+  vector<int> tv(np);
+  for ( int p: Range(np) ) {
+    int val = 1;
+    for ( int i: Range(ni) ) {
+      if ( (p & (1 << i)) == 0 ) {
+	val = 0;
+	break;
+      }
+    }
+    tv[p] = val;
+  }
+
+  vector<int> vals;
+  make_vals(ni, tv, false, vals);
+
+  check(ni + 1, vals);
+}
+
+// @brief NAND ゲートのチェックを行う．
+void
+AddClauseTest::check_nand(int ni)
+{
+  int np = 1 << ni;
+  vector<int> tv(np);
+  for ( int p: Range(np) ) {
+    int val = 1;
+    for ( int i: Range(ni) ) {
+      if ( (p & (1 << i)) == 0 ) {
+	val = 0;
+	break;
+      }
+    }
+    tv[p] = val;
+  }
+
+  vector<int> vals;
+  make_vals(ni, tv, true, vals);
+
+  check(ni + 1, vals);
+}
+
+// @brief OR ゲートのチェックを行う．
+void
+AddClauseTest::check_or(int ni)
+{
+  int np = 1 << ni;
+  vector<int> tv(np);
+  for ( int p: Range(np) ) {
+    int val = 0;
+    for ( int i: Range(ni) ) {
+      if ( (p & (1 << i)) != 0 ) {
+	val = 1;
+	break;
+      }
+    }
+    tv[p] = val;
+  }
+
+  vector<int> vals;
+  make_vals(ni, tv, false, vals);
+
+  check(ni + 1, vals);
+}
+
+// @brief NOR ゲートのチェックを行う．
+void
+AddClauseTest::check_nor(int ni)
+{
+  int np = 1 << ni;
+  vector<int> tv(np);
+  for ( int p: Range(np) ) {
+    int val = 0;
+    for ( int i: Range(ni) ) {
+      if ( (p & (1 << i)) != 0 ) {
+	val = 1;
+	break;
+      }
+    }
+    tv[p] = val;
+  }
+
+  vector<int> vals;
+  make_vals(ni, tv, true, vals);
+
+  check(ni + 1, vals);
+}
+
+// @brief XOR ゲートのチェックを行う．
+void
+AddClauseTest::check_xor(int ni)
+{
+  int np = 1 << ni;
+  vector<int> tv(np);
+  for ( int p: Range(np) ) {
+    int val = 0;
+    for ( int i: Range(ni) ) {
+      if ( (p & (1 << i)) != 0 ) {
+	val ^= 1;
+      }
+    }
+    tv[p] = val;
+  }
+
+  vector<int> vals;
+  make_vals(ni, tv, false, vals);
+
+  check(ni + 1, vals);
+}
+
+// @brief XNOR ゲートのチェックを行う．
+void
+AddClauseTest::check_xnor(int ni)
+{
+  int np = 1 << ni;
+  vector<int> tv(np);
+  for ( int p: Range(np) ) {
+    int val = 0;
+    for ( int i: Range(ni) ) {
+      if ( (p & (1 << i)) != 0 ) {
+	val ^= 1;
+      }
+    }
+    tv[p] = val;
+  }
+
+  vector<int> vals;
+  make_vals(ni, tv, true, vals);
+
+  check(ni + 1, vals);
+}
+
 // @brief at_most_k のチェックを行う．
 void
 AddClauseTest::check_at_most(int n,
 			     int k)
 {
   int np = 1U << n;
-  for ( int p = 0; p < np; ++ p ) {
+  for ( int p: Range(np) ) {
     vector<SatLiteral> assumptions;
     int c = 0;
-    for ( int i = 0; i < n; ++ i ) {
+    for ( int i: Range(n) ) {
       bool inv;
       if ( p & (1U << i) ) {
 	++ c;
@@ -194,10 +362,10 @@ AddClauseTest::check_at_least(int n,
 			      int k)
 {
   int np = 1U << n;
-  for ( int p = 0; p < np; ++ p ) {
+  for ( int p: Range(np) ) {
     vector<SatLiteral> assumptions;
     int c = 0;
-    for ( int i = 0; i < n; ++ i ) {
+    for ( int i: Range(n) ) {
       bool inv;
       if ( p & (1U << i) ) {
 	++ c;
@@ -221,10 +389,10 @@ AddClauseTest::check_exact(int n,
 			   int k)
 {
   int np = 1U << n;
-  for ( int p = 0; p < np; ++ p ) {
+  for ( int p: Range(np) ) {
     vector<SatLiteral> assumptions;
     int c = 0;
-    for ( int i = 0; i < n; ++ i ) {
+    for ( int i: Range(n) ) {
       bool inv;
       if ( p & (1U << i) ) {
 	++ c;
@@ -247,10 +415,10 @@ void
 AddClauseTest::check_not_one(int n)
 {
   int np = 1U << n;
-  for ( int p = 0; p < np; ++ p ) {
+  for ( int p: Range(np) ) {
     vector<SatLiteral> assumptions;
     int c = 0;
-    for ( int i = 0; i < n; ++ i ) {
+    for ( int i: Range(n) ) {
       bool inv;
       if ( p & (1U << i) ) {
 	++ c;
@@ -268,6 +436,25 @@ AddClauseTest::check_not_one(int n)
   }
 }
 
+// @brief 論理ゲートの真理値表からチェック用のベクタを作る．
+void
+AddClauseTest::make_vals(int ni,
+			 const vector<int>& tv,
+			 bool inv,
+			 vector<int>& vals)
+{
+  int np = 1 << ni;
+  int ni1 = ni + 1;
+  int np1 = 1 << ni1;
+  vals.clear();
+  vals.resize(np1);
+  int v0 = inv ? 1 : 0;
+  int v1 = inv ? 0 : 1;
+  for ( int p: Range(np) ) {
+    vals[p +  0] = (tv[p] == v0);
+    vals[p + np] = (tv[p] == v1);
+  }
+}
 
 TEST_P(AddClauseTest, add_clause1_1)
 {
@@ -275,13 +462,15 @@ TEST_P(AddClauseTest, add_clause1_1)
 
   mSolver.add_clause(lit1);
 
-  int vals[] = {
-    // lit1 ans
-    //   0    0
-    //   1    1
-    0,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit1 ans
+     //   0    0
+     //   1    1
+     0,
+     1
+    }
+  );
 
   check(1, vals);
 }
@@ -292,13 +481,15 @@ TEST_P(AddClauseTest, add_clause1_2)
 
   mSolver.add_clause(~lit1);
 
-  int vals[] = {
-    // lit1 ans
-    //   0    1
-    //   1    0
-    1,
-    0
-  };
+  vector<int> vals(
+    {
+     // lit1 ans
+     //   0    1
+     //   1    0
+     1,
+     0
+    }
+  );
 
   check(1, vals);
 }
@@ -310,17 +501,19 @@ TEST_P(AddClauseTest, add_clause2_1)
 
   mSolver.add_clause(lit1, lit2);
 
-  int vals[] = {
-    // lit2 lit1 ans
-    //   0    0    0
-    //   0    1    1
-    //   1    0    1
-    //   1    1    1
-    0,
-    1,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit2 lit1 ans
+     //   0    0    0
+     //   0    1    1
+     //   1    0    1
+     //   1    1    1
+     0,
+     1,
+     1,
+     1
+    }
+  );
 
   check(2, vals);
 }
@@ -332,17 +525,19 @@ TEST_P(AddClauseTest, add_clause2_2)
 
   mSolver.add_clause(~lit1, lit2);
 
-  int vals[] = {
-    // lit2 lit1 ans
-    //   0    0    1
-    //   0    1    0
-    //   1    0    1
-    //   1    1    1
-    1,
-    0,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit2 lit1 ans
+     //   0    0    1
+     //   0    1    0
+     //   1    0    1
+     //   1    1    1
+     1,
+     0,
+     1,
+     1
+    }
+  );
 
   check(2, vals);
 }
@@ -355,25 +550,27 @@ TEST_P(AddClauseTest, add_clause3_1)
 
   mSolver.add_clause(lit1, lit2, lit3);
 
-  int vals[] = {
-    // lit3 lit2 lit1 ans
-    //   0    0    0    0
-    //   0    0    1    1
-    //   0    1    0    1
-    //   0    1    1    1
-    //   1    0    0    1
-    //   1    0    1    1
-    //   1    1    0    1
-    //   1    1    1    1
-    0,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit3 lit2 lit1 ans
+     //   0    0    0    0
+     //   0    0    1    1
+     //   0    1    0    1
+     //   0    1    1    1
+     //   1    0    0    1
+     //   1    0    1    1
+     //   1    1    0    1
+     //   1    1    1    1
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    }
+  );
 
   check(3, vals);
 }
@@ -386,25 +583,27 @@ TEST_P(AddClauseTest, add_clause3_2)
 
   mSolver.add_clause(~lit1, lit2, ~lit3);
 
-  int vals[] = {
-    // lit3 lit2 lit1 ans
-    //   0    0    0    1
-    //   0    0    1    1
-    //   0    1    0    1
-    //   0    1    1    1
-    //   1    0    0    1
-    //   1    0    1    0
-    //   1    1    0    1
-    //   1    1    1    1
-    1,
-    1,
-    1,
-    1,
-    1,
-    0,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit3 lit2 lit1 ans
+     //   0    0    0    1
+     //   0    0    1    1
+     //   0    1    0    1
+     //   0    1    1    1
+     //   1    0    0    1
+     //   1    0    1    0
+     //   1    1    0    1
+     //   1    1    1    1
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     1,
+     1
+    }
+  );
 
   check(3, vals);
 }
@@ -418,41 +617,43 @@ TEST_P(AddClauseTest, add_clause4_1)
 
   mSolver.add_clause(lit1, lit2, lit3, lit4);
 
-  int vals[] = {
-    // lit4 lit3 lit2 lit1 ans
-    //   0    0    0    0    0
-    //   0    0    0    1    1
-    //   0    0    1    0    1
-    //   0    0    1    1    1
-    //   0    1    0    0    1
-    //   0    1    0    1    1
-    //   0    1    1    0    1
-    //   0    1    1    1    1
-    //   1    0    0    0    1
-    //   1    0    0    1    1
-    //   1    0    1    0    1
-    //   1    0    1    1    1
-    //   1    1    0    0    1
-    //   1    1    0    1    1
-    //   1    1    1    0    1
-    //   1    1    1    1    1
-    0,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit4 lit3 lit2 lit1 ans
+     //   0    0    0    0    0
+     //   0    0    0    1    1
+     //   0    0    1    0    1
+     //   0    0    1    1    1
+     //   0    1    0    0    1
+     //   0    1    0    1    1
+     //   0    1    1    0    1
+     //   0    1    1    1    1
+     //   1    0    0    0    1
+     //   1    0    0    1    1
+     //   1    0    1    0    1
+     //   1    0    1    1    1
+     //   1    1    0    0    1
+     //   1    1    0    1    1
+     //   1    1    1    0    1
+     //   1    1    1    1    1
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    }
+  );
 
   check(4, vals);
 }
@@ -467,43 +668,45 @@ TEST_P(AddClauseTest, add_clause5_1)
 
   mSolver.add_clause(lit1, lit2, lit3, lit4, lit5);
 
-  int vals[] = {
-    // lit5 lit4 lit3 lit2 lit1  ans
-    //    0    0    0    0    0    0
-    //    0    0    0    0    1    1
-    //    0    0    0    1    0    1
-    //    0    0    0    1    1    1
-    //    0    0    1    0    0    1
-    //    0    0    1    0    1    1
-    //    0    0    1    1    0    1
-    //    0    0    1    1    1    1
-    //    0    1    0    0    0    1
-    //    0    1    0    0    1    1
-    //    0    1    0    1    0    1
-    //    0    1    0    1    1    1
-    //    0    1    1    0    0    1
-    //    0    1    1    0    1    1
-    //    0    1    1    1    0    1
-    //    0    1    1    1    1    1
-    //    1    0    0    0    0    1
-    //    1    0    0    0    1    1
-    //    1    0    0    1    0    1
-    //    1    0    0    1    1    1
-    //    1    0    1    0    0    1
-    //    1    0    1    0    1    1
-    //    1    0    1    1    0    1
-    //    1    0    1    1    1    1
-    //    1    1    0    0    0    1
-    //    1    1    0    0    1    1
-    //    1    1    0    1    0    1
-    //    1    1    0    1    1    1
-    //    1    1    1    0    0    1
-    //    1    1    1    0    1    1
-    //    1    1    1    1    0    1
-    //    1    1    1    1    1    1
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-  };
+  vector<int> vals(
+    {
+     // lit5 lit4 lit3 lit2 lit1  ans
+     //    0    0    0    0    0    0
+     //    0    0    0    0    1    1
+     //    0    0    0    1    0    1
+     //    0    0    0    1    1    1
+     //    0    0    1    0    0    1
+     //    0    0    1    0    1    1
+     //    0    0    1    1    0    1
+     //    0    0    1    1    1    1
+     //    0    1    0    0    0    1
+     //    0    1    0    0    1    1
+     //    0    1    0    1    0    1
+     //    0    1    0    1    1    1
+     //    0    1    1    0    0    1
+     //    0    1    1    0    1    1
+     //    0    1    1    1    0    1
+     //    0    1    1    1    1    1
+     //    1    0    0    0    0    1
+     //    1    0    0    0    1    1
+     //    1    0    0    1    0    1
+     //    1    0    0    1    1    1
+     //    1    0    1    0    0    1
+     //    1    0    1    0    1    1
+     //    1    0    1    1    0    1
+     //    1    0    1    1    1    1
+     //    1    1    0    0    0    1
+     //    1    1    0    0    1    1
+     //    1    1    0    1    0    1
+     //    1    1    0    1    1    1
+     //    1    1    1    0    0    1
+     //    1    1    1    0    1    1
+     //    1    1    1    1    0    1
+     //    1    1    1    1    1    1
+     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    }
+  );
 
   check(5, vals);
 }
@@ -525,43 +728,45 @@ TEST_P(AddClauseTest, add_clause5n_1)
 
   mSolver.add_clause(tmp_lits);
 
-  int vals[] = {
-    // lit5 lit4 lit3 lit2 lit1  ans
-    //    0    0    0    0    0    0
-    //    0    0    0    0    1    1
-    //    0    0    0    1    0    1
-    //    0    0    0    1    1    1
-    //    0    0    1    0    0    1
-    //    0    0    1    0    1    1
-    //    0    0    1    1    0    1
-    //    0    0    1    1    1    1
-    //    0    1    0    0    0    1
-    //    0    1    0    0    1    1
-    //    0    1    0    1    0    1
-    //    0    1    0    1    1    1
-    //    0    1    1    0    0    1
-    //    0    1    1    0    1    1
-    //    0    1    1    1    0    1
-    //    0    1    1    1    1    1
-    //    1    0    0    0    0    1
-    //    1    0    0    0    1    1
-    //    1    0    0    1    0    1
-    //    1    0    0    1    1    1
-    //    1    0    1    0    0    1
-    //    1    0    1    0    1    1
-    //    1    0    1    1    0    1
-    //    1    0    1    1    1    1
-    //    1    1    0    0    0    1
-    //    1    1    0    0    1    1
-    //    1    1    0    1    0    1
-    //    1    1    0    1    1    1
-    //    1    1    1    0    0    1
-    //    1    1    1    0    1    1
-    //    1    1    1    1    0    1
-    //    1    1    1    1    1    1
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-  };
+  vector<int> vals(
+    {
+     // lit5 lit4 lit3 lit2 lit1  ans
+     //    0    0    0    0    0    0
+     //    0    0    0    0    1    1
+     //    0    0    0    1    0    1
+     //    0    0    0    1    1    1
+     //    0    0    1    0    0    1
+     //    0    0    1    0    1    1
+     //    0    0    1    1    0    1
+     //    0    0    1    1    1    1
+     //    0    1    0    0    0    1
+     //    0    1    0    0    1    1
+     //    0    1    0    1    0    1
+     //    0    1    0    1    1    1
+     //    0    1    1    0    0    1
+     //    0    1    1    0    1    1
+     //    0    1    1    1    0    1
+     //    0    1    1    1    1    1
+     //    1    0    0    0    0    1
+     //    1    0    0    0    1    1
+     //    1    0    0    1    0    1
+     //    1    0    0    1    1    1
+     //    1    0    1    0    0    1
+     //    1    0    1    0    1    1
+     //    1    0    1    1    0    1
+     //    1    0    1    1    1    1
+     //    1    1    0    0    0    1
+     //    1    1    0    0    1    1
+     //    1    1    0    1    0    1
+     //    1    1    0    1    1    1
+     //    1    1    1    0    0    1
+     //    1    1    1    0    1    1
+     //    1    1    1    1    0    1
+     //    1    1    1    1    1    1
+     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    }
+  );
 
   check(5, vals);
 }
@@ -573,14 +778,16 @@ TEST_P(AddClauseTest, add_eq_rel)
 
   mSolver.add_eq_rel(lit1, lit2);
 
-  int vals[] = {
-    // lit2 lit1 ans
-    //   0    0    1
-    //   0    1    0
-    //   1    0    0
-    //   1    1    1
-    1, 0, 0, 1
-  };
+  vector<int> vals(
+    {
+     // lit2 lit1 ans
+     //   0    0    1
+     //   0    1    0
+     //   1    0    0
+     //   1    1    1
+     1, 0, 0, 1
+    }
+  );
 
   check(2, vals);
 }
@@ -592,14 +799,16 @@ TEST_P(AddClauseTest, add_neq_rel)
 
   mSolver.add_neq_rel(lit1, lit2);
 
-  int vals[] = {
-    // lit2 lit1 ans
-    //   0    0    0
-    //   0    1    1
-    //   1    0    1
-    //   1    1    0
-    0, 1, 1, 0
-  };
+  vector<int> vals(
+    {
+     // lit2 lit1 ans
+     //   0    0    0
+     //   0    1    1
+     //   1    0    1
+     //   1    1    0
+     0, 1, 1, 0
+    }
+  );
 
   check(2, vals);
 }
@@ -612,20 +821,7 @@ TEST_P(AddClauseTest, add_andgate_rel2)
 
   mSolver.add_andgate_rel(olit, lit1, lit2);
 
-  int vals[] = {
-    // olit lit2 lit1  ans
-    //    0    0    0    1
-    //    0    0    1    1
-    //    0    1    0    1
-    //    0    1    1    0
-    //    1    0    0    0
-    //    1    0    1    0
-    //    1    1    0    0
-    //    1    1    1    1
-    1, 1, 1, 0, 0, 0, 0, 1
-  };
-
-  check(3, vals);
+  check_and(2);
 }
 
 TEST_P(AddClauseTest, add_andgate_rel3)
@@ -637,29 +833,7 @@ TEST_P(AddClauseTest, add_andgate_rel3)
 
   mSolver.add_andgate_rel(olit, lit1, lit2, lit3);
 
-  int vals[] = {
-    // olit lit3 lit2 lit1  ans
-    //    0    0    0    0    1
-    //    0    0    0    1    1
-    //    0    0    1    0    1
-    //    0    0    1    1    1
-    //    0    1    0    0    1
-    //    0    1    0    1    1
-    //    0    1    1    0    1
-    //    0    1    1    1    0
-    //    1    0    0    0    0
-    //    1    0    0    1    0
-    //    1    0    1    0    0
-    //    1    0    1    1    0
-    //    1    1    0    0    0
-    //    1    1    0    1    0
-    //    1    1    1    0    0
-    //    1    1    1    1    1
-    1, 1, 1, 1, 1, 1, 1, 0,
-    0, 0, 0, 0, 0, 0, 0, 1
-  };
-
-  check(4, vals);
+  check_and(3);
 }
 
 TEST_P(AddClauseTest, add_andgate_rel4)
@@ -672,45 +846,7 @@ TEST_P(AddClauseTest, add_andgate_rel4)
 
   mSolver.add_andgate_rel(olit, lit1, lit2, lit3, lit4);
 
-  int vals[] = {
-    // olit lit4 lit3 lit2 lit1  ans
-    //    0    0    0    0    0    1
-    //    0    0    0    0    1    1
-    //    0    0    0    1    0    1
-    //    0    0    0    1    1    1
-    //    0    0    1    0    0    1
-    //    0    0    1    0    1    1
-    //    0    0    1    1    0    1
-    //    0    0    1    1    1    1
-    //    0    1    0    0    0    1
-    //    0    1    0    0    1    1
-    //    0    1    0    1    0    1
-    //    0    1    0    1    1    1
-    //    0    1    1    0    0    1
-    //    0    1    1    0    1    1
-    //    0    1    1    1    0    1
-    //    0    1    1    1    1    0
-    //    1    0    0    0    0    0
-    //    1    0    0    0    1    0
-    //    1    0    0    1    0    0
-    //    1    0    0    1    1    0
-    //    1    0    1    0    0    0
-    //    1    0    1    0    1    0
-    //    1    0    1    1    0    0
-    //    1    0    1    1    1    0
-    //    1    1    0    0    0    0
-    //    1    1    0    0    1    0
-    //    1    1    0    1    0    0
-    //    1    1    0    1    1    0
-    //    1    1    1    0    0    0
-    //    1    1    1    0    1    0
-    //    1    1    1    1    0    0
-    //    1    1    1    1    1    1
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-  };
-
-  check(5, vals);
+  check_and(4);
 }
 
 TEST_P(AddClauseTest, add_andgate_rel5)
@@ -731,14 +867,7 @@ TEST_P(AddClauseTest, add_andgate_rel5)
 
   mSolver.add_andgate_rel(olit, lits);
 
-  int vals[] = {
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-  };
-
-  check(6, vals);
+  check_and(5);
 }
 
 TEST_P(AddClauseTest, add_nandgate_rel2)
@@ -749,11 +878,7 @@ TEST_P(AddClauseTest, add_nandgate_rel2)
 
   mSolver.add_nandgate_rel(olit, lit1, lit2);
 
-  int vals[] = {
-    0, 0, 0, 1, 1, 1, 1, 0
-  };
-
-  check(3, vals);
+  check_nand(2);
 }
 
 TEST_P(AddClauseTest, add_nandgate_rel3)
@@ -765,12 +890,7 @@ TEST_P(AddClauseTest, add_nandgate_rel3)
 
   mSolver.add_nandgate_rel(olit, lit1, lit2, lit3);
 
-  int vals[] = {
-    0, 0, 0, 0, 0, 0, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 0
-  };
-
-  check(4, vals);
+  check_nand(3);
 }
 
 TEST_P(AddClauseTest, add_nandgate_rel4)
@@ -783,12 +903,7 @@ TEST_P(AddClauseTest, add_nandgate_rel4)
 
   mSolver.add_nandgate_rel(olit, lit1, lit2, lit3, lit4);
 
-  int vals[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-  };
-
-  check(5, vals);
+  check_nand(4);
 }
 
 TEST_P(AddClauseTest, add_nandgate_rel5)
@@ -809,14 +924,7 @@ TEST_P(AddClauseTest, add_nandgate_rel5)
 
   mSolver.add_nandgate_rel(olit, lits);
 
-  int vals[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0
-  };
-
-  check(6, vals);
+  check_nand(5);
 }
 
 TEST_P(AddClauseTest, add_orgate_rel2)
@@ -827,20 +935,7 @@ TEST_P(AddClauseTest, add_orgate_rel2)
 
   mSolver.add_orgate_rel(olit, lit1, lit2);
 
-  int vals[] = {
-    // olit lit2 lit1  ans
-    //    0    0    0    1
-    //    0    0    1    0
-    //    0    1    0    0
-    //    0    1    1    0
-    //    1    0    0    0
-    //    1    0    1    1
-    //    1    1    0    1
-    //    1    1    1    1
-    1, 0, 0, 0, 0, 1, 1, 1
-  };
-
-  check(3, vals);
+  check_or(2);
 }
 
 TEST_P(AddClauseTest, add_orgate_rel3)
@@ -852,12 +947,7 @@ TEST_P(AddClauseTest, add_orgate_rel3)
 
   mSolver.add_orgate_rel(olit, lit1, lit2, lit3);
 
-  int vals[] = {
-    1, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 1, 1, 1, 1, 1,
-  };
-
-  check(4, vals);
+  check_or(3);
 }
 
 TEST_P(AddClauseTest, add_orgate_rel4)
@@ -870,12 +960,7 @@ TEST_P(AddClauseTest, add_orgate_rel4)
 
   mSolver.add_orgate_rel(olit, lit1, lit2, lit3, lit4);
 
-  int vals[] = {
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  };
-
-  check(5, vals);
+  check_or(4);
 }
 
 TEST_P(AddClauseTest, add_orgate_rel5)
@@ -896,14 +981,7 @@ TEST_P(AddClauseTest, add_orgate_rel5)
 
   mSolver.add_orgate_rel(olit, lits);
 
-  int vals[] = {
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  };
-
-  check(6, vals);
+  check_or(5);
 }
 
 TEST_P(AddClauseTest, add_norgate_rel2)
@@ -914,20 +992,7 @@ TEST_P(AddClauseTest, add_norgate_rel2)
 
   mSolver.add_norgate_rel(olit, lit1, lit2);
 
-  int vals[] = {
-    // olit lit2 lit1  ans
-    //    0    0    0    0
-    //    0    0    1    1
-    //    0    1    0    1
-    //    0    1    1    1
-    //    1    0    0    1
-    //    1    0    1    0
-    //    1    1    0    0
-    //    1    1    1    0
-    0, 1, 1, 1, 1, 0, 0, 0,
-  };
-
-  check(3, vals);
+  check_nor(2);
 }
 
 TEST_P(AddClauseTest, add_norgate_rel3)
@@ -939,12 +1004,7 @@ TEST_P(AddClauseTest, add_norgate_rel3)
 
   mSolver.add_norgate_rel(olit, lit1, lit2, lit3);
 
-  int vals[] = {
-    0, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0, 0, 0, 0,
-  };
-
-  check(4, vals);
+  check_nor(3);
 }
 
 TEST_P(AddClauseTest, add_norgate_rel4)
@@ -957,12 +1017,7 @@ TEST_P(AddClauseTest, add_norgate_rel4)
 
   mSolver.add_norgate_rel(olit, lit1, lit2, lit3, lit4);
 
-  int vals[] = {
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  };
-
-  check(5, vals);
+  check_nor(4);
 }
 
 TEST_P(AddClauseTest, add_norgate_rel5)
@@ -983,14 +1038,7 @@ TEST_P(AddClauseTest, add_norgate_rel5)
 
   mSolver.add_norgate_rel(olit, lits);
 
-  int vals[] = {
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  };
-
-  check(6, vals);
+  check_nor(5);
 }
 
 TEST_P(AddClauseTest, add_xorgate_rel2)
@@ -1001,20 +1049,7 @@ TEST_P(AddClauseTest, add_xorgate_rel2)
 
   mSolver.add_xorgate_rel(olit, lit1, lit2);
 
-  int vals[] = {
-    // olit lit2 lit1  ans
-    //    0    0    0    1
-    //    0    0    1    0
-    //    0    1    0    0
-    //    0    1    1    1
-    //    1    0    0    0
-    //    1    0    1    1
-    //    1    1    0    1
-    //    1    1    1    0
-    1, 0, 0, 1, 0, 1, 1, 0
-  };
-
-  check(3, vals);
+  check_xor(2);
 }
 
 TEST_P(AddClauseTest, add_xorgate_rel3)
@@ -1026,29 +1061,7 @@ TEST_P(AddClauseTest, add_xorgate_rel3)
 
   mSolver.add_xorgate_rel(olit, lit1, lit2, lit3);
 
-  int vals[] = {
-    // olit lit3 lit2 lit1  ans
-    //    0    0    0    0    1
-    //    0    0    0    1    0
-    //    0    0    1    0    0
-    //    0    0    1    1    1
-    //    0    1    0    0    0
-    //    0    1    0    1    1
-    //    0    1    1    0    1
-    //    0    1    1    1    0
-    //    1    0    0    0    0
-    //    1    0    0    1    1
-    //    1    0    1    0    1
-    //    1    0    1    1    0
-    //    1    1    0    0    1
-    //    1    1    0    1    0
-    //    1    1    1    0    0
-    //    1    1    1    1    1
-    1, 0, 0, 1, 0, 1, 1, 0,
-    0, 1, 1, 0, 1, 0, 0, 1,
-  };
-
-  check(4, vals);
+  check_xor(3);
 }
 
 TEST_P(AddClauseTest, add_xorgate_rel4)
@@ -1061,12 +1074,7 @@ TEST_P(AddClauseTest, add_xorgate_rel4)
 
   mSolver.add_xorgate_rel(olit, lit1, lit2, lit3, lit4);
 
-  int vals[] = {
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  };
-
-  check(5, vals);
+  check_xor(4);
 }
 
 TEST_P(AddClauseTest, add_xorgate_rel5)
@@ -1087,14 +1095,7 @@ TEST_P(AddClauseTest, add_xorgate_rel5)
 
   mSolver.add_xorgate_rel(olit, lits);
 
-  int vals[] = {
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-  };
-
-  check(6, vals);
+  check_xor(5);
 }
 
 TEST_P(AddClauseTest, add_xnorgate_rel2)
@@ -1105,20 +1106,7 @@ TEST_P(AddClauseTest, add_xnorgate_rel2)
 
   mSolver.add_xnorgate_rel(olit, lit1, lit2);
 
-  int vals[] = {
-    // olit lit2 lit1  ans
-    //    0    0    0    0
-    //    0    0    1    1
-    //    0    1    0    1
-    //    0    1    1    0
-    //    1    0    0    1
-    //    1    0    1    0
-    //    1    1    0    0
-    //    1    1    1    1
-    0, 1, 1, 0, 1, 0, 0, 1,
-  };
-
-  check(3, vals);
+  check_xnor(2);
 }
 
 TEST_P(AddClauseTest, add_xnorgate_rel3)
@@ -1130,29 +1118,7 @@ TEST_P(AddClauseTest, add_xnorgate_rel3)
 
   mSolver.add_xnorgate_rel(olit, lit1, lit2, lit3);
 
-  int vals[] = {
-    // olit lit3 lit2 lit1  ans
-    //    0    0    0    0    0
-    //    0    0    0    1    1
-    //    0    0    1    0    1
-    //    0    0    1    1    0
-    //    0    1    0    0    1
-    //    0    1    0    1    0
-    //    0    1    1    0    0
-    //    0    1    1    1    1
-    //    1    0    0    0    1
-    //    1    0    0    1    0
-    //    1    0    1    0    0
-    //    1    0    1    1    1
-    //    1    1    0    0    0
-    //    1    1    0    1    1
-    //    1    1    1    0    1
-    //    1    1    1    1    0
-    0, 1, 1, 0, 1, 0, 0, 1,
-    1, 0, 0, 1, 0, 1, 1, 0,
-  };
-
-  check(4, vals);
+  check_xnor(3);
 }
 
 TEST_P(AddClauseTest, add_xnorgate_rel4)
@@ -1165,12 +1131,7 @@ TEST_P(AddClauseTest, add_xnorgate_rel4)
 
   mSolver.add_xnorgate_rel(olit, lit1, lit2, lit3, lit4);
 
-  int vals[] = {
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  };
-
-  check(5, vals);
+  check_xnor(4);
 }
 
 TEST_P(AddClauseTest, add_xnorgate_rel5)
@@ -1191,14 +1152,7 @@ TEST_P(AddClauseTest, add_xnorgate_rel5)
 
   mSolver.add_xnorgate_rel(olit, lits);
 
-  int vals[] = {
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-    1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-  };
-
-  check(6, vals);
+  check_xnor(5);
 }
 
 TEST_P(AddClauseTest, add_at_most_one2)
@@ -1366,7 +1320,7 @@ TEST_P(AddClauseTest, add_at_most_10_3)
   int n = 10;
   int k = 3;
   vector<SatLiteral> lits(n);
-  for ( int i = 0; i < n; ++ i ) {
+  for ( int i: Range(n) ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1380,7 +1334,7 @@ TEST_P(AddClauseTest, add_at_most_10_5)
   int n = 10;
   int k = 5;
   vector<SatLiteral> lits(n);
-  for ( int i = 0; i < n; ++ i ) {
+  for ( int i: Range(n) ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1562,7 +1516,7 @@ TEST_P(AddClauseTest, add_at_least_10_3)
   int n = 10;
   int k = 3;
   vector<SatLiteral> lits(n);
-  for ( int i = 0; i < n; ++ i ) {
+  for ( int i: Range(n) ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1576,7 +1530,7 @@ TEST_P(AddClauseTest, add_at_least_10_5)
   int n = 10;
   int k = 5;
   vector<SatLiteral> lits(n);
-  for ( int i = 0; i < n; ++ i ) {
+  for ( int i: Range(n) ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1750,7 +1704,7 @@ TEST_P(AddClauseTest, add_exact_10_3)
   int n = 10;
   int k = 3;
   vector<SatLiteral> lits(n);
-  for ( int i = 0; i < n; ++ i ) {
+  for ( int i: Range(n) ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1764,7 +1718,7 @@ TEST_P(AddClauseTest, add_exact_10_5)
   int n = 10;
   int k = 5;
   vector<SatLiteral> lits(n);
-  for ( int i = 0; i < n; ++ i ) {
+  for ( int i: Range(n) ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1837,7 +1791,7 @@ TEST_P(AddClauseTest, add_not_oneN)
 {
   int n = 10;
   vector<SatLiteral> lits(n);
-  for ( int i = 0; i < n; ++ i ) {
+  for ( int i: Range(n) ) {
     lits[i] = SatLiteral(mVarList[i]);
   }
 
@@ -1856,13 +1810,15 @@ TEST_P(AddClauseTest, add_clause_with_cond1_1)
 
   mSolver.add_clause(lit1);
 
-  int vals[] = {
-    // lit1 ans
-    //   0    0
-    //   1    1
-    0,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit1 ans
+     //   0    0
+     //   1    1
+     0,
+     1
+    }
+  );
 
   check_with_cond1(1, vals);
 
@@ -1878,13 +1834,15 @@ TEST_P(AddClauseTest, add_clause_with_cond1_2)
 
   mSolver.add_clause(~lit1);
 
-  int vals[] = {
-    // lit1 ans
-    //   0    1
-    //   1    0
-    1,
-    0
-  };
+  vector<int> vals(
+    {
+     // lit1 ans
+     //   0    1
+     //   1    0
+     1,
+     0
+    }
+  );
 
   check_with_cond1(1, vals);
 
@@ -1901,17 +1859,19 @@ TEST_P(AddClauseTest, add_clause_with_cond2_1)
 
   mSolver.add_clause(lit1, lit2);
 
-  int vals[] = {
-    // lit2 lit1 ans
-    //   0    0    0
-    //   0    1    1
-    //   1    0    1
-    //   1    1    1
-    0,
-    1,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit2 lit1 ans
+     //   0    0    0
+     //   0    1    1
+     //   1    0    1
+     //   1    1    1
+     0,
+     1,
+     1,
+     1
+    }
+  );
 
   check_with_cond1(2, vals);
 
@@ -1928,17 +1888,19 @@ TEST_P(AddClauseTest, add_clause_with_cond2_2)
 
   mSolver.add_clause(~lit1, lit2);
 
-  int vals[] = {
-    // lit2 lit1 ans
-    //   0    0    1
-    //   0    1    0
-    //   1    0    1
-    //   1    1    1
-    1,
-    0,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit2 lit1 ans
+     //   0    0    1
+     //   0    1    0
+     //   1    0    1
+     //   1    1    1
+     1,
+     0,
+     1,
+     1
+    }
+  );
 
   check_with_cond1(2, vals);
 
@@ -1956,25 +1918,27 @@ TEST_P(AddClauseTest, add_clause_with_cond3_1)
 
   mSolver.add_clause(lit1, lit2, lit3);
 
-  int vals[] = {
-    // lit3 lit2 lit1 ans
-    //   0    0    0    0
-    //   0    0    1    1
-    //   0    1    0    1
-    //   0    1    1    1
-    //   1    0    0    1
-    //   1    0    1    1
-    //   1    1    0    1
-    //   1    1    1    1
-    0,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit3 lit2 lit1 ans
+     //   0    0    0    0
+     //   0    0    1    1
+     //   0    1    0    1
+     //   0    1    1    1
+     //   1    0    0    1
+     //   1    0    1    1
+     //   1    1    0    1
+     //   1    1    1    1
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    }
+  );
 
   check_with_cond1(3, vals);
 
@@ -1992,25 +1956,27 @@ TEST_P(AddClauseTest, add_clause_with_cond3_2)
 
   mSolver.add_clause(~lit1, lit2, ~lit3);
 
-  int vals[] = {
-    // lit3 lit2 lit1 ans
-    //   0    0    0    1
-    //   0    0    1    1
-    //   0    1    0    1
-    //   0    1    1    1
-    //   1    0    0    1
-    //   1    0    1    0
-    //   1    1    0    1
-    //   1    1    1    1
-    1,
-    1,
-    1,
-    1,
-    1,
-    0,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit3 lit2 lit1 ans
+     //   0    0    0    1
+     //   0    0    1    1
+     //   0    1    0    1
+     //   0    1    1    1
+     //   1    0    0    1
+     //   1    0    1    0
+     //   1    1    0    1
+     //   1    1    1    1
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     1,
+     1
+    }
+  );
 
   check_with_cond1(3, vals);
 
@@ -2029,41 +1995,43 @@ TEST_P(AddClauseTest, add_clause_with_cond4_1)
 
   mSolver.add_clause(lit1, lit2, lit3, lit4);
 
-  int vals[] = {
-    // lit4 lit3 lit2 lit1 ans
-    //   0    0    0    0    0
-    //   0    0    0    1    1
-    //   0    0    1    0    1
-    //   0    0    1    1    1
-    //   0    1    0    0    1
-    //   0    1    0    1    1
-    //   0    1    1    0    1
-    //   0    1    1    1    1
-    //   1    0    0    0    1
-    //   1    0    0    1    1
-    //   1    0    1    0    1
-    //   1    0    1    1    1
-    //   1    1    0    0    1
-    //   1    1    0    1    1
-    //   1    1    1    0    1
-    //   1    1    1    1    1
-    0,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1
-  };
+  vector<int> vals(
+    {
+     // lit4 lit3 lit2 lit1 ans
+     //   0    0    0    0    0
+     //   0    0    0    1    1
+     //   0    0    1    0    1
+     //   0    0    1    1    1
+     //   0    1    0    0    1
+     //   0    1    0    1    1
+     //   0    1    1    0    1
+     //   0    1    1    1    1
+     //   1    0    0    0    1
+     //   1    0    0    1    1
+     //   1    0    1    0    1
+     //   1    0    1    1    1
+     //   1    1    0    0    1
+     //   1    1    0    1    1
+     //   1    1    1    0    1
+     //   1    1    1    1    1
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    }
+  );
 
   check_with_cond1(4, vals);
 
@@ -2083,43 +2051,45 @@ TEST_P(AddClauseTest, add_clause_with_cond5_1)
 
   mSolver.add_clause(lit1, lit2, lit3, lit4, lit5);
 
-  int vals[] = {
-    // lit5 lit4 lit3 lit2 lit1  ans
-    //    0    0    0    0    0    0
-    //    0    0    0    0    1    1
-    //    0    0    0    1    0    1
-    //    0    0    0    1    1    1
-    //    0    0    1    0    0    1
-    //    0    0    1    0    1    1
-    //    0    0    1    1    0    1
-    //    0    0    1    1    1    1
-    //    0    1    0    0    0    1
-    //    0    1    0    0    1    1
-    //    0    1    0    1    0    1
-    //    0    1    0    1    1    1
-    //    0    1    1    0    0    1
-    //    0    1    1    0    1    1
-    //    0    1    1    1    0    1
-    //    0    1    1    1    1    1
-    //    1    0    0    0    0    1
-    //    1    0    0    0    1    1
-    //    1    0    0    1    0    1
-    //    1    0    0    1    1    1
-    //    1    0    1    0    0    1
-    //    1    0    1    0    1    1
-    //    1    0    1    1    0    1
-    //    1    0    1    1    1    1
-    //    1    1    0    0    0    1
-    //    1    1    0    0    1    1
-    //    1    1    0    1    0    1
-    //    1    1    0    1    1    1
-    //    1    1    1    0    0    1
-    //    1    1    1    0    1    1
-    //    1    1    1    1    0    1
-    //    1    1    1    1    1    1
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-  };
+  vector<int> vals(
+    {
+     // lit5 lit4 lit3 lit2 lit1  ans
+     //    0    0    0    0    0    0
+     //    0    0    0    0    1    1
+     //    0    0    0    1    0    1
+     //    0    0    0    1    1    1
+     //    0    0    1    0    0    1
+     //    0    0    1    0    1    1
+     //    0    0    1    1    0    1
+     //    0    0    1    1    1    1
+     //    0    1    0    0    0    1
+     //    0    1    0    0    1    1
+     //    0    1    0    1    0    1
+     //    0    1    0    1    1    1
+     //    0    1    1    0    0    1
+     //    0    1    1    0    1    1
+     //    0    1    1    1    0    1
+     //    0    1    1    1    1    1
+     //    1    0    0    0    0    1
+     //    1    0    0    0    1    1
+     //    1    0    0    1    0    1
+     //    1    0    0    1    1    1
+     //    1    0    1    0    0    1
+     //    1    0    1    0    1    1
+     //    1    0    1    1    0    1
+     //    1    0    1    1    1    1
+     //    1    1    0    0    0    1
+     //    1    1    0    0    1    1
+     //    1    1    0    1    0    1
+     //    1    1    0    1    1    1
+     //    1    1    1    0    0    1
+     //    1    1    1    0    1    1
+     //    1    1    1    1    0    1
+     //    1    1    1    1    1    1
+     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    }
+  );
 
   check_with_cond1(5, vals);
 
@@ -2145,43 +2115,45 @@ TEST_P(AddClauseTest, add_clause_with_cond5n_1)
   tmp_lits[4] = lit5;
   mSolver.add_clause(tmp_lits);
 
-  int vals[] = {
-    // lit5 lit4 lit3 lit2 lit1  ans
-    //    0    0    0    0    0    0
-    //    0    0    0    0    1    1
-    //    0    0    0    1    0    1
-    //    0    0    0    1    1    1
-    //    0    0    1    0    0    1
-    //    0    0    1    0    1    1
-    //    0    0    1    1    0    1
-    //    0    0    1    1    1    1
-    //    0    1    0    0    0    1
-    //    0    1    0    0    1    1
-    //    0    1    0    1    0    1
-    //    0    1    0    1    1    1
-    //    0    1    1    0    0    1
-    //    0    1    1    0    1    1
-    //    0    1    1    1    0    1
-    //    0    1    1    1    1    1
-    //    1    0    0    0    0    1
-    //    1    0    0    0    1    1
-    //    1    0    0    1    0    1
-    //    1    0    0    1    1    1
-    //    1    0    1    0    0    1
-    //    1    0    1    0    1    1
-    //    1    0    1    1    0    1
-    //    1    0    1    1    1    1
-    //    1    1    0    0    0    1
-    //    1    1    0    0    1    1
-    //    1    1    0    1    0    1
-    //    1    1    0    1    1    1
-    //    1    1    1    0    0    1
-    //    1    1    1    0    1    1
-    //    1    1    1    1    0    1
-    //    1    1    1    1    1    1
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-  };
+  vector<int> vals(
+    {
+     // lit5 lit4 lit3 lit2 lit1  ans
+     //    0    0    0    0    0    0
+     //    0    0    0    0    1    1
+     //    0    0    0    1    0    1
+     //    0    0    0    1    1    1
+     //    0    0    1    0    0    1
+     //    0    0    1    0    1    1
+     //    0    0    1    1    0    1
+     //    0    0    1    1    1    1
+     //    0    1    0    0    0    1
+     //    0    1    0    0    1    1
+     //    0    1    0    1    0    1
+     //    0    1    0    1    1    1
+     //    0    1    1    0    0    1
+     //    0    1    1    0    1    1
+     //    0    1    1    1    0    1
+     //    0    1    1    1    1    1
+     //    1    0    0    0    0    1
+     //    1    0    0    0    1    1
+     //    1    0    0    1    0    1
+     //    1    0    0    1    1    1
+     //    1    0    1    0    0    1
+     //    1    0    1    0    1    1
+     //    1    0    1    1    0    1
+     //    1    0    1    1    1    1
+     //    1    1    0    0    0    1
+     //    1    1    0    0    1    1
+     //    1    1    0    1    0    1
+     //    1    1    0    1    1    1
+     //    1    1    1    0    0    1
+     //    1    1    1    0    1    1
+     //    1    1    1    1    0    1
+     //    1    1    1    1    1    1
+     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    }
+  );
 
   check_with_cond1(5, vals);
 

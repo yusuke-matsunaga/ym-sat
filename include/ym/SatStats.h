@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/ym_sat.h"
+#include "ym/sat.h"
 #include "ym/USTime.h"
 
 

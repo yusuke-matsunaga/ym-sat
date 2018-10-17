@@ -1,21 +1,21 @@
-#ifndef SATDIMACS_H
-#define SATDIMACS_H
+#ifndef YM_SATDIMACS_H
+#define YM_SATDIMACS_H
 
-/// @file SatDimacs.h
+/// @file ym/SatDimacs.h
 /// @brief SatDimacs のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym_sat.h"
+#include "ym/sat.h"
 #include "ym/IDO.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-/// @class SatDimacs SatDimacs.h "SatDimacs.h"
+/// @class SatDimacs SatDimacs.h "ym/SatDimacs.h"
 /// @brief DIMCAS 形式のファイルの内容を表すクラス
 //////////////////////////////////////////////////////////////////////
 class SatDimacs
@@ -144,7 +144,7 @@ private:
   int mVarNum;
 
   // 節のリスト
-  vector<vector<int> > mClauseList;
+  vector<vector<int>> mClauseList;
 
 };
 
@@ -255,4 +255,4 @@ SatDimacs::decode_lit(int lit,
 
 END_NAMESPACE_YM_SAT
 
-#endif // SATDIMACS_H
+#endif // YM_SATDIMACS_H

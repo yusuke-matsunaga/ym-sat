@@ -27,8 +27,9 @@
 # インクルードパスの設定
 # ===================================================================
 include_directories(
-  src
-  src/ymsat/include
+  include
+  private_include
+  c++-src/ymsat/include
   )
 
 # ===================================================================
@@ -48,65 +49,65 @@ add_subdirectory( gtest )
 # ===================================================================
 
 set (ym_sat_SOURCES
-  src/SatMsgHandlerImpl1.cc
-  src/SatSolver.cc
-  src/SatLogger.cc
-  src/SatLoggerS.cc
-  src/SatStats.cc
-  src/SatDimacs.cc
-  src/DimacsScanner.cc
+  c++-src/SatMsgHandlerImpl1.cc
+  c++-src/SatSolver.cc
+  c++-src/SatLogger.cc
+  c++-src/SatLoggerS.cc
+  c++-src/SatStats.cc
+  c++-src/SatDimacs.cc
+  c++-src/DimacsScanner.cc
 
-  src/MiniSat/SatSolverMiniSat.cc
-  src/MiniSat/Solver.C
+  c++-src/MiniSat/SatSolverMiniSat.cc
+  c++-src/MiniSat/Solver.C
 
-  src/MiniSat2/Options.cc
-  src/MiniSat2/SatSolverMiniSat2.cc
-  src/MiniSat2/Solver.cc
-  src/MiniSat2/System.cc
+  c++-src/MiniSat2/Options.cc
+  c++-src/MiniSat2/SatSolverMiniSat2.cc
+  c++-src/MiniSat2/Solver.cc
+  c++-src/MiniSat2/System.cc
 
-  src/glueminisat-2.2.8/SatSolverGlueMiniSat2.cc
-  src/glueminisat-2.2.8/Options.cc
-  src/glueminisat-2.2.8/Solver.cc
-  src/glueminisat-2.2.8/System.cc
+  c++-src/glueminisat-2.2.8/SatSolverGlueMiniSat2.cc
+  c++-src/glueminisat-2.2.8/Options.cc
+  c++-src/glueminisat-2.2.8/Solver.cc
+  c++-src/glueminisat-2.2.8/System.cc
 
 
-  src/ymsat/core/AssignList.cc
-  src/ymsat/core/SatClause.cc
-  src/ymsat/core/CoreMgr.cc
-  src/ymsat/controller/ControllerMS1.cc
-  src/ymsat/controller/ControllerMS2.cc
-  src/ymsat/analyzer/SaBase.cc
-  src/ymsat/analyzer/SaFactory.cc
-  src/ymsat/analyzer/SaUIP1.cc
-  src/ymsat/analyzer/SaUIP2.cc
-  src/ymsat/selecter/Selecter1.cc
-  src/ymsat/YmSat.cc
-  src/ymsat/YmSat1.cc
-  src/ymsat/YmSatMS2.cc
+  c++-src/ymsat/core/AssignList.cc
+  c++-src/ymsat/core/SatClause.cc
+  c++-src/ymsat/core/CoreMgr.cc
+  c++-src/ymsat/controller/ControllerMS1.cc
+  c++-src/ymsat/controller/ControllerMS2.cc
+  c++-src/ymsat/analyzer/SaBase.cc
+  c++-src/ymsat/analyzer/SaFactory.cc
+  c++-src/ymsat/analyzer/SaUIP1.cc
+  c++-src/ymsat/analyzer/SaUIP2.cc
+  c++-src/ymsat/selecter/Selecter1.cc
+  c++-src/ymsat/YmSat.cc
+  c++-src/ymsat/YmSat1.cc
+  c++-src/ymsat/YmSatMS2.cc
 
-  src/ymsat1/AssignList.cc
-  src/ymsat1/SaBase.cc
-  src/ymsat1/SaFactory.cc
-  src/ymsat1/SaUIP1.cc
-  src/ymsat1/SaUIP2.cc
-  src/ymsat1/SatClause.cc
-  src/ymsat1/VarHeap.cc
-  src/ymsat1/YmSat.cc
+  c++-src/ymsat1/AssignList.cc
+  c++-src/ymsat1/SaBase.cc
+  c++-src/ymsat1/SaFactory.cc
+  c++-src/ymsat1/SaUIP1.cc
+  c++-src/ymsat1/SaUIP2.cc
+  c++-src/ymsat1/SatClause.cc
+  c++-src/ymsat1/VarHeap.cc
+  c++-src/ymsat1/YmSat.cc
 
-  src/ymsat_old/AssignList.cc
-  src/ymsat_old/SaBase.cc
-  src/ymsat_old/SaFactory.cc
-  src/ymsat_old/SaUIP1.cc
-  src/ymsat_old/SaUIP2.cc
-  src/ymsat_old/SatClause.cc
-  src/ymsat_old/VarHeap.cc
-  src/ymsat_old/YmSat_base.cc
-  src/ymsat_old/YmSat_solve.cc
-  src/ymsat_old/YmSatMS2.cc
+  c++-src/ymsat_old/AssignList.cc
+  c++-src/ymsat_old/SaBase.cc
+  c++-src/ymsat_old/SaFactory.cc
+  c++-src/ymsat_old/SaUIP1.cc
+  c++-src/ymsat_old/SaUIP2.cc
+  c++-src/ymsat_old/SatClause.cc
+  c++-src/ymsat_old/VarHeap.cc
+  c++-src/ymsat_old/YmSat_base.cc
+  c++-src/ymsat_old/YmSat_solve.cc
+  c++-src/ymsat_old/YmSatMS2.cc
 
-#  src/ymsat_old2/YmSat_base.cc
-#  src/ymsat_old2/YmSat_solve.cc
-#  src/ymsat_old2/YmSatMS2.cc
+#  c++-src/ymsat_old2/YmSat_base.cc
+#  c++-src/ymsat_old2/YmSat_solve.cc
+#  c++-src/ymsat_old2/YmSatMS2.cc
   )
 
 

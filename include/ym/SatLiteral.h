@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ym/ym_sat.h"
+#include "ym/sat.h"
 #include "ym/SatVarId.h"
 #include "ym/HashFunc.h"
 
@@ -96,7 +96,7 @@ public:
   ///
   /// 不正な値の場合は変化しない．
   const SatLiteral&
-  negate();
+  invert();
 
   /// @brief 極性の反転
   /// @return 極性を反転させたリテラルを返す．
@@ -287,7 +287,7 @@ SatLiteral::is_negative() const
 // @return 自身の参照を返す．
 inline
 const SatLiteral&
-SatLiteral::negate()
+SatLiteral::invert()
 {
   mIndex ^= neg_mask();
   return *this;
@@ -372,7 +372,7 @@ operator<<(ostream& s,
 {
   SatVarId vid = lit.varid();
   if ( vid.is_valid() ) {
-    s << "v_" << vid;
+    s << vid;
     if ( lit.is_negative() ) {
       s << "'";
     }

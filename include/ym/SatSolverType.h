@@ -8,13 +8,13 @@
 /// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/ym_sat.h"
+#include "ym/sat.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-/// @class SatSolverType SatSolverType.h "SatSolverType.h"
+/// @class SatSolverType SatSolverType.h "ym/SatSolverType.h"
 /// @brief SATソルバの種類を表すクラス
 //////////////////////////////////////////////////////////////////////
 class SatSolverType
