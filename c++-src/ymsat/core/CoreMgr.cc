@@ -10,6 +10,7 @@
 #include "ymsat/CoreMgr.h"
 #include "ymsat/Controller.h"
 #include "ymsat/Analyzer.h"
+#include "ymsat/SatClause.h"
 #include "ymsat/Selecter.h"
 #include "ym/SatStats.h"
 #include "ym/SatMsgHandler.h"
@@ -521,6 +522,18 @@ public:
   }
 };
 END_NONAMESPACE
+
+// @brief clase が含意の理由になっているか調べる．
+bool
+CoreMgr::is_locked(SatClause* clause) const
+{
+  // 直感的には分かりにくいが，節の最初のリテラルは
+  // 残りのリテラルによって含意されていることになっている．
+  // そこで最初のリテラルの変数の割り当て理由が自分自身か
+  // どうかを調べれば clause が割り当て理由として用いられて
+  // いるかわかる．
+  return reason(clause->wl0().varid()) == SatReason(clause);
+}
 
 // 使われていない学習節を削除する．
 void

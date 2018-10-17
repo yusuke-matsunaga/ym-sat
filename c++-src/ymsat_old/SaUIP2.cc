@@ -8,7 +8,6 @@
 
 
 #include "SaUIP2.h"
-#include "YmSat.h"
 #include "ymsat_old/SatClause.h"
 
 

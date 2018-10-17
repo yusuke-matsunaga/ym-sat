@@ -15,7 +15,6 @@
 #include "ym/FragAlloc.h"
 #include "ym/StopWatch.h"
 
-#include "ymsat/SatClause.h"
 #include "ymsat/SatReason.h"
 #include "ymsat/AssignList.h"
 #include "ymsat/Watcher.h"
@@ -23,6 +22,7 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
+class SatClause;
 class Controller;
 class Analyzer;
 class Selecter;
@@ -1106,19 +1106,6 @@ CoreMgr::reason(SatVarId var) const
   int vindex = var.val();
   ASSERT_COND( vindex >= 0 && vindex < mVarNum );
   return mReason[vindex];
-}
-
-// @brief clase が含意の理由になっているか調べる．
-inline
-bool
-CoreMgr::is_locked(SatClause* clause) const
-{
-  // 直感的には分かりにくいが，節の最初のリテラルは
-  // 残りのリテラルによって含意されていることになっている．
-  // そこで最初のリテラルの変数の割り当て理由が自分自身か
-  // どうかを調べれば clause が割り当て理由として用いられて
-  // いるかわかる．
-  return reason(clause->wl0().varid()) == SatReason(clause);
 }
 
 // @brief 停止する．

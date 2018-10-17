@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "YmSat1.h"
+#include "ymsat/YmSat1.h"
 #include "ymsat/Controller.h"
 #include "ymsat/Analyzer.h"
 #include "ymsat/Selecter.h"

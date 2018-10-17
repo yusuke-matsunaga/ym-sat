@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "YmSatMS2.h"
+#include "ymsat_old/YmSatMS2.h"
 
 
 BEGIN_NAMESPACE_YM_YMSATOLD

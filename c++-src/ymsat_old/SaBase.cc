@@ -8,7 +8,6 @@
 
 
 #include "SaBase.h"
-#include "YmSat.h"
 #include "ymsat_old/SatClause.h"
 
 
