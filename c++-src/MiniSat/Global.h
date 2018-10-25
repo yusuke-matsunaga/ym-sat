@@ -35,7 +35,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 typedef ymint64 int64;
 typedef ymuint64 uint64;
-typedef ymint* intp;
+typedef int* intp;
 typedef ymuint* uintp;
 #if defined(WIN32)
 #define I64_fmt "I64d"

@@ -182,7 +182,7 @@ write_lit(ostream& s,
 	  SatLiteral lit)
 {
   SatVarId var = lit.varid();
-  ymint idx = var.val() + 1;
+  int idx = var.val() + 1;
   if ( lit.is_negative() ) {
     s << " -";
       }
