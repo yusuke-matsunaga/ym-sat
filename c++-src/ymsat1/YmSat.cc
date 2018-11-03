@@ -164,6 +164,14 @@ YmSat::set_conditional_literals(int lit_num,
   }
 }
 
+// @brief リテラルを 'フリーズ' する．
+//
+// lingeling 以外は無効
+void
+YmSat::freeze_literal(SatLiteral lit)
+{
+}
+
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void

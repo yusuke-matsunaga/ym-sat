@@ -65,6 +65,13 @@ public:
   set_conditional_literals(int lit_num,
 			   const SatLiteral* lits) = 0;
 
+  /// @brief リテラルを 'フリーズ' する．
+  ///
+  /// lingeling 以外は無効
+  virtual
+  void
+  freeze_literal(SatLiteral lit) = 0;
+
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   virtual

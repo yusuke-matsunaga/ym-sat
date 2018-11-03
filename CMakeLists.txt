@@ -72,6 +72,10 @@ set (ym_sat_SOURCES
   c++-src/glueminisat-2.2.8/Solver.cc
   c++-src/glueminisat-2.2.8/System.cc
 
+  c++-src/lingeling/SatSolverLingeling.cc
+  c++-src/lingeling/lglbnr.c
+  c++-src/lingeling/lgldimacs.c
+  c++-src/lingeling/lglib.c
 
   c++-src/ymsat/core/AssignList.cc
   c++-src/ymsat/core/SatClause.cc

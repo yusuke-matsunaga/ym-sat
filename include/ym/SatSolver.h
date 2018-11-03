@@ -110,6 +110,18 @@ public:
   void
   clear_conditional_literals();
 
+  /// @brief リテラルを 'フリーズ' する．
+  ///
+  /// lingeling 以外は無効
+  void
+  freeze_literal(SatLiteral lit);
+
+  /// @brief リテラルを 'フリーズ' する．
+  ///
+  /// lingeling 以外は無効
+  void
+  freeze_literal(const vector<SatLiteral>& lits);
+
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   void

@@ -1,8 +1,8 @@
-﻿#ifndef SATSOLVERGLUEMINISAT2_H
-#define SATSOLVERGLUEMINISAT2_H
+﻿#ifndef SATSOLVERLINGELING_H
+#define SATSOLVERLINGELING_H
 
-/// @file SatSolverGlueMiniSat2.h
-/// @brief SatSolverGlueMiniSat2 のヘッダファイル
+/// @file SatSolverLingeling.h
+/// @brief SatSolverLingeling のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2011, 2014 Yusuke Matsunaga
@@ -10,27 +10,27 @@
 
 
 #include "SatSolverImpl.h"
-#include "Solver.h"
+#include "lglib.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-/// @class SatSolverGlueMiniSat2 SatSolverGlueMiniSat2.h "SatSolverGlueMiniSat2.h"
-/// @brief GlueMiniSat を SatSolverImpl のインターフェイスに合わせるためのラッパ
+/// @class SatSolverLingeling SatSolverLingeling.h "SatSolverLingeling.h"
+/// @brief lingeling を SatSolverImpl のインターフェイスに合わせるためのラッパ
 //////////////////////////////////////////////////////////////////////
-class SatSolverGlueMiniSat2 :
+class SatSolverLingeling :
   public SatSolverImpl
 {
 public:
 
   /// @brief コンストラクタ
   /// @param[in] option オプション文字列
-  SatSolverGlueMiniSat2(const string& option);
+  SatSolverLingeling(const string& option);
 
   /// @brief デストラクタ
   virtual
-  ~SatSolverGlueMiniSat2();
+  ~SatSolverLingeling();
 
 
 public:
@@ -146,7 +146,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ソルバの本体
-  Glueminisat::Solver mSolver;
+  LGL* mSolver;
+
+  // 変数の数
+  int mNumVars;
 
   // 条件リテラルのリスト
   vector<SatLiteral> mCondLits;
@@ -155,4 +158,4 @@ private:
 
 END_NAMESPACE_YM_SAT
 
-#endif // SATSOLVERGLUEMINISAT_H
+#endif // SATSOLVERLINGELING_H

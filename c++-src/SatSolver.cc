@@ -16,6 +16,7 @@
 #include "MiniSat/SatSolverMiniSat.h"
 #include "MiniSat2/SatSolverMiniSat2.h"
 #include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
+#include "lingeling/SatSolverLingeling.h"
 
 #include "SatLogger.h"
 #include "SatLoggerS.h"
@@ -54,6 +55,10 @@ SatSolver::SatSolver(const SatSolverType& solver_type)
   else if ( type == "glueminisat2" ) {
     // glueminisat-2.2.8
     mImpl = new SatSolverGlueMiniSat2(option);
+  }
+  else if ( type == "lingeling" ) {
+    // lingeling
+    mImpl = new SatSolverLingeling(option);
   }
   else if ( type == "ymsat1" ) {
     mImpl = new YmSat1(option);
@@ -185,6 +190,26 @@ SatSolver::clear_conditional_literals()
   mImpl->set_conditional_literals(0, nullptr);
 
   mLogger->set_conditional_literals(0, nullptr);
+}
+
+// @brief リテラルを 'フリーズ' する．
+//
+// lingeling 以外は無効
+void
+SatSolver::freeze_literal(SatLiteral lit)
+{
+  mImpl->freeze_literal(lit);
+}
+
+// @brief リテラルを 'フリーズ' する．
+//
+// lingeling 以外は無効
+void
+SatSolver::freeze_literal(const vector<SatLiteral>& lits)
+{
+  for ( auto lit: lits ) {
+    mImpl->freeze_literal(lit);
+  }
 }
 
 // @brief 節を追加する．
