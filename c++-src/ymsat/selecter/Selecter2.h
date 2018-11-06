@@ -28,7 +28,6 @@ public:
   Selecter2(CoreMgr& mgr);
 
   /// @brief デストラクタ
-  virtual
   ~Selecter2();
 
 
@@ -38,9 +37,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の割り当てを選ぶ．
-  virtual
   SatLiteral
-  next_decision();
+  next_decision() override;
 
 
 private:

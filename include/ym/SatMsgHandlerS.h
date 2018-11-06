@@ -1,8 +1,8 @@
-﻿#ifndef YM_SATMSGHANDLERIMPL1_H
-#define YM_SATMSGHANDLERIMPL1_H
+﻿#ifndef YM_SATMSGHANDLERS_H
+#define YM_SATMSGHANDLERS_H
 
-/// @file ym/SatMsgHandlerImpl1.h
-/// @brief SatMsgHandlerImpl1 のヘッダファイル
+/// @file ym/SatMsgHandlerS.h
+/// @brief SatMsgHandlerS のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2010, 2013 Yusuke Matsunaga
@@ -15,21 +15,20 @@
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-/// @class SatMsgHandlerImpl1 SatMsgHandlerImpl1.h "ym/SatMsgHandlerImpl1.h"
+/// @class SatMsgHandlerS SatMsgHandlerS.h "ym/SatMsgHandlerS.h"
 /// @brief SatMsgHandler の実装例
 //////////////////////////////////////////////////////////////////////
-class SatMsgHandlerImpl1 :
+class SatMsgHandlerS :
   public SatMsgHandler
 {
 public:
 
   /// @brief コンストラクタ
   /// @param[in] s 出力先のストリーム
-  SatMsgHandlerImpl1(ostream& s);
+  SatMsgHandlerS(ostream& s);
 
   /// @brief デストラクタ
-  virtual
-  ~SatMsgHandlerImpl1();
+  ~SatMsgHandlerS();
 
 
 public:
@@ -38,20 +37,17 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ヘッダの出力
-  virtual
   void
-  print_header();
+  print_header() override;
 
   /// @brief メッセージ出力関数
-  virtual
   void
-  print_message(const SatStats& stats);
+  print_message(const SatStats& stats) override;
 
   /// @brief フッタの出力
   /// @param[in] stats SAT ソルバの内部状態
-  virtual
   void
-  print_footer(const SatStats& stats);
+  print_footer(const SatStats& stats) override;
 
 
 private:
@@ -66,4 +62,4 @@ private:
 
 END_NAMESPACE_YM_SAT
 
-#endif // YM_SATMSGHANDLERIMPL1_H
+#endif // YM_SATMSGHANDLERS_H

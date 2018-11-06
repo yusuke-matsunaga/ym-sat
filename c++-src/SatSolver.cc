@@ -19,7 +19,6 @@
 #include "lingeling/SatSolverLingeling.h"
 
 #include "SatLogger.h"
-#include "SatLoggerS.h"
 
 #include "ym/CombiGen.h"
 #include "ym/Range.h"
@@ -35,61 +34,66 @@ END_NAMESPACE_YM
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-// SatSolver
+// SatSolverImpl
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-// @param[in] type 実装タイプ
-SatSolver::SatSolver(const SatSolverType& solver_type)
+// @brief 継承クラスを作るクラスメソッド
+// @param[in] solver_type SATソルバのタイプ
+unique_ptr<SatSolverImpl>
+SatSolverImpl::new_impl(const SatSolverType& solver_type)
 {
   const string& type = solver_type.type();
   const string& option = solver_type.option();
   if ( type == "minisat" ) {
     // minisat-1.4
-    mImpl = new SatSolverMiniSat(option);
+    return unique_ptr<SatSolverImpl>(new SatSolverMiniSat(option));
   }
   else if ( type == "minisat2" ) {
     // minisat-2.2
-    mImpl = new SatSolverMiniSat2(option);
+    return unique_ptr<SatSolverImpl>(new SatSolverMiniSat2(option));
   }
   else if ( type == "glueminisat2" ) {
     // glueminisat-2.2.8
-    mImpl = new SatSolverGlueMiniSat2(option);
+    return unique_ptr<SatSolverImpl>(new SatSolverGlueMiniSat2(option));
   }
   else if ( type == "lingeling" ) {
     // lingeling
-    mImpl = new SatSolverLingeling(option);
+    return unique_ptr<SatSolverImpl>(new SatSolverLingeling(option));
   }
   else if ( type == "ymsat1" ) {
-    mImpl = new YmSat1(option);
+    return unique_ptr<SatSolverImpl>(new YmSat1(option));
   }
   else if ( type == "ymsat2" ) {
-    mImpl = new YmSatMS2(option);
+    return unique_ptr<SatSolverImpl>(new YmSatMS2(option));
   }
   else if ( type == "ymsat2old" ) {
-    mImpl = new nsSatold::YmSatMS2(option);
+    return unique_ptr<SatSolverImpl>(new nsSatold::YmSatMS2(option));
   }
   else if ( type == "ymsat1_old" ) {
-    mImpl = new nsSat1::YmSat(option);
+    return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(option));
   }
   else {
-    mImpl = new YmSatMS2(option);
+    cerr << "SatSolver: unknown type '" << type << "', ymsat2 is used, instead." << endl;
+    return unique_ptr<SatSolverImpl>(new YmSatMS2(option));
   }
+}
 
-  ostream* log_out = solver_type.log_out();
-  if ( log_out ) {
-    mLogger = new SatLoggerS(log_out);
-  }
-  else {
-    mLogger = new SatLogger();
-  }
+
+//////////////////////////////////////////////////////////////////////
+// SatSolver
+//////////////////////////////////////////////////////////////////////
+
+// @brief コンストラクタ
+// @param[in] solver_type 実装タイプ
+SatSolver::SatSolver(const SatSolverType& solver_type) :
+  mImpl(SatSolverImpl::new_impl(solver_type)),
+  mLogger(SatLogger::new_impl(solver_type))
+{
 }
 
 // @brief デストラクタ
 SatSolver::~SatSolver()
 {
-  delete mImpl;
-  delete mLogger;
 }
 
 // @brief 変数を追加する．

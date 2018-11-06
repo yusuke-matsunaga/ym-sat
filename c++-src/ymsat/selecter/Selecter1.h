@@ -30,7 +30,6 @@ public:
 	    bool phase_cache);
 
   /// @brief デストラクタ
-  virtual
   ~Selecter1();
 
 
@@ -40,9 +39,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の割り当てを選ぶ．
-  virtual
   SatLiteral
-  next_decision();
+  next_decision() override;
 
 
 private:

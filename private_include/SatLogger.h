@@ -22,6 +22,12 @@ class SatLogger
 {
 public:
 
+  /// @brief 新しいインスタンスを生成するクラスメソッド
+  /// @param[in] solver_type SATソルバのタイプ
+  static
+  unique_ptr<SatLogger>
+  new_impl(const SatSolverType& solver_type);
+
   /// @brief コンストラクタ
   SatLogger();
 

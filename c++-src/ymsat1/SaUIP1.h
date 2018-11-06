@@ -28,7 +28,6 @@ public:
   SaUIP1(YmSat* solver);
 
   /// @brief デストラクタ
-  virtual
   ~SaUIP1();
 
 
@@ -41,10 +40,9 @@ public:
   /// @param[in] creason 矛盾を起こした原因
   /// @param[out] learnt 学習された節を表すリテラルのベクタ
   /// @return バックトラックレベル
-  virtual
   int
   analyze(SatReason creason,
-	  vector<SatLiteral>& learnt);
+	  vector<SatLiteral>& learnt) override;
 
 
 protected:

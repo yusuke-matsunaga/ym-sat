@@ -84,7 +84,6 @@ public:
   ControllerMS1(CoreMgr& mgr);
 
   /// @brief デストラクタ
-  virtual
   ~ControllerMS1();
 
 
@@ -94,20 +93,17 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief solve() の初期化
-  virtual
   void
-  _init();
+  _init() override;
 
   /// @brief リスタート時の処理
   /// @param[in] restart リスタート回数
-  virtual
   void
-  _update_on_restart(int restart);
+  _update_on_restart(int restart) override;
 
   /// @brief 矛盾発生時の処理
-  virtual
   void
-  _update_on_conflict();
+  _update_on_conflict() override;
 
 
 private:

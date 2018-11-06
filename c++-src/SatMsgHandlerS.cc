@@ -1,32 +1,32 @@
 ﻿
-/// @file SatMsgHandlerImpl1.cc
-/// @brief SatMsgHandlerImpl1 の実装ファイル
+/// @file SatMsgHandlerS.cc
+/// @brief SatMsgHandlerS の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2010, 2013-2014, 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "ym/SatMsgHandlerImpl1.h"
+#include "ym/SatMsgHandlerS.h"
 #include "ym/SatStats.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 // @brief コンストラクタ
-SatMsgHandlerImpl1::SatMsgHandlerImpl1(ostream& s) :
+SatMsgHandlerS::SatMsgHandlerS(ostream& s) :
   mS(s)
 {
 }
 
 // @brief デストラクタ
-SatMsgHandlerImpl1::~SatMsgHandlerImpl1()
+SatMsgHandlerS::~SatMsgHandlerS()
 {
 }
 
 // @brief ヘッダの出力
 void
-SatMsgHandlerImpl1::print_header()
+SatMsgHandlerS::print_header()
 {
   mS << "====================[ Problem Statistics ] ========================" << endl
      << "|                                                                 |" << endl
@@ -40,7 +40,7 @@ SatMsgHandlerImpl1::print_header()
 
 // @brief メッセージ出力関数
 void
-SatMsgHandlerImpl1::print_message(const SatStats& stats)
+SatMsgHandlerS::print_message(const SatStats& stats)
 {
   mS << "| "
      << setw(9) << stats.mConflictNum
@@ -65,7 +65,7 @@ SatMsgHandlerImpl1::print_message(const SatStats& stats)
 // @brief フッタの出力
 // @param[in] stats SAT ソルバの内部状態
 void
-SatMsgHandlerImpl1::print_footer(const SatStats& stats)
+SatMsgHandlerS::print_footer(const SatStats& stats)
 {
   mS << "===================================================================" << endl
      << "restarts          : " << stats.mRestart << endl

@@ -8,6 +8,8 @@
 
 
 #include "SatLogger.h"
+#include "SatLoggerS.h"
+#include "ym/SatSolverType.h"
 #include "ym/SatVarId.h"
 #include "ym/SatLiteral.h"
 
@@ -17,6 +19,20 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 // クラス SatLogger
 //////////////////////////////////////////////////////////////////////
+
+// @brief 新しいインスタンスを生成するクラスメソッド
+// @param[in] solver_type SATソルバのタイプ
+unique_ptr<SatLogger>
+SatLogger::new_impl(const SatSolverType& solver_type)
+{
+  ostream* log_out = solver_type.log_out();
+  if ( log_out ) {
+    return unique_ptr<SatLogger>(new SatLoggerS(log_out));
+  }
+  else {
+    return unique_ptr<SatLogger>(new SatLogger());
+  }
+}
 
 // @brief コンストラクタ
 SatLogger::SatLogger()

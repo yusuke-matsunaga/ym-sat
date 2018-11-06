@@ -30,7 +30,6 @@ public:
   SaBase(CoreMgr& mgr);
 
   /// @brief デストラクタ
-  virtual
   ~SaBase();
 
 
@@ -40,9 +39,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 新しい変数が追加されたときに呼ばれる仮想関数
-  virtual
   void
-  alloc_var(int size);
+  alloc_var(int size) override;
 
 
 protected:

@@ -28,7 +28,6 @@ public:
   YmSatMS2(const string& option = string());
 
   /// @brief デストラクタ
-  virtual
   ~YmSatMS2();
 
 

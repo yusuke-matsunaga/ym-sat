@@ -845,10 +845,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 実際の機能を実装しているクラス
-  SatSolverImpl* mImpl;
+  unique_ptr<SatSolverImpl> mImpl;
 
   // ロガー
-  SatLogger* mLogger;
+  unique_ptr<SatLogger> mLogger;
 
   // 条件リテラル
   vector<SatLiteral> mConditionalLits;

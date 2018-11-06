@@ -51,7 +51,7 @@ add_subdirectory( c++-test )
 # ===================================================================
 
 set (ym_sat_SOURCES
-  c++-src/SatMsgHandlerImpl1.cc
+  c++-src/SatMsgHandlerS.cc
   c++-src/SatSolver.cc
   c++-src/SatLogger.cc
   c++-src/SatLoggerS.cc

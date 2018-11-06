@@ -24,6 +24,12 @@ class SatSolverImpl
 {
 public:
 
+  /// @brief 継承クラスを作るクラスメソッド
+  /// @param[in] solver_type SATソルバのタイプ
+  static
+  unique_ptr<SatSolverImpl>
+  new_impl(const SatSolverType& solver_type);
+
   /// @brief デストラクタ
   virtual
   ~SatSolverImpl() { }

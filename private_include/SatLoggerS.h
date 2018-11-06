@@ -28,7 +28,6 @@ public:
   SatLoggerS(ostream* s);
 
   /// @brief デストラクタ
-  virtual
   ~SatLoggerS();
 
 
@@ -41,37 +40,32 @@ public:
   /// @param[in] decision 決定変数の時に true とする．
   /// @return 新しい変数番号を返す．
   /// @note 変数番号は 0 から始まる．
-  virtual
   void
-  new_variable(SatVarId id);
+  new_variable(SatVarId id) override;
 
   /// @brief 条件リテラルを設定する．
   /// @param[in] lits リテラルのベクタ
-  virtual
   void
-  set_conditional_literals(const vector<SatLiteral>& lits);
+  set_conditional_literals(const vector<SatLiteral>& lits) override;
 
   /// @brief 条件リテラルを設定する．
   /// @param[in] n_lits リテラル数
   /// @param[in] lits リテラルの配列
-  virtual
   void
   set_conditional_literals(int n_lits,
-			   const SatLiteral* lits);
+			   const SatLiteral* lits) override;
 
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
-  virtual
   void
-  add_clause(const vector<SatLiteral>& lits);
+  add_clause(const vector<SatLiteral>& lits) override;
 
   /// @brief 節を追加する．
   /// @param[in] n_lits リテラル数
   /// @param[in] lits リテラルの配列
-  virtual
   void
   add_clause(int n_lits,
-	     const SatLiteral* lits);
+	     const SatLiteral* lits) override;
 
   /// @brief assumption 付きの SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
@@ -81,9 +75,8 @@ public:
   /// @retval kUndet わからなかった．
   ///
   /// i 番めの変数の割り当て結果は model[i] に入る．
-  virtual
   void
-  solve(const vector<SatLiteral>& assumptions);
+  solve(const vector<SatLiteral>& assumptions) override;
 
 
 private:

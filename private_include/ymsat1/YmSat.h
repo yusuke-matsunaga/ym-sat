@@ -96,7 +96,6 @@ public:
   YmSat(const string& option = string());
 
   /// @brief デストラクタ
-  virtual
   ~YmSat();
 
 
