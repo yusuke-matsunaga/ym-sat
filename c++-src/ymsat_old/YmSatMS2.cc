@@ -110,11 +110,13 @@ SatLiteral
 YmSatMS2::next_decision()
 {
   // 一定確率でランダムな変数を選ぶ．
-  if ( mRandGen.real1() < mParams.mVarFreq && !var_heap().empty() ) {
-    int pos = mRandGen.int32() % variable_num();
+  std::uniform_real_distribution<double> rd_freq(0, 1.0);
+  std::uniform_int_distribution<int> rd_var(0, variable_num() - 1);
+  if ( rd_freq(mRandGen) < mParams.mVarFreq && !var_heap().empty() ) {
+    int pos = rd_var(mRandGen);
     SatVarId vid(pos);
     if ( eval(vid) == SatBool3::X ) {
-      bool inv = mRandGen.real1() < 0.5;
+      bool inv = rd_freq(mRandGen) < 0.5;
       return SatLiteral(vid, inv);
     }
   }
@@ -158,7 +160,7 @@ YmSatMS2::next_decision()
       }
       else {
 	// mWlPosi/mWlNega が指定されていなかったらランダムに選ぶ．
-	inv = mRandGen.real1() < 0.5;
+	inv = rd_freq(mRandGen) < 0.5;
       }
 #else
       inv = true; // 意味はない．

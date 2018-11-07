@@ -147,7 +147,7 @@ private:
   Params mParams;
 
   // 変数選択用乱数発生器
-  RandGen mRandGen;
+  std::mt19937 mRandGen;
 
   // mLearntLimit の計算用の値
   double mLearntLimitD;

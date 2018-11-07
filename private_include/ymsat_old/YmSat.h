@@ -18,8 +18,8 @@
 #include "ymsat_old/VarHeap.h"
 #include "ymsat_old/conf.h"
 #include "ym/FragAlloc.h"
-#include "ym/RandGen.h"
 #include "ym/StopWatch.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_YM_YMSATOLD

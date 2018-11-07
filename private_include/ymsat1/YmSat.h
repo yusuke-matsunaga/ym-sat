@@ -19,7 +19,7 @@
 #include "ymsat1/VarHeap.h"
 #include "ymsat1/conf.h"
 #include "ym/FragAlloc.h"
-#include "ym/RandGen.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_YM_SAT1
@@ -496,7 +496,7 @@ private:
   double mClauseDecay;
 
   // 変数選択用乱数発生器
-  RandGen mRandGen;
+  std::mt19937 mRandGen;
 
   // mTimer を使うとき true にするフラグ
   bool mTimerOn;
