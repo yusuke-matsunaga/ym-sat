@@ -56,8 +56,8 @@ SatSolverImpl::new_impl(const SatSolverType& solver_type)
     // glueminisat-2.2.8
     return unique_ptr<SatSolverImpl>(new SatSolverGlueMiniSat2(option));
   }
-  else if ( type == "lingeling" ) {
-    // lingeling
+  else if ( type == string() || type == "lingeling" ) {
+    // lingeling 今はデフォルトにしている．
     return unique_ptr<SatSolverImpl>(new SatSolverLingeling(option));
   }
   else if ( type == "ymsat1" ) {
