@@ -43,7 +43,7 @@ AssignList::reserve(int req_size)
     SatLiteral* old_list = mList;
     mSize = new_size;
     mList = new SatLiteral[mSize];
-    for ( int i: Range(mTail) ) {
+    for ( int i: Range<>(mTail) ) {
       mList[i] = old_list[i];
     }
     delete [] old_list;
@@ -53,7 +53,7 @@ AssignList::reserve(int req_size)
     // 一緒にしている．
     int* old_marker = mMarker;
     mMarker = new int[mSize];
-    for ( int i: Range(mCurLevel) ) {
+    for ( int i: Range<>(mCurLevel) ) {
       mMarker[i] = old_marker[i];
     }
     delete [] old_marker;

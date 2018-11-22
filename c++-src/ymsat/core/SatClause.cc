@@ -31,14 +31,14 @@ operator<<(ostream& s,
   else {
     // 一旦 vector に入れてソートする．
     vector<SatLiteral> tmp(n);
-    for ( int i: Range(n) ) {
+    for ( int i: Range<>(n) ) {
       tmp[i] = c.lit(i);
     }
     //sort(tmp.begin() + 1, tmp.end());
 
     s << "(";
     const char* plus = "";
-    for ( int i: Range(n) ) {
+    for ( int i: Range<>(n) ) {
       s << plus << tmp[i];
       plus = " + ";
     }
