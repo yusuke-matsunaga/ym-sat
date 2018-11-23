@@ -208,12 +208,12 @@ void
 YmSat::write_DIMACS(ostream& s) const
 {
   s << "p cnf " << variable_num() << " " << clause_num() << endl;
-  for ( int i: Range<>(mMgr.unit_clause_num()) ) {
+  for ( int i: Range(mMgr.unit_clause_num()) ) {
     SatLiteral lit1 = mMgr.unit_clause(i);
     write_lit(s, lit1);
     s << " 0" << endl;
   }
-  for ( int i: Range<>(mMgr.bin_clause_num()) ) {
+  for ( int i: Range(mMgr.bin_clause_num()) ) {
     SatLiteral lit1;
     SatLiteral lit2;
     mMgr.bin_clause(i, lit1, lit2);
@@ -221,10 +221,10 @@ YmSat::write_DIMACS(ostream& s) const
     write_lit(s, lit2);
     s << " 0" << endl;
   }
-  for ( int i: Range<>(mMgr.clause_num()) ) {
+  for ( int i: Range(mMgr.clause_num()) ) {
     const SatClause* clause = mMgr.clause(i);
     int nl = clause->lit_num();
-    for ( int j: Range<>(nl) ) {
+    for ( int j: Range(nl) ) {
       SatLiteral lit = clause->lit(j);
       write_lit(s, lit);
     }

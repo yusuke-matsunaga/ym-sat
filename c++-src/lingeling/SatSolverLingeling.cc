@@ -163,7 +163,7 @@ SatSolverLingeling::solve(const vector<SatLiteral>& assumptions,
   int result = lglsat(mSolver);
   if ( result == LGL_SATISFIABLE ) {
     model.resize(mNumVars);
-    for ( int i: Range<>(mNumVars) ) {
+    for ( int i: Range(mNumVars) ) {
       int v = lglderef(mSolver, i + 1);
       if ( v == 1) {
 	model[i] = SatBool3::True;

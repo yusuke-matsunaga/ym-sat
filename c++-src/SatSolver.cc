@@ -314,7 +314,7 @@ SatSolver::add_andgate_rel(SatLiteral olit,
 {
   int n = lit_list.size();
   vector<SatLiteral> tmp_lits(n + 1);
-  for ( int i: Range<>(n) ) {
+  for ( int i: Range(n) ) {
     SatLiteral ilit = lit_list[i];
     tmp_lits[i] = ~ilit;
     add_clause(ilit, ~olit);
@@ -332,7 +332,7 @@ SatSolver::add_orgate_rel(SatLiteral olit,
 {
   int n = lit_list.size();
   vector<SatLiteral> tmp_lits(n + 1);
-  for ( int i: Range<>(n) ) {
+  for ( int i: Range(n) ) {
     SatLiteral ilit = lit_list[i];
     add_clause(~ilit, olit);
     tmp_lits[i] = ilit;
@@ -351,9 +351,9 @@ SatSolver::add_xorgate_rel(SatLiteral olit,
   int n = lit_list.size();
   int n_exp = 1 << n;
   vector<SatLiteral> tmp_lits(n + 1);
-  for ( int p: Range<>(n_exp) ) {
+  for ( int p: Range(n_exp) ) {
     int c = 0;
-    for ( int i: Range<>(n) ) {
+    for ( int i: Range(n) ) {
       SatLiteral ilit = lit_list[i];
       if ( p & (1 << i) ) {
 	tmp_lits[i] = ~ilit;
@@ -383,9 +383,9 @@ SatSolver::add_at_most_one(const vector<SatLiteral>& lit_list)
     // はじめから条件は満たされている．
     return;
   }
-  for ( int i1: Range<>(n - 1) ) {
+  for ( int i1: Range(n - 1) ) {
     SatLiteral lit1 = lit_list[i1];
-    for ( int i2: Range<>(i1 + 1, n) ) {
+    for ( int i2: Range(i1 + 1, n) ) {
       SatLiteral lit2 = lit_list[i2];
       add_clause(~lit1, ~lit2);
     }
@@ -402,11 +402,11 @@ SatSolver::add_at_most_two(const vector<SatLiteral>& lit_list)
     // はじめから条件は満たされている．
     return;
   }
-  for ( int i1: Range<>(n - 1) ) {
+  for ( int i1: Range(n - 1) ) {
     SatLiteral lit1 = lit_list[i1];
-    for ( int i2: Range<>(i1 + 1, n) ) {
+    for ( int i2: Range(i1 + 1, n) ) {
       SatLiteral lit2 = lit_list[i2];
-      for ( int i3: Range<>(i2 + 1, n) ) {
+      for ( int i3: Range(i2 + 1, n) ) {
 	SatLiteral lit3 = lit_list[i3];
 	add_clause(~lit1, ~lit2, ~lit3);
       }
@@ -429,7 +429,7 @@ SatSolver::add_at_most_k(const vector<SatLiteral>& lit_list,
 
   vector<SatLiteral> tmp_lits(k + 1);
   for ( CombiGen cg(n, k + 1) ; !cg.is_end(); ++ cg ) {
-    for ( int i: Range<>(k + 1) ) {
+    for ( int i: Range(k + 1) ) {
       tmp_lits[i] = ~lit_list[cg(i)];
     }
     add_clause(tmp_lits);
@@ -444,9 +444,9 @@ SatSolver::add_at_least_two(const vector<SatLiteral>& lit_list)
   int n = lit_list.size();
   vector<SatLiteral> tmp_lits;
   tmp_lits.reserve(n - 1);
-  for ( int i: Range<>(n) ) {
+  for ( int i: Range(n) ) {
     tmp_lits.clear();
-    for ( int j: Range<>(n) ) {
+    for ( int j: Range(n) ) {
       SatLiteral lit = lit_list[j];
       if ( i != j ) {
 	tmp_lits.push_back(lit);
@@ -472,7 +472,7 @@ SatSolver::add_at_least_k(const vector<SatLiteral>& lit_list,
   int nk = n - k;
   vector<SatLiteral> tmp_lits(nk + 1);
   for ( CombiGen cg(n, nk + 1); !cg.is_end(); ++ cg ) {
-    for ( int i: Range<>(nk + 1) ) {
+    for ( int i: Range(nk + 1) ) {
       tmp_lits[i] = lit_list[cg(i)];
     }
     add_clause(tmp_lits);
@@ -486,8 +486,8 @@ SatSolver::add_not_one(const vector<SatLiteral>& lit_list)
 {
   int n = lit_list.size();
   vector<SatLiteral> tmp_lits(n);
-  for ( int i: Range<>(n) ) {
-    for ( int j: Range<>(n) ) {
+  for ( int i: Range(n) ) {
+    for ( int j: Range(n) ) {
       SatLiteral lit = lit_list[j];
       if ( j == i ) {
 	tmp_lits[j] = ~lit;

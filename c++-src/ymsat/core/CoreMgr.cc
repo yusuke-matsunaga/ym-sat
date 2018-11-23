@@ -67,7 +67,7 @@ CoreMgr::CoreMgr() :
 // @brief デストラクタ
 CoreMgr::~CoreMgr()
 {
-  for ( int i: Range<>(mVarSize * 2) ) {
+  for ( int i: Range(mVarSize * 2) ) {
     mWatcherList[i].finish();
   }
 
@@ -117,7 +117,7 @@ CoreMgr::alloc_var()
     if ( mVarSize < mVarNum ) {
       expand_var();
     }
-    for ( int i: Range<>(mOldVarNum, mVarNum) ) {
+    for ( int i: Range(mOldVarNum, mVarNum) ) {
       mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
       add_var(SatVarId(i));
     }
@@ -157,7 +157,7 @@ CoreMgr::expand_var()
   mHeap = new int[mVarSize];
 
   // 古い配列から新しい配列へ内容をコピーする．
-  for ( int i: Range<>(mOldVarNum) ) {
+  for ( int i: Range(mOldVarNum) ) {
     mVal[i] = old_val[i];
     mDecisionLevel[i] = old_decision_level[i];
     mReason[i] = old_reason[i];
@@ -165,10 +165,10 @@ CoreMgr::expand_var()
     mActivity[i] = old_activity[i];
   }
   int n2 = mOldVarNum * 2;
-  for ( int i: Range<>(n2) ) {
+  for ( int i: Range(n2) ) {
     mWatcherList[i].move(old_watcher_list[i]);
   }
-  for ( int i: Range<>(mHeapNum) ) {
+  for ( int i: Range(mHeapNum) ) {
     mHeap[i] = old_heap[i];
   }
   if ( old_size > 0 ) {
@@ -191,7 +191,7 @@ CoreMgr::set_conditional_literals(const vector<SatLiteral>& lits)
   int lit_num = lits.size();
   mCondLits.clear();
   mCondLits.resize(lit_num);
-  for ( int i: Range<>(lit_num) ) {
+  for ( int i: Range(lit_num) ) {
     mCondLits[i] = lits[i];
   }
 }
@@ -205,7 +205,7 @@ CoreMgr::set_conditional_literals(int lit_num,
 {
   mCondLits.clear();
   mCondLits.resize(lit_num);
-  for ( int i: Range<>(lit_num) ) {
+  for ( int i: Range(lit_num) ) {
     mCondLits[i] = lits[i];
   }
 }
@@ -218,10 +218,10 @@ CoreMgr::add_clause(const vector<SatLiteral>& lits)
   int lit_num = lits.size();
   int n2 = mCondLits.size();
   alloc_lits(lit_num + n2);
-  for ( int i: Range<>(lit_num) ) {
+  for ( int i: Range(lit_num) ) {
     mTmpLits[i] = lits[i];
   }
-  for ( int i: Range<>(n2) ) {
+  for ( int i: Range(n2) ) {
     mTmpLits[lit_num + i] = ~mCondLits[i];
   }
   add_clause_sub(lit_num + n2);
@@ -236,10 +236,10 @@ CoreMgr::add_clause(int lit_num,
 {
   int n2 = mCondLits.size();
   alloc_lits(lit_num + n2);
-  for ( int i: Range<>(lit_num) ) {
+  for ( int i: Range(lit_num) ) {
     mTmpLits[i] = lits[i];
   }
-  for ( int i: Range<>(n2) ) {
+  for ( int i: Range(n2) ) {
     mTmpLits[lit_num + i] = ~mCondLits[i];
   }
   add_clause_sub(lit_num + n2);
@@ -268,7 +268,7 @@ CoreMgr::add_clause_sub(int lit_num)
   // - false literal の除去
   // - true literal を持つかどうかのチェック
   int wpos = 0;
-  for ( int rpos: Range<>(lit_num) ) {
+  for ( int rpos: Range(lit_num) ) {
     SatLiteral l = mTmpLits[rpos];
     if ( wpos != 0 && mTmpLits[wpos - 1] == l ) {
       // 重複している．
@@ -393,7 +393,7 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
   else {
     // 節の生成
     alloc_lits(n);
-    for ( int i: Range<>(n) ) {
+    for ( int i: Range(n) ) {
       mTmpLits[i] = lits[i];
     }
     SatClause* clause = new_clause(n, true);
@@ -459,7 +459,7 @@ CoreMgr::reduce_CNF()
   // 変数ヒープを再構成する．
   vector<SatVarId> var_list;
   var_list.reserve(mVarNum);
-  for ( int i: Range<>(mVarNum) ) {
+  for ( int i: Range(mVarNum) ) {
     SatVarId var(i);
     if ( eval(var) == SatBool3::X ) {
       var_list.push_back(SatVarId(i));
@@ -483,11 +483,11 @@ CoreMgr::sweep_clause(vector<SatClause*>& clause_list)
 {
   int n = clause_list.size();
   int wpos = 0;
-  for ( int rpos: Range<>(n) ) {
+  for ( int rpos: Range(n) ) {
     SatClause* c = clause_list[rpos];
     int nl = c->lit_num();
     bool satisfied = false;
-    for ( int i: Range<>(nl) ) {
+    for ( int i: Range(nl) ) {
       if ( eval(c->lit(i)) == SatBool3::True ) {
 	satisfied = true;
 	break;
@@ -548,7 +548,7 @@ CoreMgr::reduce_learnt_clause()
   sort(mLearntClauseList.begin(), mLearntClauseList.end(), SatClauseLess());
 
   vector<SatClause*>::iterator wpos = mLearntClauseList.begin();
-  for ( int i: Range<>(n2) ) {
+  for ( int i: Range(n2) ) {
     SatClause* clause = mLearntClauseList[i];
     if ( clause->lit_num() > 2 && !is_locked(clause) ) {
       delete_clause(clause);
@@ -558,7 +558,7 @@ CoreMgr::reduce_learnt_clause()
       ++ wpos;
     }
   }
-  for ( int i: Range<>(n2, n) ) {
+  for ( int i: Range(n2, n) ) {
     SatClause* clause = mLearntClauseList[i];
     if ( clause->lit_num() > 2 && !is_locked(clause) &&
 	 clause->activity() < abs_limit ) {
@@ -611,7 +611,7 @@ void
 CoreMgr::get_model(vector<SatBool3>& model)
 {
   model.resize(mVarNum);
-  for ( int i: Range<>(mVarNum) ) {
+  for ( int i: Range(mVarNum) ) {
     SatBool3 val = eval(SatVarId(i));
     ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
     model[i] = val;
@@ -980,7 +980,7 @@ CoreMgr::implication()
 	// は問題でない．
 	bool found = false;
 	int n = c->lit_num();
-	for ( int i: Range<>(2, n) ) {
+	for ( int i: Range(2, n) ) {
 	  SatLiteral l2 = c->lit(i);
 	  if ( eval(l2) != SatBool3::False ) {
 	    // l2 を 1番めの watch literal にする．
@@ -1083,7 +1083,7 @@ CoreMgr::bump_var_activity(SatVarId varid)
   double& act = mActivity[vindex];
   act += mVarBump;
   if ( act > 1e+100 ) {
-    for ( int i: Range<>(mVarNum) ) {
+    for ( int i: Range(mVarNum) ) {
       mActivity[i] *= 1e-100;
     }
     mVarBump *= 1e-100;
@@ -1133,7 +1133,7 @@ CoreMgr::del_satisfied_watcher(SatLiteral watch_lit)
   WatcherList& wlist = watcher_list(watch_lit);
   int n = wlist.num();
   int wpos = 0;
-  for ( int rpos: Range<>(n) ) {
+  for ( int rpos: Range(n) ) {
     Watcher w = wlist.elem(rpos);
     if ( w.is_literal() ) {
       SatLiteral l = w.literal();
@@ -1185,7 +1185,7 @@ CoreMgr::bump_clause_activity(SatClause* clause)
 void
 CoreMgr::reset_activity()
 {
-  for ( int i: Range<>(mVarSize) ) {
+  for ( int i: Range(mVarSize) ) {
     mActivity[i] = 0.0;
   }
 }
@@ -1195,13 +1195,13 @@ CoreMgr::reset_activity()
 void
 CoreMgr::build(const vector<SatVarId>& var_list)
 {
-  for ( int i: Range<>(mVarSize) ) {
+  for ( int i: Range(mVarSize) ) {
     mHeapPos[i] = -1;
   }
   mHeapNum = 0;
   ASSERT_COND( var_list.size() <= mVarSize );
 
-  for ( int i: Range<>(var_list.size()) ) {
+  for ( int i: Range(var_list.size()) ) {
     auto var = var_list[i];
     int vindex = var.val();
     ++ mHeapNum;
@@ -1260,7 +1260,7 @@ CoreMgr::dump_heap(ostream& s) const
   int j = 0;
   int nc = 1;
   const char* spc = "";
-  for ( int i: Range<>(mHeapNum) ) {
+  for ( int i: Range(mHeapNum) ) {
     int vindex = mHeap[i];
     ASSERT_COND( mHeapPos[vindex] == i );
     if ( i > 0 ) {
