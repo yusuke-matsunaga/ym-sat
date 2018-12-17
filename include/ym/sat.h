@@ -49,7 +49,7 @@ class SatSolver;
 class SatSolverType;
 class SatStats;
 class SatMsgHandler;
-class SatMsgHandlerImpl1;
+class SatMsgHandlerS;
 
 END_NAMESPACE_YM_SAT
 
@@ -63,7 +63,7 @@ using nsSat::SatSolver;
 using nsSat::SatSolverType;
 using nsSat::SatStats;
 using nsSat::SatMsgHandler;
-using nsSat::SatMsgHandlerImpl1;
+using nsSat::SatMsgHandlerS;
 
 END_NAMESPACE_YM
 
