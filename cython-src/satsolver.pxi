@@ -6,13 +6,13 @@
 ### All rights reserved.
 
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 from CXX_SatSolver cimport SatSolver as CXX_SatSolver
-from CXX_vector cimport vector
-from CXX_SatBool3 cimport SatBool3, kB3X, kB3True, kB3False
-from CXX_SatVarId cimport SatVarId
-from CXX_SatLiteral cimport SatLiteral
-from CXX_SatSolverType cimport SatSolverType
-from CXX_SatStats cimport SatStats
+from CXX_SatBool3 cimport SatBool3 as CXX_SatBool3
+from CXX_SatVarId cimport SatVarId as CXX_SatVarId
+from CXX_SatLiteral cimport SatLiteral as CXX_SatLiteral
+from CXX_SatSolverType cimport SatSolverType as CXX_SatSolverType
+from CXX_SatStats cimport SatStats as CXX_SatStats
 
 
 ### @brief SatSolver クラスの Python バージョン
@@ -24,7 +24,7 @@ cdef class SatSolver :
     ### @brief 初期化
     ### @param[in] sat_type SATソルバの種類を表す文字列
     ### @param[in] sat_option SATソルバに対するオプションを表す文字列
-    def __cinit__(SatSolver self, SatSolverType solver_type = new SatSolverType()) :
+    def __cinit__(SatSolver self, SatSolverType solver_type = SatSolverType()) :
         self._this_ptr = new CXX_SatSolver(solver_type._this)
 
     ### @brief 終了処理
@@ -303,16 +303,16 @@ cdef class SatSolver :
     ### @brief 問題を解く．
     ### @return stat, model を返す．
     ###
-    ### - stat は結果を表す3値(Bool3)
+    ### - stat は結果を表す3値(SatBool3)
     ### - mode はVarIdをキーにしてその変数の値(Bool3)を保持する辞書
     ###
     ### 変数の値の型は3値だが常に真(Bool3.TRUE)か偽(Bool3.FALSE)となる．
     def solve(SatSolver self) :
-        cdef vector[SatBool3] c_model
-        cdef SatBool3 c_stat = self._this_ptr.solve(c_model)
-        cdef SatBool3 c_val
-        stat = to_bool3(c_stat)
-        if stat == Bool3.TRUE :
+        cdef vector[CXX_SatBool3] c_model
+        cdef CXX_SatBool3 c_stat = self._this_ptr.solve(c_model)
+        cdef CXX_SatBool3 c_val
+        stat = to_SatBool3(c_stat)
+        if stat == SatBool3.TRUE :
             model = make_model(c_model)
         else :
             model = None
@@ -322,21 +322,21 @@ cdef class SatSolver :
     ### @param[in] assumptions 仮定(Literal)のリスト
     ### @return stat, model を返す．
     ###
-    ### - stat は結果を表す3値(Bool3)
-    ### - mode はVarIdをキーにしてその変数の値(Bool3)を保持する辞書
+    ### - stat は結果を表す3値(SatBool3)
+    ### - mode はVarIdをキーにしてその変数の値(SatBool3)を保持する辞書
     ###
     ### 変数の値の型は3値だが常に真(Bool3.TRUE)か偽(Bool3.FALSE)となる．
     def solve_with_assumption(SatSolver self, assumptions) :
-        cdef vector[SatLiteral] c_assumptions
-        cdef vector[SatBool3] c_model
-        cdef SatBool3 c_stat
-        cdef SatBool3 c_val
+        cdef vector[CXX_SatLiteral] c_assumptions
+        cdef vector[CXX_SatBool3] c_model
+        cdef CXX_SatBool3 c_stat
+        cdef CXX_SatBool3 c_val
         c_assumptions.reserve(len(assumptions))
         for lit in assumptions :
             c_assumptions.push_back(from_literal(lit))
         c_stat = self._this_ptr.solve(c_assumptions, c_model)
-        stat = to_bool3(c_stat)
-        if stat == Bool3.TRUE :
+        stat = to_SatBool3(c_stat)
+        if stat == SatBool3.TRUE :
             model = make_model(c_model)
         else :
             model = None
@@ -382,12 +382,12 @@ cdef class SatSolver :
 
 
 ### @brief model を作る下請け関数
-cdef make_model(vector[SatBool3] c_model) :
+cdef make_model(vector[CXX_SatBool3] c_model) :
     cdef int n = c_model.size()
     cdef int i
     model = {}
     for i in range(n) :
         var = VarId(i)
-        val = to_bool3(c_model[i])
+        val = to_SatBool3(c_model[i])
         model[var.val()] = val
     return model
