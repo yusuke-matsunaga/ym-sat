@@ -312,7 +312,7 @@ cdef class SatSolver :
         cdef CXX_SatBool3 c_stat = self._this_ptr.solve(c_model)
         cdef CXX_SatBool3 c_val
         stat = to_SatBool3(c_stat)
-        if stat == SatBool3.TRUE :
+        if stat == SatBool3._True :
             model = make_model(c_model)
         else :
             model = None
@@ -336,7 +336,7 @@ cdef class SatSolver :
             c_assumptions.push_back(from_literal(lit))
         c_stat = self._this_ptr.solve(c_assumptions, c_model)
         stat = to_SatBool3(c_stat)
-        if stat == SatBool3.TRUE :
+        if stat == SatBool3._True :
             model = make_model(c_model)
         else :
             model = None
