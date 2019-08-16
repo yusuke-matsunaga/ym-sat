@@ -301,40 +301,26 @@ cdef class SatSolver :
             self._this_ptr.clear_conditional_literals()
 
     ### @brief 問題を解く．
-    ### @return stat, model を返す．
-    ###
-    ### - stat は結果を表す3値(SatBool3)
-    ### - mode はVarIdをキーにしてその変数の値(Bool3)を保持する辞書
-    ###
-    ### 変数の値の型は3値だが常に真(Bool3.TRUE)か偽(Bool3.FALSE)となる．
-    def solve(SatSolver self) :
-        cdef vector[CXX_SatBool3] c_model
-        cdef CXX_SatBool3 c_stat = self._this_ptr.solve(c_model)
-        cdef CXX_SatBool3 c_val
-        stat = to_SatBool3(c_stat)
-        if stat == SatBool3._True :
-            model = make_model(c_model)
-        else :
-            model = None
-        return stat, model
-
-    ### @brief assumption 付きの問題を解く．
     ### @param[in] assumptions 仮定(Literal)のリスト
+    ### @param[in] time_limit 時間制約(秒) 0 で制約なし
     ### @return stat, model を返す．
     ###
     ### - stat は結果を表す3値(SatBool3)
     ### - mode はVarIdをキーにしてその変数の値(SatBool3)を保持する辞書
     ###
     ### 変数の値の型は3値だが常に真(Bool3.TRUE)か偽(Bool3.FALSE)となる．
-    def solve_with_assumption(SatSolver self, assumptions) :
+    def solve(SatSolver self, *, assumptions = None, time_limit = 0) :
         cdef vector[CXX_SatLiteral] c_assumptions
         cdef vector[CXX_SatBool3] c_model
         cdef CXX_SatBool3 c_stat
         cdef CXX_SatBool3 c_val
-        c_assumptions.reserve(len(assumptions))
-        for lit in assumptions :
-            c_assumptions.push_back(from_literal(lit))
-        c_stat = self._this_ptr.solve(c_assumptions, c_model)
+        if assumptions :
+            c_assumptions.reserve(len(assumptions))
+            for lit in assumptions :
+                c_assumptions.push_back(from_literal(lit))
+            c_stat = self._this_ptr.solve(c_assumptions, c_model, time_limit)
+        else :
+            c_stat = self._this_ptr.solve(c_model, time_limit)
         stat = to_SatBool3(c_stat)
         if stat == SatBool3._True :
             model = make_model(c_model)

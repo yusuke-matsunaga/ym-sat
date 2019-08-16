@@ -23,6 +23,9 @@
 #include "ym/CombiGen.h"
 #include "ym/Range.h"
 
+#include <sys/time.h>
+#include <signal.h>
+
 
 BEGIN_NAMESPACE_YM
 
@@ -500,10 +503,25 @@ SatSolver::add_not_one(const vector<SatLiteral>& lit_list)
   }
 }
 
+BEGIN_NONAMESPACE
+
+SatSolver* the_solver;
+bool expired;
+
+void
+stop_solver(int)
+{
+  the_solver->stop();
+  expired = true;
+}
+
+END_NONAMESPACE
+
 // @brief assumption 付きの SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
 // @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
+// @param[in] time_limit 時間制約(秒) 0 で制約なし
 // @retval kSat 充足した．
 // @retval kUnsat 充足不能が判明した．
 // @retval kUndet わからなかった．
@@ -511,11 +529,38 @@ SatSolver::add_not_one(const vector<SatLiteral>& lit_list)
 SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
 		 vector<SatBool3>& model,
-		 vector<SatLiteral>& conflicts)
+		 vector<SatLiteral>& conflicts,
+		 int time_limit)
 {
+  sig_t old_func = nullptr;
+  expired = false;
+
+  if ( time_limit > 0 ) {
+    // インターバルタイマをセットする．
+    the_solver = this;
+    old_func = signal(SIGALRM, stop_solver);
+
+    struct itimerval itimer_val;
+    itimer_val.it_interval.tv_sec = 0;
+    itimer_val.it_interval.tv_usec = 0;
+    itimer_val.it_value.tv_sec = time_limit;
+    itimer_val.it_value.tv_usec = 0;
+
+    setitimer(ITIMER_REAL, &itimer_val, nullptr);
+  }
+
   mLogger->solve(assumptions);
 
-  return mImpl->solve(assumptions, model, conflicts);
+  SatBool3 stat = mImpl->solve(assumptions, model, conflicts);
+  if ( expired ) {
+    stat = SatBool3::X;
+  }
+
+  if ( time_limit > 0 ) {
+    signal(SIGALRM, old_func);
+  }
+
+  return stat;
 }
 
 // @brief 探索を中止する．

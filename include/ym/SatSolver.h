@@ -741,6 +741,7 @@ public:
 
   /// @brief SAT 問題を解く．
   /// @param[out] model 充足するときの値の割り当てを格納する配列．
+  /// @param[in] time_limit 時間制約(秒) 0 で制約なし
   /// @retval kB3True  充足した．
   /// @retval kB3False 充足不能が判明した．
   /// @retval kB3X     わからなかった．
@@ -748,24 +749,13 @@ public:
   /// i 番めの変数の割り当て結果は model[i] に入る．
   /// 通常は complete な割り当てなので値は true/false だけになるはず
   SatBool3
-  solve(vector<SatBool3>& model);
+  solve(vector<SatBool3>& model,
+	int time_limit = 0);
 
   /// @brief assumption 付きの SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
   /// @param[out] model 充足するときの値の割り当てを格納する配列．
-  /// @retval kSat 充足した．
-  /// @retval kUnsat 充足不能が判明した．
-  /// @retval kUndet わからなかった．
-  ///
-  /// i 番めの変数の割り当て結果は model[i] に入る．
-  SatBool3
-  solve(const vector<SatLiteral>& assumptions,
-	vector<SatBool3>& model);
-
-  /// @brief assumption 付きの SAT 問題を解く．
-  /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-  /// @param[out] model 充足するときの値の割り当てを格納する配列．
-  /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
+  /// @param[in] time_limit 時間制約(秒) 0 で制約なし
   /// @retval kSat 充足した．
   /// @retval kUnsat 充足不能が判明した．
   /// @retval kUndet わからなかった．
@@ -774,7 +764,23 @@ public:
   SatBool3
   solve(const vector<SatLiteral>& assumptions,
 	vector<SatBool3>& model,
-	vector<SatLiteral>& conflicts);
+	int time_limit = 0);
+
+  /// @brief assumption 付きの SAT 問題を解く．
+  /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
+  /// @param[out] model 充足するときの値の割り当てを格納する配列．
+  /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
+  /// @param[in] time_limit 時間制約(秒) 0 で制約なし
+  /// @retval kSat 充足した．
+  /// @retval kUnsat 充足不能が判明した．
+  /// @retval kUndet わからなかった．
+  ///
+  /// i 番めの変数の割り当て結果は model[i] に入る．
+  SatBool3
+  solve(const vector<SatLiteral>& assumptions,
+	vector<SatBool3>& model,
+	vector<SatLiteral>& conflicts,
+	int time_limit = 0);
 
   /// @brief 探索を中止する．
   ///
@@ -1763,21 +1769,24 @@ SatSolver::add_not_one(SatLiteral lit1,
 
 // @brief SAT 問題を解く．
 // @param[out] model 充足するときの値の割り当てを格納する配列．
+// @param[in] time_limit 時間制約(秒) 0 で制約なし
 // @retval kB3True 充足した．
 // @retval kB3False 充足不能が判明した．
 // @retval kB3X わからなかった．
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 inline
 SatBool3
-SatSolver::solve(vector<SatBool3>& model)
+SatSolver::solve(vector<SatBool3>& model,
+		 int time_limit)
 {
   // 空の assumptions を付けて solve() を呼ぶだけ
-  return solve(vector<SatLiteral>(), model);
+  return solve(vector<SatLiteral>(), model, time_limit);
 }
 
 // @brief assumption 付きの SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
+// @param[in] time_limit 時間制約(秒) 0 で制約なし
 // @retval kSat 充足した．
 // @retval kUnsat 充足不能が判明した．
 // @retval kUndet わからなかった．
@@ -1786,11 +1795,12 @@ SatSolver::solve(vector<SatBool3>& model)
 inline
 SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
-		 vector<SatBool3>& model)
+		 vector<SatBool3>& model,
+		 int time_limit)
 {
   // conflicts 用のダミー配列
   vector<SatLiteral> dummy;
-  return solve(assumptions, model, dummy);
+  return solve(assumptions, model, dummy, time_limit);
 }
 
 END_NAMESPACE_YM_SAT
