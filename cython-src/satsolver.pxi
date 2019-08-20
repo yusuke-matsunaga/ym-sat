@@ -371,9 +371,15 @@ cdef class SatSolver :
 cdef make_model(vector[CXX_SatBool3] c_model) :
     cdef int n = c_model.size()
     cdef int i
-    model = {}
+    cdef VarId var
+    cdef Literal lit
+    cdef SatBool3 val
+    cdef model = dict()
     for i in range(n) :
         var = VarId(i)
+        lit = Literal(var)
         val = to_SatBool3(c_model[i])
-        model[var.val()] = val
+        model[var] = val
+        model[lit] = val
+        model[~lit] = ~val
     return model
