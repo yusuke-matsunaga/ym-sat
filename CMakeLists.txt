@@ -53,6 +53,7 @@ add_subdirectory( cython-src ) # ダミー
 set (ym_sat_SOURCES
   c++-src/SatMsgHandlerS.cc
   c++-src/SatSolver.cc
+  c++-src/SatBvEnc.cc
   c++-src/SatLogger.cc
   c++-src/SatLoggerS.cc
   c++-src/SatStats.cc

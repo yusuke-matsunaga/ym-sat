@@ -44,6 +44,7 @@ END_NAMESPACE_YM
 
 BEGIN_NAMESPACE_YM_SAT
 
+class SatBvEnc;
 class SatDimacs;
 class SatSolver;
 class SatSolverType;
@@ -58,6 +59,7 @@ BEGIN_NAMESPACE_YM
 class SatVarId;
 class SatLiteral;
 
+using nsSat::SatBvEnc;
 using nsSat::SatDimacs;
 using nsSat::SatSolver;
 using nsSat::SatSolverType;

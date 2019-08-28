@@ -46,6 +46,12 @@ ym_add_gtest ( sat_AddClause_test
   $<TARGET_OBJECTS:ym_sat_obj_ad>
   )
 
+ym_add_gtest ( sat_SatBvEnc_test
+  SatBvEncTest.cc
+  $<TARGET_OBJECTS:ym_base_obj_ad>
+  $<TARGET_OBJECTS:ym_sat_obj_ad>
+  )
+
 ym_add_gtest ( sat_Dimacs_test
   DimacsTest.cc
   $<TARGET_OBJECTS:ym_base_obj_ad>
