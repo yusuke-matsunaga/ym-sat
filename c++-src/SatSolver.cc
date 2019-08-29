@@ -308,6 +308,7 @@ SatSolver::add_clause(SatLiteral lit1,
   mLogger->add_clause(6, tmp_lits);
 }
 
+#if 0
 // @brief n入力ANDゲートの入出力の関係を表す条件を追加する．
 // @param[in] olit 出力のリテラル
 // @param[in] lit_list 入力のリテラルのリスト
@@ -375,6 +376,7 @@ SatSolver::add_xorgate_rel(SatLiteral olit,
     add_clause(tmp_lits);
   }
 }
+#endif
 
 // @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
 // @param[in] lit_list 入力のリテラルのリスト

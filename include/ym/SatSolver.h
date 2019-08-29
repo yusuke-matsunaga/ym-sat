@@ -172,6 +172,7 @@ public:
 	     SatLiteral lit5,
 	     SatLiteral lit6);
 
+#if 0
   /// @brief 2つのリテラルが等しいという条件を追加する．
   /// @param[in] lit1, lit2 対象のリテラル
   ///
@@ -391,6 +392,7 @@ public:
   void
   add_xnorgate_rel(SatLiteral olit,
 		   const vector<SatLiteral> lit_list);
+#endif
 
   /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
@@ -866,6 +868,7 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
+#if 0
 // @brief 2つのリテラルが等しいという条件を追加する．
 // @param[in] lit1, lit2 対象のリテラル
 //
@@ -1200,6 +1203,7 @@ SatSolver::add_xnorgate_rel(SatLiteral olit,
 {
   add_xorgate_rel(~olit, lit_list);
 }
+#endif
 
 // @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
 // @param[in] lit1, lit2 入力のリテラル

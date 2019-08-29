@@ -36,6 +36,7 @@ public:
   check(int ni,
 	const vector<int>& vals);
 
+#if 0
   /// @brief AND ゲートのチェックを行う．
   void
   check_and(int ni);
@@ -59,6 +60,7 @@ public:
   /// @brief XNOR ゲートのチェックを行う．
   void
   check_xnor(int ni);
+#endif
 
   /// @brief at_most_k のチェックを行う．
   void
@@ -193,6 +195,7 @@ AddClauseTest::check_with_cond1(int ni,
   }
 }
 
+#if 0
 // @brief AND ゲートのチェックを行う．
 void
 AddClauseTest::check_and(int ni)
@@ -328,6 +331,7 @@ AddClauseTest::check_xnor(int ni)
 
   check(ni + 1, vals);
 }
+#endif
 
 // @brief at_most_k のチェックを行う．
 void
@@ -771,6 +775,7 @@ TEST_P(AddClauseTest, add_clause5n_1)
   check(5, vals);
 }
 
+#if 0
 TEST_P(AddClauseTest, add_eq_rel)
 {
   SatLiteral lit1(mVarList[0]);
@@ -1154,6 +1159,7 @@ TEST_P(AddClauseTest, add_xnorgate_rel5)
 
   check_xnor(5);
 }
+#endif
 
 TEST_P(AddClauseTest, add_at_most_one2)
 {
