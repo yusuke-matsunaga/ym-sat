@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_SAT
 // @brief コンストラクタ
 // @param[in] solver SATソルバ
 SatTseitinEnc::SatTseitinEnc(SatSolver& solver) :
-  mSolver(solver)
+  mSolver{solver}
 {
 }
 

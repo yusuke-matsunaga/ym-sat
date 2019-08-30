@@ -41,16 +41,16 @@ public:
   ///
   /// 具体的には (~lit1 + lit2)(lit1 + ~lit2) の２つの節を追加する．
   void
-  add_eq(SatLiteral lit1,
-	 SatLiteral lit2);
+  add_buffgate(SatLiteral lit1,
+	       SatLiteral lit2);
 
   /// @brief 2つのリテラルが等しくないという条件を追加する．
   /// @param[in] lit1, lit2 対象のリテラル
   ///
   /// 具体的には (~lit1 + ~lit2)(lit1 + lit2) の２つの節を追加する．
   void
-  add_neq(SatLiteral lit1,
-	  SatLiteral lit2);
+  add_notgate(SatLiteral lit1,
+	      SatLiteral lit2);
 
   /// @brief 2入力ANDゲートの入出力の関係を表す条件を追加する．
   /// @param[in] olit 出力のリテラル
@@ -284,8 +284,8 @@ private:
 // 具体的には (~lit1 + lit2)(lit1 + ~lit2) の２つの節を追加する．
 inline
 void
-SatTseitinEnc::add_eq(SatLiteral lit1,
-		      SatLiteral lit2)
+SatTseitinEnc::add_buffgate(SatLiteral lit1,
+			    SatLiteral lit2)
 {
   mSolver.add_clause(~lit1,  lit2);
   mSolver.add_clause( lit1, ~lit2);
@@ -297,10 +297,10 @@ SatTseitinEnc::add_eq(SatLiteral lit1,
 // 具体的には (~lit1 + ~lit2)(lit1 + lit2) の２つの節を追加する．
 inline
 void
-SatTseitinEnc::add_neq(SatLiteral lit1,
-		       SatLiteral lit2)
+SatTseitinEnc::add_notgate(SatLiteral lit1,
+			   SatLiteral lit2)
 {
-  add_eq(~lit1, lit2);
+  add_buffgate(~lit1, lit2);
 }
 
 // @brief 2入力ANDゲートの入出力の関係を表す条件を追加する．
