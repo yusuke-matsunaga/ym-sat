@@ -20,16 +20,12 @@
 
 #include "SatLogger.h"
 
-#include "ym/CombiGen.h"
-#include "ym/Range.h"
-
 #include <sys/time.h>
 #include <signal.h>
 
 
 BEGIN_NAMESPACE_YM
 
-const SatVarId kSatVarIdIllegal;
 const SatLiteral kSatLiteralX;
 
 END_NAMESPACE_YM
@@ -101,16 +97,19 @@ SatSolver::~SatSolver()
 
 // @brief 変数を追加する．
 // @param[in] decision 決定変数の時に true とする．
-// @return 新しい変数番号を返す．
-// @note 変数番号は 0 から始まる．
-SatVarId
+// @return 新しい変数を表すリテラルを返す．
+SatLiteral
 SatSolver::new_variable(bool decision)
 {
-  SatVarId id = mImpl->new_variable(decision);
+  int id = mImpl->new_variable(decision);
+  SatLiteral lit{id};
+  if ( decision ) {
+    mImpl->freeze_literal(lit);
+  }
 
   mLogger->new_variable(id);
 
-  return id;
+  return lit;
 }
 
 // @brief 条件リテラルを設定する．
@@ -308,203 +307,6 @@ SatSolver::add_clause(SatLiteral lit1,
   mLogger->add_clause(6, tmp_lits);
 }
 
-#if 0
-// @brief n入力ANDゲートの入出力の関係を表す条件を追加する．
-// @param[in] olit 出力のリテラル
-// @param[in] lit_list 入力のリテラルのリスト
-void
-SatSolver::add_andgate_rel(SatLiteral olit,
-			   const vector<SatLiteral> lit_list)
-{
-  int n = lit_list.size();
-  vector<SatLiteral> tmp_lits(n + 1);
-  for ( int i: Range(n) ) {
-    SatLiteral ilit = lit_list[i];
-    tmp_lits[i] = ~ilit;
-    add_clause(ilit, ~olit);
-  }
-  tmp_lits[n] = olit;
-  add_clause(tmp_lits);
-}
-
-// @brief n入力ORゲートの入出力の関係を表す条件を追加する．
-// @param[in] olit 出力のリテラル
-// @param[in] lit_list 入力のリテラルのリスト
-void
-SatSolver::add_orgate_rel(SatLiteral olit,
-			  const vector<SatLiteral> lit_list)
-{
-  int n = lit_list.size();
-  vector<SatLiteral> tmp_lits(n + 1);
-  for ( int i: Range(n) ) {
-    SatLiteral ilit = lit_list[i];
-    add_clause(~ilit, olit);
-    tmp_lits[i] = ilit;
-  }
-  tmp_lits[n] = ~olit;
-  add_clause(tmp_lits);
-}
-
-// @brief n入力XORゲートの入出力の関係を表す条件を追加する．
-// @param[in] olit 出力のリテラル
-// @param[in] lit_list 入力のリテラルのリスト
-void
-SatSolver::add_xorgate_rel(SatLiteral olit,
-			   const vector<SatLiteral> lit_list)
-{
-  int n = lit_list.size();
-  int n_exp = 1 << n;
-  vector<SatLiteral> tmp_lits(n + 1);
-  for ( int p: Range(n_exp) ) {
-    int c = 0;
-    for ( int i: Range(n) ) {
-      SatLiteral ilit = lit_list[i];
-      if ( p & (1 << i) ) {
-	tmp_lits[i] = ~ilit;
-	++ c;
-      }
-      else {
-	tmp_lits[i] =  ilit;
-      }
-    }
-    if ( (c % 2) == 1 ) {
-      tmp_lits[n] =  olit;
-    }
-    else {
-      tmp_lits[n] = ~olit;
-    }
-    add_clause(tmp_lits);
-  }
-}
-#endif
-
-// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
-// @param[in] lit_list 入力のリテラルのリスト
-void
-SatSolver::add_at_most_one(const vector<SatLiteral>& lit_list)
-{
-  int n = lit_list.size();
-  if ( n <= 1 ) {
-    // はじめから条件は満たされている．
-    return;
-  }
-  for ( int i1: Range(n - 1) ) {
-    SatLiteral lit1 = lit_list[i1];
-    for ( int i2: Range(i1 + 1, n) ) {
-      SatLiteral lit2 = lit_list[i2];
-      add_clause(~lit1, ~lit2);
-    }
-  }
-}
-
-// @brief 与えられたリテラルのうち2つしか true にならない条件を追加する．
-// @param[in] lit_list 入力のリテラルのリスト
-void
-SatSolver::add_at_most_two(const vector<SatLiteral>& lit_list)
-{
-  int n = lit_list.size();
-  if ( n <= 2 ) {
-    // はじめから条件は満たされている．
-    return;
-  }
-  for ( int i1: Range(n - 1) ) {
-    SatLiteral lit1 = lit_list[i1];
-    for ( int i2: Range(i1 + 1, n) ) {
-      SatLiteral lit2 = lit_list[i2];
-      for ( int i3: Range(i2 + 1, n) ) {
-	SatLiteral lit3 = lit_list[i3];
-	add_clause(~lit1, ~lit2, ~lit3);
-      }
-    }
-  }
-}
-
-// @brief 与えられたリテラルのうちk個しか true にならない条件を追加する．
-// @param[in] lit_list 入力のリテラルのリスト
-// @param[in] k しきい値
-void
-SatSolver::add_at_most_k(const vector<SatLiteral>& lit_list,
-			 int k)
-{
-  int n = lit_list.size();
-  if ( n <= k) {
-    // はじめから条件は満たされている．
-    return;
-  }
-
-  vector<SatLiteral> tmp_lits(k + 1);
-  for ( CombiGen cg(n, k + 1) ; !cg.is_end(); ++ cg ) {
-    for ( int i: Range(k + 1) ) {
-      tmp_lits[i] = ~lit_list[cg(i)];
-    }
-    add_clause(tmp_lits);
-  }
-}
-
-// @brief 与えられたリテラルのうち2つ以上は true になる条件を追加する．
-// @param[in] lit_list 入力のリテラルのリスト
-void
-SatSolver::add_at_least_two(const vector<SatLiteral>& lit_list)
-{
-  int n = lit_list.size();
-  vector<SatLiteral> tmp_lits;
-  tmp_lits.reserve(n - 1);
-  for ( int i: Range(n) ) {
-    tmp_lits.clear();
-    for ( int j: Range(n) ) {
-      SatLiteral lit = lit_list[j];
-      if ( i != j ) {
-	tmp_lits.push_back(lit);
-      }
-    }
-    add_clause(tmp_lits);
-  }
-}
-
-// @brief 与えられたリテラルのうちk個以上は true になる条件を追加する．
-// @param[in] lit_list 入力のリテラルのリスト
-// @param[in] k しきい値
-void
-SatSolver::add_at_least_k(const vector<SatLiteral>& lit_list,
-			  int k)
-{
-  int n = lit_list.size();
-  if ( k == 0 ) {
-    // はじめから条件は満たされている．
-    return;
-  }
-
-  int nk = n - k;
-  vector<SatLiteral> tmp_lits(nk + 1);
-  for ( CombiGen cg(n, nk + 1); !cg.is_end(); ++ cg ) {
-    for ( int i: Range(nk + 1) ) {
-      tmp_lits[i] = lit_list[cg(i)];
-    }
-    add_clause(tmp_lits);
-  }
-}
-
-// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
-// @param[in] lit_lit 入力のリテラルのリスト
-void
-SatSolver::add_not_one(const vector<SatLiteral>& lit_list)
-{
-  int n = lit_list.size();
-  vector<SatLiteral> tmp_lits(n);
-  for ( int i: Range(n) ) {
-    for ( int j: Range(n) ) {
-      SatLiteral lit = lit_list[j];
-      if ( j == i ) {
-	tmp_lits[j] = ~lit;
-      }
-      else {
-	tmp_lits[j] =  lit;
-      }
-    }
-    add_clause(tmp_lits);
-  }
-}
-
 BEGIN_NONAMESPACE
 
 SatSolver* the_solver;
@@ -530,7 +332,7 @@ END_NONAMESPACE
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
-		 vector<SatBool3>& model,
+		 SatModel& model,
 		 vector<SatLiteral>& conflicts,
 		 int time_limit)
 {
