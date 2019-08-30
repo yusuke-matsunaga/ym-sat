@@ -9,9 +9,9 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 from CXX_SatSolver cimport SatSolver as CXX_SatSolver
 from CXX_SatBool3 cimport SatBool3 as CXX_SatBool3
-from CXX_SatVarId cimport SatVarId as CXX_SatVarId
 from CXX_SatLiteral cimport SatLiteral as CXX_SatLiteral
 from CXX_SatSolverType cimport SatSolverType as CXX_SatSolverType
+from CXX_SatModel cimport SatModel as CXX_SatModel
 from CXX_SatStats cimport SatStats as CXX_SatStats
 
 
@@ -38,9 +38,8 @@ cdef class SatSolver :
     ###
     ### * 変数そのもの(VarId)ではないことに注意
     def new_variable(SatSolver self, bool decision = True) :
-        cdef SatVarId c_varid = self._this_ptr.new_variable(decision)
-        var = VarId(c_varid.val())
-        return Literal(var)
+        cdef SatLiteral c_lit = self._this_ptr.new_variable(decision)
+        return to_literal(c_lit)
 
     ### @brief 条件リテラルを設定する．
     ### @param[in] lit_lits リテラルのリスト
@@ -311,20 +310,18 @@ cdef class SatSolver :
     ### 変数の値の型は3値だが常に真(Bool3.TRUE)か偽(Bool3.FALSE)となる．
     def solve(SatSolver self, *, assumptions = None, time_limit = 0) :
         cdef vector[CXX_SatLiteral] c_assumptions
-        cdef vector[CXX_SatBool3] c_model
+        cdef SatModel model
         cdef CXX_SatBool3 c_stat
         cdef CXX_SatBool3 c_val
         if assumptions :
             c_assumptions.reserve(len(assumptions))
             for lit in assumptions :
                 c_assumptions.push_back(from_literal(lit))
-            c_stat = self._this_ptr.solve(c_assumptions, c_model, time_limit)
-        else :
-            c_stat = self._this_ptr.solve(c_model, time_limit)
+            c_stat = self._this_ptr.solve(c_assumptions, model._this, time_limit)
+            else :
+            c_stat = self._this_ptr.solve(model._this, time_limit)
         stat = to_SatBool3(c_stat)
-        if stat == SatBool3._True :
-            model = make_model(c_model)
-        else :
+        if stat != SatBool3._True :
             model = None
         return stat, model
 
@@ -365,21 +362,3 @@ cdef class SatSolver :
     ### @brief リテラルの数を返す．
     def literal_num(SatSolver self) :
         return self._this_ptr.literal_num()
-
-
-### @brief model を作る下請け関数
-cdef make_model(vector[CXX_SatBool3] c_model) :
-    cdef int n = c_model.size()
-    cdef int i
-    cdef VarId var
-    cdef Literal lit
-    cdef SatBool3 val
-    cdef model = dict()
-    for i in range(n) :
-        var = VarId(i)
-        lit = Literal(var)
-        val = to_SatBool3(c_model[i])
-        model[var] = val
-        model[lit] = val
-        model[~lit] = ~val
-    return model
