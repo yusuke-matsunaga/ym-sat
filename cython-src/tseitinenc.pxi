@@ -1,5 +1,5 @@
 
-### @file sattseitinenc.pxi
+### @file tseitinenc.pxi
 ### @brief sattseitinenc の cython インターフェイス
 ### @author Yusuke Matsunaga (松永 裕介)
 ###
@@ -11,13 +11,13 @@ from CXX_SatLiteral cimport SatLiteral as CXX_SatLiteral
 
 
 ### @brief SatTseitinEnc クラスの Python バージョン
-cdef class SatTseitinEnc :
+cdef class TseitinEnc :
 
     # C++ レベルのオブジェクト本体
     cdef CXX_SatTseitinEnc* _this_ptr
 
     ### @brief 初期化
-    def __cinit__(self, SatSolver solver) :
+    def __cinit__(self, Solver solver) :
         self._this_ptr = new CXX_SatTseitinEnc(*solver._this)
 
     ### @brief 終了処理

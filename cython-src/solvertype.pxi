@@ -1,9 +1,9 @@
 
-### @file satsolvertype.pxi
-### @brief satsolvertype の cython インターフェイス
+### @file solvertype.pxi
+### @brief solvertype の cython インターフェイス
 ### @author Yusuke Matsunaga (松永 裕介)
 ###
-### Copyright (C) 2018 Yusuke Matsunaga
+### Copyright (C) 2018, 2019 Yusuke Matsunaga
 ### All rights reserved.
 
 from libcpp.string cimport string
@@ -12,7 +12,7 @@ from CXX_SatSolverType cimport SatSolverType as CXX_SatSolverType
 
 
 ### @brief SatSolverType クラスの Python バージョン
-cdef class SatSolverType :
+cdef class SolverType :
 
     # C++ レベルのオブジェクト本体
     cdef CXX_SatSolverType _this

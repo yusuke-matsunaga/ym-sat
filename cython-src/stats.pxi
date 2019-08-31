@@ -1,5 +1,5 @@
 ### @file stats.pxi
-### @brief Stats の python インターフェイス
+### @brief SatStats の python インターフェイス
 ### @author Yusuke Matsunaga (松永 裕介)
 ###
 ### Copyright (C) 2017 Yusuke Matsunaga

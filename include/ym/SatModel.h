@@ -34,6 +34,10 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief サイズを返す．
+  int
+  size() const;
+
   /// @brief 対象の値を返す．
   /// @param[in] lit リテラル
   SatBool3
@@ -87,6 +91,14 @@ SatModel::SatModel()
 inline
 SatModel::~SatModel()
 {
+}
+
+// @brief サイズを返す．
+inline
+int
+SatModel::size() const
+{
+  return mValArray.size();
 }
 
 // @brief 対象の値を返す．

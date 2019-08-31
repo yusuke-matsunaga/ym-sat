@@ -1,5 +1,5 @@
 
-### @file satbvenc.pxi
+### @file bvenc.pxi
 ### @brief SatBvEnc の cython インターフェイス
 ### @author Yusuke Matsunaga (松永 裕介)
 ###
@@ -11,13 +11,13 @@ from CXX_SatLiteral cimport SatLiteral as CXX_SatLiteral
 
 
 ### @brief SatBvEnc クラスの Python バージョン
-cdef class SatBvEnc :
+cdef class BvEnc :
 
     # C++ レベルのオブジェクト本体
     cdef CXX_SatCountEnc* _this_ptr
 
     ### @brief 初期化
-    def __cinit__(self, SatSolver solver) :
+    def __cinit__(self, Solver solver) :
         self._this_ptr = new CXX_SatBvEnc(*solver._this)
 
     ### @brief 終了処理
