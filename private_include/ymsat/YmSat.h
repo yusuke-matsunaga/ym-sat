@@ -128,7 +128,7 @@ public:
   /// @note i 番めの変数の割り当て結果は model[i] に入る．
   SatBool3
   solve(const vector<SatLiteral>& assumptions,
-	vector<SatBool3>& model,
+	SatModel& model,
 	vector<SatLiteral>& conflicts) override;
 
   /// @brief 探索を中止する．

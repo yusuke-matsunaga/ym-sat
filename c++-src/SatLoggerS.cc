@@ -8,7 +8,6 @@
 
 
 #include "SatLoggerS.h"
-#include "ym/SatVarId.h"
 #include "ym/SatLiteral.h"
 
 
@@ -31,14 +30,12 @@ SatLoggerS::~SatLoggerS()
 }
 
 // @brief 変数を追加する．
-// @param[in] decision 決定変数の時に true とする．
-// @return 新しい変数番号を返す．
-// @note 変数番号は 0 から始まる．
+// @param[in] lit 変数を表すリテラル
 void
-SatLoggerS::new_variable(SatVarId id)
+SatLoggerS::new_variable(SatLiteral lit)
 {
   *mS << "N" << endl
-      << "# varid = " << id << endl;
+      << "# var = " << lit << endl;
 }
 
 // @brief 条件リテラルを設定する．

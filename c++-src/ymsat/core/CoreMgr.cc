@@ -13,6 +13,7 @@
 #include "ymsat/SatClause.h"
 #include "ymsat/Selecter.h"
 #include "ym/SatStats.h"
+#include "ym/SatModel.h"
 #include "ym/SatMsgHandler.h"
 #include "ym/Range.h"
 
@@ -608,13 +609,13 @@ CoreMgr::delete_clause(SatClause* clause)
 // @brief モデルを得る．
 // @param[out] model 割り当て結果を格納する配列
 void
-CoreMgr::get_model(vector<SatBool3>& model)
+CoreMgr::get_model(SatModel& model)
 {
   model.resize(mVarNum);
   for ( int i: Range(mVarNum) ) {
     SatBool3 val = eval(SatVarId(i));
     ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
-    model[i] = val;
+    model.set(i, val);
   }
 }
 
@@ -630,7 +631,7 @@ CoreMgr::get_model(vector<SatBool3>& model)
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 CoreMgr::solve(const vector<SatLiteral>& assumptions,
-	       vector<SatBool3>& model,
+	       SatModel& model,
 	       Controller& controller,
 	       Analyzer& analyzer,
 	       Selecter& selecter)

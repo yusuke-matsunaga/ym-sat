@@ -27,10 +27,10 @@ SatLogger::new_impl(const SatSolverType& solver_type)
 {
   ostream* log_out = solver_type.log_out();
   if ( log_out ) {
-    return unique_ptr<SatLogger>(new SatLoggerS(log_out));
+    return unique_ptr<SatLogger>{new SatLoggerS(log_out)};
   }
   else {
-    return unique_ptr<SatLogger>(new SatLogger());
+    return unique_ptr<SatLogger>{new SatLogger()};
   }
 }
 
@@ -45,11 +45,9 @@ SatLogger::~SatLogger()
 }
 
 // @brief 変数を追加する．
-// @param[in] decision 決定変数の時に true とする．
-// @return 新しい変数番号を返す．
-// @note 変数番号は 0 から始まる．
+// @param[in] lit 変数を表すリテラル
 void
-SatLogger::new_variable(SatVarId id)
+SatLogger::new_variable(SatLiteral lit)
 {
 }
 

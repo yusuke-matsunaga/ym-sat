@@ -107,7 +107,7 @@ YmSat::add_clause(int lit_num,
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 YmSat::solve(const vector<SatLiteral>& assumptions,
-	     vector<SatBool3>& model,
+	     SatModel& model,
 	     vector<SatLiteral>& conflicts)
 {
   return mMgr.solve(assumptions, model, *mController, *mAnalyzer, *mSelecter);

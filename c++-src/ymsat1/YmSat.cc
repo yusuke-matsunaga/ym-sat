@@ -11,6 +11,7 @@
 #include "ymsat1/SatAnalyzer.h"
 #include "ymsat1/SatClause.h"
 #include "ym/SatStats.h"
+#include "ym/SatModel.h"
 #include "ym/SatMsgHandler.h"
 
 
@@ -40,10 +41,10 @@ YmSat::YmSat(const string& option) :
   mVarNum(0),
   mOldVarNum(0),
   mVarSize(0),
-  mVal(NULL),
-  mDecisionLevel(NULL),
-  mReason(NULL),
-  mWatcherList(NULL),
+  mVal(nullptr),
+  mDecisionLevel(nullptr),
+  mReason(nullptr),
+  mWatcherList(nullptr),
 #if YMSAT_USE_WEIGHTARRAY
   mWeightArray(nullptr),
 #endif
@@ -409,7 +410,7 @@ YmSat::del_watcher(SatLiteral watch_lit,
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 YmSat::solve(const vector<SatLiteral>& assumptions,
-	     vector<SatBool3>& model,
+	     SatModel& model,
 	     vector<SatLiteral>& conflicts)
 {
   if ( debug & debug_solve ) {
@@ -432,6 +433,8 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     mTimer.reset();
     mTimer.start();
   }
+
+  alloc_var();
 
   // 自明な簡単化を行う．
   reduce_CNF();
@@ -496,10 +499,8 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     mLearntLimit = static_cast<int>(learnt_limit);
     SatStats stats;
     get_stats(stats);
-    for (list<SatMsgHandler*>::iterator p = mMsgHandlerList.begin();
-	 p != mMsgHandlerList.end(); ++ p) {
-      SatMsgHandler& handler = *(*p);
-      handler.print_message(stats);
+    for ( auto handler: mMsgHandlerList ) {
+      handler->print_message(stats);
     }
     ++ mRestart;
     stat = search();
@@ -522,7 +523,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     for ( int i = 0; i < mVarNum; ++ i ) {
       SatBool3 val = eval(SatVarId(i));
       ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
-      model[i] = val;
+      model.set(i, val);
     }
   }
   backtrack(0);

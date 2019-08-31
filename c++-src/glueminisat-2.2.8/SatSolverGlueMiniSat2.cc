@@ -9,6 +9,7 @@
 
 #include "SatSolverGlueMiniSat2.h"
 #include "ym/SatStats.h"
+#include "ym/SatModel.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -158,7 +159,7 @@ SatSolverGlueMiniSat2::add_clause(int lit_num,
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 SatSolverGlueMiniSat2::solve(const vector<SatLiteral>& assumptions,
-			     vector<SatBool3>& model,
+			     SatModel& model,
 			     vector<SatLiteral>& conflicts)
 {
   vec<Lit> tmp;
@@ -177,15 +178,17 @@ SatSolverGlueMiniSat2::solve(const vector<SatLiteral>& assumptions,
     model.resize(n);
     for ( int i = 0; i < n; ++ i ) {
       lbool lb = mSolver.model[i];
+      SatBool3 val;
       if ( lb == l_True ) {
-	model[i] = SatBool3::True;
+	val = SatBool3::True;
       }
       else if ( lb == l_False ) {
-	model[i] = SatBool3::False;
+	val = SatBool3::False;
       }
       else {
-	model[i] = SatBool3::X;
+	val = SatBool3::X;
       }
+      model.set(i, val);
     }
     return SatBool3::True;
   }

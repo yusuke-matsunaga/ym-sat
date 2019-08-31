@@ -179,6 +179,21 @@ AddClauseTest::make_vals(int ni,
   }
 }
 
+TEST_P(AddClauseTest, add_clause0)
+{
+  vector<int> vals(
+    {
+     // lit1 ans
+     //   0    1
+     //   1    1
+     1,
+     1
+    }
+  );
+
+  check(1, vals);
+}
+
 TEST_P(AddClauseTest, add_clause1_1)
 {
   SatLiteral lit1(mVarList[0]);

@@ -9,6 +9,7 @@
 
 #include "ymsat_old/YmSat.h"
 #include "ym/SatStats.h"
+#include "ym/SatModel.h"
 #include "ym/SatMsgHandler.h"
 #include "SatAnalyzer.h"
 #include "ymsat_old/SatClause.h"
@@ -30,7 +31,7 @@ BEGIN_NAMESPACE_YM_YMSATOLD
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 YmSat::solve(const vector<SatLiteral>& assumptions,
-	     vector<SatBool3>& model,
+	     SatModel& model,
 	     vector<SatLiteral>& conflicts)
 {
   if ( debug & debug_solve ) {
@@ -48,9 +49,6 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
     }
     cout << " VarNum: " << mVarNum << endl;
   }
-
-  model.clear();
-  model.resize(mVarNum, SatBool3::X);
 
   // メッセージハンドラにヘッダの出力を行わせる．
   for ( auto handler: mMsgHandlerList ) {
@@ -165,10 +163,11 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
 
   if ( sat_stat == SatBool3::True ) {
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
+    model.resize(mVarNum);
     for ( int i = 0; i < mVarNum; ++ i ) {
       SatBool3 val = cur_val(mVal[i]);
-      ASSERT_COND(val != SatBool3::X );
-      model[i] = val;
+      ASSERT_COND( val != SatBool3::X );
+      model.set(i, val);
     }
   }
   // 最初の状態に戻す．

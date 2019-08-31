@@ -9,6 +9,7 @@
 
 #include "SatSolverLingeling.h"
 #include "ym/SatStats.h"
+#include "ym/SatModel.h"
 #include "ym/Range.h"
 
 
@@ -151,7 +152,7 @@ SatSolverLingeling::add_clause(int lit_num,
 // @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
 SatSolverLingeling::solve(const vector<SatLiteral>& assumptions,
-			  vector<SatBool3>& model,
+			  SatModel& model,
 			  vector<SatLiteral>& conflicts)
 {
   for ( auto l: assumptions ) {
@@ -165,15 +166,17 @@ SatSolverLingeling::solve(const vector<SatLiteral>& assumptions,
     model.resize(mNumVars);
     for ( int i: Range(mNumVars) ) {
       int v = lglderef(mSolver, i + 1);
+      SatBool3 val;
       if ( v == 1) {
-	model[i] = SatBool3::True;
+	val = SatBool3::True;
       }
       else if ( v == -1 ) {
-	model[i] = SatBool3::False;
+	val = SatBool3::False;
       }
       else {
-	model[i] = SatBool3::X;
+	val = SatBool3::X;
       }
+      model.set(i, val);
     }
     return SatBool3::True;
   }

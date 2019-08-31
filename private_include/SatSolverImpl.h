@@ -103,7 +103,7 @@ public:
   virtual
   SatBool3
   solve(const vector<SatLiteral>& assumptions,
-	vector<SatBool3>& model,
+	SatModel& model,
 	vector<SatLiteral>& conflicts) = 0;
 
   /// @brief 探索を中止する．

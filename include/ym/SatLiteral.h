@@ -35,6 +35,14 @@ public:
   /// 内容は不定なのであまり使わない方が良い．
   SatLiteral();
 
+  /// @brief コピーコンストラクタの変種
+  /// @param[in] lit リテラル
+  /// @param[in] inv 極性フラグ
+  ///                - false: 反転なし (正極性)
+  ///                - true:  反転あり (負極性)
+  SatLiteral(const SatLiteral& lit,
+	     bool inv = false);
+
   /// @brief 変数番号と極性を指定したコンストラクタ
   /// @param[in] varid 変数番号
   /// @param[in] inv 極性フラグ
@@ -226,6 +234,21 @@ inline
 SatLiteral::SatLiteral() :
   mIndex(-1)
 {
+}
+
+// @brief コピーコンストラクタの変種
+// @param[in] lit リテラル
+// @param[in] inv 極性フラグ
+//                - false: 反転なし (正極性)
+//                - true:  反転あり (負極性)
+inline
+SatLiteral::SatLiteral(const SatLiteral& lit,
+		       bool inv) :
+  mIndex{lit.mIndex}
+{
+  if ( inv ) {
+    mIndex ^= neg_mask();
+  }
 }
 
 // 変数番号と極性を指定したコンストラクタ
