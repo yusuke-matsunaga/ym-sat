@@ -9,7 +9,6 @@
 
 #include "gtest/gtest.h"
 #include "ym/SatLiteral.h"
-#include "ym/SatVarId.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -26,11 +25,10 @@ TEST(SatLiteralTest, empty_constructor)
 TEST(SatLiteralTest,  simple_constructor)
 {
   for (int val = 0; val < 10; ++ val) {
-    SatVarId var1(val);
-    SatLiteral lit1(var1);
+    SatLiteral lit1(val);
 
     EXPECT_TRUE( lit1.is_valid() );
-    EXPECT_EQ( val, lit1.varid().val() );
+    EXPECT_EQ( val, lit1.varid() );
     EXPECT_EQ( true, lit1.is_positive() );
     EXPECT_EQ( false, lit1.is_negative() );
   }

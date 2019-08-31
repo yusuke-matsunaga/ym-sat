@@ -9,6 +9,7 @@
 
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
+#include "ym/SatModel.h"
 #include "ym/Range.h"
 
 
@@ -35,51 +36,6 @@ public:
   void
   check(int ni,
 	const vector<int>& vals);
-
-#if 0
-  /// @brief AND ゲートのチェックを行う．
-  void
-  check_and(int ni);
-
-  /// @brief NAND ゲートのチェックを行う．
-  void
-  check_nand(int ni);
-
-  /// @brief OR ゲートのチェックを行う．
-  void
-  check_or(int ni);
-
-  /// @brief NOR ゲートのチェックを行う．
-  void
-  check_nor(int ni);
-
-  /// @brief XOR ゲートのチェックを行う．
-  void
-  check_xor(int ni);
-
-  /// @brief XNOR ゲートのチェックを行う．
-  void
-  check_xnor(int ni);
-#endif
-
-  /// @brief at_most_k のチェックを行う．
-  void
-  check_at_most(int n,
-		int k);
-
-  /// @brief at_least_k のチェックを行う．
-  void
-  check_at_least(int n,
-		 int k);
-
-  /// @brief exact_k のチェックを行う．
-  void
-  check_exact(int n,
-	      int k);
-
-  /// @brief not_one のチェックを行う．
-  void
-  check_not_one(int n);
 
   /// @brief check の条件リテラル付き版
   ///
@@ -108,10 +64,10 @@ public:
   int mVarNum;
 
   // 変数のリスト
-  vector<SatVarId> mVarList;
+  vector<SatLiteral> mVarList;
 
   // 条件変数のリスト
-  vector<SatVarId> mCondVarList;
+  vector<SatLiteral> mCondVarList;
 };
 
 AddClauseTest::AddClauseTest() :
@@ -121,8 +77,7 @@ AddClauseTest::AddClauseTest() :
   mCondVarList(2)
 {
   for ( int i: Range(mVarNum) ) {
-    SatVarId var = mSolver.new_variable();
-    mVarList[i] = var;
+    mVarList[i] = mSolver.new_variable();
   }
   mCondVarList[0] = mSolver.new_variable();
   mCondVarList[1] = mSolver.new_variable();
@@ -142,11 +97,14 @@ AddClauseTest::check(int ni,
     for ( int p: Range(np) ) {
       vector<SatLiteral> assumptions;
       for ( int i: Range(ni) ) {
-	bool inv = (p & (1U << i)) ? false : true;
-	assumptions.push_back(SatLiteral(mVarList[i], inv));
+	auto lit{mVarList[i]};
+	if ( (p & (1 << i)) == 0 ) {
+	  lit = ~lit;
+	}
+	assumptions.push_back(lit);
       }
       SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
-      vector<SatBool3> model;
+      SatModel model;
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
     }
@@ -169,11 +127,14 @@ AddClauseTest::check_with_cond1(int ni,
       vector<SatLiteral> assumptions;
       assumptions.push_back(~SatLiteral(mCondVarList[0]));
       for ( int i: Range(ni) ) {
-	bool inv = (p & (1U << i)) ? false : true;
-	assumptions.push_back(SatLiteral(mVarList[i], inv));
+	auto lit{mVarList[i]};
+	if ( (p & (1 << i)) == 0 ) {
+	  lit = ~lit;
+	}
+	assumptions.push_back(lit);
       }
       SatBool3 exp_ans = SatBool3::True;
-      vector<SatBool3> model;
+      SatModel model;
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
     }
@@ -181,262 +142,20 @@ AddClauseTest::check_with_cond1(int ni,
       vector<SatLiteral> assumptions;
       assumptions.push_back(SatLiteral(mCondVarList[0]));
       for ( int i: Range(ni) ) {
-	bool inv = (p & (1U << i)) ? false : true;
-	assumptions.push_back(SatLiteral(mVarList[i], inv));
+	auto lit{mVarList[i]};
+	if ( (p & (1 << i)) == 0 ) {
+	  lit = ~lit;
+	}
+	assumptions.push_back(lit);
       }
       SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
-      vector<SatBool3> model;
+      SatModel model;
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
     }
   }
   catch ( AssertError x ) {
     cout << x << endl;
-  }
-}
-
-#if 0
-// @brief AND ゲートのチェックを行う．
-void
-AddClauseTest::check_and(int ni)
-{
-  int np = 1 << ni;
-  vector<int> tv(np);
-  for ( int p: Range(np) ) {
-    int val = 1;
-    for ( int i: Range(ni) ) {
-      if ( (p & (1 << i)) == 0 ) {
-	val = 0;
-	break;
-      }
-    }
-    tv[p] = val;
-  }
-
-  vector<int> vals;
-  make_vals(ni, tv, false, vals);
-
-  check(ni + 1, vals);
-}
-
-// @brief NAND ゲートのチェックを行う．
-void
-AddClauseTest::check_nand(int ni)
-{
-  int np = 1 << ni;
-  vector<int> tv(np);
-  for ( int p: Range(np) ) {
-    int val = 1;
-    for ( int i: Range(ni) ) {
-      if ( (p & (1 << i)) == 0 ) {
-	val = 0;
-	break;
-      }
-    }
-    tv[p] = val;
-  }
-
-  vector<int> vals;
-  make_vals(ni, tv, true, vals);
-
-  check(ni + 1, vals);
-}
-
-// @brief OR ゲートのチェックを行う．
-void
-AddClauseTest::check_or(int ni)
-{
-  int np = 1 << ni;
-  vector<int> tv(np);
-  for ( int p: Range(np) ) {
-    int val = 0;
-    for ( int i: Range(ni) ) {
-      if ( (p & (1 << i)) != 0 ) {
-	val = 1;
-	break;
-      }
-    }
-    tv[p] = val;
-  }
-
-  vector<int> vals;
-  make_vals(ni, tv, false, vals);
-
-  check(ni + 1, vals);
-}
-
-// @brief NOR ゲートのチェックを行う．
-void
-AddClauseTest::check_nor(int ni)
-{
-  int np = 1 << ni;
-  vector<int> tv(np);
-  for ( int p: Range(np) ) {
-    int val = 0;
-    for ( int i: Range(ni) ) {
-      if ( (p & (1 << i)) != 0 ) {
-	val = 1;
-	break;
-      }
-    }
-    tv[p] = val;
-  }
-
-  vector<int> vals;
-  make_vals(ni, tv, true, vals);
-
-  check(ni + 1, vals);
-}
-
-// @brief XOR ゲートのチェックを行う．
-void
-AddClauseTest::check_xor(int ni)
-{
-  int np = 1 << ni;
-  vector<int> tv(np);
-  for ( int p: Range(np) ) {
-    int val = 0;
-    for ( int i: Range(ni) ) {
-      if ( (p & (1 << i)) != 0 ) {
-	val ^= 1;
-      }
-    }
-    tv[p] = val;
-  }
-
-  vector<int> vals;
-  make_vals(ni, tv, false, vals);
-
-  check(ni + 1, vals);
-}
-
-// @brief XNOR ゲートのチェックを行う．
-void
-AddClauseTest::check_xnor(int ni)
-{
-  int np = 1 << ni;
-  vector<int> tv(np);
-  for ( int p: Range(np) ) {
-    int val = 0;
-    for ( int i: Range(ni) ) {
-      if ( (p & (1 << i)) != 0 ) {
-	val ^= 1;
-      }
-    }
-    tv[p] = val;
-  }
-
-  vector<int> vals;
-  make_vals(ni, tv, true, vals);
-
-  check(ni + 1, vals);
-}
-#endif
-
-// @brief at_most_k のチェックを行う．
-void
-AddClauseTest::check_at_most(int n,
-			     int k)
-{
-  int np = 1U << n;
-  for ( int p: Range(np) ) {
-    vector<SatLiteral> assumptions;
-    int c = 0;
-    for ( int i: Range(n) ) {
-      bool inv;
-      if ( p & (1U << i) ) {
-	++ c;
-	inv = false;
-      }
-      else {
-	inv = true;
-      }
-      assumptions.push_back(SatLiteral(mVarList[i], inv));
-    }
-    SatBool3 exp_ans = (c <= k) ? SatBool3::True : SatBool3::False;
-    vector<SatBool3> model;
-    SatBool3 stat = mSolver.solve(assumptions, model);
-    EXPECT_EQ( exp_ans, stat );
-  }
-}
-
-// @brief at_least_k のチェックを行う．
-void
-AddClauseTest::check_at_least(int n,
-			      int k)
-{
-  int np = 1U << n;
-  for ( int p: Range(np) ) {
-    vector<SatLiteral> assumptions;
-    int c = 0;
-    for ( int i: Range(n) ) {
-      bool inv;
-      if ( p & (1U << i) ) {
-	++ c;
-	inv = false;
-      }
-      else {
-	inv = true;
-      }
-      assumptions.push_back(SatLiteral(mVarList[i], inv));
-    }
-    SatBool3 exp_ans = (c >= k) ? SatBool3::True : SatBool3::False;
-    vector<SatBool3> model;
-    SatBool3 stat = mSolver.solve(assumptions, model);
-    EXPECT_EQ( exp_ans, stat );
-  }
-}
-
-// @brief exact_k のチェックを行う．
-void
-AddClauseTest::check_exact(int n,
-			   int k)
-{
-  int np = 1U << n;
-  for ( int p: Range(np) ) {
-    vector<SatLiteral> assumptions;
-    int c = 0;
-    for ( int i: Range(n) ) {
-      bool inv;
-      if ( p & (1U << i) ) {
-	++ c;
-	inv = false;
-      }
-      else {
-	inv = true;
-      }
-      assumptions.push_back(SatLiteral(mVarList[i], inv));
-    }
-    SatBool3 exp_ans = (c == k) ? SatBool3::True : SatBool3::False;
-    vector<SatBool3> model;
-    SatBool3 stat = mSolver.solve(assumptions, model);
-    EXPECT_EQ( exp_ans, stat );
-  }
-}
-
-// @brief not_one のチェックを行う．
-void
-AddClauseTest::check_not_one(int n)
-{
-  int np = 1U << n;
-  for ( int p: Range(np) ) {
-    vector<SatLiteral> assumptions;
-    int c = 0;
-    for ( int i: Range(n) ) {
-      bool inv;
-      if ( p & (1U << i) ) {
-	++ c;
-	inv = false;
-      }
-      else {
-	inv = true;
-      }
-      assumptions.push_back(SatLiteral(mVarList[i], inv));
-    }
-    SatBool3 exp_ans = (c != 1) ? SatBool3::True : SatBool3::False;
-    vector<SatBool3> model;
-    SatBool3 stat = mSolver.solve(assumptions, model);
-    EXPECT_EQ( exp_ans, stat );
   }
 }
 
@@ -1161,6 +880,7 @@ TEST_P(AddClauseTest, add_xnorgate_rel5)
 }
 #endif
 
+#if 0
 TEST_P(AddClauseTest, add_at_most_one2)
 {
   SatLiteral lit1(mVarList[0]);
@@ -1805,7 +1525,7 @@ TEST_P(AddClauseTest, add_not_oneN)
 
   check_not_one(n);
 }
-
+#endif
 
 TEST_P(AddClauseTest, add_clause_with_cond1_1)
 {

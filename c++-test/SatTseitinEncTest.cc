@@ -10,6 +10,7 @@
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
 #include "ym/SatTseitinEnc.h"
+#include "ym/SatModel.h"
 #include "ym/Range.h"
 
 
@@ -84,10 +85,10 @@ public:
   int mVarNum;
 
   // 変数のリスト
-  vector<SatVarId> mVarList;
+  vector<SatLiteral> mVarList;
 
   // 条件変数のリスト
-  vector<SatVarId> mCondVarList;
+  vector<SatLiteral> mCondVarList;
 };
 
 SatTseitinEncTest::SatTseitinEncTest() :
@@ -98,8 +99,7 @@ SatTseitinEncTest::SatTseitinEncTest() :
   mCondVarList(2)
 {
   for ( int i: Range(mVarNum) ) {
-    SatVarId var = mSolver.new_variable();
-    mVarList[i] = var;
+    mVarList[i] = mSolver.new_variable();
   }
   mCondVarList[0] = mSolver.new_variable();
   mCondVarList[1] = mSolver.new_variable();
@@ -112,18 +112,21 @@ SatTseitinEncTest::~SatTseitinEncTest()
 // @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
 void
 SatTseitinEncTest::check(int ni,
-		     const vector<int>& vals)
+			 const vector<int>& vals)
 {
   try {
     int np = 1U << ni;
     for ( int p: Range(np) ) {
       vector<SatLiteral> assumptions;
       for ( int i: Range(ni) ) {
-	bool inv = (p & (1U << i)) ? false : true;
-	assumptions.push_back(SatLiteral(mVarList[i], inv));
+	auto lit{mVarList[i]};
+	if ( (p & (1 << i)) == 0 ) {
+	  lit = ~lit;
+	}
+	assumptions.push_back(lit);
       }
       SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
-      vector<SatBool3> model;
+      SatModel model;
       SatBool3 stat = mSolver.solve(assumptions, model);
       EXPECT_EQ( exp_ans, stat );
     }
@@ -272,9 +275,9 @@ SatTseitinEncTest::check_xnor(int ni)
 // @brief 論理ゲートの真理値表からチェック用のベクタを作る．
 void
 SatTseitinEncTest::make_vals(int ni,
-			 const vector<int>& tv,
-			 bool inv,
-			 vector<int>& vals)
+			     const vector<int>& tv,
+			     bool inv,
+			     vector<int>& vals)
 {
   int np = 1 << ni;
   int ni1 = ni + 1;
@@ -289,12 +292,12 @@ SatTseitinEncTest::make_vals(int ni,
   }
 }
 
-TEST_P(SatTseitinEncTest, add_eq)
+TEST_P(SatTseitinEncTest, add_buffgate)
 {
   SatLiteral lit1(mVarList[0]);
   SatLiteral lit2(mVarList[1]);
 
-  mEnc.add_eq(lit1, lit2);
+  mEnc.add_buffgate(lit1, lit2);
 
   vector<int> vals(
     {
@@ -310,12 +313,12 @@ TEST_P(SatTseitinEncTest, add_eq)
   check(2, vals);
 }
 
-TEST_P(SatTseitinEncTest, add_neq)
+TEST_P(SatTseitinEncTest, add_notgate)
 {
   SatLiteral lit1(mVarList[0]);
   SatLiteral lit2(mVarList[1]);
 
-  mEnc.add_neq(lit1, lit2);
+  mEnc.add_notgate(lit1, lit2);
 
   vector<int> vals(
     {

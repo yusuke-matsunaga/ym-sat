@@ -28,12 +28,6 @@ ym_add_gtest ( sat_SatBool3_test
   $<TARGET_OBJECTS:ym_sat_obj_ad>
   )
 
-ym_add_gtest ( sat_SatVarId_test
-  SatVarIdTest.cc
-  $<TARGET_OBJECTS:ym_base_obj_ad>
-  $<TARGET_OBJECTS:ym_sat_obj_ad>
-  )
-
 ym_add_gtest ( sat_SatLiteral_test
   SatLiteralTest.cc
   $<TARGET_OBJECTS:ym_base_obj_ad>
@@ -48,6 +42,12 @@ ym_add_gtest ( sat_AddClause_test
 
 ym_add_gtest ( sat_SatTseitinEnc_test
   SatTseitinEncTest.cc
+  $<TARGET_OBJECTS:ym_base_obj_ad>
+  $<TARGET_OBJECTS:ym_sat_obj_ad>
+  )
+
+ym_add_gtest ( sat_SatCountEnc_test
+  SatCountEncTest.cc
   $<TARGET_OBJECTS:ym_base_obj_ad>
   $<TARGET_OBJECTS:ym_sat_obj_ad>
   )
