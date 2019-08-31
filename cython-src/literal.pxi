@@ -1,8 +1,9 @@
+
 ### @file literal.pxi
-### @brief literal の python インターフェイス
+### @brief SatLiteral の python インターフェイス
 ### @author Yusuke Matsunaga (松永 裕介)
 ###
-### Copyright (C) 2017 Yusuke Matsunaga
+### Copyright (C) 2017, 2019 Yusuke Matsunaga
 ### All rights reserved.
 
 from libcpp cimport bool
@@ -26,14 +27,13 @@ cdef class Literal :
     ### @brief 内容をセットする．
     ### @param[in] varid 変数番号
     def set(Literal self, int varid, bool inv = False) :
-        cdef int vid = varid.val()
         cdef int inv_offset = 0
         if varid < 0 :
             self.__body = -1
         else :
             if inv :
                 inv_offset = 1
-            self.__body = (vid << 1) | inv_offset
+            self.__body = (varid << 1) | inv_offset
 
     ### @brief 変数番号を得る．
     def varid(Literal self) :
@@ -72,7 +72,7 @@ cdef class Literal :
 ### @param[in] literal Python バージョンの Literal
 cdef SatLiteral from_literal(literal) :
     cdef int varid = literal.varid()
-    return SatLiteral(varid, literal.is_negative())
+    return SatLiteral.conv_from_varid(varid, literal.is_negative())
 
 ### @brief C++ の SatLiteral を Python の Literal に変換する．
 ### @param[in] c_literal C++ バージョンの SatLiteral

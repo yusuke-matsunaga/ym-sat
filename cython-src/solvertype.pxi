@@ -18,7 +18,7 @@ cdef class SolverType :
     cdef CXX_SatSolverType _this
 
     ### @brief 初期化
-    def __init__(SatSolverType self, sat_type = None, sat_option = None) :
+    def __init__(SolverType self, sat_type = None, sat_option = None) :
         cdef string c_sat_type = sat_type.encode('UTF-8') if sat_type != None else string()
         cdef string c_sat_option = sat_option.encode('UTF-8') if sat_option != None else string()
         self._this.set(c_sat_type, c_sat_option, NULL)

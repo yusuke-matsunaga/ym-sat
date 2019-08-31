@@ -6,7 +6,6 @@
 ### Copyright (C) 2019 Yusuke Matsunaga
 ### All rights reserved.
 
-include "varid.pxi"
 include "literal.pxi"
 include "bool3.pxi"
 include "solvertype.pxi"

@@ -8,6 +8,7 @@
 
 from CXX_SatTseitinEnc cimport SatTseitinEnc as CXX_SatTseitinEnc
 from CXX_SatLiteral cimport SatLiteral as CXX_SatLiteral
+import cython
 
 
 ### @brief SatTseitinEnc クラスの Python バージョン
@@ -18,7 +19,7 @@ cdef class TseitinEnc :
 
     ### @brief 初期化
     def __cinit__(self, Solver solver) :
-        self._this_ptr = new CXX_SatTseitinEnc(*solver._this)
+        self._this_ptr = new CXX_SatTseitinEnc(cython.operator.dereference(solver._this_ptr))
 
     ### @brief 終了処理
     def __dealloc__(self) :
@@ -27,13 +28,13 @@ cdef class TseitinEnc :
 
     ### @brief 等価条件の生成
     def add_buffgate(self, lit1, lit2) :
-        cdef CXX_SatLiteral c_Lit1 = from_literal(lit1)
+        cdef CXX_SatLiteral c_lit1 = from_literal(lit1)
         cdef CXX_SatLiteral c_lit2 = from_literal(lit2)
         self._this_ptr.add_buffgate(c_lit1, c_lit2)
 
     ### @brief 非等価条件の生成
     def add_notgate(self, lit1, lit2) :
-        cdef CXX_SatLiteral c_Lit1 = from_literal(lit1)
+        cdef CXX_SatLiteral c_lit1 = from_literal(lit1)
         cdef CXX_SatLiteral c_lit2 = from_literal(lit2)
         self._this_ptr.add_notgate(c_lit1, c_lit2)
 
@@ -43,7 +44,7 @@ cdef class TseitinEnc :
         cdef vector[CXX_SatLiteral] c_ilits
         for lit in ilits :
             c_ilits.push_back(from_literal(lit))
-        self._this_ptr.add_andggate(c_olit, c_ilits)
+        self._this_ptr.add_andgate(c_olit, c_ilits)
 
     ### @brief NANDゲートの生成
     def add_nandgate(self, olit, ilits) :
@@ -51,7 +52,7 @@ cdef class TseitinEnc :
         cdef vector[CXX_SatLiteral] c_ilits
         for lit in ilits :
             c_ilits.push_back(from_literal(lit))
-        self._this_ptr.add_nandggate(c_olit, c_ilits)
+        self._this_ptr.add_nandgate(c_olit, c_ilits)
 
     ### @brief ORゲートの生成
     def add_orgate(self, olit, ilits) :

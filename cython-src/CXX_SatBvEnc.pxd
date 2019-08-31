@@ -23,5 +23,7 @@ cdef extern from "ym/SatBvEnc.h" namespace "nsYm" :
         void add_lt(vector[SatLiteral]& a_vec, int b_val);
         void add_le(vector[SatLiteral]& a_vec, vector[SatLiteral]& b_vec);
         void add_le(vector[SatLiteral]& a_vec, int b_val);
+        void add_gt(vector[SatLiteral]& a_vec, vector[SatLiteral]& b_vec);
         void add_gt(vector[SatLiteral]& a_vec, int b_val);
+        void add_ge(vector[SatLiteral]& a_vec, vector[SatLiteral]& b_vec);
         void add_ge(vector[SatLiteral]& a_vec, int b_val);

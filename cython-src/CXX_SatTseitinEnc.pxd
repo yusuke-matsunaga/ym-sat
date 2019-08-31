@@ -15,8 +15,8 @@ cdef extern from "ym/SatTseitinEnc.h" namespace "nsYm" :
     # SatTseitinEnc クラスの cython バージョン
     cdef cppclass SatTseitinEnc :
         SatTseitinEnc(const SatSolver& solver)
-        void add_eq(SatLiteral lit1, SatLiteral lit2)
-        void add_neq(SatLiteral lit1, SatLiteral lit2)
+        void add_buffgate(SatLiteral lit1, SatLiteral lit2)
+        void add_notgate(SatLiteral lit1, SatLiteral lit2)
         void add_andgate(SatLiteral olit, vector[SatLiteral]& ilits)
         void add_nandgate(SatLiteral olit, vector[SatLiteral]& ilits)
         void add_orgate(SatLiteral olit, vector[SatLiteral]& ilits)

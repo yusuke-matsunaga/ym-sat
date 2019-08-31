@@ -61,244 +61,6 @@ cdef class Solver :
             c_lits.push_back(from_literal(lit))
         self._this_ptr.add_clause(c_lits)
 
-    ### @brief 2つのリテラルが等しいという制約節を追加する．
-    ### @param[in] lit1, lit2 比較対象のリテラル
-    def add_eq_rel(Solver self, lit1, lit2, cvar_list = None) :
-        cdef CXX_SatLiteral c_lit1 = from_literal(lit1)
-        cdef CXX_SatLiteral c_lit2 = from_literal(lit2)
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        self._this_ptr.add_eq_rel(c_lit1, c_lit2)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 2つのリテラルが等しくないという制約節を追加する．
-    ### @param[in] lit1, lit2 比較対象のリテラル
-    def add_neq_rel(Solver self, lit1, lit2, cvar_list = None) :
-        cdef CXX_SatLiteral c_lit1 = from_literal(lit1)
-        cdef CXX_SatLiteral c_lit2 = from_literal(lit2)
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        self._this_ptr.add_neq_rel(c_lit1, c_lit2)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief ANDゲートの入出力の関係を表す制約節を追加する．
-    ### @param[in] olit 出力のリテラル
-    ### @param[in] ilit_list 入力のリテラルのリスト
-    def add_andgate_rel(Solver self, olit, ilit_list) :
-        cdef CXX_SatLiteral c_olit = from_literal(olit)
-        cdef vector[CXX_SatLiteral] c_ilits
-        for lit in ilit_list :
-            c_ilits.push_back(from_literal(lit))
-        self._this_ptr.add_andgate_rel(c_olit, c_ilits)
-
-    ### @brief NANDゲートの入出力の関係を表す制約節を追加する．
-    ### @param[in] olit 出力のリテラル
-    ### @param[in] ilit_list 入力のリテラルのリスト
-    def add_nandgate_rel(Solver self, olit, ilit_list) :
-        cdef CXX_SatLiteral c_olit = from_literal(olit)
-        cdef vector[CXX_SatLiteral] c_ilits
-        for lit in ilit_list :
-            c_ilits.push_back(from_literal(lit))
-        self._this_ptr.add_nandgate_rel(c_olit, c_ilits)
-
-    ### @brief ORゲートの入出力の関係を表す制約節を追加する．
-    ### @param[in] olit 出力のリテラル
-    ### @param[in] ilit_list 入力のリテラルのリスト
-    def add_orgate_rel(Solver self, olit, ilit_list) :
-        cdef CXX_SatLiteral c_olit = from_literal(olit)
-        cdef vector[CXX_SatLiteral] c_ilits
-        for lit in ilit_list :
-            c_ilits.push_back(from_literal(lit))
-        self._this_ptr.add_orgate_rel(c_olit, c_ilits)
-
-    ### @brief NORゲートの入出力の関係を表す制約節を追加する．
-    ### @param[in] olit 出力のリテラル
-    ### @param[in] ilit_list 入力のリテラルのリスト
-    def add_norgate_rel(Solver self, olit, ilit_list) :
-        cdef CXX_SatLiteral c_olit = from_literal(olit)
-        cdef vector[CXX_SatLiteral] c_ilits
-        for lit in ilit_list :
-            c_ilits.push_back(from_literal(lit))
-        self._this_ptr.add_norgate_rel(c_olit, c_ilits)
-
-    ### @brief XORゲートの入出力の関係を表す制約節を追加する．
-    ### @param[in] olit 出力のリテラル
-    ### @param[in] ilit_list 入力のリテラルのリスト
-    def add_xorgate_rel(Solver self, olit, ilit_list) :
-        cdef CXX_SatLiteral c_olit = from_literal(olit)
-        cdef vector[CXX_SatLiteral] c_ilits
-        for lit in ilit_list :
-            c_ilits.push_back(from_literal(lit))
-        self._this_ptr.add_xorgate_rel(c_olit, c_ilits)
-
-    ### @brief XNORゲートの入出力の関係を表す制約節を追加する．
-    ### @param[in] olit 出力のリテラル
-    ### @param[in] ilit_list 入力のリテラルのリスト
-    def add_xnorgate_rel(Solver self, olit, ilit_list) :
-        cdef CXX_SatLiteral c_olit = from_literal(olit)
-        cdef vector[CXX_SatLiteral] c_ilits
-        for lit in ilit_list :
-            c_ilits.push_back(from_literal(lit))
-        self._this_ptr.add_xnorgate_rel(c_olit, c_ilits)
-
-    ### @brief 高々1つのリテラルしか真にならないという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_at_most_one(Solver self, lit_list, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_at_most_one(c_lits)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 高々2つのリテラルしか真にならないという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_at_most_two(Solver self, lit_list, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_at_most_two(c_lits)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 高々K個のリテラルしか真にならないという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_at_most_k(Solver self, lit_list, unsigned int k, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_at_most_k(c_lits, k)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 1つ以上のリテラルが真になるという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_at_least_one(Solver self, lit_list, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_at_least_one(c_lits)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 2つ以上のリテラルが真になるという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_at_least_two(Solver self, lit_list, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_at_least_two(c_lits)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief K個以上のリテラルが真になるという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_at_least_k(Solver self, lit_list, unsigned int k, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_at_least_k(c_lits, k)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 高々1つのリテラルしか真にならないという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_exact_one(Solver self, lit_list, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_exact_one(c_lits)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 高々2つのリテラルしか真にならないという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_exact_two(Solver self, lit_list, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_exact_two(c_lits)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 高々K個のリテラルしか真にならないという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_exact_k(Solver self, lit_list, unsigned int k, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX?SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_exact_k(c_lits, k)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
-    ### @brief 真になっているリテラルの数が1でないという制約節を追加する．
-    ### @param[in] lit_list リテラルのリスト
-    def add_not_one(Solver self, lit_list, cvar_list = None) :
-        cdef vector[CXX_SatLiteral] c_lits
-        cdef vector[CXX_SatLiteral] c_cvar_list
-        if cvar_list :
-            for cvar in cvar_list :
-                c_cvar_list.push_back(from_literal(cvar))
-            self._this_ptr.set_conditional_literals(c_cvar_list)
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
-        self._this_ptr.add_not_one(c_lits)
-        if cvar_list :
-            self._this_ptr.clear_conditional_literals()
-
     ### @brief 問題を解く．
     ### @param[in] assumptions 仮定(Literal)のリスト
     ### @param[in] time_limit 時間制約(秒) 0 で制約なし
@@ -312,6 +74,7 @@ cdef class Solver :
         cdef vector[CXX_SatLiteral] c_assumptions
         cdef CXX_SatModel c_model
         cdef CXX_SatBool3 c_stat
+        cdef CXX_SatLiteral c_lit
         cdef CXX_SatBool3 c_val
         cdef int i
         if assumptions :
@@ -326,11 +89,12 @@ cdef class Solver :
         if stat == Bool3._True :
             model = {}
             for i in range(c_model.size()) :
-                c_val = c_model.get(i)
-                val = to_Bool3(c_val)
                 lit = Literal(i, False)
-                model[lit] = val
-                model[~lit] ~ ~val
+                c_lit = from_literal(lit)
+                c_val = c_model.get(c_lit)
+                val = to_Bool3(c_val)
+                model[ lit] =  val
+                model[~lit] = ~val
         return stat, model
 
     ### @brief solve() を中止する．

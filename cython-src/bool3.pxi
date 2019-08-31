@@ -57,12 +57,12 @@ cdef CXX_SatBool3 from_Bool3(val) :
         c_val = -1
     else :
         assert False
-    return __int_to_Bool3(c_val)
+    return __int_to_SatBool3(c_val)
 
 ### @brief C++ の Bool3 を Python の Bool3 に変換する．
 ### @param[in] c_val C++ バージョンの Bool3
 cdef to_Bool3(CXX_SatBool3 c_satbool3) :
-    cdef int c_val = __Bool3_to_int(c_satbool3)
+    cdef int c_val = __SatBool3_to_int(c_satbool3)
     if c_val == 0 :
         return Bool3._X
     elif c_val == 1 :

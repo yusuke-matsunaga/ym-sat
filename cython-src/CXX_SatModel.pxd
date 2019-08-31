@@ -15,6 +15,7 @@ cdef extern from "ym/SatModel.h" namespace "nsYm" :
     # SatModel の cython バージョン
     cdef cppclass SatModel :
         SatModel()
+        int size()
         SatBool3 get(SatLiteral lit)
         void resize(int)
         void set(int, SatBool3)

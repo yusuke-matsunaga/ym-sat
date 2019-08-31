@@ -8,17 +8,18 @@
 
 from CXX_SatBvEnc cimport SatBvEnc as CXX_SatBvEnc
 from CXX_SatLiteral cimport SatLiteral as CXX_SatLiteral
+import cython
 
 
 ### @brief SatBvEnc クラスの Python バージョン
 cdef class BvEnc :
 
     # C++ レベルのオブジェクト本体
-    cdef CXX_SatCountEnc* _this_ptr
+    cdef CXX_SatBvEnc* _this_ptr
 
     ### @brief 初期化
     def __cinit__(self, Solver solver) :
-        self._this_ptr = new CXX_SatBvEnc(*solver._this)
+        self._this_ptr = new CXX_SatBvEnc(cython.operator.dereference(solver._this_ptr))
 
     ### @brief 終了処理
     def __dealloc__(self) :
