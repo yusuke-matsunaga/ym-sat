@@ -7,11 +7,11 @@
 /// All rights reserved.
 
 
-#include "ymsat_old/YmSat.h"
+#include "YmSat.h"
 #include "ym/SatStats.h"
 #include "ym/SatMsgHandler.h"
 #include "SatAnalyzer.h"
-#include "ymsat_old/SatClause.h"
+#include "SatClause.h"
 
 
 BEGIN_NAMESPACE_YM_YMSATOLD

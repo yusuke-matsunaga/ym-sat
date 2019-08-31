@@ -7,9 +7,9 @@
 /// All rights reserved.
 
 
-#include "ymsat1/YmSat.h"
-#include "ymsat1/SatAnalyzer.h"
-#include "ymsat1/SatClause.h"
+#include "YmSat.h"
+#include "SatAnalyzer.h"
+#include "SatClause.h"
 #include "ym/SatStats.h"
 #include "ym/SatModel.h"
 #include "ym/SatMsgHandler.h"

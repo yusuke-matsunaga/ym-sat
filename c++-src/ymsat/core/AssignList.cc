@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "ymsat/AssignList.h"
+#include "../AssignList.h"
 #include "ym/Range.h"
 
 

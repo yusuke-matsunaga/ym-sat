@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ymsat/Analyzer.h"
+#include "../Analyzer.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

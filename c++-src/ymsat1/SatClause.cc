@@ -7,9 +7,9 @@
 /// All rights reserved.
 
 
-#include "ymsat1/SatClause.h"
-#include "ymsat1/SatReason.h"
-#include "ymsat1/Watcher.h"
+#include "SatClause.h"
+#include "SatReason.h"
+#include "Watcher.h"
 
 
 BEGIN_NAMESPACE_YM_SAT1

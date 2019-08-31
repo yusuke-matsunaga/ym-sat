@@ -9,8 +9,8 @@
 /// All rights reserved.
 
 
-#include "ymsat_old/YmSat.h"
-#include "ymsat_old/SatReason.h"
+#include "YmSat.h"
+#include "SatReason.h"
 
 
 BEGIN_NAMESPACE_YM_YMSATOLD

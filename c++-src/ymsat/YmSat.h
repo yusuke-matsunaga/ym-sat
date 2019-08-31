@@ -10,8 +10,8 @@
 
 
 #include "SatSolverImpl.h"
-#include "ymsat/CoreMgr.h"
-#include "ymsat/conf.h"
+#include "CoreMgr.h"
+#include "conf.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

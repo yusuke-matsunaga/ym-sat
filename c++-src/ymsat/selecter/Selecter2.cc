@@ -8,7 +8,7 @@
 
 
 #include "Selecter2.h"
-#include "CoreMgr.h"
+#include "../CoreMgr.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

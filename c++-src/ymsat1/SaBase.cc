@@ -8,7 +8,7 @@
 
 
 #include "SaBase.h"
-#include "ymsat1/SatClause.h"
+#include "SatClause.h"
 
 
 BEGIN_NAMESPACE_YM_SAT1

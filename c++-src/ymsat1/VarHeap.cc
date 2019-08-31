@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "ymsat1/VarHeap.h"
+#include "VarHeap.h"
 
 
 BEGIN_NAMESPACE_YM_SAT1

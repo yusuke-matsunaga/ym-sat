@@ -10,8 +10,8 @@
 
 
 #include "ym/sat.h"
-#include "ymsat/SatReason.h"
 #include "ym/Alloc.h"
+#include "SatReason.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

@@ -8,7 +8,7 @@
 
 
 #include "ControllerMS2.h"
-#include "ymsat/CoreMgr.h"
+#include "../CoreMgr.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "ymsat1/AssignList.h"
+#include "AssignList.h"
 
 
 BEGIN_NAMESPACE_YM_SAT1

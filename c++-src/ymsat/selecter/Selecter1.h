@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ymsat/Selecter.h"
+#include "../Selecter.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

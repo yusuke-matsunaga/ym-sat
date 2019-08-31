@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "ymsat/Controller.h"
+#include "../Controller.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

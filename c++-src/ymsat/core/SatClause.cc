@@ -7,9 +7,9 @@
 /// All rights reserved.
 
 
-#include "ymsat/SatClause.h"
-#include "ymsat/SatReason.h"
-#include "ymsat/Watcher.h"
+#include "../SatClause.h"
+#include "../SatReason.h"
+#include "../Watcher.h"
 #include "ym/Range.h"
 
 

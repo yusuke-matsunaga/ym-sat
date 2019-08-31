@@ -8,7 +8,7 @@
 
 
 #include "SaUIP2.h"
-#include "ymsat/SatClause.h"
+#include "../SatClause.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

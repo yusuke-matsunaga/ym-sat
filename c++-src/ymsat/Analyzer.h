@@ -1,46 +1,47 @@
-﻿#ifndef SATANALYZER_H
-#define SATANALYZER_H
+﻿#ifndef ANALYZER_H
+#define ANALYZER_H
 
-/// @file SatAnalyzer.h
-/// @brief SatAnalyzer のヘッダファイル
+/// @file Analyzer.h
+/// @brief Analyzer のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "YmSat.h"
-#include "ymsat1/SatReason.h"
+#include "ym/sat.h"
+#include "CoreMgr.h"
+#include "SatReason.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1
+BEGIN_NAMESPACE_YM_SAT
 
 class SatClause;
 
-//////////////////////////////////////////////////////////////////////
-/// @class SatAnalyzer SatAnalyzer.h "SatAnalyzer.h"
+/////////////////////p/////////////////////////////////////////////////
+/// @class Analyzer Analyzer.h "Analyzer.h"
 /// @brief 矛盾の解析/学習を行うクラス
 ///
 /// このクラスの役割は矛盾の原因となった節を解析して，矛盾の解消に必要
 /// な学習節(のためのリテラル集合)を生成することである．
-/// ただし，学習節の生成法は唯一ではないので，SatAnalyzer を純粋仮想
+/// ただし，学習節の生成法は唯一ではないので，Analyzer を純粋仮想
 /// 基底クラスにして派生クラスでさまざまな手法を実装できるようにしてい
 /// る．
-/// そのため，SatAnalyzer の大きな役割は YmSat とのインターフェイスを
+/// そのため，Analyzer の大きな役割は YmSat とのインターフェイスを
 /// 提供することである．もう一つの仕事は，派生クラスが YmSat の
 /// private メンバ関数にアクセスするための代理関数を提供することである．
 //////////////////////////////////////////////////////////////////////
-class SatAnalyzer
+class Analyzer
 {
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] solver SATソルバ
-  SatAnalyzer(YmSat* solver);
+  /// @param[in] mgr コアマネージャ
+  Analyzer(CoreMgr& mgr);
 
   /// @brief デストラクタ
   virtual
-  ~SatAnalyzer() { }
+  ~Analyzer() { }
 
 
 public:
@@ -107,26 +108,26 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // YmSat へのポインタ
-  YmSat* mSolver;
+  // コアマネージャ
+  CoreMgr& mMgr;
 
 };
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class SaFactory SatAnalyzer.h "SatAnalyzer.h"
-/// @brief SatAnalyzer(の派生クラス)を生成するファクトリ
+/// @class SaFactory Analyzer.h "Analyzer.h"
+/// @brief Analyzer(の派生クラス)を生成するファクトリ
 //////////////////////////////////////////////////////////////////////
 class SaFactory
 {
 public:
 
-  /// @brief SatAnalyzerの派生クラスを生成する．
-  /// @param[in] solver SATソルバ
+  /// @brief Analyzerの派生クラスを生成する．
+  /// @param[in] mgr コアマネージャ
   /// @param[in] option どのクラスを生成するかを決めるオプション文字列
   static
-  SatAnalyzer*
-  gen_analyzer(YmSat* solver,
+  Analyzer*
+  gen_analyzer(CoreMgr& mgr,
 	       const string& option = string());
 
 };
@@ -137,69 +138,69 @@ public:
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] solver SATソルバ
+// @param[in] mgr コアマネージャ
 inline
-SatAnalyzer::SatAnalyzer(YmSat* solver) :
-  mSolver(solver)
+Analyzer::Analyzer(CoreMgr& mgr) :
+  mMgr(mgr)
 {
 }
 
 // 現在の decision level を取り出す．
 inline
 int
-SatAnalyzer::decision_level() const
+Analyzer::decision_level() const
 {
-  return mSolver->decision_level();
+  return mMgr.decision_level();
 }
 
 // 割り当てリストの末尾を得る．
 inline
 int
-SatAnalyzer::last_assign()
+Analyzer::last_assign()
 {
-  return mSolver->mAssignList.size() - 1;
+  return mMgr.last_assign();
 }
 
 // 割り当てリストの pos 番めの要素を得る．
 inline
 SatLiteral
-SatAnalyzer::get_assign(int pos)
+Analyzer::get_assign(int pos)
 {
-  return mSolver->mAssignList.get(pos);
+  return mMgr.get_assign(pos);
 }
 
 // 変数の decision level を得る．
 inline
 int
-SatAnalyzer::decision_level(SatVarId varid) const
+Analyzer::decision_level(SatVarId varid) const
 {
-  return mSolver->decision_level(varid);
+  return mMgr.decision_level(varid);
 }
 
 // 変数の割り当て理由を得る．
 inline
 SatReason
-SatAnalyzer::reason(SatVarId varid) const
+Analyzer::reason(SatVarId varid) const
 {
-  return mSolver->reason(varid);
+  return mMgr.reason(varid);
 }
 
 // 変数のアクティビティを増加させる．
 inline
 void
-SatAnalyzer::bump_var_activity(SatVarId var)
+Analyzer::bump_var_activity(SatVarId var)
 {
-  mSolver->bump_var_activity(var);
+  mMgr.bump_var_activity(var);
 }
 
 // 学習節のアクティビティを増加させる．
 inline
 void
-SatAnalyzer::bump_clause_activity(SatClause* clause)
+Analyzer::bump_clause_activity(SatClause* clause)
 {
-  mSolver->bump_clause_activity(clause);
+  mMgr.bump_clause_activity(clause);
 }
 
-END_NAMESPACE_YM_SAT1
+END_NAMESPACE_YM_SAT
 
-#endif // SATANALYZER_H
+#endif // ANALYZER_H

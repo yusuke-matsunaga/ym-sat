@@ -7,11 +7,11 @@
 /// All rights reserved.
 
 
-#include "ymsat/CoreMgr.h"
-#include "ymsat/Controller.h"
-#include "ymsat/Analyzer.h"
-#include "ymsat/SatClause.h"
-#include "ymsat/Selecter.h"
+#include "../CoreMgr.h"
+#include "../Controller.h"
+#include "../Analyzer.h"
+#include "../SatClause.h"
+#include "../Selecter.h"
 #include "ym/SatStats.h"
 #include "ym/SatModel.h"
 #include "ym/SatMsgHandler.h"

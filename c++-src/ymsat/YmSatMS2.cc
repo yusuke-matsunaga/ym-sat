@@ -7,10 +7,10 @@
 /// All rights reserved.
 
 
-#include "ymsat/YmSatMS2.h"
-#include "ymsat/Controller.h"
-#include "ymsat/Analyzer.h"
-#include "ymsat/Selecter.h"
+#include "YmSatMS2.h"
+#include "Controller.h"
+#include "Analyzer.h"
+#include "Selecter.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

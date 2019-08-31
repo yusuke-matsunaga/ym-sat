@@ -1,5 +1,5 @@
-﻿#ifndef YMSAT1_SATCLAUSE_H
-#define YMSAT1_SATCLAUSE_H
+﻿#ifndef SATCLAUSE_H
+#define SATCLAUSE_H
 
 /// @file SatClause.h
 /// @brief SatClause のヘッダファイル
@@ -9,12 +9,12 @@
 /// All rights reserved.
 
 
-#include "ym_sat1.h"
+#include "ym/sat.h"
 #include "ym/SatLiteral.h"
-#include "ymsat1/conf.h"
+#include "conf.h"
 
 
-BEGIN_NAMESPACE_YM_SAT1
+BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
 /// @class SatClause SatClause.h "SatClause.h"
@@ -294,6 +294,6 @@ SatClause::factor_activity(double factor)
   mActivity *= factor;
 }
 
-END_NAMESPACE_YM_SAT1
+END_NAMESPACE_YM_SAT
 
-#endif // YMSAT1_SATCLAUSE_H
+#endif // SATCLAUSE_H

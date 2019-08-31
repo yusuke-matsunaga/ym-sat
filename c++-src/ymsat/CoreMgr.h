@@ -15,9 +15,9 @@
 #include "ym/FragAlloc.h"
 #include "ym/StopWatch.h"
 
-#include "ymsat/SatReason.h"
-#include "ymsat/AssignList.h"
-#include "ymsat/Watcher.h"
+#include "SatReason.h"
+#include "AssignList.h"
+#include "Watcher.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
