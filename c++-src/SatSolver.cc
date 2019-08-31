@@ -26,7 +26,7 @@
 
 BEGIN_NAMESPACE_YM
 
-const SatVarId kSatVarIdIllegal;
+//const SatVarId kSatVarIdIllegal;
 const SatLiteral kSatLiteralX;
 
 END_NAMESPACE_YM
@@ -102,8 +102,8 @@ SatSolver::~SatSolver()
 SatLiteral
 SatSolver::new_variable(bool decision)
 {
-  SatVarId id = mImpl->new_variable(decision);
-  SatLiteral lit{id};
+  int id = mImpl->new_variable(decision);
+  auto lit{SatLiteral::conv_from_varid(id, false)};
   if ( decision ) {
     mImpl->freeze_literal(lit);
   }

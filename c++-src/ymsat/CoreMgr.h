@@ -10,7 +10,6 @@
 
 
 #include "ym/sat.h"
-#include "ym/SatVarId.h"
 #include "ym/SatBool3.h"
 #include "ym/FragAlloc.h"
 #include "ym/StopWatch.h"
@@ -115,7 +114,7 @@ public:
   ///
   /// 実際には変数番号を割り当てるだけで alloc_var()
   /// を呼ばれてはじめて実際の領域を確保する．
-  SatVarId
+  int
   new_variable(bool decision);
 
   /// @brief 変数に関する領域を実際に確保する．
@@ -194,9 +193,9 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 変数の評価を行う．
-  /// @param[in] var 変数
+  /// @param[in] var 変数番号
   SatBool3
-  eval(SatVarId var) const;
+  eval(int var) const;
 
   /// @brief リテラルの評価を行う．
   /// @param[in] lit リテラル
@@ -207,8 +206,9 @@ public:
   eval(SatLiteral lit) const;
 
   /// @brief バックトラック前の値を得る．
+  /// @param[in] var 変数番号
   SatBool3
-  prev_val(SatVarId var) const;
+  prev_val(int var) const;
 
   /// @brief モデルを得る．
   /// @param[out] model 割り当て結果を格納する配列
@@ -247,7 +247,7 @@ public:
   /// @brief 変数の decision level を返す．
   /// @param[in] var 変数番号
   int
-  decision_level(SatVarId var) const;
+  decision_level(int var) const;
 
 
 public:
@@ -273,14 +273,14 @@ public:
 	Selecter& selecter);
 
   /// @brief 変数の割り当て理由を返す．
-  /// @param[in] var 変数
+  /// @param[in] var 変数番号
   SatReason
-  reason(SatVarId var) const;
+  reason(int var) const;
 
   /// @brief 次に割り当てる変数を取り出す．
   ///
   /// アクティビティが最大で未割り当ての変数を返す．
-  SatVarId
+  int
   next_var();
 
   /// @brief 停止する．
@@ -312,7 +312,7 @@ public:
   /// @brief 変数のアクティビティを増加させる．
   /// @param[in] var 変数番号
   void
-  bump_var_activity(SatVarId var);
+  bump_var_activity(int var);
 
   /// @brief 変数のアクティビティを定率で減少させる．
   void
@@ -335,7 +335,7 @@ public:
 
   /// @brief 与えられた変数のリストからヒープ木を構成する．
   void
-  build(const vector<SatVarId>& var_list);
+  build(const vector<int>& var_list);
 
   /// @brief リスタート回数を返す．
   int
@@ -493,12 +493,12 @@ private:
   /// @brief 変数をヒープに追加する．
   /// @param[in] var 追加する変数
   void
-  add_var(SatVarId var);
+  add_var(int var);
 
   /// @brief 変数を再びヒープに追加する．
   /// @param[in] var 追加する変数
   void
-  push(SatVarId var);
+  push(int var);
 
   /// @brief 要素が空の時 true を返す．
   bool
@@ -931,11 +931,10 @@ CoreMgr::empty() const
 // @param[in] var 変数番号
 inline
 void
-CoreMgr::add_var(SatVarId var)
+CoreMgr::add_var(int var)
 {
-  int vindex = var.val();
-  set(vindex, mHeapNum);
-  mActivity[vindex] = 0.0;
+  set(var, mHeapNum);
+  mActivity[var] = 0.0;
   ++ mHeapNum;
 }
 
@@ -982,11 +981,10 @@ CoreMgr::conv_from_Bool3(SatBool3 b)
 // @param[in] var 変数
 inline
 SatBool3
-CoreMgr::eval(SatVarId var) const
+CoreMgr::eval(int var) const
 {
-  int vindex = var.val();
-  ASSERT_COND( vindex >= 0 && vindex < mVarNum );
-  ymuint8 x = mVal[vindex] & 3U;
+  ASSERT_COND( var >= 0 && var < mVarNum );
+  ymuint8 x = mVal[var] & 3U;
   return conv_to_Bool3(x);
 }
 
@@ -1008,11 +1006,10 @@ CoreMgr::eval(SatLiteral lit) const
 // @brief バックトラック前の値を得る．
 inline
 SatBool3
-CoreMgr::prev_val(SatVarId var) const
+CoreMgr::prev_val(int var) const
 {
-  int vindex = var.val();
-  ASSERT_COND( vindex >= 0 && vindex < mVarNum );
-  ymuint8 x = ((mVal[vindex] >> 2)) & 3U;
+  ASSERT_COND( var >= 0 && var < mVarNum );
+  ymuint8 x = ((mVal[var] >> 2)) & 3U;
   return conv_to_Bool3(x);
 }
 
@@ -1082,11 +1079,10 @@ CoreMgr::get_assign(int pos) const
 // @param[in] var 変数番号
 inline
 int
-CoreMgr::decision_level(SatVarId var) const
+CoreMgr::decision_level(int var) const
 {
-  int vindex = var.val();
-  ASSERT_COND( vindex >= 0 && vindex < mVarNum );
-  return mDecisionLevel[vindex];
+  ASSERT_COND( var >= 0 && var < mVarNum );
+  return mDecisionLevel[var];
 }
 
 // @brief バックトラック用のマーカーをセットする．
@@ -1101,11 +1097,10 @@ CoreMgr::set_marker()
 // @param[in] var 変数
 inline
 SatReason
-CoreMgr::reason(SatVarId var) const
+CoreMgr::reason(int var) const
 {
-  int vindex = var.val();
-  ASSERT_COND( vindex >= 0 && vindex < mVarNum );
-  return mReason[vindex];
+  ASSERT_COND( var >= 0 && var < mVarNum );
+  return mReason[var];
 }
 
 // @brief 停止する．
@@ -1127,13 +1122,12 @@ CoreMgr::go_on() const
 // @brief 要素を追加する．
 inline
 void
-CoreMgr::push(SatVarId var)
+CoreMgr::push(int var)
 {
-  int vindex = var.val();
-  if ( mHeapPos[vindex] == -1 ) {
+  if ( mHeapPos[var] == -1 ) {
     int pos = mHeapNum;
     ++ mHeapNum;
-    set(vindex, pos);
+    set(var, pos);
     move_up(pos);
   }
 }

@@ -41,7 +41,7 @@ YmSat::~YmSat()
 // @param[in] decision 決定変数の時に true とする．
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
-SatVarId
+int
 YmSat::new_variable(bool decision)
 {
   return mMgr.new_variable(decision);
@@ -189,8 +189,8 @@ void
 write_lit(ostream& s,
 	  SatLiteral lit)
 {
-  SatVarId var = lit.varid();
-  int idx = var.val() + 1;
+  int var = lit.varid();
+  int idx = var + 1;
   if ( lit.is_negative() ) {
     s << " -";
       }

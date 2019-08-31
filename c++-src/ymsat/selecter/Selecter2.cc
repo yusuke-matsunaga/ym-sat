@@ -28,12 +28,12 @@ Selecter2::Selecter2(CoreMgr& mgr) :
 SatLiteral
 Selecter2::next_decision()
 {
-  SatVarId dvar = mMgr.next_var();
-  if ( dvar.is_valid() ) {
-    SatLiteral dlit(dvar);
+  int dvar = mMgr.next_var();
+  if ( dvar >= 0 ) {
+    auto dlit{SatLiteral::conv_from_varid(dvar, false)};
     if ( true ) {
       // 以前の割り当てを使う．
-      SatBool3 pval = mMgr.prev_val(dvar);
+      auto pval = mMgr.prev_val(dvar);
       if ( pval == kB3False ) {
 	return ~dlit;
       }

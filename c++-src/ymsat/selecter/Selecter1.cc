@@ -46,12 +46,12 @@ Selecter1::~Selecter1()
 SatLiteral
 Selecter1::next_decision()
 {
-  SatVarId dvar = mMgr.next_var();
-  if ( dvar.is_valid() ) {
-    SatLiteral dlit(dvar);
+  auto dvar = mMgr.next_var();
+  if ( dvar >= 0 ) {
+    auto dlit{SatLiteral::conv_from_varid(dvar, false)};
     if ( mPhaseCache ) {
       // 以前の割り当てを使う．
-      SatBool3 pval = mMgr.prev_val(dvar);
+      auto pval = mMgr.prev_val(dvar);
       if ( pval == SatBool3::False ) {
 	return ~dlit;
       }

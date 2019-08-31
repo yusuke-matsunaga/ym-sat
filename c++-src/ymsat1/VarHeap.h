@@ -10,7 +10,6 @@
 
 
 #include "ym_sat1.h"
-#include "ym/SatVarId.h"
 
 
 BEGIN_NAMESPACE_YM_SAT1
@@ -45,7 +44,7 @@ public:
   /// @brief 変数のアクティビティを増加させる．
   /// @param[in] var 変数番号
   void
-  bump_var_activity(SatVarId var);
+  bump_var_activity(int var);
 
   /// @brief 変数のアクティビティを定率で減少させる．
   void
@@ -67,12 +66,12 @@ public:
   /// @brief 変数を始めてヒープに追加する．
   /// @param[in] var 追加する変数
   void
-  add_var(SatVarId var);
+  add_var(int var);
 
   /// @brief 変数を再びヒープに追加する．
   /// @param[in] var 追加する変数
   void
-  push(SatVarId var);
+  push(int var);
 
   /// @brief アクティビティ最大の変数番号を取り出す．
   /// @note 該当の変数はヒープから取り除かれる．
@@ -82,7 +81,7 @@ public:
   /// @brief 変数のアクティビティを返す．
   /// @param[in] var 対象の変数
   double
-  activity(SatVarId var) const;
+  activity(int var) const;
 
   /// @brief 変数のアクティビティを初期化する．
   void
@@ -90,7 +89,7 @@ public:
 
   /// @brief 与えられた変数のリストからヒープ木を構成する．
   void
-  build(const vector<SatVarId>& var_list);
+  build(const vector<int>& var_list);
 
   /// @brief 内容を出力する
   /// @param[in] s 出力先のストリーム
@@ -208,11 +207,10 @@ VarHeap::empty() const
 // @param[in] var 変数番号
 inline
 void
-VarHeap::add_var(SatVarId var)
+VarHeap::add_var(int var)
 {
-  int vindex = var.val();
-  set(vindex, mHeapNum);
-  mActivity[vindex] = 0.0;
+  set(var, mHeapNum);
+  mActivity[var] = 0.0;
   ++ mHeapNum;
 }
 
@@ -220,21 +218,20 @@ VarHeap::add_var(SatVarId var)
 // @param[in] var 変数番号
 inline
 double
-VarHeap::activity(SatVarId var) const
+VarHeap::activity(int var) const
 {
-  return mActivity[var.val()];
+  return mActivity[var];
 }
 
 // @brief 要素を追加する．
 inline
 void
-VarHeap::push(SatVarId var)
+VarHeap::push(int var)
 {
-  int vindex = var.val();
-  if ( mHeapPos[vindex] == -1 ) {
+  if ( mHeapPos[var] == -1 ) {
     int pos = mHeapNum;
     ++ mHeapNum;
-    set(vindex, pos);
+    set(var, pos);
     move_up(pos);
   }
 }

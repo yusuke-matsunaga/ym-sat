@@ -10,7 +10,6 @@
 #include "SatLogger.h"
 #include "SatLoggerS.h"
 #include "ym/SatSolverType.h"
-#include "ym/SatVarId.h"
 #include "ym/SatLiteral.h"
 
 

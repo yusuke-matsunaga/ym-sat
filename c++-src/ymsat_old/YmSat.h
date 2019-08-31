@@ -112,7 +112,7 @@ public:
   /// @param[in] decision 決定変数の時に true とする．
   /// @return 新しい変数番号を返す．
   /// @note 変数番号は 0 から始まる．
-  SatVarId
+  int
   new_variable(bool decision) override;
 
   /// @brief 条件リテラルを設定する．
@@ -296,7 +296,7 @@ protected:
   /// @brief 変数1の評価を行う．
   /// @param[in] id 変数番号
   SatBool3
-  eval(SatVarId id) const;
+  eval(int id) const;
 
   /// @brief literal の評価を行う．
   /// @param[in] l リテラル
@@ -305,7 +305,7 @@ protected:
 
   /// @brief 変数の直前の値を返す．
   SatBool3
-  old_val(SatVarId id) const;
+  old_val(int id) const;
 
   /// @brief 現在の decision level を返す．
   int
@@ -314,7 +314,7 @@ protected:
   /// @brief 変数の decision level を返す．
   /// @param[in] varid 変数番号
   int
-  decision_level(SatVarId varid) const;
+  decision_level(int varid) const;
 
 #if YMSAT_USE_LBD
   /// @brief LBD を計算する．
@@ -326,7 +326,7 @@ protected:
   /// @brief 変数の割り当て理由を返す．
   /// @param[in] varid 変数番号
   SatReason
-  reason(SatVarId varid) const;
+  reason(int varid) const;
 
   /// @brief 学習節が使われているか調べる．
   /// @param[in] clause 対象の節
@@ -432,7 +432,7 @@ private:
   /// @brief 変数のアクティビティを増加させる．
   /// @param[in] var 変数番号
   void
-  bump_var_activity(SatVarId var);
+  bump_var_activity(int var);
 
   /// @brief 変数のアクティビティを定率で減少させる．
   void
@@ -759,10 +759,11 @@ END_NONAMESPACE
 // 変数の評価を行う．
 inline
 SatBool3
-YmSat::eval(SatVarId id) const
+YmSat::eval(int id) const
 {
-  ASSERT_COND( id.val() < mVarNum );
-  return cur_val(mVal[id.val()]);
+  ASSERT_COND( id >= 0 && id < mVarNum );
+
+  return cur_val(mVal[id]);
 }
 
 // literal の評価を行う．
@@ -781,10 +782,11 @@ YmSat::eval(SatLiteral l) const
 // @brief 変数の直前の値を返す．
 inline
 SatBool3
-YmSat::old_val(SatVarId id) const
+YmSat::old_val(int id) const
 {
-  ASSERT_COND( id.val() < mVarNum );
-  return conv_to_Bool3((mVal[id.val()] >> 2) & 3U);
+  ASSERT_COND( id >= 0 && id < mVarNum );
+
+  return conv_to_Bool3((mVal[id] >> 2) & 3U);
 }
 
 // 値の割当てか可能かチェックする．
@@ -793,7 +795,7 @@ inline
 bool
 YmSat::check_and_assign(SatLiteral lit)
 {
-  SatBool3 old_val = eval(lit);
+  auto old_val = eval(lit);
   if ( old_val != SatBool3::X ) {
     return old_val == SatBool3::True;
   }
@@ -843,19 +845,21 @@ YmSat::decision_level() const
 // 変数の decision level を返す．
 inline
 int
-YmSat::decision_level(SatVarId varid) const
+YmSat::decision_level(int varid) const
 {
-  ASSERT_COND( varid.val() < mVarNum );
-  return mDecisionLevel[varid.val()];
+  ASSERT_COND( varid >= 0 && varid < mVarNum );
+
+  return mDecisionLevel[varid];
 }
 
 // 変数の割り当て理由を返す．
 inline
 SatReason
-YmSat::reason(SatVarId varid) const
+YmSat::reason(int varid) const
 {
-  ASSERT_COND( varid.val() < mVarNum );
-  return mReason[varid.val()];
+  ASSERT_COND( varid >= 0 && varid < mVarNum );
+
+  return mReason[varid];
 }
 
 // @brief clase が含意の理由になっているか調べる．
@@ -868,14 +872,14 @@ YmSat::is_locked(SatClause* clause) const
   // そこで最初のリテラルの変数の割り当て理由が自分自身か
   // どうかを調べれば clause が割り当て理由として用いられて
   // いるかわかる．
-  return reason(clause->wl0().varid()) == SatReason(clause);
+  return reason(clause->wl0().varid()) == SatReason{clause};
 }
 
 // @brief 変数のアクティビティを増加させる．
 // @param[in] var 変数番号
 inline
 void
-YmSat::bump_var_activity(SatVarId var)
+YmSat::bump_var_activity(int var)
 {
   mVarHeap.bump_var_activity(var);
 }

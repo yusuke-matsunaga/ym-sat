@@ -96,7 +96,7 @@ SatBool3
 SatModel::operator[](SatLiteral lit) const
 {
   ASSERT_COND( lit.is_valid() );
-  int vid = lit.varid().val();
+  int vid = lit.varid();
   ASSERT_COND( 0 <= vid && vid < mValArray.size() );
   SatBool3 val = mValArray[vid];
   if ( lit.is_negative() ) {

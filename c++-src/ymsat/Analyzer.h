@@ -85,17 +85,17 @@ protected:
   /// @brief 変数の decision level を得る．
   /// @param[in] varid 対象の変数
   int
-  decision_level(SatVarId varid) const;
+  decision_level(int varid) const;
 
   /// @brief 変数の割り当て理由を得る．
   /// @param[in] varid 対象の変数
   SatReason
-  reason(SatVarId varid) const;
+  reason(int varid) const;
 
   /// @brief 変数のアクティビティを増加させる．
   /// @param[in] varid 対象の変数
   void
-  bump_var_activity(SatVarId varid);
+  bump_var_activity(int varid);
 
   /// @brief 節のアクティビティを上げる．
   /// @param[in] clause 対象の節
@@ -172,7 +172,7 @@ Analyzer::get_assign(int pos)
 // 変数の decision level を得る．
 inline
 int
-Analyzer::decision_level(SatVarId varid) const
+Analyzer::decision_level(int varid) const
 {
   return mMgr.decision_level(varid);
 }
@@ -180,7 +180,7 @@ Analyzer::decision_level(SatVarId varid) const
 // 変数の割り当て理由を得る．
 inline
 SatReason
-Analyzer::reason(SatVarId varid) const
+Analyzer::reason(int varid) const
 {
   return mMgr.reason(varid);
 }
@@ -188,7 +188,7 @@ Analyzer::reason(SatVarId varid) const
 // 変数のアクティビティを増加させる．
 inline
 void
-Analyzer::bump_var_activity(SatVarId var)
+Analyzer::bump_var_activity(int var)
 {
   mMgr.bump_var_activity(var);
 }

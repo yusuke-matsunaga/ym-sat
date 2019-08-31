@@ -5,12 +5,11 @@
 /// @brief SatLiteral のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2016, 2017, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2016, 2017, 2018, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "ym/sat.h"
-#include "ym/SatVarId.h"
 #include "ym/HashFunc.h"
 
 
@@ -21,10 +20,10 @@ BEGIN_NAMESPACE_YM
 /// @class SatLiteral SatLiteral.h "ym/SatLiteral.h"
 /// @brief リテラル(変数番号＋極性)を表すクラス
 ///
+/// 変数番号は 0 から始まる非負の整数
 /// 単純には最下位ビットで極性を表すだけだが，
 /// 不正な値のときにはこのビットに1を立てない．
 /// そのために neg_mask() というメンバ関数を用意している．
-/// @sa SatVarId
 //////////////////////////////////////////////////////////////////////
 class SatLiteral
 {
@@ -43,14 +42,15 @@ public:
   SatLiteral(const SatLiteral& lit,
 	     bool inv = false);
 
-  /// @brief 変数番号と極性を指定したコンストラクタ
+  /// @brief 変数番号と極性からの変換関数
   /// @param[in] varid 変数番号
   /// @param[in] inv 極性フラグ
   ///                - false: 反転なし (正極性)
   ///                - true:  反転あり (負極性)
-  explicit
-  SatLiteral(SatVarId varid,
-	     bool inv = false);
+  static
+  SatLiteral
+  conv_from_varid(int varid,
+		  bool inv);
 
   /// @brief index からの変換関数
   /// @param[in] index 変数番号と極性をエンコードしたもの
@@ -73,7 +73,7 @@ public:
   ///                - false: 反転なし (正極性)
   ///                - true:  反転あり (負極性)
   void
-  set(SatVarId varid,
+  set(int varid,
       bool inv = false);
 
 
@@ -88,7 +88,7 @@ public:
 
   /// @brief 変数番号を得る．
   /// @return 変数番号
-  SatVarId
+  int
   varid() const;
 
   /// @brief 正極性のリテラルの時 true を返す．
@@ -139,10 +139,6 @@ private:
   // 内部でのみ用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 内部でのみ用いるコンストラクタ
-  explicit
-  SatLiteral(int body);
-
   /// @brief 反転用のビットマスクを返す．
   ///
   /// 普通は 1U だが不正な値のときは 0U となる．
@@ -179,6 +175,34 @@ operator==(SatLiteral lit1,
 /// @return lit1 と lit2 が等しいリテラルでないとき true を返す．
 bool
 operator!=(SatLiteral lit1,
+	   SatLiteral lit2);
+
+/// @relates SatLiteral
+/// @brief 小なり比較演算
+/// @param[in] lit1, lit2 比較するリテラル
+bool
+operator<(SatLiteral lit1,
+	  SatLiteral lit2);
+
+/// @relates SatLiteral
+/// @brief 小なりイコール比較演算
+/// @param[in] lit1, lit2 比較するリテラル
+bool
+operator<=(SatLiteral lit1,
+	   SatLiteral lit2);
+
+/// @relates SatLiteral
+/// @brief 大なり比較演算
+/// @param[in] lit1, lit2 比較するリテラル
+bool
+operator>(SatLiteral lit1,
+	  SatLiteral lit2);
+
+/// @relates SatLiteral
+/// @brief 大なりイコール比較演算
+/// @param[in] lit1, lit2 比較するリテラル
+bool
+operator>=(SatLiteral lit1,
 	   SatLiteral lit2);
 
 /// @relates SatLiteral
@@ -220,13 +244,15 @@ struct HashFunc<SatLiteral>
 // 内容を設定する．
 inline
 void
-SatLiteral::set(SatVarId varid,
+SatLiteral::set(int varid,
 		bool inv)
 {
-  if ( !varid.is_valid() ) {
-    inv = false;
+  if ( varid < 0 ) {
+    mIndex = -1;
   }
-  mIndex = (varid.val() << 1) + static_cast<int>(inv);
+  else {
+    mIndex = (varid << 1) + static_cast<int>(inv);
+  }
 }
 
 // デフォルトコンストラクタ
@@ -251,19 +277,19 @@ SatLiteral::SatLiteral(const SatLiteral& lit,
   }
 }
 
-// 変数番号と極性を指定したコンストラクタ
+// @brief 変数番号と極性からの変換関数
+// @param[in] varid 変数番号
+// @param[in] inv 極性フラグ
+//                - false: 反転なし (正極性)
+//                - true:  反転あり (負極性)
 inline
-SatLiteral::SatLiteral(SatVarId varid,
-		       bool inv)
+SatLiteral
+SatLiteral::conv_from_varid(int varid,
+			    bool inv)
 {
-  set(varid, inv);
-}
-
-// 内部でのみ用いるコンストラクタ
-inline
-SatLiteral::SatLiteral(int body) :
-  mIndex(body)
-{
+  SatLiteral ans;
+  ans.set(varid, inv);
+  return ans;
 }
 
 // @brief index からの変換関数
@@ -271,7 +297,9 @@ inline
 SatLiteral
 SatLiteral::index2literal(int index)
 {
-  return SatLiteral(index);
+  SatLiteral ans;
+  ans.mIndex = index;
+  return ans;
 }
 
 // @brief 内容が適正の時に true を返す．
@@ -284,10 +312,15 @@ SatLiteral::is_valid() const
 
 // 変数番号を得る．
 inline
-SatVarId
+int
 SatLiteral::varid() const
 {
-  return SatVarId(mIndex >> 1);
+  if ( is_valid() ) {
+    return mIndex >> 1;
+  }
+  else {
+    return -1;
+  }
 }
 
 // @brief 正極性のリテラルの時 true を返す．
@@ -321,7 +354,7 @@ inline
 SatLiteral
 SatLiteral::operator~() const
 {
-  return SatLiteral(mIndex ^ neg_mask());
+  return index2literal(mIndex ^ neg_mask());
 }
 
 // @brief 同じ変数の正極性リテラルを返す．
@@ -330,7 +363,7 @@ SatLiteral
 SatLiteral::make_positive() const
 {
   // 不正な値の場合でもこれはOK
-  return SatLiteral(mIndex & ~1U);
+  return index2literal(mIndex & ~1U);
 }
 
 // @brief 同じ変数の負極性リテラルを返す．
@@ -338,7 +371,7 @@ inline
 SatLiteral
 SatLiteral::make_negative() const
 {
-  return SatLiteral(mIndex | neg_mask());
+  return index2literal(mIndex | neg_mask());
 }
 
 // 等価比較
@@ -355,6 +388,50 @@ operator!=(SatLiteral lit1,
 	   SatLiteral lit2)
 {
   return !operator==(lit1, lit2);
+}
+
+// @relates SatLiteral
+// @brief 小なり比較演算
+// @param[in] lit1, lit2 比較するリテラル
+inline
+bool
+operator<(SatLiteral lit1,
+	  SatLiteral lit2)
+{
+  return lit1.index() < lit2.index();
+}
+
+// @relates SatLiteral
+// @brief 小なりイコール比較演算
+// @param[in] lit1, lit2 比較するリテラル
+inline
+bool
+operator<=(SatLiteral lit1,
+	   SatLiteral lit2)
+{
+  return !operator<(lit2, lit1);
+}
+
+// @relates SatLiteral
+// @brief 大なり比較演算
+// @param[in] lit1, lit2 比較するリテラル
+inline
+bool
+operator>(SatLiteral lit1,
+	  SatLiteral lit2)
+{
+  return operator<(lit2, lit1);
+}
+
+// @relates SatLiteral
+// @brief 大なりイコール比較演算
+// @param[in] lit1, lit2 比較するリテラル
+inline
+bool
+operator>=(SatLiteral lit1,
+	   SatLiteral lit2)
+{
+  return !operator<(lit1, lit2);
 }
 
 // ハッシュ用の関数
@@ -393,9 +470,8 @@ ostream&
 operator<<(ostream& s,
 	   const SatLiteral& lit)
 {
-  SatVarId vid = lit.varid();
-  if ( vid.is_valid() ) {
-    s << vid;
+  if ( lit.is_valid() ) {
+    s << lit.varid();
     if ( lit.is_negative() ) {
       s << "'";
     }

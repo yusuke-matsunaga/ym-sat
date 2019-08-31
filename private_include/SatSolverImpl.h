@@ -50,7 +50,7 @@ public:
   /// @return 新しい変数番号を返す．
   /// @note 変数番号は 0 から始まる．
   virtual
-  SatVarId
+  int
   new_variable(bool decition) = 0;
 
   /// @brief 条件リテラルを設定する．

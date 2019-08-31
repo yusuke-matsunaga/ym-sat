@@ -73,18 +73,18 @@ protected:
   /// @brief 変数のマークにアクセスする．
   /// @param[in] var 対象の変数
   bool
-  get_mark(SatVarId var);
+  get_mark(int var);
 
   /// @brief 変数にマークをつけてキューに積む
   /// @param[in] var 対象の変数
   void
-  set_mark_and_putq(SatVarId var);
+  set_mark_and_putq(int var);
 
   /// @brief 変数のマークをセットする．
   /// @param[in] var 対象の変数
   /// @param[in] mark 設定するマークの値
   void
-  set_mark(SatVarId var,
+  set_mark(int var,
 	   bool mark);
 
 
@@ -97,7 +97,7 @@ private:
   /// @param[in] var 対象の変数
   /// @param[in] lmask lit_list に含まれる変数の決定レベルのハッシュ値
   bool
-  check_recur(SatVarId var,
+  check_recur(int var,
 	      ymuint64 lmask);
 
   /// @brief check_recur のサブルーティン
@@ -114,13 +114,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数のマークを消すためのキュー
-  vector<SatVarId> mClearQueue;
+  vector<int> mClearQueue;
 
   // 変数のマーク
   vector<bool> mMark;
 
   // check_recur() で用いられるスタック
-  vector<SatVarId> mVarStack;
+  vector<int> mVarStack;
 
 };
 
@@ -132,18 +132,18 @@ private:
 // 変数のマークにアクセスする．
 inline
 bool
-SaBase::get_mark(SatVarId var)
+SaBase::get_mark(int var)
 {
-  return mMark[var.val()];
+  return mMark[var];
 }
 
 // 変数のマークをセットする．
 inline
 void
-SaBase::set_mark(SatVarId var,
+SaBase::set_mark(int var,
 		 bool mark)
 {
-  mMark[var.val()] = mark;
+  mMark[var] = mark;
 }
 
 // @brief check_recur のサブルーティン
@@ -154,7 +154,7 @@ inline
 void
 SaBase::put_var(SatLiteral lit)
 {
-  SatVarId var = lit.varid();
+  auto var = lit.varid();
   if ( !get_mark(var) && decision_level(var) > 0 ) {
     set_mark_and_putq(var);
     mVarStack.push_back(var);

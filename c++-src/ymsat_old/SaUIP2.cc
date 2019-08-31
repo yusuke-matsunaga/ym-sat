@@ -52,7 +52,7 @@ SaUIP2::capture(SatReason creason,
   int last = last_assign();
   for ( ; ; ) {
     if ( creason.is_clause() ) {
-      SatClause* cclause = creason.clause();
+      auto cclause{creason.clause()};
 
       // cclause が学習節なら activity をあげる．
       if ( cclause->is_learnt() ) {
@@ -67,15 +67,15 @@ SaUIP2::capture(SatReason creason,
       // 最初の節は全てのリテラルを対象にするが，
       // 二番目以降の節の最初のリテラルは割り当て結果なので除外する．
       for ( int i = 0; i < n; ++ i) {
-	SatLiteral q = cclause->lit(i);
+	auto q{cclause->lit(i)};
 	if ( !first && q == cclause->wl0() ) continue;
-	SatVarId var = q.varid();
+	auto var{q.varid()};
 	int var_level = decision_level(var);
 	if ( !get_mark(var) && var_level > 0 ) {
 	  set_mark_and_putq(var);
 	  bump_var_activity(var);
 	  if ( var_level < decision_level() ) {
-	    SatReason cr1 = reason(q.varid());
+	    auto cr1{reason(q.varid())};
 	    if ( cr1.is_literal() ) {
 	      learnt.push_back(cr1.literal());
 	    }
@@ -91,14 +91,14 @@ SaUIP2::capture(SatReason creason,
     }
     else {
       ASSERT_COND( !first );
-      SatLiteral q = creason.literal();
-      SatVarId var = q.varid();
+      auto q{creason.literal()};
+      auto var{q.varid()};
       int var_level = decision_level(var);
       if ( !get_mark(var) && var_level > 0 ) {
 	set_mark_and_putq(var);
 	bump_var_activity(var);
 	if ( var_level < decision_level() ) {
-	    SatReason cr1 = reason(q.varid());
+	  auto cr1{reason(q.varid())};
 	    if ( cr1.is_literal() ) {
 	      learnt.push_back(cr1.literal());
 	    }
@@ -117,8 +117,8 @@ SaUIP2::capture(SatReason creason,
     // mAssignList に入っている最近の変数で mark の付いたものを探す．
     // つまり conflict clause に含まれていた変数ということ．
     for ( ; ; -- last) {
-      SatLiteral q = get_assign(last);
-      SatVarId var = q.varid();
+      auto q{get_assign(last)};
+      auto var{q.varid()};
       if ( get_mark(var) ) {
 	set_mark(var, false);
 	// それを最初のリテラルにする．

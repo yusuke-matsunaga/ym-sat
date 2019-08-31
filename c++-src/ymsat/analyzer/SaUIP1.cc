@@ -52,7 +52,7 @@ SaUIP1::capture(SatReason creason,
   int last = last_assign();
   for ( ; ; ) {
     if ( creason.is_clause() ) {
-      SatClause* cclause = creason.clause();
+      auto cclause{creason.clause()};
 
       // cclause が学習節なら activity をあげる．
       if ( cclause->is_learnt() ) {
@@ -67,14 +67,14 @@ SaUIP1::capture(SatReason creason,
       // 最初の節は全てのリテラルを対象にするが，
       // 二番目以降の節の最初のリテラルは割り当て結果なので除外する．
       for ( int i = 0; i < n; ++ i ) {
-	SatLiteral q = cclause->lit(i);
+	auto q{cclause->lit(i)};
 	if ( !first && q == cclause->wl0() ) continue;
 	put_lit(q, learnt, count);
       }
     }
     else {
       ASSERT_COND( !first );
-      SatLiteral q = creason.literal();
+      auto q{creason.literal()};
       put_lit(q, learnt, count);
     }
 
@@ -83,8 +83,8 @@ SaUIP1::capture(SatReason creason,
     // mAssignList に入っている最近の変数で mark の付いたものを探す．
     // つまり conflict clause に含まれていた変数ということ．
     for ( ; ; -- last) {
-      SatLiteral q = get_assign(last);
-      SatVarId var = q.varid();
+      auto q{get_assign(last)};
+      auto var{q.varid()};
       if ( get_mark(var) ) {
 	set_mark(var, false);
 	// それを最初のリテラルにする．
@@ -112,7 +112,7 @@ SaUIP1::put_lit(SatLiteral lit,
 		vector<SatLiteral>& learnt,
 		int& count)
 {
-  SatVarId var = lit.varid();
+  auto var{lit.varid()};
   int var_level = decision_level(var);
   if ( !get_mark(var) && var_level > 0 ) {
     set_mark_and_putq(var);

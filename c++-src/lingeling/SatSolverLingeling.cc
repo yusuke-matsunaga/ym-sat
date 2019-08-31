@@ -21,7 +21,7 @@ inline
 int
 translate(SatLiteral l)
 {
-  int v = l.varid().val() + 1;
+  int v = l.varid() + 1;
   return l.is_negative() ? -v : v;
 }
 
@@ -57,10 +57,10 @@ SatSolverLingeling::sane() const
 // @param[in] decision 決定変数の時に true とする．
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
-SatVarId
+int
 SatSolverLingeling::new_variable(bool decision)
 {
-  SatVarId var(mNumVars);
+  int var = mNumVars;
   ++ mNumVars;
   return var;
 }

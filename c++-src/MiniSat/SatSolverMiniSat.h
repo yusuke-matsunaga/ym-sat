@@ -47,7 +47,7 @@ public:
   /// @param[in] decision 決定変数の時に true とする．
   /// @return 新しい変数番号を返す．
   /// @note 変数番号は 0 から始まる．
-  SatVarId
+  int
   new_variable(bool decision) override;
 
   /// @brief 条件リテラルを設定する．

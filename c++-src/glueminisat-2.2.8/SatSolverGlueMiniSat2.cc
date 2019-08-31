@@ -22,7 +22,7 @@ inline
 Lit
 literal2lit(SatLiteral l)
 {
-  return mkLit(static_cast<Var>(l.varid().val()), l.is_negative());
+  return mkLit(static_cast<Var>(l.varid()), l.is_negative());
 }
 
 inline
@@ -31,7 +31,7 @@ lit2literal(Lit lit)
 {
   int vid = var(lit);
   bool s = sign(lit);
-  return SatLiteral(SatVarId(vid), s);
+  return SatLiteral::conv_from_varid(vid, s);
 }
 
 END_NONAMESPACE
@@ -65,10 +65,10 @@ SatSolverGlueMiniSat2::sane() const
 // @param[in] decision 決定変数の時に true とする．
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
-SatVarId
+int
 SatSolverGlueMiniSat2::new_variable(bool decision)
 {
-  return SatVarId(mSolver.newVar(true, decision));
+  return mSolver.newVar(true, decision);
 }
 
 // @brief 条件リテラルを設定する．

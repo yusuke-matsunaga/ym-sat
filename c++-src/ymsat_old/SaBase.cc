@@ -54,8 +54,8 @@ SaBase::make_minimal(vector<SatLiteral>& lit_list)
 
   int wpos = 0;
   for ( int i = 0; i < nl; ++ i ) {
-    SatLiteral p = lit_list[i];
-    SatVarId var = p.varid();
+    auto p{lit_list[i]};
+    auto var{p.varid()};
     int top = mClearQueue.size();
     if ( check_recur(var, lmask) ) {
       if ( wpos != i ) {
@@ -80,7 +80,7 @@ SaBase::make_minimal(vector<SatLiteral>& lit_list)
 // 以前の探索の結果が true ならその場で再帰関数は終わるので2度と
 // たどることはないし，以前の結果が false ならそのままでよい．
 bool
-SaBase::check_recur(SatVarId varid,
+SaBase::check_recur(int varid,
 		    ymuint64 lmask)
 {
   mVarStack.clear();
@@ -89,7 +89,7 @@ SaBase::check_recur(SatVarId varid,
   while ( !mVarStack.empty() ) {
     varid = mVarStack.back();
     mVarStack.pop_back();
-    SatReason r = reason(varid);
+    auto r{reason(varid)};
     if ( r == kNullSatReason ) {
       // varid は決定ノードだった．
       return true;
@@ -103,18 +103,18 @@ SaBase::check_recur(SatVarId varid,
     }
 
     if ( r.is_clause() ) {
-      SatClause* clause = r.clause();
+      auto clause{r.clause()};
       int n = clause->lit_num();
-      SatLiteral p = clause->wl0();
+      auto p{clause->wl0()};
       for ( int i = 0; i < n; ++ i ) {
-	SatLiteral q = clause->lit(i);
+	auto q{clause->lit(i)};
 	if ( q != p ) {
 	  put_var(q);
 	}
       }
     }
     else {
-      SatLiteral q = r.literal();
+      auto q{r.literal()};
       put_var(q);
     }
   }
@@ -130,11 +130,11 @@ SaBase::reorder(vector<SatLiteral>& lit_list)
   if ( n < 2 ) {
     return 0;
   }
-  SatLiteral lit1 = lit_list[1];
+  auto lit1{lit_list[1]};
   int level = decision_level(lit1.varid());
   int pos = 1;
   for ( int i = 2; i < n; ++ i ) {
-    SatLiteral lit2 = lit_list[i];
+    auto lit2{lit_list[i]};
     int level2 = decision_level(lit2.varid());
     if ( level < level2 ) {
       level = level2;
@@ -150,7 +150,7 @@ SaBase::reorder(vector<SatLiteral>& lit_list)
 
 // var->mMark を設定してキューに積む
 void
-SaBase::set_mark_and_putq(SatVarId var)
+SaBase::set_mark_and_putq(int var)
 {
   set_mark(var, true);
   mClearQueue.push_back(var);

@@ -84,17 +84,17 @@ protected:
   /// @brief 変数の decision level を得る．
   /// @param[in] varid 対象の変数
   int
-  decision_level(SatVarId varid) const;
+  decision_level(int varid) const;
 
   /// @brief 変数の割り当て理由を得る．
   /// @param[in] varid 対象の変数
   SatReason
-  reason(SatVarId varid) const;
+  reason(int varid) const;
 
   /// @brief 変数のアクティビティを増加させる．
   /// @param[in] varid 対象の変数
   void
-  bump_var_activity(SatVarId varid);
+  bump_var_activity(int varid);
 
   /// @brief 節のアクティビティを上げる．
   /// @param[in] clause 対象の節
@@ -171,7 +171,7 @@ SatAnalyzer::get_assign(int pos)
 // 変数の decision level を得る．
 inline
 int
-SatAnalyzer::decision_level(SatVarId varid) const
+SatAnalyzer::decision_level(int varid) const
 {
   return mSolver->decision_level(varid);
 }
@@ -179,7 +179,7 @@ SatAnalyzer::decision_level(SatVarId varid) const
 // 変数の割り当て理由を得る．
 inline
 SatReason
-SatAnalyzer::reason(SatVarId varid) const
+SatAnalyzer::reason(int varid) const
 {
   return mSolver->reason(varid);
 }
@@ -187,7 +187,7 @@ SatAnalyzer::reason(SatVarId varid) const
 // 変数のアクティビティを増加させる．
 inline
 void
-SatAnalyzer::bump_var_activity(SatVarId var)
+SatAnalyzer::bump_var_activity(int var)
 {
   mSolver->bump_var_activity(var);
 }

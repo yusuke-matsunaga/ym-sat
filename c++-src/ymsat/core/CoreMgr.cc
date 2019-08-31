@@ -89,14 +89,14 @@ CoreMgr::~CoreMgr()
 // @param[in] decision 決定変数の時に true とする．
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
-SatVarId
+int
 CoreMgr::new_variable(bool decision)
 {
   if ( decision_level() != 0 ) {
     // エラー
     cout << "Error!: decision_level() != 0" << endl;
     ASSERT_NOT_REACHED;
-    return kSatVarIdIllegal;
+    return -1;
   }
 
 #if YMSAT_USE_DVAR
@@ -107,7 +107,7 @@ CoreMgr::new_variable(bool decision)
   // 実際の処理は alloc_var() でまとめて行う．
   int n = mVarNum;
   ++ mVarNum;
-  return SatVarId(n);
+  return n;
 }
 
 // 実際に変数に関するデータ構造を生成する．
@@ -120,7 +120,7 @@ CoreMgr::alloc_var()
     }
     for ( int i: Range(mOldVarNum, mVarNum) ) {
       mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
-      add_var(SatVarId(i));
+      add_var(i);
     }
     mOldVarNum = mVarNum;
   }
@@ -270,12 +270,12 @@ CoreMgr::add_clause_sub(int lit_num)
   // - true literal を持つかどうかのチェック
   int wpos = 0;
   for ( int rpos: Range(lit_num) ) {
-    SatLiteral l = mTmpLits[rpos];
+    auto l = mTmpLits[rpos];
     if ( wpos != 0 && mTmpLits[wpos - 1] == l ) {
       // 重複している．
       continue;
     }
-    SatBool3 v = eval(l);
+    auto v = eval(l);
     if ( v == SatBool3::False ) {
       // false literal は追加しない．
       continue;
@@ -284,7 +284,7 @@ CoreMgr::add_clause_sub(int lit_num)
       // true literal があったら既に充足している
       return;
     }
-    if ( l.varid().val() >= mVarNum ) {
+    if ( l.varid() < 0 || l.varid() >= mVarNum ) {
       // 範囲外
       cout << "Error![YmSat]: literal(" << l << "): out of range"
 	   << endl;
@@ -305,7 +305,7 @@ CoreMgr::add_clause_sub(int lit_num)
   // 単項節のリテラル数も含めることにする．
   mConstrLitNum += lit_num;
 
-  SatLiteral l0 = mTmpLits[0];
+  auto l0 = mTmpLits[0];
   if ( lit_num == 1 ) {
     // unit clause があったら値の割り当てを行う．
     bool stat = check_and_assign(l0);
@@ -327,7 +327,7 @@ CoreMgr::add_clause_sub(int lit_num)
     return;
   }
 
-  SatLiteral l1 = mTmpLits[1];
+  auto l1 = mTmpLits[1];
 
   if ( lit_num == 2 ) {
     // watcher-list の設定
@@ -338,7 +338,7 @@ CoreMgr::add_clause_sub(int lit_num)
   }
   else {
     // 節の生成
-    SatClause* clause = new_clause(lit_num, mTmpLits);
+    auto clause = new_clause(lit_num, mTmpLits);
     mConstrClauseList.push_back(clause);
 
     // watcher-list の設定
@@ -361,7 +361,7 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
     return;
   }
 
-  SatLiteral l0 = lits[0];
+  auto l0 = lits[0];
   if ( n == 1 ) {
     // unit clause があったら値の割り当てを行う．
     bool stat = check_and_assign(l0);
@@ -381,7 +381,7 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
   }
 
   SatReason reason;
-  SatLiteral l1 = lits[1];
+  auto l1 = lits[1];
   if ( n == 2 ) {
     reason = SatReason(l1);
 
@@ -397,7 +397,7 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
     for ( int i: Range(n) ) {
       mTmpLits[i] = lits[i];
     }
-    SatClause* clause = new_clause(n, true);
+    auto clause = new_clause(n, true);
     mLearntClauseList.push_back(clause);
 
     reason = SatReason(clause);
@@ -426,8 +426,8 @@ CoreMgr::new_clause(int lit_num,
 		    bool learnt)
 {
   int size = sizeof(SatClause) + sizeof(SatLiteral) * (lit_num - 1);
-  void* p = mAlloc.get_memory(size);
-  SatClause* clause = new (p) SatClause(lit_num, mTmpLits, learnt);
+  auto p = mAlloc.get_memory(size);
+  auto clause = new (p) SatClause(lit_num, mTmpLits, learnt);
 
   return clause;
 }
@@ -458,16 +458,15 @@ CoreMgr::reduce_CNF()
   sweep_clause(mLearntClauseList);
 
   // 変数ヒープを再構成する．
-  vector<SatVarId> var_list;
+  vector<int> var_list;
   var_list.reserve(mVarNum);
-  for ( int i: Range(mVarNum) ) {
-    SatVarId var(i);
+  for ( int var: Range(mVarNum) ) {
     if ( eval(var) == SatBool3::X ) {
-      var_list.push_back(SatVarId(i));
+      var_list.push_back(var);
     }
     else {
-      del_satisfied_watcher(SatLiteral(var, false));
-      del_satisfied_watcher(SatLiteral(var, true));
+      del_satisfied_watcher(SatLiteral::conv_from_varid(var, false));
+      del_satisfied_watcher(SatLiteral::conv_from_varid(var, true));
     }
   }
   build(var_list);
@@ -485,7 +484,7 @@ CoreMgr::sweep_clause(vector<SatClause*>& clause_list)
   int n = clause_list.size();
   int wpos = 0;
   for ( int rpos: Range(n) ) {
-    SatClause* c = clause_list[rpos];
+    auto c{clause_list[rpos]};
     int nl = c->lit_num();
     bool satisfied = false;
     for ( int i: Range(nl) ) {
@@ -548,9 +547,9 @@ CoreMgr::reduce_learnt_clause()
 
   sort(mLearntClauseList.begin(), mLearntClauseList.end(), SatClauseLess());
 
-  vector<SatClause*>::iterator wpos = mLearntClauseList.begin();
+  auto wpos{mLearntClauseList.begin()};
   for ( int i: Range(n2) ) {
-    SatClause* clause = mLearntClauseList[i];
+    auto clause{mLearntClauseList[i]};
     if ( clause->lit_num() > 2 && !is_locked(clause) ) {
       delete_clause(clause);
     }
@@ -560,7 +559,7 @@ CoreMgr::reduce_learnt_clause()
     }
   }
   for ( int i: Range(n2, n) ) {
-    SatClause* clause = mLearntClauseList[i];
+    auto clause{mLearntClauseList[i]};
     if ( clause->lit_num() > 2 && !is_locked(clause) &&
 	 clause->activity() < abs_limit ) {
       delete_clause(clause);
@@ -597,8 +596,8 @@ CoreMgr::delete_clause(SatClause* clause)
   ASSERT_COND( clause->is_learnt() );
 
   // watch list を更新
-  del_watcher(~clause->wl0(), SatReason(clause));
-  del_watcher(~clause->wl1(), SatReason(clause));
+  del_watcher(~clause->wl0(), SatReason{clause});
+  del_watcher(~clause->wl1(), SatReason{clause});
 
   mLearntLitNum -= clause->lit_num();
 
@@ -612,10 +611,10 @@ void
 CoreMgr::get_model(SatModel& model)
 {
   model.resize(mVarNum);
-  for ( int i: Range(mVarNum) ) {
-    SatBool3 val = eval(SatVarId(i));
+  for ( int var: Range(mVarNum) ) {
+    auto val{eval(var)};
     ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
-    model.set(i, val);
+    model.set(var, val);
   }
 }
 
@@ -673,7 +672,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
   mPropagationNum = 0;
 
   // 最終的な結果を納める変数
-  SatBool3 sat_stat = SatBool3::X;
+  auto sat_stat = SatBool3::X;
 
   ASSERT_COND( decision_level() == 0 );
 
@@ -703,7 +702,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
 
     if ( stat ) {
       // 今の割当に基づく含意を行う．
-      SatReason reason = implication();
+      auto reason = implication();
       if ( reason != kNullSatReason ) {
 	// 矛盾が起こった．
 	stat = false;
@@ -800,7 +799,7 @@ CoreMgr::search(Controller& controller,
   int cur_confl_num = 0;
   for ( ; ; ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
-    SatReason conflict = implication();
+    auto conflict = implication();
     if ( conflict != kNullSatReason ) {
       // 矛盾が生じた．
       ++ mConflictNum;
@@ -863,7 +862,7 @@ CoreMgr::search(Controller& controller,
     }
 
     // 次の割り当てを選ぶ．
-    SatLiteral lit = selecter.next_decision();
+    auto lit = selecter.next_decision();
     if ( !lit.is_valid() ) {
       // すべての変数を割り当てた．
       // ということは充足しているはず．
@@ -877,7 +876,7 @@ CoreMgr::search(Controller& controller,
     if ( debug & (debug_assign | debug_decision) ) {
       cout << endl
 	   << "choose " << lit << " :"
-	   << mActivity[lit.varid().val()] << endl;
+	   << mActivity[lit.varid()] << endl;
     }
 
     if ( debug & debug_assign ) {
@@ -899,36 +898,36 @@ SatReason
 CoreMgr::implication()
 {
   int prop_num = 0;
-  SatReason conflict = kNullSatReason;
+  auto conflict = kNullSatReason;
   while ( mAssignList.has_elem() ) {
-    SatLiteral l = mAssignList.get_next();
+    auto l = mAssignList.get_next();
     ++ prop_num;
 
     if ( debug & debug_implication ) {
       cout << "\tpick up " << l << endl;
     }
     // l の割り当てによって無効化された watcher-list の更新を行う．
-    SatLiteral nl = ~l;
+    auto nl = ~l;
 
-    WatcherList& wlist = watcher_list(l);
+    auto& wlist = watcher_list(l);
     int n = wlist.num();
     int rpos = 0;
     int wpos = 0;
     while ( rpos < n ) {
-      Watcher w = wlist.elem(rpos);
+      auto w = wlist.elem(rpos);
       wlist.set_elem(wpos, w);
       ++ rpos;
       ++ wpos;
       if ( w.is_literal() ) {
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
-	SatLiteral l0 = w.literal();
-	SatBool3 val0 = eval(l0);
+	auto l0{w.literal()};
+	auto val0{eval(l0)};
 	if ( val0 == SatBool3::X ) {
 	  if ( debug & debug_assign ) {
 	    cout << "\tassign " << l0 << " @" << decision_level()
 		 << " from " << l << endl;
 	  }
-	  assign(l0, SatReason(nl));
+	  assign(l0, SatReason{nl});
 	}
 	else if ( val0 == SatBool3::False ) {
 	  // 矛盾がおこった．
@@ -954,8 +953,8 @@ CoreMgr::implication()
 	// - wl0() が不定，もしくは偽なら，nl の代わりの watch literal を探す．
 	// - 代わりが見つかったらそのリテラルを wl1() にする．
 	// - なければ wl0() に基づいた割り当てを行う．場合によっては矛盾が起こる．
-	SatClause* c = w.clause();
-	SatLiteral l0 = c->wl0();
+	auto c{w.clause()};
+	auto l0{c->wl0()};
 	if ( l0 == nl ) {
 	  // nl を 1番めのリテラルにする．
 	  c->xchange_wl();
@@ -966,7 +965,7 @@ CoreMgr::implication()
 	  ASSERT_COND( c->wl1() == nl );
 	}
 
-	SatBool3 val0 = eval(l0);
+	auto val0{eval(l0)};
 	if ( val0 == SatBool3::True ) {
 	  // すでに充足していた．
 	  continue;
@@ -982,7 +981,7 @@ CoreMgr::implication()
 	bool found = false;
 	int n = c->lit_num();
 	for ( int i: Range(2, n) ) {
-	  SatLiteral l2 = c->lit(i);
+	  auto l2{c->lit(i)};
 	  if ( eval(l2) != SatBool3::False ) {
 	    // l2 を 1番めの watch literal にする．
 	    c->xchange_wl1(i);
@@ -1060,10 +1059,9 @@ CoreMgr::backtrack(int level)
   if ( level < decision_level() ) {
     mAssignList.backtrack(level);
     while ( mAssignList.has_elem() ) {
-      SatLiteral p = mAssignList.get_prev();
-      SatVarId varid = p.varid();
-      int vindex = varid.val();
-      mVal[vindex] = (mVal[vindex] << 2) | conv_from_Bool3(SatBool3::X);
+      auto p{mAssignList.get_prev()};
+      int varid = p.varid();
+      mVal[varid] = (mVal[varid] << 2) | conv_from_Bool3(SatBool3::X);
       push(varid);
       if ( debug & debug_assign ) {
 	cout << "\tdeassign " << p << endl;
@@ -1078,10 +1076,9 @@ CoreMgr::backtrack(int level)
 
 // 変数のアクティビティを増加させる．
 void
-CoreMgr::bump_var_activity(SatVarId varid)
+CoreMgr::bump_var_activity(int varid)
 {
-  int vindex = varid.val();
-  double& act = mActivity[vindex];
+  double& act = mActivity[varid];
   act += mVarBump;
   if ( act > 1e+100 ) {
     for ( int i: Range(mVarNum) ) {
@@ -1089,7 +1086,7 @@ CoreMgr::bump_var_activity(SatVarId varid)
     }
     mVarBump *= 1e-100;
   }
-  int pos = mHeapPos[vindex];
+  int pos = mHeapPos[varid];
   if ( pos > 0 ) {
     move_up(pos);
   }
@@ -1100,10 +1097,10 @@ CoreMgr::bump_var_activity(SatVarId varid)
 // @param[in] reason 理由
 void
 CoreMgr::del_watcher(SatLiteral watch_lit,
-		    SatReason reason)
+		     SatReason reason)
 {
-  Watcher w0(reason);
-  WatcherList& wlist = watcher_list(watch_lit);
+  auto w0{reason};
+  auto& wlist{watcher_list(watch_lit)};
   int n = wlist.num();
   int wpos = 0;
   for ( ; wpos < n; ++ wpos) {
@@ -1115,7 +1112,7 @@ CoreMgr::del_watcher(SatLiteral watch_lit,
   ASSERT_COND( wpos < n );
   -- n;
   for ( ; wpos < n; ++ wpos) {
-    Watcher w = wlist.elem(wpos + 1);
+    auto w{wlist.elem(wpos + 1)};
     wlist.set_elem(wpos, w);
   }
   wlist.erase(n);
@@ -1131,14 +1128,13 @@ CoreMgr::del_satisfied_watcher(SatLiteral watch_lit)
   // watcher リストを配列で実装しているので
   // あたまからスキャンして該当の要素以降を
   // 1つづつ前に詰める．
-  WatcherList& wlist = watcher_list(watch_lit);
+  auto& wlist{watcher_list(watch_lit)};
   int n = wlist.num();
   int wpos = 0;
   for ( int rpos: Range(n) ) {
-    Watcher w = wlist.elem(rpos);
+    auto w{wlist.elem(rpos)};
     if ( w.is_literal() ) {
-      SatLiteral l = w.literal();
-      SatBool3 val = eval(l);
+      auto val{ eval(w.literal()) };
       if ( val == SatBool3::True ) {
 	// この watcher は削除する．
 	continue;
@@ -1155,17 +1151,16 @@ CoreMgr::del_satisfied_watcher(SatLiteral watch_lit)
 // @brief 次に割り当てる変数を取り出す．
 //
 // アクティビティが最大で未割り当ての変数を返す．
-SatVarId
+int
 CoreMgr::next_var()
 {
   while ( !empty() ) {
-    int vindex = pop_top();
-    SatVarId dvar(vindex);
+    int dvar = pop_top();
     if ( eval(dvar) == SatBool3::X ) {
       return dvar;
     }
   }
-  return kSatVarIdIllegal;
+  return -1;
 }
 
 // 学習節のアクティビティを増加させる．
@@ -1194,7 +1189,7 @@ CoreMgr::reset_activity()
 
 // @brief 与えられた変数のリストからヒープ木を構成する．
 void
-CoreMgr::build(const vector<SatVarId>& var_list)
+CoreMgr::build(const vector<int>& var_list)
 {
   for ( int i: Range(mVarSize) ) {
     mHeapPos[i] = -1;
@@ -1204,9 +1199,8 @@ CoreMgr::build(const vector<SatVarId>& var_list)
 
   for ( int i: Range(var_list.size()) ) {
     auto var = var_list[i];
-    int vindex = var.val();
     ++ mHeapNum;
-    set(vindex, i);
+    set(var, i);
   }
   for ( int i = (mHeapNum / 2); i > 0; ) {
     -- i;

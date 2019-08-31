@@ -75,18 +75,17 @@ VarHeap::alloc_var(int size)
 
 // 変数のアクティビティを増加させる．
 void
-VarHeap::bump_var_activity(SatVarId varid)
+VarHeap::bump_var_activity(int varid)
 {
-  int vindex = varid.val();
-  double& act = mActivity[vindex];
+  double& act = mActivity[varid];
   act += mVarBump;
   if ( act > 1e+100 ) {
-    for ( int i = 0; i < mVarNum; ++ i ) {
-      mActivity[i] *= 1e-100;
+    for ( int var = 0; var < mVarNum; ++ var ) {
+      mActivity[var] *= 1e-100;
     }
     mVarBump *= 1e-100;
   }
-  int pos = mHeapPos[vindex];
+  int pos = mHeapPos[varid];
   if ( pos > 0 ) {
     move_up(pos);
   }
@@ -110,7 +109,7 @@ VarHeap::reset_activity()
 
 // @brief 与えられた変数のリストからヒープ木を構成する．
 void
-VarHeap::build(const vector<SatVarId>& var_list)
+VarHeap::build(const vector<int>& var_list)
 {
   for ( int i = 0; i < mVarSize; ++ i ) {
     mHeapPos[i] = -1;
@@ -119,10 +118,9 @@ VarHeap::build(const vector<SatVarId>& var_list)
   ASSERT_COND( var_list.size() <= mVarSize );
 
   for ( int i = 0; i < var_list.size(); ++ i ) {
-    SatVarId var = var_list[i];
-    int vindex = var.val();
+    auto var = var_list[i];
     ++ mHeapNum;
-    set(vindex, i);
+    set(var, i);
   }
   for ( int i = (mHeapNum / 2); i > 0; ) {
     -- i;

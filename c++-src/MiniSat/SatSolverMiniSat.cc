@@ -15,6 +15,17 @@
 BEGIN_NAMESPACE_YM_SAT
 
 
+BEGIN_NONAMESPACE
+
+inline
+Lit
+literal2lit(SatLiteral l)
+{
+  return Lit(l.varid(), l.is_negative());
+}
+
+END_NONAMESPACE
+
 //////////////////////////////////////////////////////////////////////
 // SatSolverMiniSat
 //////////////////////////////////////////////////////////////////////
@@ -44,10 +55,10 @@ SatSolverMiniSat::sane() const
 // @param[in] decision 決定変数の時に true とする．
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
-SatVarId
+int
 SatSolverMiniSat::new_variable(bool decision)
 {
-  return SatVarId(mSolver.newVar());
+  return mSolver.newVar();
 }
 
 // @brief 条件リテラルを設定する．
@@ -96,13 +107,13 @@ SatSolverMiniSat::add_clause(const vector<SatLiteral>& lits)
 {
   vec<Lit> tmp;
   for ( auto l: lits ) {
-    Lit lit(l.varid().val(), l.is_negative());
+    auto lit{literal2lit(l)};
     tmp.push(lit);
   }
   for ( auto l: mCondLits ) {
     // 極性が反転することに注意
-    Lit lit(l.varid().val(), l.is_positive());
-    tmp.push(lit);
+    auto lit{literal2lit(l)};
+    tmp.push(~lit);
   }
   mSolver.addClause(tmp);
 }
@@ -117,13 +128,13 @@ SatSolverMiniSat::add_clause(int lit_num,
   vec<Lit> tmp;
   for ( int i = 0; i < lit_num; ++ i ) {
     SatLiteral l = lits[i];
-    Lit lit(l.varid().val(), l.is_negative());
+    auto lit{literal2lit(l)};
     tmp.push(lit);
   }
   for ( auto l: mCondLits ) {
     // 極性が反転することに注意
-    Lit lit(l.varid().val(), l.is_positive());
-    tmp.push(lit);
+    auto lit{literal2lit(l)};
+    tmp.push(~lit);
   }
   mSolver.addClause(tmp);
 }
@@ -143,7 +154,7 @@ SatSolverMiniSat::solve(const vector<SatLiteral>& assumptions,
 {
   vec<Lit> tmp;
   for ( auto l: assumptions ) {
-    Lit lit(l.varid().val(), l.is_negative());
+    auto lit{literal2lit(l)};
     tmp.push(lit);
   }
   bool ans = mSolver.solve(tmp);

@@ -113,18 +113,16 @@ YmSatMS2::next_decision()
   std::uniform_real_distribution<double> rd_freq(0, 1.0);
   std::uniform_int_distribution<int> rd_var(0, variable_num() - 1);
   if ( rd_freq(mRandGen) < mParams.mVarFreq && !var_heap().empty() ) {
-    int pos = rd_var(mRandGen);
-    SatVarId vid(pos);
+    auto vid = rd_var(mRandGen);
     if ( eval(vid) == SatBool3::X ) {
       bool inv = rd_freq(mRandGen) < 0.5;
-      return SatLiteral(vid, inv);
+      return SatLiteral::conv_from_varid(vid, inv);
     }
   }
 
   while ( !var_heap().empty() ) {
     // activity の高い変数を取り出す．
-    int vindex = var_heap().pop_top();
-    SatVarId vid(vindex);
+    auto vid{var_heap().pop_top()};
     if ( eval(vid) != SatBool3::X ) {
       // すでに確定していたらスキップする．
       // もちろん，ヒープからも取り除く．
@@ -133,7 +131,7 @@ YmSatMS2::next_decision()
 
     bool inv = false;
     if ( mParams.mPhaseCache ) {
-      SatBool3 val = old_val(vid);
+      auto val{old_val(vid)};
       if ( val != SatBool3::X ) {
 	// 以前割り当てた極性を選ぶ
 	if ( val == SatBool3::False ) {
@@ -144,8 +142,8 @@ YmSatMS2::next_decision()
     }
     {
 #if 0
-      SatLiteral plit(SatVarId(vindex), false);
-      SatLiteral nlit(SatVarId(vindex), true);
+      auto plit{SatLiteral::conv_from_varid(vid, false)};
+      auto nlit{SatLiteral::conv_from_varid(vid, true)};
       if ( mParams.mWlPosi ) {
 	// Watcher の多い方の極性を(わざと)選ぶ
 	if ( watcher_list(nlit).num() >= watcher_list(plit).num() ) {
@@ -167,8 +165,9 @@ YmSatMS2::next_decision()
 #endif
     }
   end:
-    return SatLiteral(SatVarId(vindex), inv);
+    return SatLiteral::conv_from_varid(vid, inv);
   }
+
   return kSatLiteralX;
 }
 
@@ -207,7 +206,7 @@ YmSatMS2::reduce_learnt_clause()
   // - 現在の割当の理由となっている節
   int wpos = 0;
   for ( int i = 0; i < n2; ++ i ) {
-    SatClause* clause = lc_list[i];
+    auto clause{lc_list[i]};
     if ( !is_locked(clause) ) {
       delete_clause(clause);
     }
@@ -220,7 +219,7 @@ YmSatMS2::reduce_learnt_clause()
   // 残りの節はアクティビティが規定値以下の節を削除する．
   // ただし，上と同じ例外はある．
   for ( int i = n2; i < n; ++ i ) {
-    SatClause* clause = lc_list[i];
+    auto clause{lc_list[i]};
     if ( !is_locked(clause) && clause->activity() < abs_limit ) {
       delete_clause(clause);
     }
