@@ -156,8 +156,8 @@ SatTseitinEnc::add_adder(const vector<SatLiteral>& alits,
 			 SatLiteral olit)
 {
   int na = alits.size();
-  int nb = alits.size();
-  int ns = alits.size();
+  int nb = blits.size();
+  int ns = slits.size();
   ASSERT_COND( na <= ns );
   ASSERT_COND( nb <= ns );
 
@@ -187,6 +187,9 @@ SatTseitinEnc::add_adder(const vector<SatLiteral>& alits,
       else {
 	add_buffgate(ilit, slit);
 	c_zero = true;
+      }
+      if ( i == (ns - 1) ) {
+	mSolver.add_clause(~olit);
       }
     }
     else if ( a_zero ) { // !b_zero
