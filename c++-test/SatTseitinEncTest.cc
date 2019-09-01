@@ -62,6 +62,14 @@ public:
   void
   check_xnor(int ni);
 
+  /// @brief adder のチェックを行う．
+  /// @param[in] na, nb 入力のビット幅
+  /// @param[in] ns 出力のビット幅
+  void
+  check_adder(int na,
+	      int nb,
+	      int ns);
+
   /// @brief 論理ゲートの真理値表からチェック用のベクタを作る．
   void
   make_vals(int ni,
@@ -270,6 +278,75 @@ SatTseitinEncTest::check_xnor(int ni)
   make_vals(ni, tv, true, vals);
 
   check(ni + 1, vals);
+}
+
+// @brief adder のチェックを行う．
+// @param[in] na, nb 入力のビット幅
+// @param[in] ns 出力のビット幅
+void
+SatTseitinEncTest::check_adder(int na,
+			       int nb,
+			       int ns)
+{
+  ASSERT_COND( na <= ns );
+  ASSERT_COND( nb <= ns );
+
+  ASSERT_COND( na + nb + ns + 2 < mVarNum );
+
+  int vpos = 0;
+  vector<SatLiteral> alits(na);
+  for ( int i = 0; i < na; ++ i ) {
+    alits[i] = mVarList[vpos];
+    ++ vpos;
+  }
+  vector<SatLiteral> blits(nb);
+  for ( int i = 0; i < nb; ++ i ) {
+    blits[i] = mVarList[vpos];
+    ++ vpos;
+  }
+  SatLiteral ilit = mVarList[vpos];
+  ++ vpos;
+  vector<SatLiteral> slits(ns);
+  for ( int i = 0; i < ns; ++ i ) {
+    slits[i] = mVarList[vpos];
+    ++ vpos;
+  }
+  SatLiteral olit = mVarList[vpos];
+  ++ vpos;
+
+  mEnc.add_adder(alits, blits, ilit, slits, olit);
+
+  int nexp = (1 << vpos);
+  vector<int> vals(nexp);
+  int amask = (1 << na) - 1;
+  int ashift = 0;
+  int bmask = (1 << nb) - 1;
+  int bshift = na;
+  int ishift = na + nb;
+  int smask = (1 << ns) - 1;
+  int sshift = na + nb + 1;
+  int oshift = na + nb + 1 + ns;
+  for ( int bit = 0; bit < nexp; ++ bit ) {
+    int a = (bit >> ashift) & amask;
+    int b = (bit >> bshift) & bmask;
+    int i = (bit >> ishift) & 1;
+    int s = (bit >> sshift) & smask;
+    int o = (bit >> oshift) & 1;
+    int s_exp = a + b + i;
+    int o_exp = 0;
+    if ( s_exp >= (1 << ns) ) {
+      o_exp = 1;
+      s_exp -= (1 << ns);
+    }
+    if ( s == s_exp && o == o_exp ) {
+      vals[bit] = 1;
+    }
+    else {
+      vals[bit] = 0;
+    }
+  }
+
+  check(vpos, vals);
 }
 
 // @brief 論理ゲートの真理値表からチェック用のベクタを作る．
@@ -674,6 +751,111 @@ TEST_P(SatTseitinEncTest, add_xnorgate5)
   mEnc.add_xnorgate(olit, lits);
 
   check_xnor(5);
+}
+
+TEST_P(SatTseitinEncTest, add_half_adder)
+{
+  SatLiteral alit(mVarList[0]);
+  SatLiteral blit(mVarList[1]);
+  SatLiteral slit(mVarList[2]);
+  SatLiteral olit(mVarList[3]);
+
+  mEnc.add_half_adder(alit, blit, slit, olit);
+
+  vector<int> vals(16);
+  // olit, slit, blit, alit
+  for ( int bit = 0; bit < 16; ++ bit ) {
+    int a = ((bit >> 0) & 1);
+    int b = ((bit >> 1) & 1);
+    int s = ((bit >> 2) & 1);
+    int o = ((bit >> 3) & 1);
+    int exp_s = (a + b) % 2;
+    int exp_o = (a + b) / 2;
+    if ( s == exp_s && o == exp_o ) {
+      vals[bit] = 1;
+    }
+    else {
+      vals[bit] = 0;
+    }
+  }
+
+  check(4, vals);
+}
+
+TEST_P(SatTseitinEncTest, add_full_adder)
+{
+  SatLiteral alit(mVarList[0]);
+  SatLiteral blit(mVarList[1]);
+  SatLiteral clit(mVarList[2]);
+  SatLiteral slit(mVarList[3]);
+  SatLiteral olit(mVarList[4]);
+
+  mEnc.add_full_adder(alit, blit, clit, slit, olit);
+
+  vector<int> vals(32);
+  // olit, slit, clit, blit, alit
+  for ( int bit = 0; bit < 32; ++ bit ) {
+    int a = ((bit >> 0) & 1);
+    int b = ((bit >> 1) & 1);
+    int c = ((bit >> 2) & 1);
+    int s = ((bit >> 3) & 1);
+    int o = ((bit >> 4) & 1);
+    int exp_s = (a + b + c) % 2;
+    int exp_o = (a + b + c) / 2;
+    if ( s == exp_s && o == exp_o ) {
+      vals[bit] = 1;
+    }
+    else {
+      vals[bit] = 0;
+    }
+  }
+
+  check(5, vals);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_4_4_4)
+{
+  check_adder(4, 4, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_4_3_4)
+{
+  check_adder(4, 3, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_4_2_4)
+{
+  check_adder(4, 2, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_3_4_4)
+{
+  check_adder(3, 4, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_2_4_4)
+{
+  check_adder(2, 4, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_3_3_4)
+{
+  check_adder(3, 3, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_3_2_4)
+{
+  check_adder(3, 2, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_3_1_4)
+{
+  check_adder(3, 1, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_adder_3_1_5)
+{
+  check_adder(3, 1, 5);
 }
 
 INSTANTIATE_TEST_CASE_P(SatSolverTest,

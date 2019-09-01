@@ -256,6 +256,52 @@ public:
   add_xnorgate(SatLiteral olit,
 	       const vector<SatLiteral> lit_list);
 
+  /// @brief half_adder の入出力の関係を表す条件を追加する．
+  /// @param[in] alit, blit 入力のリテラル
+  /// @param[in] slit 和の出力のリテラル
+  /// @param[in] olit キャリー出力のリテラル
+  void
+  add_half_adder(SatLiteral alit,
+		 SatLiteral blit,
+		 SatLiteral slit,
+		 SatLiteral olit);
+
+  /// @brief full_adder の入出力の関係を表す条件を追加する．
+  /// @param[in] alit, blit 入力のリテラル
+  /// @param[in] ilit キャリー入力のリテラル
+  /// @param[in] slit 和の出力のリテラル
+  /// @param[in] olit キャリー出力のリテラル
+  void
+  add_full_adder(SatLiteral alit,
+		 SatLiteral blit,
+		 SatLiteral ilit,
+		 SatLiteral slit,
+		 SatLiteral olit);
+
+  /// @brief 多ビットadderの入出力の関係を表す条件を追加する．
+  /// @param[in] alits, blits 入力のリテラル
+  /// @param[in] ilit キャリー入力のリテラル
+  /// @param[in] slits 和の出力のリテラル
+  /// @param[in] olit キャリー出力のリテラル
+  ///
+  /// * alits, blits のサイズ <= slits のサイズでなければならない．
+  /// * 片方が短い場合には上位ビットに0を仮定する．
+  void
+  add_adder(const vector<SatLiteral>& alits,
+	    const vector<SatLiteral>& blits,
+	    SatLiteral ilit,
+	    const vector<SatLiteral>& slits,
+	    SatLiteral olit);
+
+  /// @brief 1's counter の入出力の関係を表す条件を追加する．
+  /// @param[in] ilits 入力のリテラル
+  /// @param[in] olits 出力のリテラル
+  ///
+  /// ilits のサイズ < 2^(olits のサイズ) でなければならない．
+  void
+  add_counter(const vector<SatLiteral>& ilits,
+	      const vector<SatLiteral>& olits);
+
 
 private:
   //////////////////////////////////////////////////////////////////////

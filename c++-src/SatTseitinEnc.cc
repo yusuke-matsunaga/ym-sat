@@ -96,4 +96,115 @@ SatTseitinEnc::add_xorgate(SatLiteral olit,
   }
 }
 
+// @brief half_adder の入出力の関係を表す条件を追加する．
+// @param[in] alit, blit 入力のリテラル
+// @param[in] slit 和の出力のリテラル
+// @param[in] olit キャリー出力のリテラル
+void
+SatTseitinEnc::add_half_adder(SatLiteral alit,
+			      SatLiteral blit,
+			      SatLiteral slit,
+			      SatLiteral olit)
+{
+  mSolver.add_clause(~slit,  alit,  blit);
+  mSolver.add_clause( slit,  alit, ~blit);
+  mSolver.add_clause( slit, ~alit,  blit);
+  mSolver.add_clause(~slit, ~alit, ~blit);
+  mSolver.add_clause(~olit,  alit       );
+  mSolver.add_clause(~olit,         blit);
+  mSolver.add_clause( olit, ~alit, ~blit);
+}
+
+// @brief full_adder の入出力の関係を表す条件を追加する．
+// @param[in] alit, blit 入力のリテラル
+// @param[in] ilit キャリー入力のリテラル
+// @param[in] slit 和の出力のリテラル
+// @param[in] olit キャリー出力のリテラル
+void
+SatTseitinEnc::add_full_adder(SatLiteral alit,
+			     SatLiteral blit,
+			     SatLiteral ilit,
+			     SatLiteral slit,
+			     SatLiteral olit)
+{
+  mSolver.add_clause(~slit,  alit,  blit,  ilit);
+  mSolver.add_clause( slit,  alit,  blit, ~ilit);
+  mSolver.add_clause( slit,  alit, ~blit,  ilit);
+  mSolver.add_clause(~slit,  alit, ~blit, ~ilit);
+  mSolver.add_clause( slit, ~alit,  blit,  ilit);
+  mSolver.add_clause(~slit, ~alit,  blit, ~ilit);
+  mSolver.add_clause(~slit, ~alit, ~blit,  ilit);
+  mSolver.add_clause( slit, ~alit, ~blit, ~ilit);
+  mSolver.add_clause(~olit,  alit,  blit       );
+  mSolver.add_clause(~olit,  alit,         ilit);
+  mSolver.add_clause(~olit,         blit,  ilit);
+  mSolver.add_clause( olit, ~alit, ~blit       );
+  mSolver.add_clause( olit, ~alit,        ~ilit);
+  mSolver.add_clause( olit,        ~blit, ~ilit);
+}
+
+// @brief 多ビットadderの入出力の関係を表す条件を追加する．
+// @param[in] alits, blits 入力のリテラル
+// @param[in] ilit キャリー入力のリテラル
+// @param[in] slits 和の出力のリテラル
+// @param[in] olit キャリー出力のリテラル
+void
+SatTseitinEnc::add_adder(const vector<SatLiteral>& alits,
+			 const vector<SatLiteral>& blits,
+			 SatLiteral ilit,
+			 const vector<SatLiteral>& slits,
+			 SatLiteral olit)
+{
+  int na = alits.size();
+  int nb = alits.size();
+  int ns = alits.size();
+  ASSERT_COND( na <= ns );
+  ASSERT_COND( nb <= ns );
+
+  bool a_zero = false;
+  bool b_zero = false;
+  bool c_zero = false;
+  for ( int i = 0; i < ns; ++ i ) {
+    auto slit{slits[i]};
+    auto alit{kSatLiteralX};
+    auto blit{kSatLiteralX};
+    if ( i < na ) {
+      alit = alits[i];
+    }
+    else {
+      a_zero = true;
+    }
+    if ( i < nb ) {
+      blit = blits[i];
+    }
+    else {
+      b_zero = true;
+    }
+    if ( a_zero && b_zero ) {
+      if ( c_zero ) {
+	mSolver.add_clause(~slit);
+      }
+      else {
+	add_buffgate(ilit, slit);
+	c_zero = true;
+      }
+    }
+    else if ( a_zero ) { // !b_zero
+      auto olit1{i < (ns - 1) ? mSolver.new_variable(false) : olit};
+      add_half_adder(blit, ilit, slit, olit1);
+      ilit = olit1;
+    }
+    else if ( b_zero ) { // !a_zero
+      auto olit1{i < (ns - 1) ? mSolver.new_variable(false) : olit};
+      add_half_adder(alit, ilit, slit, olit1);
+      ilit = olit1;
+    }
+    else { // !a_zero && !b_zero
+      auto olit1{i < (ns - 1) ? mSolver.new_variable(false) : olit};
+      add_full_adder(alit, blit, ilit, slit, olit1);
+      ilit = olit1;
+    }
+  }
+}
+
 END_NAMESPACE_YM_SAT
