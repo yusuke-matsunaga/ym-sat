@@ -378,6 +378,11 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief add_at_most_one() の下請け関数
+  void
+  _add_at_most_one(const vector<SatLiteral>& lit_list,
+		   SatLiteral olit);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -786,16 +791,6 @@ SatCountEnc::add_exact_one(SatLiteral lit1,
 {
   add_at_most_one(lit1, lit2, lit3, lit4, lit5, lit6);
   add_at_least_one(lit1, lit2, lit3, lit4, lit5, lit6);
-}
-
-// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
-// @param[in] lit_list 入力のリテラルのリスト
-inline
-void
-SatCountEnc::add_exact_one(const vector<SatLiteral>& lit_list)
-{
-  add_at_most_one(lit_list);
-  add_at_least_one(lit_list);
 }
 
 // @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．

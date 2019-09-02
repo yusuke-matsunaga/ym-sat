@@ -40,12 +40,150 @@ SatCountEnc::add_at_most_one(const vector<SatLiteral>& lit_list)
     // はじめから条件は満たされている．
     return;
   }
-  for ( int i1: Range(n - 1) ) {
-    SatLiteral lit1{lit_list[i1]};
-    for ( int i2: Range(i1 + 1, n) ) {
-      SatLiteral lit2{lit_list[i2]};
-      mSolver.add_clause(~lit1, ~lit2);
+  else if ( n == 2 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    add_at_most_one(lit1, lit2);
+  }
+  else if ( n == 3 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    auto lit3{lit_list[2]};
+    add_at_most_one(lit1, lit2, lit3);
+  }
+  else if ( n == 4 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    auto lit3{lit_list[2]};
+    auto lit4{lit_list[3]};
+    add_at_most_one(lit1, lit2, lit3, lit4);
+  }
+  else {
+    int n1 = (n + 1) / 2;
+    vector<SatLiteral> lit_list1(n1);
+    for ( int i = 0; i < n1; ++ i ) {
+      lit_list1[i] = lit_list[i];
     }
+    auto olit1{mSolver.new_variable(false)};
+    _add_at_most_one(lit_list1, olit1);
+
+    int n2 = n - n1;
+    vector<SatLiteral> lit_list2(n2);
+    for ( int i = 0; i < n2; ++ i ) {
+      lit_list2[i] = lit_list[i + n1];
+    }
+    auto olit2{mSolver.new_variable(false)};
+    _add_at_most_one(lit_list2, olit2);
+
+    mSolver.add_clause(~olit1, ~olit2);
+  }
+}
+
+// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+// @param[in] lit_list 入力のリテラルのリスト
+void
+SatCountEnc::add_exact_one(const vector<SatLiteral>& lit_list)
+{
+  int n = lit_list.size();
+  if ( n == 0 ) {
+    // 成り立たない．
+    mSolver.add_clause(vector<SatLiteral>());
+  }
+  else if ( n == 1 ) {
+    auto lit{lit_list[0]};
+    mSolver.add_clause(lit);
+  }
+  else if ( n == 2 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    add_exact_one(lit1, lit2);
+  }
+  else if ( n == 3 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    auto lit3{lit_list[2]};
+    add_exact_one(lit1, lit2, lit3);
+  }
+  else if ( n == 4 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    auto lit3{lit_list[2]};
+    auto lit4{lit_list[3]};
+    add_exact_one(lit1, lit2, lit3, lit4);
+  }
+  else {
+    int n1 = (n + 1) / 2;
+    vector<SatLiteral> lit_list1(n1);
+    for ( int i = 0; i < n1; ++ i ) {
+      lit_list1[i] = lit_list[i];
+    }
+    auto olit1{mSolver.new_variable(false)};
+    _add_at_most_one(lit_list1, olit1);
+
+    int n2 = n - n1;
+    vector<SatLiteral> lit_list2(n2);
+    for ( int i = 0; i < n2; ++ i ) {
+      lit_list2[i] = lit_list[i + n1];
+    }
+    auto olit2{mSolver.new_variable(false)};
+    _add_at_most_one(lit_list2, olit2);
+
+    mSolver.add_clause( olit1,  olit2);
+    mSolver.add_clause(~olit1, ~olit2);
+  }
+}
+
+// @brief add_at_most_one() の下請け関数
+void
+SatCountEnc::_add_at_most_one(const vector<SatLiteral>& lit_list,
+			      SatLiteral olit)
+{
+  int n = lit_list.size();
+  ASSERT_COND( n >= 2 );
+
+  if ( n == 2 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    add_at_most_one(lit1, lit2);
+  }
+  else if ( n == 3 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    auto lit3{lit_list[2]};
+    add_at_most_one(lit1, lit2, lit3);
+  }
+  else if ( n == 4 ) {
+    auto lit1{lit_list[0]};
+    auto lit2{lit_list[1]};
+    auto lit3{lit_list[2]};
+    auto lit4{lit_list[3]};
+    add_at_most_one(lit1, lit2, lit3, lit4);
+  }
+  else {
+    int n1 = (n + 1) / 2;
+    vector<SatLiteral> lit_list1(n1);
+    for ( int i = 0; i < n1; ++ i ) {
+      lit_list1[i] = lit_list[i];
+    }
+    auto olit1{mSolver.new_variable(false)};
+    _add_at_most_one(lit_list1, olit1);
+
+    int n2 = n - n1;
+    vector<SatLiteral> lit_list2(n2);
+    for ( int i = 0; i < n2; ++ i ) {
+      lit_list2[i] = lit_list[i + n1];
+    }
+    auto olit2{mSolver.new_variable(false)};
+    _add_at_most_one(lit_list2, olit2);
+
+    mSolver.add_clause(~olit1, ~olit2);
+  }
+
+  vector<SatLiteral> tmp_lits{lit_list.begin(), lit_list.end()};
+  tmp_lits.push_back(~olit);
+  mSolver.add_clause(tmp_lits);
+  for ( auto lit: lit_list ) {
+    mSolver.add_clause(~lit, olit);
   }
 }
 
