@@ -70,6 +70,13 @@ public:
 	      int nb,
 	      int ns);
 
+  /// @brief counter のチェックを行う．
+  /// @param[in] ni 入力のビット幅
+  /// @param[in] no 出力のビット幅
+  void
+  check_counter(int ni,
+		int no);
+
   /// @brief 論理ゲートの真理値表からチェック用のベクタを作る．
   void
   make_vals(int ni,
@@ -343,6 +350,58 @@ SatTseitinEncTest::check_adder(int na,
     }
     else {
       vals[bit] = 0;
+    }
+  }
+
+  check(vpos, vals);
+}
+
+// @brief counter のチェックを行う．
+// @param[in] ni 入力のビット幅
+// @param[in] no 出力のビット幅
+void
+SatTseitinEncTest::check_counter(int ni,
+				 int no)
+{
+  int no_exp = (1 << no);
+
+  ASSERT_COND( ni < no_exp );
+  ASSERT_COND( ni + no < mVarNum );
+
+  int vpos = 0;
+  vector<SatLiteral> ilits(ni);
+  vector<SatLiteral> olits(no);
+  for ( int i = 0; i < ni; ++ i ) {
+    ilits[i] = mVarList[vpos];
+    ++ vpos;
+  }
+  for ( int i = 0; i < no; ++ i ) {
+    olits[i] = mVarList[vpos];
+    ++ vpos;
+  }
+
+  mEnc.add_counter(ilits, olits);
+
+  int nexp = (1 << vpos);
+  vector<int> vals(nexp);
+  for ( int bits = 0; bits < nexp; ++ bits ) {
+    int c_exp = 0;
+    for ( int i = 0; i < ni; ++ i ) {
+      if ( bits & (1 << i) ) {
+	++ c_exp;
+      }
+    }
+    int c = 0;
+    for ( int i = 0; i < no; ++ i ) {
+      if ( bits & (1 << (i + ni)) ) {
+	c |= (1 << i);
+      }
+    }
+    if ( c == c_exp ) {
+      vals[bits] = 1;
+    }
+    else {
+      vals[bits] = 0;
     }
   }
 
@@ -856,6 +915,86 @@ TEST_P(SatTseitinEncTest, add_adder_3_1_4)
 TEST_P(SatTseitinEncTest, add_adder_3_1_5)
 {
   check_adder(3, 1, 5);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_2_2)
+{
+  check_counter(2, 2);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_2_4)
+{
+  check_counter(2, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_3_2)
+{
+  check_counter(3, 2);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_4_3)
+{
+  check_counter(4, 3);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_5_3)
+{
+  check_counter(5, 3);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_6_3)
+{
+  check_counter(6, 3);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_7_3)
+{
+  check_counter(7, 3);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_8_4)
+{
+  check_counter(8, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_9_4)
+{
+  check_counter(9, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_10_4)
+{
+  check_counter(10, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_11_4)
+{
+  check_counter(11, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_12_4)
+{
+  check_counter(12, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_13_4)
+{
+  check_counter(13, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_14_4)
+{
+  check_counter(14, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_15_4)
+{
+  check_counter(15, 4);
+}
+
+TEST_P(SatTseitinEncTest, add_counter_16_5)
+{
+  check_counter(16, 5);
 }
 
 INSTANTIATE_TEST_CASE_P(SatSolverTest,

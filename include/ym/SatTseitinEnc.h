@@ -308,6 +308,15 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief add_counter の本体
+  /// @param[in] ilits 入力のリテラル
+  /// @param[in] olits 出力のリテラル
+  ///
+  /// ベクタサイズのチェックを行わない．
+  void
+  _add_counter(const vector<SatLiteral>& ilits,
+	       const vector<SatLiteral>& olits);
+
 
 private:
   //////////////////////////////////////////////////////////////////////

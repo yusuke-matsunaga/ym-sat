@@ -210,4 +210,134 @@ SatTseitinEnc::add_adder(const vector<SatLiteral>& alits,
   }
 }
 
+BEGIN_NONAMESPACE
+
+int
+get_ln(int n)
+{
+  int n_ln = 0;
+  while ( (1 << n_ln) <= n ) {
+    ++ n_ln;
+  }
+  return n_ln;
+}
+
+END_NONAMESPACE
+
+// @brief 1's counter の入出力の関係を表す条件を追加する．
+// @param[in] ilits 入力のリテラル
+// @param[in] olits 出力のリテラル
+//
+// ilits のサイズ < 2^(olits のサイズ) でなければならない．
+void
+SatTseitinEnc::add_counter(const vector<SatLiteral>& ilits,
+			   const vector<SatLiteral>& olits)
+{
+  int ni = ilits.size();
+  int no = olits.size();
+
+  int no_exp = 1 << no;
+
+  ASSERT_COND( ni < no_exp );
+
+  int ni_ln = get_ln(ni);
+  if ( ni_ln < no ) {
+    // 出力の桁が多すぎる場合
+    vector<SatLiteral> olits1(ni_ln);
+    for ( int i = 0; i < ni_ln; ++ i ) {
+      olits1[i] = olits[i];
+    }
+    _add_counter(ilits, olits1);
+    for ( int i = ni_ln; i < no; ++ i ) {
+      mSolver.add_clause(~olits[i]);
+    }
+  }
+  else {
+    _add_counter(ilits, olits);
+  }
+}
+
+// @brief add_counter の本体
+// @param[in] ilits 入力のリテラル
+// @param[in] olits 出力のリテラル
+//
+// ベクタサイズのチェックを行わない．
+void
+SatTseitinEnc::_add_counter(const vector<SatLiteral>& ilits,
+			    const vector<SatLiteral>& olits)
+{
+  int ni = ilits.size();
+  int no = olits.size();
+
+  if ( ni == 1 ) {
+    ASSERT_COND( no == 1 );
+    add_buffgate(ilits[0], olits[0]);
+  }
+  else if ( ni == 2 ) {
+    ASSERT_COND( no == 2 );
+    add_half_adder(ilits[0], ilits[1], olits[0], olits[1]);
+  }
+  else if ( ni == 3 ) {
+    ASSERT_COND( no == 2 );
+    add_full_adder(ilits[0], ilits[1], ilits[2], olits[0], olits[1]);
+  }
+  else if ( ni == 4 ) {
+    ASSERT_COND( no == 3 );
+    auto c0{mSolver.new_variable(false)};
+    auto c1{mSolver.new_variable(false)};
+    auto d0{mSolver.new_variable(false)};
+    auto d1{mSolver.new_variable(false)};
+    auto e1{mSolver.new_variable(false)};
+    add_half_adder(ilits[0], ilits[1], c0, c1);
+    add_half_adder(ilits[2], ilits[3], d0, d1);
+    add_half_adder(c0, d0, olits[0], e1);
+    add_full_adder(c1, d1, e1, olits[1], olits[2]);
+  }
+  else if ( ni == 5 ) {
+    ASSERT_COND( no == 3 );
+    auto c0{mSolver.new_variable(false)};
+    auto c1{mSolver.new_variable(false)};
+    auto d0{mSolver.new_variable(false)};
+    auto d1{mSolver.new_variable(false)};
+    auto e1{mSolver.new_variable(false)};
+    add_half_adder(ilits[0], ilits[1], c0, c1);
+    add_half_adder(ilits[2], ilits[3], d0, d1);
+    vector<SatLiteral> clits{c0, c1};
+    vector<SatLiteral> dlits{d0, d1};
+    vector<SatLiteral> tmp_olits{olits[0], olits[1]};
+    add_adder(clits, dlits, ilits[4], tmp_olits, olits[2]);
+  }
+  else {
+    int ni1 = (ni - 1) / 2;
+    vector<SatLiteral> tmp_ilits1(ni1);
+    for ( int i = 0; i < ni1; ++ i ) {
+      tmp_ilits1[i] = ilits[i];
+    }
+    int no1 = get_ln(ni1);
+    vector<SatLiteral> tmp_olits1(no1);
+    for ( int i = 0; i < no1; ++ i ) {
+      tmp_olits1[i] = mSolver.new_variable(false);
+    }
+    _add_counter(tmp_ilits1, tmp_olits1);
+
+    int ni2 = ni - ni1 - 1;
+    vector<SatLiteral> tmp_ilits2(ni2);
+    for ( int i = 0; i < ni2; ++ i ) {
+      tmp_ilits2[i] = ilits[i + ni1];
+    }
+    int no2 = get_ln(ni2);
+    vector<SatLiteral> tmp_olits2(no2);
+    for ( int i = 0; i < no2; ++ i ) {
+      tmp_olits2[i] = mSolver.new_variable(false);
+    }
+    add_counter(tmp_ilits2, tmp_olits2);
+
+    vector<SatLiteral> tmp_olits3(no - 1);
+    for ( int i = 0; i < (no - 1); ++ i ) {
+      tmp_olits3[i] = olits[i];
+    }
+    add_adder(tmp_olits1, tmp_olits2, ilits[ni - 1], tmp_olits3, olits[no - 1]);
+  }
+}
+
 END_NAMESPACE_YM_SAT
