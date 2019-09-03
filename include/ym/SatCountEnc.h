@@ -383,6 +383,18 @@ private:
   _add_at_most_one(const vector<SatLiteral>& lit_list,
 		   SatLiteral olit);
 
+  /// @brief add_at_most_two() の下請け関数
+  void
+  _add_at_most_two(const vector<SatLiteral>& lit_list,
+		   SatLiteral olit1,
+		   SatLiteral olit0);
+
+  /// @brief add_at_least_two() の下請け関数
+  void
+  _add_at_least_two(const vector<SatLiteral>& lit_list,
+		    SatLiteral olit1,
+		    SatLiteral olit0);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -856,28 +868,6 @@ SatCountEnc::add_exact_two(SatLiteral lit1,
 {
   add_at_most_two(lit1, lit2, lit3, lit4, lit5, lit6);
   add_at_least_two(lit1, lit2, lit3, lit4, lit5, lit6);
-}
-
-// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
-// @param[in] lit_list 入力のリテラルのリスト
-inline
-void
-SatCountEnc::add_exact_two(const vector<SatLiteral>& lit_list)
-{
-  add_at_most_two(lit_list);
-  add_at_least_two(lit_list);
-}
-
-// @brief 与えられたリテラルのうち厳密にk個が true になる条件を追加する．
-// @param[in] lit_list 入力のリテラルのリスト
-// @param[in] k しきい値
-inline
-void
-SatCountEnc::add_exact_k(const vector<SatLiteral>& lit_list,
-		       int k)
-{
-  add_at_most_k(lit_list, k);
-  add_at_least_k(lit_list, k);
 }
 
 // @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．

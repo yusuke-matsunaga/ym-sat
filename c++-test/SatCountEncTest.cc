@@ -43,6 +43,11 @@ public:
   check_at_most(int n,
 		int k);
 
+  /// @brief at_most_k のチェックを行う．
+  void
+  check_at_most_sub(int n,
+		    int k);
+
   /// @brief at_least_k のチェックを行う．
   void
   check_at_least(int n,
@@ -135,19 +140,27 @@ SatCountEncTest::check_at_most(int n,
   for ( int p: Range(np) ) {
     vector<SatLiteral> assumptions;
     int c = 0;
+    string bpat{};
     for ( int i: Range(n) ) {
       auto lit{mVarList[i]};
       if ( p & (1U << i) ) {
 	++ c;
+	bpat += "1";
       }
       else {
 	lit = ~lit;
+	bpat += "0";
       }
       assumptions.push_back(lit);
     }
     SatBool3 exp_ans = (c <= k) ? SatBool3::True : SatBool3::False;
     SatModel model;
     SatBool3 stat = mSolver.solve(assumptions, model);
+    if ( exp_ans != stat ) {
+      cout << "c = " << c
+	   << ", bpat = " << bpat
+	   << ", exp_ans = " << exp_ans << endl;
+    }
     EXPECT_EQ( exp_ans, stat );
   }
 }
@@ -319,7 +332,7 @@ TEST_P(SatCountEncTest, add_at_most_oneN)
 
   mEnc.add_at_most_one(lits);
 
-  check_at_most(7, 1);
+  check_at_most(n, 1);
 }
 
 // add_at_most_two2 は自明なのでやらない．
@@ -384,7 +397,7 @@ TEST_P(SatCountEncTest, add_at_most_twoN)
 
   mEnc.add_at_most_two(lits);
 
-  check_at_most(7, 2);
+  check_at_most(n, 2);
 }
 
 TEST_P(SatCountEncTest, add_at_most_10_3)
