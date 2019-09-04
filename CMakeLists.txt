@@ -59,6 +59,7 @@ set (ym_sat_SOURCES
   c++-src/SatLoggerS.cc
   c++-src/SatStats.cc
   c++-src/SatTseitinEnc.cc
+  c++-src/SatOrderedSet.cc
   c++-src/SatDimacs.cc
   c++-src/DimacsScanner.cc
 
