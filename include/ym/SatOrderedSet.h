@@ -71,13 +71,22 @@ public:
   SatLiteral
   var(int val) const;
 
+  /// @brief 値に対応する変数のベクタを返す．
+  const vector<SatLiteral>&
+  vars() const;
+
   /// @brief 順序符号化された変数を返す．
   /// @param[in] val 値 ( min < val <= max )
   ///
   /// この変数が true == 値が val 以上
   /// 値が min 以上は常に成り立つので val > min となる．
+  /// つまり var() よりも範囲が一つ短い．
   SatLiteral
   pri_var(int val) const;
+
+  /// @brief 順序符号化された変数のベクタを返す．
+  const vector<SatLiteral>&
+  pri_vars() const;
 
   /// @brief この変数の値が lval 以上になるという制約を作る．
   /// @param[in] solver SATソルバ
@@ -167,6 +176,14 @@ SatOrderedSet::var(int val) const
   return mVarArray[val - mMin];
 }
 
+// @brief 値に対応する変数のベクタを返す．
+inline
+const vector<SatLiteral>&
+SatOrderedSet::vars() const
+{
+  return mVarArray;
+}
+
 // @brief 順序符号化された変数を返す．
 // @param[in] val 値 ( min < val <= max )
 //
@@ -179,6 +196,14 @@ SatOrderedSet::pri_var(int val) const
   ASSERT_COND( mMin < val && val <= mMax );
 
   return mPriVarArray[val - mMin - 1];
+}
+
+// @brief 順序符号化された変数のベクタを返す．
+inline
+const vector<SatLiteral>&
+SatOrderedSet::pri_vars() const
+{
+  return mPriVarArray;
 }
 
 END_NAMESPACE_YM_SAT
