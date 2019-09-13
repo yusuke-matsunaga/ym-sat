@@ -44,6 +44,7 @@ END_NAMESPACE_YM
 
 BEGIN_NAMESPACE_YM_SAT
 
+class SatBinaryNum;
 class SatBvEnc;
 class SatCountEnc;
 class SatTseitinEnc;
@@ -62,6 +63,7 @@ BEGIN_NAMESPACE_YM
 
 class SatLiteral;
 
+using nsSat::SatBinaryNum;
 using nsSat::SatBvEnc;
 using nsSat::SatCountEnc;
 using nsSat::SatTseitinEnc;
