@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "ym/sat.h"
+#include "ym/SatBool3.h"
 #include "ym/SatLiteral.h"
 
 
