@@ -67,32 +67,35 @@ SatTseitinEnc::add_orgate(SatLiteral olit,
 // @brief n入力XORゲートの入出力の関係を表す条件を追加する．
 // @param[in] olit 出力のリテラル
 // @param[in] lit_list 入力のリテラルのリスト
+// @param[in] start 開始位置
+// @param[in] num 要素数
 void
-SatTseitinEnc::add_xorgate(SatLiteral olit,
-			   const vector<SatLiteral> lit_list)
+SatTseitinEnc::_add_xorgate_sub(SatLiteral olit,
+				const vector<SatLiteral> lit_list,
+				int start,
+				int num)
 {
-  int n = lit_list.size();
-  int n_exp = 1 << n;
-  vector<SatLiteral> tmp_lits(n + 1);
-  for ( int p = 0; p < n_exp; ++ p ) {
-    int c = 0;
-    for ( int i = 0; i < n; ++ i ) {
-      SatLiteral ilit{lit_list[i]};
-      if ( p & (1 << i) ) {
-	tmp_lits[i] = ~ilit;
-	++ c;
-      }
-      else {
-	tmp_lits[i] =  ilit;
-      }
-    }
-    if ( (c % 2) == 1 ) {
-      tmp_lits[n] =  olit;
-    }
-    else {
-      tmp_lits[n] = ~olit;
-    }
-    mSolver.add_clause(tmp_lits);
+  ASSERT_COND( num >= 2 );
+
+  if ( num == 2 ) {
+    auto lit0{lit_list[start + 0]};
+    auto lit1{lit_list[start + 1]};
+    add_xorgate(olit, lit0, lit1);
+  }
+  else if ( num == 3 ) {
+    auto lit0{lit_list[start + 0]};
+    auto lit1{lit_list[start + 1]};
+    auto lit2{lit_list[start + 2]};
+    add_xorgate(olit, lit0, lit1, lit2);
+  }
+  else {
+    int nl = num / 2;
+    int nr = num - nl;
+    auto llit{mSolver.new_variable(false)};
+    _add_xorgate_sub(llit, lit_list, start, nl);
+    auto rlit{mSolver.new_variable(false)};
+    _add_xorgate_sub(rlit, lit_list, start + nl, nr);
+    add_xorgate(olit, llit, rlit);
   }
 }
 

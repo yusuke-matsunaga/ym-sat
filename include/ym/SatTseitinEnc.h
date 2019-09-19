@@ -308,6 +308,17 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief n入力XORゲートの入出力の関係を表す条件を追加する．
+  /// @param[in] olit 出力のリテラル
+  /// @param[in] lit_list 入力のリテラルのリスト
+  /// @param[in] start 開始位置
+  /// @param[in] num 要素数
+  void
+  _add_xorgate_sub(SatLiteral olit,
+		   const vector<SatLiteral> lit_list,
+		   int start,
+		   int num);
+
   /// @brief add_counter の本体
   /// @param[in] ilits 入力のリテラル
   /// @param[in] olits 出力のリテラル
@@ -600,22 +611,19 @@ SatTseitinEnc::add_xorgate(SatLiteral olit,
 			   SatLiteral lit3,
 			   SatLiteral lit4)
 {
-  mSolver.add_clause( lit1,  lit2,  lit3,  lit4, ~olit);
-  mSolver.add_clause( lit1,  lit2,  lit3, ~lit4,  olit);
-  mSolver.add_clause( lit1,  lit2, ~lit3,  lit4,  olit);
-  mSolver.add_clause( lit1,  lit2, ~lit3, ~lit4, ~olit);
-  mSolver.add_clause( lit1, ~lit2,  lit3,  lit4,  olit);
-  mSolver.add_clause( lit1, ~lit2,  lit3, ~lit4, ~olit);
-  mSolver.add_clause( lit1, ~lit2, ~lit3,  lit4, ~olit);
-  mSolver.add_clause( lit1, ~lit2, ~lit3, ~lit4,  olit);
-  mSolver.add_clause(~lit1,  lit2,  lit3,  lit4,  olit);
-  mSolver.add_clause(~lit1,  lit2,  lit3, ~lit4, ~olit);
-  mSolver.add_clause(~lit1,  lit2, ~lit3,  lit4, ~olit);
-  mSolver.add_clause(~lit1,  lit2, ~lit3, ~lit4,  olit);
-  mSolver.add_clause(~lit1, ~lit2,  lit3,  lit4, ~olit);
-  mSolver.add_clause(~lit1, ~lit2,  lit3, ~lit4,  olit);
-  mSolver.add_clause(~lit1, ~lit2, ~lit3,  lit4,  olit);
-  mSolver.add_clause(~lit1, ~lit2, ~lit3, ~lit4, ~olit);
+  _add_xorgate_sub(olit, vector<SatLiteral>{lit1, lit2, lit3, lit4}, 0, 4);
+}
+
+// @brief n入力XORゲートの入出力の関係を表す条件を追加する．
+// @param[in] olit 出力のリテラル
+// @param[in] lit_list 入力のリテラルのリスト
+inline
+void
+SatTseitinEnc::add_xorgate(SatLiteral olit,
+			   const vector<SatLiteral> lit_list)
+{
+  int n = lit_list.size();
+  _add_xorgate_sub(olit, lit_list, 0, n);
 }
 
 // @brief 2入力XNORゲートの入出力の関係を表す条件を追加する．
