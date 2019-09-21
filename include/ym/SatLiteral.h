@@ -10,7 +10,6 @@
 
 
 #include "ym/sat.h"
-#include "ym/HashFunc.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -224,17 +223,6 @@ typedef vector<SatLiteral> SatLiteralVector;
 
 /// @brief リテラルのリスト
 typedef list<SatLiteral> SatLiteralList;
-
-/// @brief SatLiteral をキーにしたハッシュ関数クラス
-template <>
-struct HashFunc<SatLiteral>
-{
-  SizeType
-  operator()(SatLiteral lit) const
-  {
-    return lit.hash();
-  }
-};
 
 
 //////////////////////////////////////////////////////////////////////
@@ -487,14 +475,26 @@ END_NAMESPACE_YM
 
 BEGIN_NAMESPACE_STD
 
+/// @brief SatLiteral の等価比較関数クラス
 template <>
-struct equal_to<nsYm::SatLiteral>
+struct equal_to<YM_NAMESPACE::SatLiteral>
 {
   bool
-  operator()(nsYm::SatLiteral n1,
-	     nsYm::SatLiteral n2) const
+  operator()(YM_NAMESPACE::SatLiteral n1,
+	     YM_NAMESPACE::SatLiteral n2) const
   {
     return n1 == n2;
+  }
+};
+
+/// @brief SatLiteral をキーにしたハッシュ関数クラス
+template <>
+struct hash<YM_NAMESPACE::SatLiteral>
+{
+  SizeType
+  operator()(YM_NAMESPACE::SatLiteral lit) const
+  {
+    return lit.hash();
   }
 };
 
