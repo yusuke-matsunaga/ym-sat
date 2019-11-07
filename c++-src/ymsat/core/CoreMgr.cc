@@ -811,7 +811,8 @@ CoreMgr::search(Controller& controller,
 
       // 今の矛盾の解消に必要な条件を「学習」する．
       vector<SatLiteral> learnt_lits;
-      int bt_level = analyzer.analyze(conflict, learnt_lits);
+      int bt_level;
+      tie(bt_level, learnt_lits) = analyzer.analyze(conflict);
 
       if ( debug & debug_analyze ) {
 	cout << endl

@@ -26,25 +26,24 @@ SaUIP2::~SaUIP2()
 }
 
 // conflict を解析する．
-int
-SaUIP2::analyze(SatReason creason,
-		vector<SatLiteral>& learnt)
+tuple<int, vector<SatLiteral>>
+SaUIP2::analyze(SatReason creason)
 {
-  capture(creason, learnt);
+  auto learnt = capture(creason);
   make_minimal(learnt);
   clear_marks();
-  return reorder(learnt);
+  int lv = reorder(learnt);
+  return make_tuple(lv, learnt);
 }
 
 // creason の矛盾の原因になっている割り当てのうち，
 // - もっとも近い unique identification point
 // - 現在のレベルよりも低いレベルの割り当て
 // からなるセパレータ集合を learnt に入れる．
-void
-SaUIP2::capture(SatReason creason,
-		vector<SatLiteral>& learnt)
+vector<SatLiteral>
+SaUIP2::capture(SatReason creason)
 {
-  learnt.clear();
+  vector<SatLiteral> learnt;
   learnt.push_back(SatLiteral()); // place holder
 
   bool first = true;
@@ -135,6 +134,8 @@ SaUIP2::capture(SatReason creason,
       break;
     }
   }
+
+  return learnt;
 }
 
 END_NAMESPACE_YM_SAT

@@ -18,7 +18,7 @@ BEGIN_NAMESPACE_YM_SAT
 
 class SatClause;
 
-/////////////////////p/////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 /// @class Analyzer Analyzer.h "Analyzer.h"
 /// @brief 矛盾の解析/学習を行うクラス
 ///
@@ -51,12 +51,10 @@ public:
 
   /// @brief 解析を行う．
   /// @param[in] creason 矛盾の原因
-  /// @param[out] learnt 学習された節を表すリテラルのベクタ
-  /// @return バックトラックレベル
+  /// @return バックトラックレベルと学習された節を表すリテラルのベクタを返す．
   virtual
-  int
-  analyze(SatReason creason,
-	  vector<SatLiteral>& learnt) = 0;
+  tuple<int, vector<SatLiteral>>
+  analyze(SatReason creason) = 0;
 
   /// @brief 新しい変数が追加されたときに呼ばれる仮想関数
   virtual
@@ -141,7 +139,7 @@ public:
 // @param[in] mgr コアマネージャ
 inline
 Analyzer::Analyzer(CoreMgr& mgr) :
-  mMgr(mgr)
+  mMgr{mgr}
 {
 }
 
