@@ -121,8 +121,8 @@ SatCountEncTest::check(int ni,
 	assumptions.push_back(lit);
       }
       SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
-      SatModel model;
-      SatBool3 stat = mSolver.solve(assumptions, model);
+      SatBool3 stat;
+      tie(stat, ignore) = mSolver.solve(assumptions);
       EXPECT_EQ( exp_ans, stat );
     }
   }
@@ -154,8 +154,8 @@ SatCountEncTest::check_at_most(int n,
       assumptions.push_back(lit);
     }
     SatBool3 exp_ans = (c <= k) ? SatBool3::True : SatBool3::False;
-    SatModel model;
-    SatBool3 stat = mSolver.solve(assumptions, model);
+    SatBool3 stat;
+    tie(stat, ignore) = mSolver.solve(assumptions);
     if ( exp_ans != stat ) {
       cout << "c = " << c
 	   << ", bpat = " << bpat
@@ -185,8 +185,8 @@ SatCountEncTest::check_at_least(int n,
       assumptions.push_back(lit);
     }
     SatBool3 exp_ans = (c >= k) ? SatBool3::True : SatBool3::False;
-    SatModel model;
-    SatBool3 stat = mSolver.solve(assumptions, model);
+    SatBool3 stat;
+    tie(stat, ignore) = mSolver.solve(assumptions);
     EXPECT_EQ( exp_ans, stat );
   }
 }
@@ -211,8 +211,8 @@ SatCountEncTest::check_exact(int n,
       assumptions.push_back(lit);
     }
     SatBool3 exp_ans = (c == k) ? SatBool3::True : SatBool3::False;
-    SatModel model;
-    SatBool3 stat = mSolver.solve(assumptions, model);
+    SatBool3 stat;
+    tie(stat, ignore) = mSolver.solve(assumptions);
     EXPECT_EQ( exp_ans, stat );
   }
 }
@@ -236,8 +236,8 @@ SatCountEncTest::check_not_one(int n)
       assumptions.push_back(lit);
     }
     SatBool3 exp_ans = (c != 1) ? SatBool3::True : SatBool3::False;
-    SatModel model;
-    SatBool3 stat = mSolver.solve(assumptions, model);
+    SatBool3 stat;
+    tie(stat, ignore) = mSolver.solve(assumptions);
     EXPECT_EQ( exp_ans, stat );
   }
 }

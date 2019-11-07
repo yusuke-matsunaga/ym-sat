@@ -324,16 +324,16 @@ END_NONAMESPACE
 
 // @brief assumption 付きの SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-// @param[out] model 充足するときの値の割り当てを格納する配列．
 // @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
 // @param[in] time_limit 時間制約(秒) 0 で制約なし
-// @retval kSat 充足した．
-// @retval kUnsat 充足不能が判明した．
-// @retval kUndet わからなかった．
-// @note i 番めの変数の割り当て結果は model[i] に入る．
-SatBool3
+// @return 結果(SatBool3)とモデル(SatModel)を返す．
+//
+// 結果の意味は以下の通り
+// * kB3True  充足した．
+// * kB3False 充足不能が判明した．
+// * kB3X     わからなかった．
+tuple<SatBool3, SatModel>
 SatSolver::solve(const vector<SatLiteral>& assumptions,
-		 SatModel& model,
 		 vector<SatLiteral>& conflicts,
 		 int time_limit)
 {
@@ -356,6 +356,7 @@ SatSolver::solve(const vector<SatLiteral>& assumptions,
 
   mLogger->solve(assumptions);
 
+  SatModel model;
   SatBool3 stat = mImpl->solve(assumptions, model, conflicts);
   if ( expired ) {
     stat = SatBool3::X;
@@ -365,7 +366,7 @@ SatSolver::solve(const vector<SatLiteral>& assumptions,
     signal(SIGALRM, old_func);
   }
 
-  return stat;
+  return make_tuple(stat, model);
 }
 
 // @brief 探索を中止する．

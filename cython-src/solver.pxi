@@ -42,11 +42,15 @@ cdef class Solver :
         return to_literal(c_lit)
 
     ### @brief 条件リテラルを設定する．
-    ### @param[in] lit_lits リテラルのリスト
-    def set_conditional_literals(Solver self, lit_list) :
+    ### @param[in] args リテラルのリスト
+    def set_conditional_literals(Solver self, *args) :
         cdef vector[CXX_SatLiteral] c_lits
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
+        for arg in args :
+            if isinstance(arg, Literal) :
+                c_lits.push_back(from_literal(arg))
+            else :
+                for lit in arg :
+                    c_lits.push_back(from_literal(lit))
         self._this_ptr.set_conditional_literals(c_lits)
 
     ### @brief 条件リテラルの設定を解除する．
@@ -54,11 +58,15 @@ cdef class Solver :
         self._this_ptr.clear_conditional_literals()
 
     ### @brief 節を追加する．
-    ### @param[in] lit_lits リテラルのリスト
-    def add_clause(Solver self, lit_list) :
+    ### @param[in] args リテラルのリスト
+    def add_clause(Solver self, *args) :
         cdef vector[CXX_SatLiteral] c_lits
-        for lit in lit_list :
-            c_lits.push_back(from_literal(lit))
+        for arg in args :
+            if isinstance(arg, Literal) :
+                c_lits.push_back(from_literal(arg))
+            else :
+                for lit in arg :
+                    c_lits.push_back(from_literal(lit))
         self._this_ptr.add_clause(c_lits)
 
     ### @brief 問題を解く．
@@ -72,6 +80,7 @@ cdef class Solver :
     ### 変数の値の型は3値だが常に真(Bool3.TRUE)か偽(Bool3.FALSE)となる．
     def solve(Solver self, *, assumptions = None, time_limit = 0) :
         cdef vector[CXX_SatLiteral] c_assumptions
+        cdef vector[CXX_SatLiteral] c_conflicts
         cdef CXX_SatModel c_model
         cdef CXX_SatBool3 c_stat
         cdef CXX_SatLiteral c_lit
@@ -81,9 +90,7 @@ cdef class Solver :
             c_assumptions.reserve(len(assumptions))
             for lit in assumptions :
                 c_assumptions.push_back(from_literal(lit))
-            c_stat = self._this_ptr.solve(c_assumptions, c_model, time_limit)
-        else :
-            c_stat = self._this_ptr.solve(c_model, time_limit)
+        c_stat = self._this_ptr._solve(c_assumptions, c_model, c_conflicts, time_limit)
         stat = to_Bool3(c_stat)
         model = None
         if stat == Bool3._True :
@@ -95,7 +102,14 @@ cdef class Solver :
                 val = to_Bool3(c_val)
                 model[ lit] =  val
                 model[~lit] = ~val
-        return stat, model
+            return stat, model
+        elif stat == Bool3._False :
+            conflicts = []
+            for c_lit in c_conflicts :
+                conflicts.append(to_literal(c_lit))
+            return stat, conflicts
+        else :
+            return stat, None
 
     ### @brief solve() を中止する．
     def stop(Solver self) :

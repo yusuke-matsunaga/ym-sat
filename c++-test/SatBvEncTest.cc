@@ -166,7 +166,8 @@ SatBvEncTest::check_add_eq1(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -237,7 +238,8 @@ SatBvEncTest::check_add_eq2(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -300,7 +302,8 @@ SatBvEncTest::check_add_ne1(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -371,7 +374,8 @@ SatBvEncTest::check_add_ne2(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -437,7 +441,8 @@ SatBvEncTest::check_add_lt1(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -514,7 +519,8 @@ SatBvEncTest::check_add_lt2(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -577,7 +583,8 @@ SatBvEncTest::check_add_le1(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -648,7 +655,8 @@ SatBvEncTest::check_add_le2(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -711,7 +719,8 @@ SatBvEncTest::check_add_gt1(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -788,7 +797,8 @@ SatBvEncTest::check_add_gt2(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -851,7 +861,8 @@ SatBvEncTest::check_add_ge1(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
@@ -928,7 +939,8 @@ SatBvEncTest::check_add_ge2(int a_size,
   vector<bool> mark(nall, false);
   while ( true ) {
     SatModel model;
-    SatBool3 stat = mSolver.solve(model);
+    SatBool3 stat;
+    tie(stat, model) = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
