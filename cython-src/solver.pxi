@@ -93,19 +93,19 @@ cdef class Solver :
         stat = to_Bool3(c_stat)
         model = None
         if stat == Bool3._True :
-            n = self._this_ptr.last_model_size()
+            n = self._this_ptr.model_size()
             model = dict()
             for i in range(n) :
                 lit = Literal(i, False)
                 c_lit = from_literal(lit)
-                c_val = self._this_ptr.read_last_model(c_lit)
+                c_val = self._this_ptr.read_model(c_lit)
                 val = to_Bool3(c_val)
                 model[ lit] =  val
                 model[~lit] = ~val
             return stat, model
         elif stat == Bool3._False :
             conflicts = []
-            for c_lit in c_conflicts :
+            for c_lit in self._this_ptr.conflict_literals()
                 conflicts.append(to_literal(c_lit))
             return stat, conflicts
         else :

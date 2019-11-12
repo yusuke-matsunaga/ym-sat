@@ -86,8 +86,8 @@ SatSolverImpl::new_impl(const SatSolverType& solver_type)
 // @brief コンストラクタ
 // @param[in] solver_type 実装タイプ
 SatSolver::SatSolver(const SatSolverType& solver_type) :
-  mImpl(SatSolverImpl::new_impl(solver_type)),
-  mLogger(SatLogger::new_impl(solver_type))
+  mImpl{SatSolverImpl::new_impl(solver_type)},
+  mLogger{SatLogger::new_impl(solver_type)}
 {
 }
 
@@ -324,7 +324,6 @@ END_NONAMESPACE
 
 // @brief assumption 付きの SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
 // @param[in] time_limit 時間制約(秒) 0 で制約なし
 // @return 結果(SatBool3)を返す．
 //
@@ -334,7 +333,6 @@ END_NONAMESPACE
 // * kB3X     わからなかった．
 SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
-		 vector<SatLiteral>& conflicts,
 		 int time_limit)
 {
   sig_t old_func = nullptr;
@@ -356,7 +354,7 @@ SatSolver::solve(const vector<SatLiteral>& assumptions,
 
   mLogger->solve(assumptions);
 
-  SatBool3 stat = mImpl->solve(assumptions, mModel, conflicts);
+  SatBool3 stat = mImpl->solve(assumptions, mModel, mConflictLiterals);
   if ( expired ) {
     stat = SatBool3::X;
   }

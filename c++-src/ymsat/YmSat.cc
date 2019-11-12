@@ -110,6 +110,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
 	     SatModel& model,
 	     vector<SatLiteral>& conflicts)
 {
+  // 実は conflicts に値を設定していない．
   return mMgr.solve(assumptions, model, *mController, *mAnalyzer, *mSelecter);
 }
 

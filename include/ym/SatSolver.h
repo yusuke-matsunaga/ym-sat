@@ -210,33 +210,22 @@ public:
   solve(const vector<SatLiteral>& assumptions,
 	int time_limit = 0);
 
-  /// @brief assumption 付きの SAT 問題を解く．
-  /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-  /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
-  /// @param[in] time_limit 時間制約(秒) 0 で制約なし
-  /// @return 結果(SatBool3)を返す．
-  ///
-  /// 結果の意味は以下の通り
-  /// * kB3True  充足した．
-  /// * kB3False 充足不能が判明した．
-  /// * kB3X     わからなかった．
-  SatBool3
-  solve(const vector<SatLiteral>& assumptions,
-	vector<SatLiteral>& conflicts,
-	int time_limit = 0);
-
   /// @brief 直前に解いた問題のモデルを返す．
   const SatModel&
-  last_model();
+  model();
 
-  /// @brief last_model のサイズを返す．
+  /// @brief 直前に解いた問題のサイズを返す．
   int
-  last_model_size();
+  model_size();
 
-  /// @brief last_model の値を返す．
+  /// @brief 直前に解いた問題の値を返す．
   /// @param[in] lit リテラル
   SatBool3
-  read_last_model(SatLiteral lit);
+  read_model(SatLiteral lit);
+
+  /// @brief 直前の問題の矛盾の原因のリテラルを返す．
+  const vector<SatLiteral>&
+  conflict_literals();
 
   /// @brief 探索を中止する．
   ///
@@ -318,6 +307,9 @@ private:
   // 直前の問題のモデル
   SatModel mModel;
 
+  // 直前の矛盾の原因
+  vector<SatLiteral> mConflictLiterals;
+
 };
 
 
@@ -341,50 +333,37 @@ SatSolver::solve(int time_limit)
   return solve(vector<SatLiteral>(), time_limit);
 }
 
-// @brief assumption 付きの SAT 問題を解く．
-// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-// @param[in] time_limit 時間制約(秒) 0 で制約なし
-// @return 結果(SatBool3)を返す．
-//
-// 結果の意味は以下の通り
-// * kB3True  充足した．
-// * kB3False 充足不能が判明した．
-// * kB3X     わからなかった．
-//
-// 充足していた場合のモデルを求める場合には solve() を用いる．
-inline
-SatBool3
-SatSolver::solve(const vector<SatLiteral>& assumptions,
-		 int time_limit)
-{
-  // conflicts 用のダミー配列
-  vector<SatLiteral> dummy;
-  return solve(assumptions, dummy, time_limit);
-}
-
 // @brief 直前に解いた問題のモデルを返す．
 inline
 const SatModel&
-SatSolver::last_model()
+SatSolver::model()
 {
   return mModel;
 }
 
-// @brief last_model のサイズを返す．
+// @brief 直前に解いた問題のサイズを返す．
 inline
 int
-SatSolver::last_model_size()
+SatSolver::model_size()
 {
   return mModel.size();
 }
 
-// @brief last_model の値を返す．
+// @brief 直前に解いた問題の値を返す．
 // @param[in] lit リテラル
 inline
 SatBool3
-SatSolver::read_last_model(SatLiteral lit)
+SatSolver::read_model(SatLiteral lit)
 {
   return mModel.get(lit);
+}
+
+// @brief 直前の問題の矛盾の原因のリテラルを返す．
+inline
+const vector<SatLiteral>&
+SatSolver::conflict_literals()
+{
+  return mConflictLiterals;
 }
 
 END_NAMESPACE_YM_SAT
