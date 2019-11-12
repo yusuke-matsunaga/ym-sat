@@ -605,19 +605,6 @@ CoreMgr::delete_clause(SatClause* clause)
   mAlloc.put_memory(size, static_cast<void*>(clause));
 }
 
-// @brief モデルを得る．
-// @param[out] model 割り当て結果を格納する配列
-void
-CoreMgr::get_model(SatModel& model)
-{
-  model.resize(mVarNum);
-  for ( int var: Range(mVarNum) ) {
-    auto val{eval(var)};
-    ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
-    model.set(var, val);
-  }
-}
-
 // @brief SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
 // @param[out] model 充足するときの値の割り当てを格納する配列．
@@ -752,7 +739,12 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
 
   if ( sat_stat == SatBool3::True ) {
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
-    get_model(model);
+    model.resize(mVarNum);
+    for ( int var: Range(mVarNum) ) {
+      auto val{eval(var)};
+      ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
+      model.set(var, val);
+    }
   }
   // 最初の状態に戻す．
   backtrack(0);

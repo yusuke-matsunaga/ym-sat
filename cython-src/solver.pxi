@@ -81,24 +81,24 @@ cdef class Solver :
     def solve(Solver self, *, assumptions = None, time_limit = 0) :
         cdef vector[CXX_SatLiteral] c_assumptions
         cdef vector[CXX_SatLiteral] c_conflicts
-        cdef CXX_SatModel c_model
         cdef CXX_SatBool3 c_stat
         cdef CXX_SatLiteral c_lit
         cdef CXX_SatBool3 c_val
-        cdef int i
+        cdef int i, n
         if assumptions :
             c_assumptions.reserve(len(assumptions))
             for lit in assumptions :
                 c_assumptions.push_back(from_literal(lit))
-        c_stat = self._this_ptr._solve(c_assumptions, c_model, c_conflicts, time_limit)
+        c_stat = self._this_ptr.solve(c_assumptions, c_conflicts, time_limit)
         stat = to_Bool3(c_stat)
         model = None
         if stat == Bool3._True :
-            model = {}
-            for i in range(c_model.size()) :
+            n = self._this_ptr.last_model_size()
+            model = dict()
+            for i in range(n) :
                 lit = Literal(i, False)
                 c_lit = from_literal(lit)
-                c_val = c_model.get(c_lit)
+                c_val = self._this_ptr.read_last_model(c_lit)
                 val = to_Bool3(c_val)
                 model[ lit] =  val
                 model[~lit] = ~val

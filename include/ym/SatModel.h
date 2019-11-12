@@ -24,10 +24,24 @@ class SatModel
 public:
 
   /// @brief コンストラクタ
-  SatModel();
+  SatModel() = default;
+
+  /// @brief コピーコンストラクタ
+  SatModel(const SatModel& src) = default;
+
+  /// @brief ムーブコンストラクタ
+  SatModel(SatModel&& src) = default;
+
+  /// @brief コピー代入演算子
+  SatModel&
+  operator=(const SatModel& src) = default;
+
+  /// @brief ムーブ代入演算子
+  SatModel&
+  operator=(SatModel&& src) = default;
 
   /// @brief デストラクタ
-  ~SatModel();
+  ~SatModel() = default;
 
 
 public:
@@ -81,18 +95,6 @@ private:
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-inline
-SatModel::SatModel()
-{
-}
-
-// @brief デストラクタ
-inline
-SatModel::~SatModel()
-{
-}
 
 // @brief サイズを返す．
 inline

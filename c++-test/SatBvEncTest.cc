@@ -165,15 +165,13 @@ SatBvEncTest::check_add_eq1(int a_size,
   int nall = exp_a * exp_b;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
-
     int a_val = 0;
     for ( int i: Range(a_size) ) {
       auto lit{a_vec[i]};
@@ -237,15 +235,13 @@ SatBvEncTest::check_add_eq2(int a_size,
   int nall = exp_a;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
-
     int a_val = 0;
     for ( int i: Range(a_size) ) {
       auto lit{a_vec[i]};
@@ -301,15 +297,13 @@ SatBvEncTest::check_add_ne1(int a_size,
   int nall = exp_a * exp_b;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
-
     int a_val = 0;
     for ( int i: Range(a_size) ) {
       auto lit{a_vec[i]};
@@ -373,13 +367,12 @@ SatBvEncTest::check_add_ne2(int a_size,
   int nall = exp_a;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;
@@ -440,13 +433,12 @@ SatBvEncTest::check_add_lt1(int a_size,
   int nall = exp_a * exp_b;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;
@@ -518,13 +510,12 @@ SatBvEncTest::check_add_lt2(int a_size,
   int nall = exp_a;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;
@@ -582,13 +573,12 @@ SatBvEncTest::check_add_le1(int a_size,
   int nall = exp_a * exp_b;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;
@@ -654,13 +644,12 @@ SatBvEncTest::check_add_le2(int a_size,
   int nall = exp_a;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;
@@ -718,13 +707,12 @@ SatBvEncTest::check_add_gt1(int a_size,
   int nall = exp_a * exp_b;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;
@@ -796,13 +784,12 @@ SatBvEncTest::check_add_gt2(int a_size,
   int nall = exp_a;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;
@@ -860,13 +847,12 @@ SatBvEncTest::check_add_ge1(int a_size,
   int nall = exp_a * exp_b;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;
@@ -938,13 +924,12 @@ SatBvEncTest::check_add_ge2(int a_size,
   int nall = exp_a;
   vector<bool> mark(nall, false);
   while ( true ) {
-    SatModel model;
-    SatBool3 stat;
-    tie(stat, model) = mSolver.solve();
+    SatBool3 stat = mSolver.solve();
     if ( stat == SatBool3::False ) {
       break;
     }
 
+    auto& model = mSolver.last_model();
     vector<SatLiteral> tmp_lits;
 
     int a_val = 0;

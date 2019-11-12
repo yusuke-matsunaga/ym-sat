@@ -188,25 +188,25 @@ public:
 
   /// @brief SAT 問題を解く．
   /// @param[in] time_limit 時間制約(秒) 0 で制約なし
-  /// @return 結果(SatBool3)とモデル(SatModel)を返す．
+  /// @return 結果(SatBool3)を返す．
   ///
   /// 結果の意味は以下の通り
   /// * kB3True  充足した．
   /// * kB3False 充足不能が判明した．
   /// * kB3X     わからなかった．
-  tuple<SatBool3, SatModel>
+  SatBool3
   solve(int time_limit = 0);
 
   /// @brief assumption 付きの SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
   /// @param[in] time_limit 時間制約(秒) 0 で制約なし
-  /// @return 結果(SatBool3)とモデル(SatModel)を返す．
+  /// @return 結果(SatBool3)を返す．
   ///
   /// 結果の意味は以下の通り
   /// * kB3True  充足した．
   /// * kB3False 充足不能が判明した．
   /// * kB3X     わからなかった．
-  tuple<SatBool3, SatModel>
+  SatBool3
   solve(const vector<SatLiteral>& assumptions,
 	int time_limit = 0);
 
@@ -214,23 +214,29 @@ public:
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
   /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
   /// @param[in] time_limit 時間制約(秒) 0 で制約なし
-  /// @return 結果(SatBool3)とモデル(SatModel)を返す．
+  /// @return 結果(SatBool3)を返す．
   ///
   /// 結果の意味は以下の通り
   /// * kB3True  充足した．
   /// * kB3False 充足不能が判明した．
   /// * kB3X     わからなかった．
-  tuple<SatBool3, SatModel>
+  SatBool3
   solve(const vector<SatLiteral>& assumptions,
 	vector<SatLiteral>& conflicts,
 	int time_limit = 0);
 
-  /// @brief cython 用の solve インターフェイス
+  /// @brief 直前に解いた問題のモデルを返す．
+  const SatModel&
+  last_model();
+
+  /// @brief last_model のサイズを返す．
+  int
+  last_model_size();
+
+  /// @brief last_model の値を返す．
+  /// @param[in] lit リテラル
   SatBool3
-  _solve(const vector<SatLiteral>& assumptions,
-	 SatModel& model,
-	 vector<SatLiteral>& conflicts,
-	 int time_limit);
+  read_last_model(SatLiteral lit);
 
   /// @brief 探索を中止する．
   ///
@@ -309,6 +315,9 @@ private:
   // 条件リテラル
   vector<SatLiteral> mConditionalLits;
 
+  // 直前の問題のモデル
+  SatModel mModel;
+
 };
 
 
@@ -318,8 +327,14 @@ private:
 
 // @brief SAT 問題を解く．
 // @param[in] time_limit 時間制約(秒) 0 で制約なし
+// @return 結果(SatBool3)を返す．
+//
+// 結果の意味は以下の通り
+// * kB3True  充足した．
+// * kB3False 充足不能が判明した．
+// * kB3X     わからなかった．
 inline
-tuple<SatBool3, SatModel>
+SatBool3
 SatSolver::solve(int time_limit)
 {
   // 空の assumptions を付けて solve() を呼ぶだけ
@@ -328,15 +343,17 @@ SatSolver::solve(int time_limit)
 
 // @brief assumption 付きの SAT 問題を解く．
 // @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-// @param[out] model 充足するときの値の割り当てを格納する配列．
 // @param[in] time_limit 時間制約(秒) 0 で制約なし
-// @retval kSat 充足した．
-// @retval kUnsat 充足不能が判明した．
-// @retval kUndet わからなかった．
+// @return 結果(SatBool3)を返す．
 //
-// i 番めの変数の割り当て結果は model[i] に入る．
+// 結果の意味は以下の通り
+// * kB3True  充足した．
+// * kB3False 充足不能が判明した．
+// * kB3X     わからなかった．
+//
+// 充足していた場合のモデルを求める場合には solve() を用いる．
 inline
-tuple<SatBool3, SatModel>
+SatBool3
 SatSolver::solve(const vector<SatLiteral>& assumptions,
 		 int time_limit)
 {
@@ -345,17 +362,29 @@ SatSolver::solve(const vector<SatLiteral>& assumptions,
   return solve(assumptions, dummy, time_limit);
 }
 
-// @brief cython 用の solve インターフェイス
+// @brief 直前に解いた問題のモデルを返す．
+inline
+const SatModel&
+SatSolver::last_model()
+{
+  return mModel;
+}
+
+// @brief last_model のサイズを返す．
+inline
+int
+SatSolver::last_model_size()
+{
+  return mModel.size();
+}
+
+// @brief last_model の値を返す．
+// @param[in] lit リテラル
 inline
 SatBool3
-SatSolver::_solve(const vector<SatLiteral>& assumptions,
-		  SatModel& model,
-		  vector<SatLiteral>& conflicts,
-		  int time_limit)
+SatSolver::read_last_model(SatLiteral lit)
 {
-  SatBool3 stat;
-  tie(stat, model) = solve(assumptions, conflicts, time_limit);
-  return stat;
+  return mModel.get(lit);
 }
 
 END_NAMESPACE_YM_SAT

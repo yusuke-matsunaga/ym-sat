@@ -210,11 +210,6 @@ public:
   SatBool3
   prev_val(int var) const;
 
-  /// @brief モデルを得る．
-  /// @param[out] model 割り当て結果を格納する配列
-  void
-  get_model(SatModel& model);
-
   /// @brief 値の割当てを行う．
   /// @param[in] lit 割り当てるリテラル
   /// @param[in] reason 割り当ての理由

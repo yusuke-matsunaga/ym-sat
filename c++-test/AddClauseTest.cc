@@ -104,8 +104,7 @@ AddClauseTest::check(int ni,
 	assumptions.push_back(lit);
       }
       SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
-      SatBool3 stat;
-      tie(stat, ignore) = mSolver.solve(assumptions);
+      SatBool3 stat = mSolver.solve(assumptions);
       EXPECT_EQ( exp_ans, stat );
     }
   }
@@ -134,8 +133,7 @@ AddClauseTest::check_with_cond1(int ni,
 	assumptions.push_back(lit);
       }
       SatBool3 exp_ans = SatBool3::True;
-      SatBool3 stat;
-      tie(stat, ignore) = mSolver.solve(assumptions);
+      SatBool3 stat = mSolver.solve(assumptions);
       EXPECT_EQ( exp_ans, stat );
     }
     for ( int p: Range(np) ) {
@@ -149,8 +147,7 @@ AddClauseTest::check_with_cond1(int ni,
 	assumptions.push_back(lit);
       }
       SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
-      SatBool3 stat;
-      tie(stat, ignore) = mSolver.solve(assumptions);
+      SatBool3 stat = mSolver.solve(assumptions);
       EXPECT_EQ( exp_ans, stat );
     }
   }

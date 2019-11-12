@@ -78,8 +78,7 @@ TEST_P(SatOrderedSetTest, basic1)
       }
     }
     SatBool3 exp_ans = (c == 1) ? SatBool3::True : SatBool3::False;
-    SatBool3 ans;
-    tie(ans, ignore) = mSolver.solve(assumptions);
+    SatBool3 ans = mSolver.solve(assumptions);
     EXPECT_EQ( exp_ans, ans );
   }
 }
@@ -112,8 +111,7 @@ TEST_P(SatOrderedSetTest, basic2)
       }
     }
     SatBool3 exp_ans = (c == 1) ? SatBool3::True : SatBool3::False;
-    SatBool3 ans;
-    tie(ans, ignore) = mSolver.solve(assumptions);
+    SatBool3 ans = mSolver.solve(assumptions);
     EXPECT_EQ( exp_ans, ans );
   }
 }
@@ -154,8 +152,7 @@ TEST_P(SatOrderedSetTest, ge1)
     if ( val < lval ) {
       exp_ans = SatBool3::False;
     }
-    SatBool3 ans;
-    tie(ans, ignore) = mSolver.solve(assumptions);
+    SatBool3 ans = mSolver.solve(assumptions);
     EXPECT_EQ( exp_ans, ans );
   }
 }
@@ -196,8 +193,7 @@ TEST_P(SatOrderedSetTest, le1)
     if ( val > uval ) {
       exp_ans = SatBool3::False;
     }
-    SatBool3 ans;
-    tie(ans, ignore) = mSolver.solve(assumptions);
+    SatBool3 ans = mSolver.solve(assumptions);
     EXPECT_EQ( exp_ans, ans );
   }
 }
@@ -239,8 +235,7 @@ TEST_P(SatOrderedSetTest, droppoff1)
     if ( uval < val && val < lval ) {
       exp_ans = SatBool3::False;
     }
-    SatBool3 ans;
-    tie(ans, ignore) = mSolver.solve(assumptions);
+    SatBool3 ans = mSolver.solve(assumptions);
     EXPECT_EQ( exp_ans, ans );
   }
 }
