@@ -34,6 +34,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/private_include
   )
 
+
 # ===================================================================
 #  マクロの定義
 # ===================================================================
@@ -45,6 +46,7 @@ include_directories(
 
 add_subdirectory( c++-test )
 add_subdirectory( cython-src ) # ダミー
+
 
 # ===================================================================
 #  ソースの設定
@@ -115,10 +117,6 @@ set (ym_sat_SOURCES
   c++-src/ymsat_old/YmSat_base.cc
   c++-src/ymsat_old/YmSat_solve.cc
   c++-src/ymsat_old/YmSatMS2.cc
-
-#  c++-src/ymsat_old2/YmSat_base.cc
-#  c++-src/ymsat_old2/YmSat_solve.cc
-#  c++-src/ymsat_old2/YmSatMS2.cc
   )
 
 

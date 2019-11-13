@@ -89,7 +89,7 @@ cdef class Solver :
             c_assumptions.reserve(len(assumptions))
             for lit in assumptions :
                 c_assumptions.push_back(from_literal(lit))
-        c_stat = self._this_ptr.solve(c_assumptions, c_conflicts, time_limit)
+        c_stat = self._this_ptr.solve(c_assumptions, time_limit)
         stat = to_Bool3(c_stat)
         model = None
         if stat == Bool3._True :
@@ -105,7 +105,7 @@ cdef class Solver :
             return stat, model
         elif stat == Bool3._False :
             conflicts = []
-            for c_lit in self._this_ptr.conflict_literals()
+            for c_lit in self._this_ptr.conflict_literals() :
                 conflicts.append(to_literal(c_lit))
             return stat, conflicts
         else :
