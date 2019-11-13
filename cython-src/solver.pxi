@@ -102,14 +102,11 @@ cdef class Solver :
                 val = to_Bool3(c_val)
                 model[ lit] =  val
                 model[~lit] = ~val
-            return stat, model
         elif stat == Bool3._False :
             conflicts = []
-            for c_lit in self._this_ptr.conflict_literals() :
-                conflicts.append(to_literal(c_lit))
-            return stat, conflicts
-        else :
-            return stat, None
+            #for c_lit in self._this_ptr.conflict_literals() :
+            #    conflicts.append(to_literal(c_lit))
+        return stat, model
 
     ### @brief solve() を中止する．
     def stop(Solver self) :

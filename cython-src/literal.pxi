@@ -67,6 +67,14 @@ cdef class Literal :
         inv_str = '' if self.is_positive() else '~'
         return '{}{}'.format(inv_str, self.varid())
 
+    ### @brief ハッシュ関数
+    def __hash__(Literal self) :
+        return self.__body
+
+    ### @brief 等価比較演算子
+    def __eq__(Literal self, Literal other) :
+        return self.__body == other.__body
+
 
 ### @brief Python の Literal を C++ の SatLiteral に変換する．
 ### @param[in] literal Python バージョンの Literal
