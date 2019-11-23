@@ -1291,7 +1291,7 @@ CoreMgr::get_stats(SatStats& stats) const
   stats.mConflictNum = mConflictNum;
   stats.mConflictLimit = conflict_limit();
   stats.mLearntLimit = learnt_limit();
-  stats.mTime = mTimer.time();
+  stats.mTime = mAccTime;
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録

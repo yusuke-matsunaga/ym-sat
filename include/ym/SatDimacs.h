@@ -5,11 +5,10 @@
 /// @brief SatDimacs のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/sat.h"
-#include "ym/IDO.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -17,6 +16,8 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 /// @class SatDimacs SatDimacs.h "ym/SatDimacs.h"
 /// @brief DIMCAS 形式のファイルの内容を表すクラス
+///
+/// SatSolver とは直接関係はない．
 //////////////////////////////////////////////////////////////////////
 class SatDimacs
 {
@@ -25,10 +26,10 @@ public:
   /// @brief コンストラクタ
   ///
   /// 空のCNFとなる．
-  SatDimacs();
+  SatDimacs() = default;
 
   /// @brief デストラクタ
-  ~SatDimacs();
+  ~SatDimacs() = default;
 
 
 public:
@@ -49,7 +50,7 @@ public:
   /// @brief 節のリストを返す．
   ///
   /// 節は DIMACS 形式と同様に int のリストで表す．
-  const vector<vector<int> >&
+  const vector<vector<int>>&
   clause_list() const;
 
   /// @brief 評価する．
@@ -117,22 +118,13 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
-  /// @param[in] ido 入力元のデータオブジェクト
-  /// @retval true 読み込みが成功した．
-  /// @retval false 読み込みが失敗した．
-  bool
-  _read_dimacs(IDO& ido);
-
   /// @brief int から変数番号と極性(0 or 1)を取り出す．
   /// @param[in] lit リテラルを表す整数
   /// @param[in] var 変数番号 ( 0 から始まる )
   /// @param[in] pol 極性 ( 0 or 1 )
   static
-  void
-  decode_lit(int lit,
-	     int& var,
-	     int& pol);
+  tuple<int, int>
+  decode_lit(int lit);
 
 
 private:
@@ -141,7 +133,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数の数
-  int mVarNum;
+  int mVarNum{0};
 
   // 節のリスト
   vector<vector<int>> mClauseList;
@@ -152,21 +144,6 @@ private:
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-//
-// 空のCNFとなる．
-inline
-SatDimacs::SatDimacs()
-{
-  mVarNum = 0;
-}
-
-// @brief デストラクタ
-inline
-SatDimacs::~SatDimacs()
-{
-}
 
 // @brief 変数の数を返す．
 //
@@ -220,7 +197,7 @@ SatDimacs::add_clause(const vector<int>& lit_list)
   for ( auto lit: lit_list ) {
     int var;
     int pol;
-    decode_lit(lit, var, pol);
+    tie(var, pol) = decode_lit(lit);
     ++ var;
     if ( mVarNum < var ) {
       mVarNum = var;
@@ -231,18 +208,50 @@ SatDimacs::add_clause(const vector<int>& lit_list)
   mClauseList.push_back(lit_list);
 }
 
+// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
+// @param[in] filename ファイル名
+// @retval true 読み込みが成功した．
+// @retval false 読み込みが失敗した．
+inline
+bool
+SatDimacs::read_dimacs(const char* filename)
+{
+  ifstream s(filename);
+  if ( !s ) {
+    return false;
+  }
+
+  return read_dimacs(s);
+}
+
+// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
+// @param[in] filename ファイル名
+// @retval true 読み込みが成功した．
+// @retval false 読み込みが失敗した．
+inline
+bool
+SatDimacs::read_dimacs(const string& filename)
+{
+  ifstream s(filename);
+  if ( !s ) {
+    return false;
+  }
+
+  return read_dimacs(s);
+}
+
 // @brief int から変数番号と極性(0 or 1)を取り出す．
 // @param[in] lit リテラルを表す整数
 // @param[in] var 変数番号 ( 0 から始まる )
 // @param[in] pol 極性 ( 0 or 1 )
 inline
-void
-SatDimacs::decode_lit(int lit,
-		      int& var,
-		      int& pol)
+tuple<int, int>
+SatDimacs::decode_lit(int lit)
 {
   ASSERT_COND( lit != 0 );
 
+  int var;
+  int pol;
   if ( lit > 0 ) {
     var = lit - 1;
     pol = 1;
@@ -251,6 +260,8 @@ SatDimacs::decode_lit(int lit,
     var = - lit - 1;
     pol = 0;
   }
+
+  return make_tuple(var, pol);
 }
 
 END_NAMESPACE_YM_SAT

@@ -429,9 +429,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   }
 
   if ( mTimerOn ) {
-    mTimer.stop();
-    mTimer.reset();
-    mTimer.start();
+    mStartTime = Clock::now();
   }
 
   alloc_var();
@@ -529,7 +527,9 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   backtrack(0);
 
   if ( mTimerOn ) {
-    mTimer.stop();
+    auto t = Clock::now();
+    auto d = std::chrono::duration_cast<Duration>(t - mStartTime);
+    mAccTime += d;
   }
 
   if ( debug & debug_solve ) {
@@ -592,7 +592,7 @@ YmSat::get_stats(SatStats& stats) const
   stats.mPropagationNum = mPropagationNum;
   stats.mConflictLimit = mConflictLimit;
   stats.mLearntLimit = mLearntLimit;
-  stats.mTime = mTimer.time();
+  stats.mTime = mAccTime;
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録

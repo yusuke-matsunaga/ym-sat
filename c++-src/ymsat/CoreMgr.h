@@ -12,12 +12,12 @@
 #include "ym/sat.h"
 #include "ym/SatBool3.h"
 #include "ym/FragAlloc.h"
-#include "ym/StopWatch.h"
 
 #include "SatReason.h"
 #include "AssignList.h"
 #include "Watcher.h"
 
+#include <chrono>
 
 BEGIN_NAMESPACE_YM_SAT
 
@@ -745,8 +745,15 @@ private:
   // mTimer を使うとき true にするフラグ
   bool mTimerOn;
 
-  // 時間計測器
-  StopWatch mTimer;
+  using Clock = std::chrono::system_clock;
+  using TimePoint = std::chrono::time_point<Clock>;
+  using Duration = std::chrono::milliseconds;
+
+  // 直前の開始時刻
+  TimePoint mStartTime;
+
+  // 累積時間
+  Duration mAccTime;
 
   // メッセージハンドラのリスト
   list<SatMsgHandler*> mMsgHandlerList;
@@ -1320,9 +1327,7 @@ void
 CoreMgr::start_timer()
 {
   if ( mTimerOn ) {
-    mTimer.stop();
-    mTimer.reset();
-    mTimer.start();
+    mStartTime = Clock::now();
   }
 }
 
@@ -1334,7 +1339,9 @@ void
 CoreMgr::stop_timer()
 {
   if ( mTimerOn ) {
-    mTimer.stop();
+    auto t = Clock::now();
+    auto d = std::chrono::duration_cast<Duration>(t - mStartTime);
+    mAccTime += d;
   }
 }
 

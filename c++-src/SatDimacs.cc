@@ -3,13 +3,11 @@
 /// @brief SatDimacs の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "ym/SatDimacs.h"
-#include "ym/FileIDO.h"
-#include "ym/StreamIDO.h"
 #include "DimacsScanner.h"
 
 
@@ -29,7 +27,7 @@ SatDimacs::eval(const vector<int>& model) const
     for ( auto lit: lit_list ) {
       int var;
       int pol;
-      decode_lit(lit, var, pol);
+      tie(var, pol) = decode_lit(lit);
       if ( model[var] == pol ) {
 	sat = true;
 	break;
@@ -66,48 +64,6 @@ SatDimacs::write_dimacs(ostream& s) const
 bool
 SatDimacs::read_dimacs(istream& s)
 {
-  StreamIDO ido(s);
-
-  return _read_dimacs(ido);
-}
-
-// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
-// @param[in] filename ファイル名
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
-bool
-SatDimacs::read_dimacs(const char* filename)
-{
-  FileIDO ido;
-  if ( !ido.open(filename) ) {
-    return false;
-  }
-
-  return _read_dimacs(ido);
-}
-
-// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
-// @param[in] filename ファイル名
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
-bool
-SatDimacs::read_dimacs(const string& filename)
-{
-  FileIDO ido;
-  if ( !ido.open(filename) ) {
-    return false;
-  }
-
-  return _read_dimacs(ido);
-}
-
-// @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
-// @param[in] ido 入力元のデータオブジェクト
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
-bool
-SatDimacs::_read_dimacs(IDO& ido)
-{
   // 読込用の内部状態
   enum {
     ST_INIT,
@@ -120,18 +76,18 @@ SatDimacs::_read_dimacs(IDO& ido)
   } state = ST_INIT;
 
   // 宣言された変数の数
-  int dec_nv = 0;
+  int dec_nv{0};
   // 宣言された節の数
-  int dec_nc = 0;
+  int dec_nc{0};
 
   // 実際に読み込んだ変数の最大値
-  int max_v = 0;
+  int max_v{0};
   // 実際に読み込んだ節の数
-  int act_nc = 0;
+  int act_nc{0};
 
   vector<int> lits;
 
-  DimacsScanner scanner(ido);
+  DimacsScanner scanner(s);
 
   clear();
 

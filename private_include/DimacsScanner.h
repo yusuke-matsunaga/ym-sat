@@ -5,7 +5,7 @@
 /// @brief DimacsScanner のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -37,8 +37,8 @@ class DimacsScanner :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] ido 入力データ
-  DimacsScanner(IDO& ido);
+  /// @param[in] s 入力ストリーム
+  DimacsScanner(istream& s);
 
   /// @brief デストラクタ
   ~DimacsScanner();
