@@ -64,7 +64,6 @@ set (ym_sat_SOURCES
   c++-src/SatBinaryNum.cc
   c++-src/SatOrderedSet.cc
   c++-src/SatDimacs.cc
-  c++-src/DimacsScanner.cc
 
   c++-src/MiniSat/SatSolverMiniSat.cc
   c++-src/MiniSat/Solver.C

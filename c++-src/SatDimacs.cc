@@ -8,7 +8,6 @@
 
 
 #include "ym/SatDimacs.h"
-#include "DimacsScanner.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -85,121 +84,68 @@ SatDimacs::read_dimacs(istream& s)
   // 実際に読み込んだ節の数
   int act_nc{0};
 
-  vector<int> lits;
-
-  DimacsScanner scanner(s);
-
   clear();
 
-  for ( ; ; ) {
-    FileRegion loc;
-    Token tk = scanner.read_token(loc);
-    if ( tk == Token::ERR ) {
-      return false;
+  // コメント行のパタン
+  regex pat_C{R"(^c)"};
+
+  // 先頭行のパタン
+  regex pat_P{R"(^p\s+cnf\s+(\d+)\s+(\d+)\s*$)"};
+
+  // end-marker ? のパタン
+  regex pat_E{R"(^%)"};
+
+  // リテラルのパタン
+  regex pat_L{R"(\s*(-?\d+))"};
+
+  // 行バッファ
+  string buff;
+  // 行番号
+  int lineno = 0;
+  while ( getline(s, buff) ) {
+    ++ lineno;
+    if ( regex_search(buff, pat_C) ) {
+      // コメント行だった．
+      continue;
     }
-    if ( tk == Token::C ) {
-      // コメント行なのでなにもしない．
+    smatch match;
+    if ( regex_match(buff, match, pat_P) ) {
+      if ( dec_nv > 0 ) {
+	// p 行が重複していた．
+#warning "TODO: エラーメッセージを出力する．"
+      }
+      dec_nv = stoi(match[1]);
+      dec_nc = stoi(match[2]);
       continue;
     }
 
-    switch ( state ) {
-    case ST_INIT:
-      if ( tk == Token::P ) {
-	state = ST_P1;
-      }
-      break;
-
-    case ST_P1:
-      if ( tk != Token::NUM ) {
-	goto p_error;
-      }
-      dec_nv = scanner.cur_val();
-      state = ST_P2;
-      break;
-
-    case ST_P2:
-      if ( tk != Token::NUM ) {
-	goto p_error;
-      }
-      dec_nc = scanner.cur_val();
-      state = ST_P3;
-      break;
-
-    case ST_P3:
-      if ( tk != Token::NL ) {
-	goto p_error;
-      }
-      // p 行は無視する．
-      state = ST_BODY1;
-      break;
-
-    case ST_BODY1:
-      if ( tk == Token::P ) {
-#if 0
-	put_msg(__FILE__, __LINE__,
-		loc,
-		kMsgError,
-		"ERR01",
-		"duplicated 'p' lines");
-#endif
-	cout << "ERR01: duplicated 'p' lines" << endl;
-	return false;
-      }
-      if ( tk == Token::E_O_F ) {
-	goto normal_end;
-      }
-      if ( tk == Token::NL ) {
-	continue;
-      }
-      if ( tk == Token::NUM ) {
-	int v = scanner.cur_val();
-	lits.clear();
-	lits.push_back(v);
-	if ( v < 0 ) {
-	  v = - v;
-	}
-	if ( max_v < v ) {
-	  max_v = v;
-	}
-	state = ST_BODY2;
-	break;
-      }
-      // それ以外はエラー
-      goto n_error;
-
-    case ST_BODY2:
-      if ( tk == Token::ZERO ) {
-	state = ST_BODY3;
-      }
-      else if ( tk == Token::NL ) {
-	continue;
-      }
-      else if ( tk == Token::NUM ) {
-	int v = scanner.cur_val();
-	lits.push_back(v);
-	if ( v < 0 ) {
-	  v = - v;
-	}
-	if ( max_v < v ) {
-	  max_v = v;
-	}
-      }
-      else {
-	goto n_error;
-      }
-      break;
-
-    case ST_BODY3:
-      if ( tk != Token::NL && tk != Token::E_O_F ) {
-	goto n_error;
-      }
-      ++ act_nc;
-      add_clause(lits);
-      state = ST_BODY1;
+    if ( regex_search(buff, pat_E) ) {
       break;
     }
-  }
 
+    vector<int> lits;
+    auto start = buff.cbegin();
+    auto end = buff.cend();
+    while ( true ) {
+      if ( !regex_search(start, end, match, pat_L) ) {
+	// シンタックスエラー
+#warning "TODO: エラーメッセージを出力する．"
+      }
+      int lit = stoi(match[1]);
+      if ( lit == 0 ) {
+	// end-mark
+	add_clause(lits);
+	++ act_nc;
+	break;
+      }
+      lits.push_back(lit);
+      int v = abs(lit);
+      if ( max_v < v ) {
+	max_v = v;
+      }
+      start = match[0].second;
+    }
+  }
   normal_end:
   if ( dec_nv == 0 ) {
 #if 0

@@ -68,4 +68,6 @@ ym_add_gtest ( sat_Dimacs_test
   DimacsTest.cc
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_sat_obj_d>
+  DEFINITIONS
+  "-DDATA_DIR=\"${PROJECT_SOURCE_DIR}/ym-sat/testdata\""
   )
