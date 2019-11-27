@@ -44,7 +44,7 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory( c++-test )
+add_subdirectory( c++-tests )
 add_subdirectory( cython-src ) # ダミー
 
 
