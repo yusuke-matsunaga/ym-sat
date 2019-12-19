@@ -11,7 +11,6 @@
 
 #include "ym/sat.h"
 #include "ym/SatBool3.h"
-#include "ym/FragAlloc.h"
 
 #include "SatReason.h"
 #include "AssignList.h"
@@ -618,9 +617,6 @@ private:
 
   // 学習節のアクティビティの減衰量
   double mClauseDecay;
-
-  // SatClause のメモリ領域確保用のアロケータ
-  FragAlloc mAlloc;
 
   // 正常の時に true となっているフラグ
   bool mSane;

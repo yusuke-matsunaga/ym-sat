@@ -17,7 +17,6 @@
 #include "Watcher.h"
 #include "VarHeap.h"
 #include "conf.h"
-#include "ym/FragAlloc.h"
 #include <chrono>
 #include <random>
 
@@ -407,9 +406,6 @@ private:
 
   // 正常の時に true となっているフラグ
   bool mSane;
-
-  // SatClause のメモリ領域確保用のアロケータ
-  FragAlloc mAlloc;
 
   // 条件リテラルのリスト
   vector<SatLiteral> mCondLits;
