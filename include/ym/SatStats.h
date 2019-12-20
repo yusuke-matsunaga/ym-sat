@@ -10,7 +10,6 @@
 
 
 #include "ym/sat.h"
-#include <chrono>
 
 
 BEGIN_NAMESPACE_YM_SAT
