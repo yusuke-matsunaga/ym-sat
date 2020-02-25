@@ -29,11 +29,11 @@ public:
   new_impl(const SatSolverType& solver_type);
 
   /// @brief コンストラクタ
-  SatLogger();
+  SatLogger() = default;
 
   /// @brief デストラクタ
   virtual
-  ~SatLogger();
+  ~SatLogger() = default;
 
 
 public:
@@ -47,33 +47,11 @@ public:
   void
   new_variable(SatLiteral lit);
 
-  /// @brief 条件リテラルを設定する．
-  /// @param[in] lits リテラルのベクタ
-  virtual
-  void
-  set_conditional_literals(const vector<SatLiteral>& lits);
-
-  /// @brief 条件リテラルを設定する．
-  /// @param[in] n_lits リテラル数
-  /// @param[in] lits リテラルの配列
-  virtual
-  void
-  set_conditional_literals(int n_lits,
-			   const SatLiteral* lits);
-
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   virtual
   void
   add_clause(const vector<SatLiteral>& lits);
-
-  /// @brief 節を追加する．
-  /// @param[in] n_lits リテラル数
-  /// @param[in] lits リテラルの配列
-  virtual
-  void
-  add_clause(int n_lits,
-	     const SatLiteral* lits);
 
   /// @brief assumption 付きの SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
@@ -99,8 +77,12 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-
 };
+
+
+//////////////////////////////////////////////////////////////////////
+// インライン関数の定義
+//////////////////////////////////////////////////////////////////////
 
 END_NAMESPACE_YM_SAT
 

@@ -47,30 +47,6 @@ YmSat::new_variable(bool decision)
   return mMgr.new_variable(decision);
 }
 
-// @brief 条件リテラルを設定する．
-// @param[in] lit_list 条件リテラルのリスト
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
-void
-YmSat::set_conditional_literals(const vector<SatLiteral>& lit_list)
-{
-  mMgr.set_conditional_literals(lit_list);
-}
-
-// @brief 条件リテラルを設定する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
-void
-YmSat::set_conditional_literals(int lit_num,
-				const SatLiteral* lits)
-{
-  mMgr.set_conditional_literals(lit_num, lits);
-}
-
 // @brief リテラルを 'フリーズ' する．
 //
 // lingeling 以外は無効
@@ -85,16 +61,6 @@ void
 YmSat::add_clause(const vector<SatLiteral>& lits)
 {
   mMgr.add_clause(lits);
-}
-
-// @brief 節を追加する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-void
-YmSat::add_clause(int lit_num,
-		  const SatLiteral* lits)
-{
-  mMgr.add_clause(lit_num, lits);
 }
 
 // @brief SAT 問題を解く．
@@ -160,77 +126,6 @@ void
 YmSat::get_stats(SatStats& stats) const
 {
   mMgr.get_stats(stats);
-}
-
-// @brief 変数の数を得る．
-int
-YmSat::variable_num() const
-{
-  return mMgr.variable_num();
-}
-
-// @brief 制約節の数を得る．
-int
-YmSat::clause_num() const
-{
-  return mMgr.clause_num();
-}
-
-// @brief 制約節のリテラルの総数を得る．
-int
-YmSat::literal_num() const
-{
-  return mMgr.literal_num();
-}
-
-BEGIN_NONAMESPACE
-
-// DIMACS 形式でリテラルを出力する．
-void
-write_lit(ostream& s,
-	  SatLiteral lit)
-{
-  int var = lit.varid();
-  int idx = var + 1;
-  if ( lit.is_negative() ) {
-    s << " -";
-      }
-  else {
-    s << " ";
-  }
-  s << idx;
-}
-
-END_NONAMESPACE
-
-// @brief DIMACS 形式で制約節を出力する．
-// @param[in] s 出力先のストリーム
-void
-YmSat::write_DIMACS(ostream& s) const
-{
-  s << "p cnf " << variable_num() << " " << clause_num() << endl;
-  for ( int i: Range(mMgr.unit_clause_num()) ) {
-    SatLiteral lit1 = mMgr.unit_clause(i);
-    write_lit(s, lit1);
-    s << " 0" << endl;
-  }
-  for ( int i: Range(mMgr.bin_clause_num()) ) {
-    SatLiteral lit1;
-    SatLiteral lit2;
-    mMgr.bin_clause(i, lit1, lit2);
-    write_lit(s, lit1);
-    write_lit(s, lit2);
-    s << " 0" << endl;
-  }
-  for ( int i: Range(mMgr.clause_num()) ) {
-    const SatClause* clause = mMgr.clause(i);
-    int nl = clause->lit_num();
-    for ( int j: Range(nl) ) {
-      SatLiteral lit = clause->lit(j);
-      write_lit(s, lit);
-    }
-    s << " 0" << endl;
-  }
 }
 
 END_NAMESPACE_YM_SAT

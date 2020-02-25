@@ -34,6 +34,7 @@ cdef extern from "ym/SatSolver.h" namespace "nsYm" :
         void stop()
         void timer_on(bool enable)
         ymuint64 set_max_conflict(ymuint64 val)
+        SatSolverType type()
         bool sane()
         void get_stats(SatStats& stats)
         ymuint variable_num()

@@ -38,33 +38,6 @@ SatLoggerS::new_variable(SatLiteral lit)
       << "# var = " << lit << endl;
 }
 
-// @brief 条件リテラルを設定する．
-// @param[in] lits リテラルのベクタ
-void
-SatLoggerS::set_conditional_literals(const vector<SatLiteral>& lits)
-{
-  mCondLits.clear();
-  int n = lits.size();
-  mCondLits.resize(n);
-  for ( int i = 0; i < n; ++ i ) {
-    mCondLits[i] = lits[i];
-  }
-}
-
-// @brief 条件リテラルを設定する．
-// @param[in] n_lits リテラル数
-// @param[in] lits リテラルの配列
-void
-SatLoggerS::set_conditional_literals(int n_lits,
-				    const SatLiteral* lits)
-{
-  mCondLits.clear();
-  mCondLits.resize(n_lits);
-  for ( int i = 0; i < n_lits; ++ i ) {
-    mCondLits[i] = lits[i];
-  }
-}
-
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
@@ -73,27 +46,6 @@ SatLoggerS::add_clause(const vector<SatLiteral>& lits)
   *mS << "A";
   for ( auto l: lits ) {
     put_lit(l);
-  }
-  for ( auto l: mCondLits ) {
-    put_lit(~l);
-  }
-  *mS << endl;
-}
-
-// @brief 節を追加する．
-// @param[in] n_lits リテラル数
-// @param[in] lits リテラルの配列
-void
-SatLoggerS::add_clause(int n_lits,
-		       const SatLiteral* lits)
-{
-  *mS << "A";
-  for ( int i = 0; i < n_lits; ++ i ) {
-    SatLiteral l = lits[i];
-    put_lit(l);
-  }
-  for ( auto l: mCondLits ) {
-    put_lit(~l);
   }
   *mS << endl;
 }

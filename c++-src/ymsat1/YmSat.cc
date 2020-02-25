@@ -134,37 +134,6 @@ YmSat::new_variable(bool decision)
   return n;
 }
 
-// @brief 条件リテラルを設定する．
-// @param[in] lit_list 条件リテラルのリスト
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-void
-YmSat::set_conditional_literals(const vector<SatLiteral>& lit_list)
-{
-  mCondLits.clear();
-  int lit_num = lit_list.size();
-  mCondLits.resize(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mCondLits[i] = lit_list[i];
-  }
-}
-
-// @brief 条件リテラルを設定する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-void
-YmSat::set_conditional_literals(int lit_num,
-				const SatLiteral* lits)
-{
-  mCondLits.clear();
-  mCondLits.resize(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mCondLits[i] = lits[i];
-  }
-}
-
 // @brief リテラルを 'フリーズ' する．
 //
 // lingeling 以外は無効
@@ -178,42 +147,6 @@ YmSat::freeze_literal(SatLiteral lit)
 void
 YmSat::add_clause(const vector<SatLiteral>& lits)
 {
-  int lit_num = lits.size();
-  int n2 = mCondLits.size();
-  alloc_lits(lit_num + n2);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mTmpLits[i] = lits[i];
-  }
-  for ( int i = 0; i < n2; ++ i ) {
-    SatLiteral lit = mCondLits[i];
-    mTmpLits[lit_num + i] = ~lit;
-  }
-  add_clause_sub(lit_num + n2);
-}
-
-// @brief 節を追加する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-void
-YmSat::add_clause(int lit_num,
-		  const SatLiteral* lits)
-{
-  int n2 = mCondLits.size();
-  alloc_lits(lit_num + n2);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mTmpLits[i] = lits[i];
-  }
-  for ( int i = 0; i < n2; ++ i ) {
-    SatLiteral lit = mCondLits[i];
-    mTmpLits[lit_num + i] = ~lit;
-  }
-  add_clause_sub(lit_num + n2);
-}
-
-// @brief add_clause() の下請け関数
-void
-YmSat::add_clause_sub(int lit_num)
-{
   if ( decision_level() != 0 ) {
     // エラー
     cout << "Error![YmSat]: decision_level() != 0" << endl;
@@ -223,6 +156,12 @@ YmSat::add_clause_sub(int lit_num)
   if ( !mSane ) {
     cout << "Error![YmSat]: mSane == false" << endl;
     return;
+  }
+
+  int lit_num = lits.size();
+  alloc_lits(lit_num);
+  for ( int i = 0; i < lit_num; ++ i ) {
+    mTmpLits[i] = lits[i];
   }
 
   alloc_var();
@@ -583,7 +522,7 @@ YmSat::get_stats(SatStats& stats) const
 {
   stats.mRestart = mRestart;
   stats.mVarNum = mVarNum;
-  stats.mConstrClauseNum = clause_num();
+  stats.mConstrClauseNum = mConstrClauseList.size() + mConstrBinNum;
   stats.mConstrLitNum = mConstrLitNum;
   stats.mLearntClauseNum = mLearntClause.size() + mLearntBinNum;
   stats.mLearntLitNum = mLearntLitNum;
@@ -1060,13 +999,6 @@ YmSat::expand_var()
   mAssignList.reserve(mVarSize);
   mVarHeap.alloc_var(mVarSize);
   mAnalyzer->alloc_var(mVarSize);
-}
-
-// @brief DIMACS 形式で制約節を出力する．
-// @param[in] s 出力先のストリーム
-void
-YmSat::write_DIMACS(ostream& s) const
-{
 }
 
 END_NAMESPACE_YM_SAT1

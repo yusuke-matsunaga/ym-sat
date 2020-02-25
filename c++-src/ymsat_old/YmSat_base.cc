@@ -134,37 +134,6 @@ YmSat::new_variable(bool decision)
   return n;
 }
 
-// @brief 条件リテラルを設定する．
-// @param[in] lit_list 条件リテラルのリスト
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-void
-YmSat::set_conditional_literals(const vector<SatLiteral>& lit_list)
-{
-  mCondLits.clear();
-  int lit_num = lit_list.size();
-  mCondLits.resize(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mCondLits[i] = lit_list[i];
-  }
-}
-
-// @brief 条件リテラルを設定する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-void
-YmSat::set_conditional_literals(int lit_num,
-				const SatLiteral* lits)
-{
-  mCondLits.clear();
-  mCondLits.resize(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mCondLits[i] = lits[i];
-  }
-}
-
 // @brief リテラルを 'フリーズ' する．
 //
 // lingeling 以外は無効
@@ -178,118 +147,6 @@ YmSat::freeze_literal(SatLiteral lit)
 void
 YmSat::add_clause(const vector<SatLiteral>& lits)
 {
-  // add_clause_sub() 中でリテラルの並び替えを行うので
-  // 一旦 mTmpLits にコピーする．
-  int lit_num = lits.size();
-  int n2 = mCondLits.size();
-  alloc_lits(lit_num + n2);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mTmpLits[i] = lits[i];
-  }
-  for ( int i = 0; i < n2; ++ i ) {
-    auto l{mCondLits[i]};
-    // 極性が反転することに注意
-    mTmpLits[lit_num + i] = ~l;
-  }
-
-  // 節を追加する本体
-  add_clause_sub(lit_num + n2);
-}
-
-// @brief 節を追加する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-void
-YmSat::add_clause(int lit_num,
-		  const SatLiteral* lits)
-{
-  // add_clause_sub() 中でリテラルの並び替えを行うので
-  // 一旦 mTmpLits にコピーする．
-  int n2 = mCondLits.size();
-  alloc_lits(lit_num + n2);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mTmpLits[i] = lits[i];
-  }
-  for ( int i = 0; i < n2; ++ i ) {
-    auto l{mCondLits[i]};
-    // 極性が反転することに注意
-    mTmpLits[lit_num + i] = ~l;
-  }
-
-  // 節を追加する本体
-  add_clause_sub(lit_num + n2);
-}
-
-// @brief 現在の内部状態を得る．
-// @param[out] stats 状態を格納する構造体
-void
-YmSat::get_stats(SatStats& stats) const
-{
-  stats.mRestart = mRestart;
-  stats.mVarNum = mVarNum;
-  stats.mConstrClauseNum = clause_num();
-  stats.mConstrLitNum = mConstrLitNum;
-  stats.mLearntClauseNum = mLearntClauseList.size() + mLearntBinNum;
-  stats.mLearntLitNum = mLearntLitNum;
-  stats.mConflictNum = mConflictNum;
-  stats.mDecisionNum = mDecisionNum;
-  stats.mPropagationNum = mPropagationNum;
-  stats.mConflictLimit = mConflictLimit;
-  stats.mLearntLimit = mLearntLimit;
-  stats.mTime = mTimer.time();
-}
-
-// @brief 変数の数を得る．
-int
-YmSat::variable_num() const
-{
-  return mVarNum;
-}
-
-// @brief 制約節の数を得る．
-int
-YmSat::clause_num() const
-{
-  return mConstrClauseNum;
-}
-
-// @brief 制約節のリテラルの総数を得る．
-int
-YmSat::literal_num() const
-{
-  return mConstrLitNum;
-}
-
-// @brief conflict_limit の最大値
-// @param[in] val 設定する値
-// @return 以前の設定値を返す．
-int
-YmSat::set_max_conflict(int val)
-{
-  int old_val = mMaxConflict;
-  mMaxConflict = val;
-  return old_val;
-}
-
-// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
-// @param[in] msg_handler 登録するメッセージハンドラ
-void
-YmSat::reg_msg_handler(SatMsgHandler* msg_handler)
-{
-  mMsgHandlerList.push_back(msg_handler);
-}
-
-// @brief 時間計測機能を制御する
-void
-YmSat::timer_on(bool enable)
-{
-  mTimerOn = enable;
-}
-
-// @brief add_clause() の下請け関数
-void
-YmSat::add_clause_sub(int lit_num)
-{
   if ( decision_level() != 0 ) {
     // エラー
     cout << "Error![YmSat]: decision_level() != 0" << endl;
@@ -302,6 +159,15 @@ YmSat::add_clause_sub(int lit_num)
     return;
   }
 
+  // あとでリテラルの並び替えを行うので
+  // 一旦 mTmpLits にコピーする．
+  int lit_num = lits.size();
+  alloc_lits(lit_num);
+  for ( int i = 0; i < lit_num; ++ i ) {
+    mTmpLits[i] = lits[i];
+  }
+
+  // 節を追加する本体
   // 変数領域の確保を行う．
   alloc_var();
 
@@ -452,6 +318,51 @@ YmSat::add_clause_sub(int lit_num)
     add_watcher(~l0, SatReason(clause));
     add_watcher(~l1, SatReason(clause));
   }
+}
+
+// @brief 現在の内部状態を得る．
+// @param[out] stats 状態を格納する構造体
+void
+YmSat::get_stats(SatStats& stats) const
+{
+  stats.mRestart = mRestart;
+  stats.mVarNum = mVarNum;
+  stats.mConstrClauseNum = mConstrClauseNum;
+  stats.mConstrLitNum = mConstrLitNum;
+  stats.mLearntClauseNum = mLearntClauseList.size() + mLearntBinNum;
+  stats.mLearntLitNum = mLearntLitNum;
+  stats.mConflictNum = mConflictNum;
+  stats.mDecisionNum = mDecisionNum;
+  stats.mPropagationNum = mPropagationNum;
+  stats.mConflictLimit = mConflictLimit;
+  stats.mLearntLimit = mLearntLimit;
+  stats.mTime = mTimer.time();
+}
+
+// @brief conflict_limit の最大値
+// @param[in] val 設定する値
+// @return 以前の設定値を返す．
+int
+YmSat::set_max_conflict(int val)
+{
+  int old_val = mMaxConflict;
+  mMaxConflict = val;
+  return old_val;
+}
+
+// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
+// @param[in] msg_handler 登録するメッセージハンドラ
+void
+YmSat::reg_msg_handler(SatMsgHandler* msg_handler)
+{
+  mMsgHandlerList.push_back(msg_handler);
+}
+
+// @brief 時間計測機能を制御する
+void
+YmSat::timer_on(bool enable)
+{
+  mTimerOn = enable;
 }
 
 // 学習節を追加する．
@@ -739,48 +650,6 @@ YmSat::expand_var()
   mAssignList.reserve(mVarSize);
   mVarHeap.alloc_var(mVarSize);
   mAnalyzer->alloc_var(mVarSize);
-}
-
-BEGIN_NONAMESPACE
-
-// DIMACS 形式でリテラルを出力する．
-void
-write_lit(ostream& s,
-	  SatLiteral lit)
-{
-  auto var = lit.varid();
-  int idx = var + 1;
-  if ( lit.is_negative() ) {
-    s << " -";
-      }
-  else {
-    s << " ";
-  }
-  s << idx;
-}
-
-END_NONAMESPACE
-
-// @brief DIMACS 形式で制約節を出力する．
-// @param[in] s 出力先のストリーム
-void
-YmSat::write_DIMACS(ostream& s) const
-{
-  s << "p cnf " << variable_num() << " " << clause_num() << endl;
-  for ( int i = 0; i < mConstrBinList.size(); ++ i ) {
-    auto& clause{mConstrBinList[i]};
-    write_lit(s, clause.mLit0);
-    write_lit(s, clause.mLit1);
-  }
-  for ( int i = 0; i < mConstrClauseList.size(); ++ i ) {
-    auto clause{mConstrClauseList[i]};
-    int nl = clause->lit_num();
-    for ( int j = 0; j < nl; ++ j ) {
-      auto lit{clause->lit(j)};
-      write_lit(s, lit);
-    }
-    s << " 0" << endl;
-  }
 }
 
 END_NAMESPACE_YM_YMSATOLD

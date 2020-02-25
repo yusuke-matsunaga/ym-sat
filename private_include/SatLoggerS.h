@@ -41,29 +41,10 @@ public:
   void
   new_variable(SatLiteral lit) override;
 
-  /// @brief 条件リテラルを設定する．
-  /// @param[in] lits リテラルのベクタ
-  void
-  set_conditional_literals(const vector<SatLiteral>& lits) override;
-
-  /// @brief 条件リテラルを設定する．
-  /// @param[in] n_lits リテラル数
-  /// @param[in] lits リテラルの配列
-  void
-  set_conditional_literals(int n_lits,
-			   const SatLiteral* lits) override;
-
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   void
   add_clause(const vector<SatLiteral>& lits) override;
-
-  /// @brief 節を追加する．
-  /// @param[in] n_lits リテラル数
-  /// @param[in] lits リテラルの配列
-  void
-  add_clause(int n_lits,
-	     const SatLiteral* lits) override;
 
   /// @brief assumption 付きの SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
@@ -95,9 +76,6 @@ private:
 
   // 出力先のストリーム
   ostream* mS;
-
-  // 条件リテラルのリスト
-  vector<SatLiteral> mCondLits;
 
 };
 

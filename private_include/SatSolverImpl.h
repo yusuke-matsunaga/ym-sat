@@ -32,7 +32,7 @@ public:
 
   /// @brief デストラクタ
   virtual
-  ~SatSolverImpl() { }
+  ~SatSolverImpl() = default;
 
 
 public:
@@ -53,24 +53,6 @@ public:
   int
   new_variable(bool decition) = 0;
 
-  /// @brief 条件リテラルを設定する．
-  /// @param[in] lit_list 条件リテラルのリスト
-  ///
-  /// 以降の add_clause() にはこのリテラルの否定が追加される．
-  virtual
-  void
-  set_conditional_literals(const vector<SatLiteral>& lit_list) = 0;
-
-  /// @brief 条件リテラルを設定する．
-  /// @param[in] lit_num リテラル数
-  /// @param[in] lits リテラルの配列
-  ///
-  /// 以降の add_clause() にはこのリテラルの否定が追加される．
-  virtual
-  void
-  set_conditional_literals(int lit_num,
-			   const SatLiteral* lits) = 0;
-
   /// @brief リテラルを 'フリーズ' する．
   ///
   /// lingeling 以外は無効
@@ -83,14 +65,6 @@ public:
   virtual
   void
   add_clause(const vector<SatLiteral>& lits) = 0;
-
-  /// @brief 節を追加する．
-  /// @param[in] lit_num リテラル数
-  /// @param[in] lits リテラルの配列
-  virtual
-  void
-  add_clause(int lit_num,
-	     const SatLiteral* lits) = 0;
 
   /// @brief SAT 問題を解く．
   /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
@@ -118,27 +92,6 @@ public:
   virtual
   void
   get_stats(SatStats& stats) const = 0;
-
-  /// @brief 変数の数を得る．
-  virtual
-  int
-  variable_num() const = 0;
-
-  /// @brief 制約節の数を得る．
-  virtual
-  int
-  clause_num() const = 0;
-
-  /// @brief 制約節のリテラルの総数を得る．
-  virtual
-  int
-  literal_num() const = 0;
-
-  /// @brief DIMACS 形式で制約節を出力する．
-  /// @param[in] s 出力先のストリーム
-  virtual
-  void
-  write_DIMACS(ostream& s) const = 0;
 
   /// @brief conflict_limit の最大値
   /// @param[in] val 設定する値

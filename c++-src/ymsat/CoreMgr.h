@@ -127,29 +127,10 @@ public:
   // 節の追加に関する関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 条件リテラルのリストを設定する．
-  /// @param[in] lits リテラルのベクタ
-  void
-  set_conditional_literals(const vector<SatLiteral>& lits);
-
-  /// @brief 条件リテラルのリストを設定する．
-  /// @param[in] lit_num リテラル数
-  /// @param[in] lits リテラルの配列
-  void
-  set_conditional_literals(int lit_num,
-			   const SatLiteral* lits);
-
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ
   void
   add_clause(const vector<SatLiteral>& lits);
-
-  /// @brief 節を追加する．
-  /// @param[in] lit_num リテラル数
-  /// @param[in] lits リテラルの配列
-  void
-  add_clause(int lit_num,
-	     const SatLiteral* lits);
 
   /// @brief 学習節を追加する．
   /// @param[in] lits 追加するリテラルのリスト
@@ -434,12 +415,6 @@ private:
   void
   alloc_lits(int lit_num);
 
-  /// @brief add_clause() の下請け関数
-  ///
-  /// リテラルの実体は mTmpLits[] に入れておく．
-  void
-  add_clause_sub(int lit_num);
-
   /// @brief 新しい節を生成する．
   /// @param[in] lit_num リテラル数
   /// @param[in] learnt 学習節のとき true とするフラグ
@@ -624,9 +599,6 @@ private:
 
   // 正常の時に true となっているフラグ
   bool mSane;
-
-  // 条件リテラルのリスト
-  vector<SatLiteral> mCondLits;
 
   // 制約節の配列
   vector<SatClause*> mConstrClauseList;

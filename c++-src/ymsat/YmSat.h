@@ -71,24 +71,6 @@ public:
   int
   new_variable(bool decision) override;
 
-  /// @brief 条件リテラルを設定する．
-  /// @param[in] lit_list 条件リテラルのリスト
-  ///
-  /// 以降の add_clause() にはこのリテラルの否定が追加される．
-  /// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
-  void
-  set_conditional_literals(const vector<SatLiteral>& lit_list) override;
-
-  /// @brief 条件リテラルを設定する．
-  /// @param[in] lit_num リテラル数
-  /// @param[in] lits リテラルの配列
-  ///
-  /// 以降の add_clause() にはこのリテラルの否定が追加される．
-  /// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
-  void
-  set_conditional_literals(int lit_num,
-			   const SatLiteral* lits) override;
-
   /// @brief リテラルを 'フリーズ' する．
   ///
   /// lingeling 以外は無効
@@ -99,13 +81,6 @@ public:
   /// @param[in] lits リテラルのベクタ
   void
   add_clause(const vector<SatLiteral>& lits) override;
-
-  /// @brief 節を追加する．
-  /// @param[in] lit_num リテラル数
-  /// @param[in] lits リテラルの配列
-  void
-  add_clause(int lit_num,
-	     const SatLiteral* lits) override;
 
   //////////////////////////////////////////////////////////////////////
   /// @}
@@ -171,23 +146,6 @@ public:
   /// @param[out] stats 状態を格納する構造体
   void
   get_stats(SatStats& stats) const override;
-
-  /// @brief 変数の数を得る．
-  int
-  variable_num() const override;
-
-  /// @brief 制約節の数を得る．
-  int
-  clause_num() const override;
-
-  /// @brief 制約節のリテラルの総数を得る．
-  int
-  literal_num() const override;
-
-  /// @brief DIMACS 形式で制約節を出力する．
-  /// @param[in] s 出力先のストリーム
-  void
-  write_DIMACS(ostream& s) const override;
 
   //////////////////////////////////////////////////////////////////////
   /// @}

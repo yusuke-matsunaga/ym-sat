@@ -32,6 +32,10 @@ cdef class Solver :
         if self._this_ptr != NULL :
             del self._this_ptr
 
+    ### @brief ソルバの型を返す．
+    def type(Solver self) :
+        return to_SolverType(self._this_ptr.type())
+
     ### @brief 新しい変数を確保する．
     ### @param[in] decision 決定変数の時に True にする．
     ### @return その変数に対応するリテラル(Literal)を返す．

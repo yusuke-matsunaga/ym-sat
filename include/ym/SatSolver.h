@@ -261,6 +261,10 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief SolverType を取り出す．
+  SatSolverType
+  type() const;
+
   /// @brief 正しい状態のときに true を返す．
   bool
   sane() const;
@@ -291,11 +295,43 @@ public:
   /// @}
   //////////////////////////////////////////////////////////////////////
 
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief set_conditional_literals() の下請け関数
+  /// @param[in] n conditional_literal の数
+  /// @param[in] lits conditional_literal の配列
+  void
+  _set_conditional_literals(int n,
+			    SatLiteral lits[]);
+
+  /// @brief add_clause() の下請け関数
+  /// @param[in] lits リテラルのリスト
+  void
+  _add_clause(const vector<SatLiteral>& lits);
+
+  /// @brief add_clause() の下請け関数
+  /// @param[in] n リテラル数
+  /// @param[in] lits リテラルの配列
+  void
+  _add_clause(int n,
+	      SatLiteral lits[]);
+
+  /// @brief _add_clause() の下請け関数
+  /// @param[in] lits リテラルのリスト
+  void
+  _add_clause_sub(const vector<SatLiteral>& lits);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  // ソルバの型
+  SatSolverType mType;
 
   // 実際の機能を実装しているクラス
   unique_ptr<SatSolverImpl> mImpl;
@@ -312,12 +348,191 @@ private:
   // 直前の矛盾の原因
   vector<SatLiteral> mConflictLiterals;
 
+  // 変数の数(リポート用)
+  int mVariableNum{0};
+
+  // 節のリスト(リポート用)
+  vector<vector<SatLiteral>> mClauseList;
+
+  // リテラル数(リポート用)
+  int mLiteralNum{0};
+
 };
 
 
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
+
+// @brief SolverType を取り出す．
+inline
+SatSolverType
+SatSolver::type() const
+{
+  return mType;
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] lit_list 条件リテラルのリスト
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+inline
+void
+SatSolver::set_conditional_literals(const vector<SatLiteral>& lit_list)
+{
+  mConditionalLits = lit_list;
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] lit1 条件リテラル
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+inline
+void
+SatSolver::set_conditional_literals(SatLiteral lit1)
+{
+  _set_conditional_literals(1, &lit1);
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] lit1, lit2 条件リテラル
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+inline
+void
+SatSolver::set_conditional_literals(SatLiteral lit1,
+				    SatLiteral lit2)
+{
+  SatLiteral tmp_lits[] = {lit1, lit2};
+
+  _set_conditional_literals(2, tmp_lits);
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] lit1, lit2, lit3 条件リテラル
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+inline
+void
+SatSolver::set_conditional_literals(SatLiteral lit1,
+				    SatLiteral lit2,
+				    SatLiteral lit3)
+{
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3};
+
+  _set_conditional_literals(3, tmp_lits);
+}
+
+// @brief 条件リテラルを設定する．
+// @param[in] lit1, lit2, lit3, lit4 条件リテラル
+//
+// 以降の add_clause() にはこのリテラルの否定が追加される．
+// 条件リテラルを無効化するには clear_conditional_literals() を呼ぶ．
+inline
+void
+SatSolver::set_conditional_literals(SatLiteral lit1,
+				    SatLiteral lit2,
+				    SatLiteral lit3,
+				    SatLiteral lit4)
+{
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3, lit4};
+
+  _set_conditional_literals(4, tmp_lits);
+}
+
+// @brief 条件リテラルをクリアする．
+inline
+void
+SatSolver::clear_conditional_literals()
+{
+  mConditionalLits.clear();
+}
+
+// @brief 節を追加する．
+// @param[in] lits リテラルのベクタ
+inline
+void
+SatSolver::add_clause(const vector<SatLiteral>& lits)
+{
+  _add_clause(lits);
+}
+
+// @brief 1項の節を追加する．
+inline
+void
+SatSolver::add_clause(SatLiteral lit1)
+{
+  _add_clause(1, &lit1);
+}
+
+// @brief 2項の節を追加する．
+inline
+void
+SatSolver::add_clause(SatLiteral lit1,
+		      SatLiteral lit2)
+{
+  SatLiteral tmp_lits[] = {lit1, lit2};
+
+  _add_clause(2, tmp_lits);
+}
+
+// @brief 3項の節を追加する．
+inline
+void
+SatSolver::add_clause(SatLiteral lit1,
+		      SatLiteral lit2,
+		      SatLiteral lit3)
+{
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3};
+
+  _add_clause(3, tmp_lits);
+}
+
+// @brief 4項の節を追加する．
+inline
+void
+SatSolver::add_clause(SatLiteral lit1,
+		      SatLiteral lit2,
+		      SatLiteral lit3,
+		      SatLiteral lit4)
+{
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3, lit4};
+
+  _add_clause(4, tmp_lits);
+}
+
+// @brief 5項の節を追加する．
+inline
+void
+SatSolver::add_clause(SatLiteral lit1,
+		      SatLiteral lit2,
+		      SatLiteral lit3,
+		      SatLiteral lit4,
+		      SatLiteral lit5)
+{
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3, lit4, lit5};
+
+  _add_clause(5, tmp_lits);
+}
+
+// @brief 6項の節を追加する．
+inline
+void
+SatSolver::add_clause(SatLiteral lit1,
+		      SatLiteral lit2,
+		      SatLiteral lit3,
+		      SatLiteral lit4,
+		      SatLiteral lit5,
+		      SatLiteral lit6)
+{
+  SatLiteral tmp_lits[] = {lit1, lit2, lit3, lit4, lit5, lit6};
+
+  _add_clause(6, tmp_lits);
+}
 
 // @brief SAT 問題を解く．
 // @param[in] time_limit 時間制約(秒) 0 で制約なし
@@ -366,6 +581,30 @@ const vector<SatLiteral>&
 SatSolver::conflict_literals()
 {
   return mConflictLiterals;
+}
+
+// @brief 変数の数を返す．
+inline
+int
+SatSolver::variable_num() const
+{
+  return mVariableNum;
+}
+
+// @brief 節の数を返す．
+inline
+int
+SatSolver::clause_num() const
+{
+  return mClauseList.size();
+}
+
+// @brief リテラルの数を返す．
+inline
+int
+SatSolver::literal_num() const
+{
+  return mLiteralNum;
 }
 
 END_NAMESPACE_YM_SAT

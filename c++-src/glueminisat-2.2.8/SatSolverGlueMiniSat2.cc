@@ -71,37 +71,6 @@ SatSolverGlueMiniSat2::new_variable(bool decision)
   return mSolver.newVar(true, decision);
 }
 
-// @brief 条件リテラルを設定する．
-// @param[in] lit_list 条件リテラルのリスト
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-void
-SatSolverGlueMiniSat2::set_conditional_literals(const vector<SatLiteral>& lit_list)
-{
-  mCondLits.clear();
-  int lit_num = lit_list.size();
-  mCondLits.resize(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mCondLits[i] = lit_list[i];
-  }
-}
-
-// @brief 条件リテラルを設定する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-void
-SatSolverGlueMiniSat2::set_conditional_literals(int lit_num,
-						const SatLiteral* lits)
-{
-  mCondLits.clear();
-  mCondLits.resize(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mCondLits[i] = lits[i];
-  }
-}
-
 // @brief リテラルを 'フリーズ' する．
 //
 // lingeling 以外は無効
@@ -119,32 +88,6 @@ SatSolverGlueMiniSat2::add_clause(const vector<SatLiteral>& lits)
   for ( auto l: lits ) {
     Lit lit = literal2lit(l);
     tmp.push(lit);
-  }
-  for ( auto l: mCondLits ) {
-    // 極性が反転することに注意
-    Lit lit = literal2lit(l);
-    tmp.push(~lit);
-  }
-  mSolver.addClause_(tmp);
-}
-
-// @brief 節を追加する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-void
-SatSolverGlueMiniSat2::add_clause(int lit_num,
-				  const SatLiteral* lits)
-{
-  vec<Lit> tmp;
-  for ( int i = 0; i < lit_num; ++ i ) {
-    SatLiteral l = lits[i];
-    Lit lit = literal2lit(l);
-    tmp.push(lit);
-  }
-  for ( auto l: mCondLits ) {
-    // 極性が反転することに注意
-    Lit lit = literal2lit(l);
-    tmp.push(~lit);
   }
   mSolver.addClause_(tmp);
 }
@@ -238,34 +181,6 @@ SatSolverGlueMiniSat2::get_stats(SatStats& stats) const
   stats.mPropagationNum = mSolver.propagations;
   stats.mConflictLimit = 0;
   stats.mLearntLimit = 0;
-}
-
-// @brief 変数の数を得る．
-int
-SatSolverGlueMiniSat2::variable_num() const
-{
-  return mSolver.nVars();
-}
-
-// @brief 制約節の数を得る．
-int
-SatSolverGlueMiniSat2::clause_num() const
-{
-  return mSolver.nClauses();
-}
-
-// @brief 制約節のリテラルの総数を得る．
-int
-SatSolverGlueMiniSat2::literal_num() const
-{
-  return mSolver.clauses_literals;
-}
-
-// @brief DIMACS 形式で制約節を出力する．
-// @param[in] s 出力先のストリーム
-void
-SatSolverGlueMiniSat2::write_DIMACS(ostream& s) const
-{
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録

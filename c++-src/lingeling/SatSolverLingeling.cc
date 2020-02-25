@@ -65,37 +65,6 @@ SatSolverLingeling::new_variable(bool decision)
   return var;
 }
 
-// @brief 条件リテラルを設定する．
-// @param[in] lit_list 条件リテラルのリスト
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-void
-SatSolverLingeling::set_conditional_literals(const vector<SatLiteral>& lit_list)
-{
-  mCondLits.clear();
-  int lit_num = lit_list.size();
-  mCondLits.resize(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mCondLits[i] = lit_list[i];
-  }
-}
-
-// @brief 条件リテラルを設定する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-//
-// 以降の add_clause() にはこのリテラルの否定が追加される．
-void
-SatSolverLingeling::set_conditional_literals(int lit_num,
-					    const SatLiteral* lits)
-{
-  mCondLits.clear();
-  mCondLits.resize(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
-    mCondLits[i] = lits[i];
-  }
-}
-
 // @brief リテラルを 'フリーズ' する．
 //
 // lingeling 以外は無効
@@ -112,31 +81,6 @@ SatSolverLingeling::add_clause(const vector<SatLiteral>& lits)
 {
   for ( auto l: lits ) {
     int x = translate(l);
-    lgladd(mSolver, x);
-  }
-  for ( auto l: mCondLits ) {
-    // 極性が反転することに注意
-    int x = translate(~l);
-    lgladd(mSolver, x);
-  }
-  lgladd(mSolver, 0);
-}
-
-// @brief 節を追加する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-void
-SatSolverLingeling::add_clause(int lit_num,
-			      const SatLiteral* lits)
-{
-  for ( int i = 0; i < lit_num; ++ i ) {
-    SatLiteral l = lits[i];
-    int x = translate(l);
-    lgladd(mSolver, x);
-  }
-  for ( auto l: mCondLits ) {
-    // 極性が反転することに注意
-    int x = translate(~l);
     lgladd(mSolver, x);
   }
   lgladd(mSolver, 0);
@@ -222,34 +166,6 @@ SatSolverLingeling::get_stats(SatStats& stats) const
   stats.mConflictLimit = 0;
   stats.mLearntLimit = 0;
 #endif
-}
-
-// @brief 変数の数を得る．
-int
-SatSolverLingeling::variable_num() const
-{
-  return mNumVars;
-}
-
-// @brief 制約節の数を得る．
-int
-SatSolverLingeling::clause_num() const
-{
-  return lglnclauses(mSolver);
-}
-
-// @brief 制約節のリテラルの総数を得る．
-int
-SatSolverLingeling::literal_num() const
-{
-  return 0;
-}
-
-// @brief DIMACS 形式で制約節を出力する．
-// @param[in] s 出力先のストリーム
-void
-SatSolverLingeling::write_DIMACS(ostream& s) const
-{
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録

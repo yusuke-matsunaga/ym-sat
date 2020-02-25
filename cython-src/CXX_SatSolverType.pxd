@@ -20,3 +20,5 @@ cdef extern from "ym/SatSolverType.h" namespace "nsYm" :
         void set(const string& type,
                  const string& option,
                  ostream*)
+        string type()
+        string option()

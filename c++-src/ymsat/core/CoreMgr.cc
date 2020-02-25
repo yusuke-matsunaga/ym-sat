@@ -184,73 +184,10 @@ CoreMgr::expand_var()
   mAssignList.reserve(mVarNum);
 }
 
-// @brief 条件リテラルのリストを設定する．
-// @param[in] lits リテラルのベクタ
-void
-CoreMgr::set_conditional_literals(const vector<SatLiteral>& lits)
-{
-  int lit_num = lits.size();
-  mCondLits.clear();
-  mCondLits.resize(lit_num);
-  for ( int i: Range(lit_num) ) {
-    mCondLits[i] = lits[i];
-  }
-}
-
-// @brief 条件リテラルのリストを設定する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-void
-CoreMgr::set_conditional_literals(int lit_num,
-				  const SatLiteral* lits)
-{
-  mCondLits.clear();
-  mCondLits.resize(lit_num);
-  for ( int i: Range(lit_num) ) {
-    mCondLits[i] = lits[i];
-  }
-}
-
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
 CoreMgr::add_clause(const vector<SatLiteral>& lits)
-{
-  int lit_num = lits.size();
-  int n2 = mCondLits.size();
-  alloc_lits(lit_num + n2);
-  for ( int i: Range(lit_num) ) {
-    mTmpLits[i] = lits[i];
-  }
-  for ( int i: Range(n2) ) {
-    mTmpLits[lit_num + i] = ~mCondLits[i];
-  }
-  add_clause_sub(lit_num + n2);
-}
-
-// @brief 節を追加する．
-// @param[in] lit_num リテラル数
-// @param[in] lits リテラルの配列
-void
-CoreMgr::add_clause(int lit_num,
-		    const SatLiteral* lits)
-{
-  int n2 = mCondLits.size();
-  alloc_lits(lit_num + n2);
-  for ( int i: Range(lit_num) ) {
-    mTmpLits[i] = lits[i];
-  }
-  for ( int i: Range(n2) ) {
-    mTmpLits[lit_num + i] = ~mCondLits[i];
-  }
-  add_clause_sub(lit_num + n2);
-}
-
-// @brief add_clause() の下請け関数
-//
-// リテラルの実体は mTmpLits[] に入っている．
-void
-CoreMgr::add_clause_sub(int lit_num)
 {
   if ( decision_level() != 0 ) {
     // エラー
@@ -261,6 +198,12 @@ CoreMgr::add_clause_sub(int lit_num)
   if ( !mSane ) {
     cout << "Error![YmSat]: mSane == false" << endl;
     return;
+  }
+
+  int lit_num = lits.size();
+  alloc_lits(lit_num);
+  for ( int i: Range(lit_num) ) {
+    mTmpLits[i] = lits[i];
   }
 
   alloc_var();
