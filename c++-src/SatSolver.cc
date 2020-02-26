@@ -37,6 +37,53 @@ BEGIN_NAMESPACE_YM_SAT
 // SatSolverImpl
 //////////////////////////////////////////////////////////////////////
 
+BEGIN_NONAMESPACE
+
+// SatSolverType のデフォルト値を設定する．
+SatSolverType
+fallback_type(const SatSolverType& src_type)
+{
+  string type = src_type.type();
+  if ( type == "minisat" ) {
+    // minisat-1.4
+    ;
+  }
+  else if ( type == "minisat2" ) {
+    // minisat-2.2
+    ;
+  }
+  else if ( type == "glueminisat2" ) {
+    // glueminisat-2.2.8
+    ;
+  }
+  else if ( type == "lingeling" ) {
+    ;
+  }
+  else if ( type == "ymsat1" ) {
+    ;
+  }
+  else if ( type == "ymsat2" ) {
+    ;
+  }
+  else if ( type == "ymsat2old" ) {
+    ;
+  }
+  else if ( type == "ymsat1_old" ) {
+    ;
+  }
+  else if ( type == "" ) {
+    // lingeling 今はデフォルトにしている．
+    type = "lingeling";
+  }
+  else {
+    cerr << "SatSolver: unknown type '" << type << "', ymsat2 is used, instead." << endl;
+    type = "lingeling";
+  }
+  return SatSolverType(type, src_type.option(), src_type.log_out());
+}
+
+END_NONAMESPACE
+
 // @brief 継承クラスを作るクラスメソッド
 // @param[in] solver_type SATソルバのタイプ
 unique_ptr<SatSolverImpl>
@@ -56,8 +103,8 @@ SatSolverImpl::new_impl(const SatSolverType& solver_type)
     // glueminisat-2.2.8
     return unique_ptr<SatSolverImpl>(new SatSolverGlueMiniSat2(option));
   }
-  else if ( type == string() || type == "lingeling" ) {
-    // lingeling 今はデフォルトにしている．
+  else if ( type == "lingeling" ) {
+    // lingeling
     return unique_ptr<SatSolverImpl>(new SatSolverLingeling(option));
   }
   else if ( type == "ymsat1" ) {
@@ -72,10 +119,8 @@ SatSolverImpl::new_impl(const SatSolverType& solver_type)
   else if ( type == "ymsat1_old" ) {
     return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(option));
   }
-  else {
-    cerr << "SatSolver: unknown type '" << type << "', ymsat2 is used, instead." << endl;
-    return unique_ptr<SatSolverImpl>(new YmSatMS2(option));
-  }
+  ASSERT_NOT_REACHED;
+  return unique_ptr<SatSolverImpl>{nullptr};
 }
 
 
@@ -86,9 +131,9 @@ SatSolverImpl::new_impl(const SatSolverType& solver_type)
 // @brief コンストラクタ
 // @param[in] solver_type 実装タイプ
 SatSolver::SatSolver(const SatSolverType& solver_type) :
-  mType{solver_type},
-  mImpl{SatSolverImpl::new_impl(solver_type)},
-  mLogger{SatLogger::new_impl(solver_type)}
+  mType{fallback_type(solver_type)},
+  mImpl{SatSolverImpl::new_impl(mType)},
+  mLogger{SatLogger::new_impl(mType)}
 {
 }
 
