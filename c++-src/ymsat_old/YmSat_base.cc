@@ -339,7 +339,7 @@ YmSat::get_stats(SatStats& stats) const
   stats.mPropagationNum = mPropagationNum;
   stats.mConflictLimit = mConflictLimit;
   stats.mLearntLimit = mLearntLimit;
-  stats.mTime = mTimer.time();
+  stats.mTime = mAccTime;
 }
 
 // @brief conflict_limit の最大値
