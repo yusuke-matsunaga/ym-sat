@@ -33,6 +33,7 @@ cdef class Solver :
             del self._this_ptr
 
     ### @brief ソルバの型を返す．
+    @property
     def type(Solver self) :
         return to_SolverType(self._this_ptr.type())
 
