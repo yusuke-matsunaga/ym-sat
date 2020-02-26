@@ -17,8 +17,7 @@
 #include "Watcher.h"
 #include "VarHeap.h"
 #include "conf.h"
-#include "ym/FragAlloc.h"
-#include "ym/StopWatch.h"
+#include <chrono>
 #include <random>
 
 
@@ -454,9 +453,6 @@ private:
   // 正常の時に true となっているフラグ
   bool mSane;
 
-  // SatClause のメモリ領域確保用のアロケータ
-  FragAlloc mAlloc;
-
   // 制約節のリスト
   // ただし二項節は含まない．
   vector<SatClause*> mConstrClauseList;
@@ -551,8 +547,15 @@ private:
   // mTimer を使うとき true にするフラグ
   bool mTimerOn;
 
-  // 時間計測器
-  StopWatch mTimer;
+  using Clock = std::chrono::system_clock;
+  using TimePoint = std::chrono::time_point<Clock>;
+  using Duration = std::chrono::milliseconds;
+
+  // 開始時刻
+  TimePoint mStartTime;
+
+  // 累積時間
+  Duration mAccTime;
 
   // 制御用パラメータ
   Params mParams;

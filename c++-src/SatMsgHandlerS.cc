@@ -73,7 +73,7 @@ SatMsgHandlerS::print_footer(const SatStats& stats)
      << "decisions         : " << stats.mDecisionNum << endl
      << "propagations      : " << stats.mPropagationNum << endl
      << "conflict literals : " << stats.mLearntLitNum << endl
-     << "CPU time          : " << stats.mTime << endl;
+     << "CPU time(ms)      : " << stats.mTime.count() << endl;
 }
 
 END_NAMESPACE_YM_SAT

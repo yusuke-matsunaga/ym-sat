@@ -28,7 +28,6 @@ BEGIN_NAMESPACE_YM_SAT
 CoreMgr::CoreMgr() :
   mVarBump(1.0),
   mVarDecay(0.95),
-  mAlloc(4096),
   mSane(true),
   mConstrLitNum(0),
   mLearntBinNum(0),
@@ -68,6 +67,12 @@ CoreMgr::CoreMgr() :
 // @brief デストラクタ
 CoreMgr::~CoreMgr()
 {
+  for ( auto c: mConstrClauseList ) {
+    delete_clause(c);
+  }
+  for ( auto c: mLearntClauseList ) {
+    delete_clause(c);
+  }
   for ( int i: Range(mVarSize * 2) ) {
     mWatcherList[i].finish();
   }
@@ -369,7 +374,7 @@ CoreMgr::new_clause(int lit_num,
 		    bool learnt)
 {
   int size = sizeof(SatClause) + sizeof(SatLiteral) * (lit_num - 1);
-  auto p = mAlloc.get_memory(size);
+  auto p = new char[size];
   auto clause = new (p) SatClause(lit_num, mTmpLits, learnt);
 
   return clause;
@@ -544,8 +549,8 @@ CoreMgr::delete_clause(SatClause* clause)
 
   mLearntLitNum -= clause->lit_num();
 
-  int size = sizeof(SatClause) + sizeof(SatLiteral) * (clause->lit_num() - 1);
-  mAlloc.put_memory(size, static_cast<void*>(clause));
+  auto p = reinterpret_cast<char*>(clause);
+  delete [] p;
 }
 
 // @brief SAT 問題を解く．
@@ -1234,7 +1239,7 @@ CoreMgr::get_stats(SatStats& stats) const
   stats.mConflictNum = mConflictNum;
   stats.mConflictLimit = conflict_limit();
   stats.mLearntLimit = learnt_limit();
-  stats.mTime = mTimer.time();
+  stats.mTime = mAccTime;
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録

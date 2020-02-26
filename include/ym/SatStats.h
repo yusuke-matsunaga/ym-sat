@@ -10,7 +10,6 @@
 
 
 #include "ym/sat.h"
-#include "ym/USTime.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -25,10 +24,13 @@ class SatStats
 {
 public:
 
-  /// @brief 空のコンストラクタ
-  SatStats();
+  /// @brief コンストラクタ
+  SatStats() = default;
 
-  /// @brief 内容をクリアする ．
+  /// @brief デストラクタ
+  ~SatStats() = default;
+
+  /// @brief 内容をクリアする
   void
   clear();
 
@@ -44,43 +46,54 @@ public:
   const SatStats&
   max_assign(const SatStats& right);
 
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
   /// @brief restartの回数
-  int mRestart;
+  int mRestart{0};
 
   /// @brief 変数の数．
-  int mVarNum;
+  int mVarNum{0};
 
   /// @brief 制約節の数
-  int mConstrClauseNum;
+  int mConstrClauseNum{0};
 
   /// @brief 制約節のリテラル数
-  int mConstrLitNum;
+  int mConstrLitNum{0};
 
   /// @brief 学習節の数
-  int mLearntClauseNum;
+  int mLearntClauseNum{0};
 
   /// @brief 学習節のリテラル数
-  int mLearntLitNum;
+  int mLearntLitNum{0};
 
   /// @brief コンフリクト数
-  int mConflictNum;
+  int mConflictNum{0};
 
   /// @brief decision 数
-  int mDecisionNum;
+  int mDecisionNum{0};
 
   /// @brief implication数
-  int mPropagationNum;
+  int mPropagationNum{0};
 
   /// @brief コンフリクト数の制限
-  int mConflictLimit;
+  int mConflictLimit{0};
 
   /// @brief 学習節の制限
-  int mLearntLimit;
+  int mLearntLimit{0};
 
-  /// @brief 計算時間
-  USTime mTime;
+  /// @brief 計算時間(ミリ秒)
+  std::chrono::milliseconds mTime;
 
 };
+
+
+//////////////////////////////////////////////////////////////////////
+// インライン関数の定義
+//////////////////////////////////////////////////////////////////////
 
 /// @brief 加算
 inline

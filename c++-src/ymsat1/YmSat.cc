@@ -33,7 +33,6 @@ YmSat::Params kDefaultParams(0.95, 0.999);
 // @brief コンストラクタ
 YmSat::YmSat(const string& option) :
   mSane(true),
-  mAlloc(4096),
   mConstrBinNum(0),
   mConstrLitNum(0),
   mLearntBinNum(0),
@@ -83,8 +82,12 @@ YmSat::YmSat(const string& option) :
 // @brief デストラクタ
 YmSat::~YmSat()
 {
-  // SatClause は mAlloc が開放してくれる．
-
+  for ( auto c: mConstrClauseList ) {
+    delete_clause(c);
+  }
+  for ( auto c: mLearntClause ) {
+    delete_clause(c);
+  }
   for ( int i = 0; i < mVarSize * 2; ++ i ) {
     mWatcherList[i].finish();
   }
@@ -368,9 +371,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   }
 
   if ( mTimerOn ) {
-    mTimer.stop();
-    mTimer.reset();
-    mTimer.start();
+    mStartTime = Clock::now();
   }
 
   alloc_var();
@@ -468,7 +469,9 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   backtrack(0);
 
   if ( mTimerOn ) {
-    mTimer.stop();
+    auto t = Clock::now();
+    auto d = std::chrono::duration_cast<Duration>(t - mStartTime);
+    mAccTime += d;
   }
 
   if ( debug & debug_solve ) {
@@ -531,7 +534,7 @@ YmSat::get_stats(SatStats& stats) const
   stats.mPropagationNum = mPropagationNum;
   stats.mConflictLimit = mConflictLimit;
   stats.mLearntLimit = mLearntLimit;
-  stats.mTime = mTimer.time();
+  stats.mTime = mAccTime;
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
@@ -913,7 +916,7 @@ YmSat::new_clause(int lit_num,
 		  bool learnt)
 {
   int size = sizeof(SatClause) + sizeof(SatLiteral) * (lit_num - 1);
-  auto p{mAlloc.get_memory(size)};
+  auto p{new char[size]};
   auto clause{new (p) SatClause(lit_num, mTmpLits, learnt)};
 
   return clause;
@@ -945,8 +948,8 @@ YmSat::delete_clause(SatClause* clause)
 
   mLearntLitNum -= clause->lit_num();
 
-  int size = sizeof(SatClause) + sizeof(SatLiteral) * (clause->lit_num() - 1);
-  mAlloc.put_memory(size, static_cast<void*>(clause));
+  auto p{reinterpret_cast<char*>(clause)};
+  delete [] p;
 }
 
 // 学習節のアクティビティを増加させる．

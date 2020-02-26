@@ -11,7 +11,6 @@
 
 #include "ymsat_old.h"
 #include "SatReason.h"
-#include "ym/Alloc.h"
 
 
 BEGIN_NAMESPACE_YM_YMSATOLD

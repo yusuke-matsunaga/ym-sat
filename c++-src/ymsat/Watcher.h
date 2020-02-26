@@ -10,7 +10,6 @@
 
 
 #include "ym/sat.h"
-#include "ym/Alloc.h"
 #include "SatReason.h"
 
 
@@ -51,7 +50,7 @@ class WatcherList
 public:
 
   /// @brief コンストラクタ
-  WatcherList();
+  WatcherList() = default;
 
   /// @brief デストラクタ
   ~WatcherList();
@@ -119,13 +118,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 配列のサイズ
-  int mSize;
+  int mSize{0};
 
   // 要素数
-  int mNum;
+  int mNum{0};
 
   // 配列
-  Watcher* mArray;
+  Watcher* mArray{nullptr};
 
 };
 
@@ -148,19 +147,11 @@ Watcher::Watcher(SatReason src) :
 {
 }
 
-// @brief コンストラクタ
-inline
-WatcherList::WatcherList() :
-  mSize(0),
-  mNum(0),
-  mArray(nullptr)
-{
-}
-
 // @brief デストラクタ
 inline
 WatcherList::~WatcherList()
 {
+  finish();
 }
 
 // @brief クリアする．
@@ -264,6 +255,7 @@ void
 WatcherList::finish()
 {
   delete [] mArray;
+  mArray = nullptr;
 }
 
 END_NAMESPACE_YM_SAT

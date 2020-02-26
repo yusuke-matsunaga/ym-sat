@@ -56,9 +56,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   }
 
   if ( mTimerOn ) {
-    mTimer.stop();
-    mTimer.reset();
-    mTimer.start();
+    mStartTime = Clock::now();
   }
 
   mGoOn = true;
@@ -174,7 +172,9 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
   backtrack(0);
 
   if ( mTimerOn ) {
-    mTimer.stop();
+    auto t = Clock::now();
+    auto d = std::chrono::duration_cast<Duration>(t - mStartTime);
+    mAccTime += d;
   }
 
  end:

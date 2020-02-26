@@ -44,7 +44,7 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory( c++-test )
+add_subdirectory( c++-tests )
 add_subdirectory( cython-src ) # ダミー
 
 
@@ -64,7 +64,6 @@ set (ym_sat_SOURCES
   c++-src/SatBinaryNum.cc
   c++-src/SatOrderedSet.cc
   c++-src/SatDimacs.cc
-  c++-src/DimacsScanner.cc
 
   c++-src/MiniSat/SatSolverMiniSat.cc
   c++-src/MiniSat/Solver.C

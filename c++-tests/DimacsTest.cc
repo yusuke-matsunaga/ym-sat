@@ -60,6 +60,14 @@ TEST(DimacsTest, add_clause2)
 
 TEST(DimacsTest, read_dimacs)
 {
+  SatDimacs dimacs;
+
+  string data_dir{DATA_DIR};
+  string filename{"uf20-01.cnf"};
+  string path{data_dir + "/" + filename};
+  ifstream fin(path);
+  bool stat = dimacs.read_dimacs(fin);
+  EXPECT_TRUE( stat );
 }
 
 END_NAMESPACE_YM
