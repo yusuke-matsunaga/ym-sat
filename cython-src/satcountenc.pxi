@@ -1,5 +1,5 @@
 
-### @file countenc.pxi
+### @file satcountenc.pxi
 ### @brief SatCountEnc の cython インターフェイス
 ### @author Yusuke Matsunaga (松永 裕介)
 ###
@@ -12,13 +12,13 @@ import cython
 
 
 ### @brief SatCountEnc クラスの Python バージョン
-cdef class CountEnc :
+cdef class SatCountEnc :
 
     # C++ レベルのオブジェクト本体
     cdef CXX_SatCountEnc* _this_ptr
 
     ### @brief 初期化
-    def __cinit__(self, Solver solver) :
+    def __cinit__(self, SatSolver solver) :
         self._this_ptr = new CXX_SatCountEnc(cython.operator.dereference(solver._this_ptr))
 
     ### @brief 終了処理

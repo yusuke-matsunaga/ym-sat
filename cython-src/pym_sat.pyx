@@ -6,11 +6,11 @@
 ### Copyright (C) 2019 Yusuke Matsunaga
 ### All rights reserved.
 
-include "literal.pxi"
-include "bool3.pxi"
-include "solvertype.pxi"
-include "solver.pxi"
-include "bvenc.pxi"
-include "countenc.pxi"
-include "tseitinenc.pxi"
-include "stats.pxi"
+include "satbool3.pxi"
+include "satliteral.pxi"
+include "satsolvertype.pxi"
+include "satsolver.pxi"
+include "satbvenc.pxi"
+include "satcountenc.pxi"
+include "sattseitinenc.pxi"
+include "satstats.pxi"
