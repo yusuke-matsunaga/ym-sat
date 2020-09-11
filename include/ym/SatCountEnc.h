@@ -131,7 +131,7 @@ public:
   /// @param[in] k しきい値
   void
   add_at_most_k(const vector<SatLiteral>& lit_list,
-		int k);
+		SizeType k);
 
   /// @brief 与えられたリテラルのうち1以上は true になる条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
@@ -228,7 +228,7 @@ public:
   /// @param[in] k しきい値
   void
   add_at_least_k(const vector<SatLiteral>& lit_list,
-		 int k);
+		 SizeType k);
 
   /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル
@@ -325,7 +325,7 @@ public:
   /// @param[in] k しきい値
   void
   add_exact_k(const vector<SatLiteral>& lit_list,
-	      int k);
+	      SizeType k);
 
   /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
   /// @param[in] lit1, lit2 入力のリテラル

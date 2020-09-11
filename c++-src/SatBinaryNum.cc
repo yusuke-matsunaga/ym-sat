@@ -28,7 +28,7 @@ SatBinaryNum::SatBinaryNum() :
 // @param[in] solver SATソルバ
 // @param[in] bit_num ビット幅
 SatBinaryNum::SatBinaryNum(SatSolver& solver,
-			   int bit_num)
+			   SizeType bit_num)
 {
   init(solver, bit_num);
 }
@@ -43,23 +43,23 @@ SatBinaryNum::~SatBinaryNum()
 // @param[in] bit_num ビット幅
 void
 SatBinaryNum::init(SatSolver& solver,
-		   int bit_num)
+		   SizeType bit_num)
 {
   mBitNum = bit_num;
   mVarArray.clear();
   mVarArray.resize(mBitNum);
-  for ( int i = 0; i < mBitNum; ++ i ) {
+  for ( SizeType i = 0; i < mBitNum; ++ i ) {
     mVarArray[i] = solver.new_variable();
   }
 }
 
 // @brief SATの解から値を得る．
 // @param[in] model SATの解
-int
+SizeType
 SatBinaryNum::val(const SatModel& model) const
 {
-  int ans = 0;
-  for ( int bit = 0; bit < bit_num(); ++ bit ) {
+  SizeType ans = 0;
+  for ( SizeType bit = 0; bit < bit_num(); ++ bit ) {
     auto lit{bit_var(bit)};
     if ( model[lit] == SatBool3::True ) {
       ans |= (1 << bit);

@@ -36,7 +36,7 @@ SatCountEnc::~SatCountEnc()
 void
 SatCountEnc::add_at_most_one(const vector<SatLiteral>& lit_list)
 {
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   if ( n <= 1 ) {
     // はじめから条件は満たされている．
     return;
@@ -60,17 +60,17 @@ SatCountEnc::add_at_most_one(const vector<SatLiteral>& lit_list)
     add_at_most_one(lit1, lit2, lit3, lit4);
   }
   else {
-    int n1 = (n + 1) / 2;
+    SizeType n1{(n + 1) / 2};
     vector<SatLiteral> lit_list1(n1);
-    for ( int i = 0; i < n1; ++ i ) {
+    for ( SizeType i = 0; i < n1; ++ i ) {
       lit_list1[i] = lit_list[i];
     }
     auto olit1{mSolver.new_variable(false)};
     _add_at_most_one(lit_list1, olit1);
 
-    int n2 = n - n1;
+    SizeType n2{n - n1};
     vector<SatLiteral> lit_list2(n2);
-    for ( int i = 0; i < n2; ++ i ) {
+    for ( SizeType i = 0; i < n2; ++ i ) {
       lit_list2[i] = lit_list[i + n1];
     }
     auto olit2{mSolver.new_variable(false)};
@@ -85,7 +85,7 @@ SatCountEnc::add_at_most_one(const vector<SatLiteral>& lit_list)
 void
 SatCountEnc::add_exact_one(const vector<SatLiteral>& lit_list)
 {
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   if ( n == 0 ) {
     // 成り立たない．
     mSolver.add_clause(vector<SatLiteral>());
@@ -113,17 +113,17 @@ SatCountEnc::add_exact_one(const vector<SatLiteral>& lit_list)
     add_exact_one(lit1, lit2, lit3, lit4);
   }
   else {
-    int n1 = (n + 1) / 2;
+    SizeType n1{(n + 1) / 2};
     vector<SatLiteral> lit_list1(n1);
-    for ( int i = 0; i < n1; ++ i ) {
+    for ( SizeType i = 0; i < n1; ++ i ) {
       lit_list1[i] = lit_list[i];
     }
     auto olit1{mSolver.new_variable(false)};
     _add_at_most_one(lit_list1, olit1);
 
-    int n2 = n - n1;
+    SizeType n2{n - n1};
     vector<SatLiteral> lit_list2(n2);
-    for ( int i = 0; i < n2; ++ i ) {
+    for ( SizeType i = 0; i < n2; ++ i ) {
       lit_list2[i] = lit_list[i + n1];
     }
     auto olit2{mSolver.new_variable(false)};
@@ -139,7 +139,7 @@ void
 SatCountEnc::_add_at_most_one(const vector<SatLiteral>& lit_list,
 			      SatLiteral olit)
 {
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   ASSERT_COND( n >= 2 );
 
   SatTseitinEnc enc(mSolver);
@@ -165,17 +165,17 @@ SatCountEnc::_add_at_most_one(const vector<SatLiteral>& lit_list,
     enc.add_orgate(olit, lit1, lit2, lit3, lit4);
   }
   else {
-    int n1 = (n + 1) / 2;
+    SizeType n1{(n + 1) / 2};
     vector<SatLiteral> lit_list1(n1);
-    for ( int i = 0; i < n1; ++ i ) {
+    for ( SizeType i = 0; i < n1; ++ i ) {
       lit_list1[i] = lit_list[i];
     }
     auto olit1{mSolver.new_variable(false)};
     _add_at_most_one(lit_list1, olit1);
 
-    int n2 = n - n1;
+    SizeType n2{n - n1};
     vector<SatLiteral> lit_list2(n2);
-    for ( int i = 0; i < n2; ++ i ) {
+    for ( SizeType i = 0; i < n2; ++ i ) {
       lit_list2[i] = lit_list[i + n1];
     }
     auto olit2{mSolver.new_variable(false)};
@@ -191,7 +191,7 @@ SatCountEnc::_add_at_most_one(const vector<SatLiteral>& lit_list,
 void
 SatCountEnc::add_at_most_two(const vector<SatLiteral>& lit_list)
 {
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   if ( n <= 2 ) {
     // はじめから条件は満たされている．
     return;
@@ -210,18 +210,18 @@ SatCountEnc::add_at_most_two(const vector<SatLiteral>& lit_list)
     add_at_most_two(lit1, lit2, lit3, lit4);
   }
   else {
-    int n1 = (n + 1) / 2;
+    SizeType n1{(n + 1) / 2};
     vector<SatLiteral> lit_list1(n1);
-    for ( int i = 0; i < n1; ++ i ) {
+    for ( SizeType i = 0; i < n1; ++ i ) {
       lit_list1[i] = lit_list[i];
     }
     auto olit1_1{mSolver.new_variable(false)};
     auto olit1_0{mSolver.new_variable(false)};
     _add_at_most_two(lit_list1, olit1_1, olit1_0);
 
-    int n2 = n - n1;
+    SizeType n2{n - n1};
     vector<SatLiteral> lit_list2(n2);
-    for ( int i = 0; i < n2; ++ i ) {
+    for ( SizeType i = 0; i < n2; ++ i ) {
       lit_list2[i] = lit_list[i + n1];
     }
     auto olit2_1{mSolver.new_variable(false)};
@@ -243,7 +243,7 @@ SatCountEnc::add_at_most_two(const vector<SatLiteral>& lit_list)
 void
 SatCountEnc::add_exact_two(const vector<SatLiteral>& lit_list)
 {
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   if ( n < 2 ) {
     // 満たせない．
     mSolver.add_clause(vector<SatLiteral>());
@@ -270,18 +270,18 @@ SatCountEnc::add_exact_two(const vector<SatLiteral>& lit_list)
     add_exact_two(lit1, lit2, lit3, lit4);
   }
   else {
-    int n1 = (n + 1) / 2;
+    SizeType n1{(n + 1) / 2};
     vector<SatLiteral> lit_list1(n1);
-    for ( int i = 0; i < n1; ++ i ) {
+    for ( SizeType i = 0; i < n1; ++ i ) {
       lit_list1[i] = lit_list[i];
     }
     auto olit1_1{mSolver.new_variable(false)};
     auto olit1_0{mSolver.new_variable(false)};
     _add_at_most_two(lit_list1, olit1_1, olit1_0);
 
-    int n2 = n - n1;
+    SizeType n2{n - n1};
     vector<SatLiteral> lit_list2(n2);
-    for ( int i = 0; i < n2; ++ i ) {
+    for ( SizeType i = 0; i < n2; ++ i ) {
       lit_list2[i] = lit_list[i + n1];
     }
     auto olit2_1{mSolver.new_variable(false)};
@@ -313,7 +313,7 @@ SatCountEnc::_add_at_most_two(const vector<SatLiteral>& lit_list,
   // lit_list に at_most_two() 制約をつける．
   // lit_list のカウント結果を olit1, olit0 に入れる．
 
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   ASSERT_COND( n >= 2 );
 
   SatTseitinEnc enc(mSolver);
@@ -349,18 +349,18 @@ SatCountEnc::_add_at_most_two(const vector<SatLiteral>& lit_list,
     enc.add_orgate(olit1, c1, c2, c3);
   }
   else {
-    int n1 = (n + 1) / 2;
+    SizeType n1{(n + 1) / 2};
     vector<SatLiteral> lit_list1(n1);
-    for ( int i = 0; i < n1; ++ i ) {
+    for ( SizeType i = 0; i < n1; ++ i ) {
       lit_list1[i] = lit_list[i];
     }
     auto olit1_1{mSolver.new_variable(false)};
     auto olit1_0{mSolver.new_variable(false)};
     _add_at_most_two(lit_list1, olit1_1, olit1_0);
 
-    int n2 = n - n1;
+    SizeType n2{n - n1};
     vector<SatLiteral> lit_list2(n2);
-    for ( int i = 0; i < n2; ++ i ) {
+    for ( SizeType i = 0; i < n2; ++ i ) {
       lit_list2[i] = lit_list[i + n1];
     }
     auto olit2_1{mSolver.new_variable(false)};
@@ -382,7 +382,7 @@ SatCountEnc::_add_at_most_two(const vector<SatLiteral>& lit_list,
 void
 SatCountEnc::add_at_least_two(const vector<SatLiteral>& lit_list)
 {
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   if ( n < 2 ) {
     // 無理
     mSolver.add_clause(vector<SatLiteral>());
@@ -407,18 +407,18 @@ SatCountEnc::add_at_least_two(const vector<SatLiteral>& lit_list)
     add_at_least_two(lit1, lit2, lit3, lit4);
   }
   else {
-    int n1 = (n + 1) / 2;
+    SizeType n1{(n + 1) / 2};
     vector<SatLiteral> lit_list1(n1);
-    for ( int i = 0; i < n1; ++ i ) {
+    for ( SizeType i = 0; i < n1; ++ i ) {
       lit_list1[i] = lit_list[i];
     }
     auto olit1_1{mSolver.new_variable(false)};
     auto olit1_0{mSolver.new_variable(false)};
     _add_at_least_two(lit_list1, olit1_1, olit1_0);
 
-    int n2 = n - n1;
+    SizeType n2{n - n1};
     vector<SatLiteral> lit_list2(n2);
-    for ( int i = 0; i < n2; ++ i ) {
+    for ( SizeType i = 0; i < n2; ++ i ) {
       lit_list2[i] = lit_list[i + n1];
     }
     auto olit2_1{mSolver.new_variable(false)};
@@ -443,7 +443,7 @@ SatCountEnc::_add_at_least_two(const vector<SatLiteral>& lit_list,
 {
   SatTseitinEnc enc(mSolver);
 
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   ASSERT_COND( n >= 2 );
   if ( n == 2 ) {
     auto lit1{lit_list[0]};
@@ -472,18 +472,18 @@ SatCountEnc::_add_at_least_two(const vector<SatLiteral>& lit_list,
     enc.add_orgate(olit1, c1, c2, c3);
   }
   else {
-    int n1 = (n + 1) / 2;
+    SizeType n1{(n + 1) / 2};
     vector<SatLiteral> lit_list1(n1);
-    for ( int i = 0; i < n1; ++ i ) {
+    for ( SizeType i = 0; i < n1; ++ i ) {
       lit_list1[i] = lit_list[i];
     }
     auto olit1_1{mSolver.new_variable(false)};
     auto olit1_0{mSolver.new_variable(false)};
     _add_at_least_two(lit_list1, olit1_1, olit1_0);
 
-    int n2 = n - n1;
+    SizeType n2 = n - n1;
     vector<SatLiteral> lit_list2(n2);
-    for ( int i = 0; i < n2; ++ i ) {
+    for ( SizeType i = 0; i < n2; ++ i ) {
       lit_list2[i] = lit_list[i + n1];
     }
     auto olit2_1{mSolver.new_variable(false)};
@@ -501,9 +501,9 @@ SatCountEnc::_add_at_least_two(const vector<SatLiteral>& lit_list,
 // @param[in] k しきい値
 void
 SatCountEnc::add_at_most_k(const vector<SatLiteral>& lit_list,
-			   int k)
+			   SizeType k)
 {
-  int n = lit_list.size();
+  SizeType n{lit_list.size()};
   if ( n <= k) {
     // はじめから条件は満たされている．
     return;
@@ -511,7 +511,7 @@ SatCountEnc::add_at_most_k(const vector<SatLiteral>& lit_list,
 
   vector<SatLiteral> tmp_lits(k + 1);
   for ( CombiGen cg(n, k + 1) ; !cg.is_end(); ++ cg ) {
-    for ( int i: Range(k + 1) ) {
+    for ( SizeType i: Range(k + 1) ) {
       tmp_lits[i] = ~lit_list[cg(i)];
     }
     mSolver.add_clause(tmp_lits);
@@ -523,18 +523,18 @@ SatCountEnc::add_at_most_k(const vector<SatLiteral>& lit_list,
 // @param[in] k しきい値
 void
 SatCountEnc::add_at_least_k(const vector<SatLiteral>& lit_list,
-			    int k)
+			    SizeType k)
 {
-  int n = lit_list.size();
+  SizeType n = lit_list.size();
   if ( k == 0 ) {
     // はじめから条件は満たされている．
     return;
   }
 
-  int nk = n - k;
+  SizeType nk = n - k;
   vector<SatLiteral> tmp_lits(nk + 1);
   for ( CombiGen cg(n, nk + 1); !cg.is_end(); ++ cg ) {
-    for ( int i: Range(nk + 1) ) {
+    for ( SizeType i: Range(nk + 1) ) {
       tmp_lits[i] = lit_list[cg(i)];
     }
     mSolver.add_clause(tmp_lits);
@@ -546,7 +546,7 @@ SatCountEnc::add_at_least_k(const vector<SatLiteral>& lit_list,
 // @param[in] k しきい値
 void
 SatCountEnc::add_exact_k(const vector<SatLiteral>& lit_list,
-			 int k)
+			 SizeType k)
 {
   add_at_most_k(lit_list, k);
   add_at_least_k(lit_list, k);
@@ -557,11 +557,11 @@ SatCountEnc::add_exact_k(const vector<SatLiteral>& lit_list,
 void
 SatCountEnc::add_not_one(const vector<SatLiteral>& lit_list)
 {
-  int n = lit_list.size();
+  SizeType n = lit_list.size();
   vector<SatLiteral> tmp_lits(n);
-  for ( int i: Range(n) ) {
-    for ( int j: Range(n) ) {
-      SatLiteral lit{lit_list[j]};
+  for ( SizeType i: Range(n) ) {
+    for ( SizeType j: Range(n) ) {
+      auto lit{lit_list[j]};
       if ( j == i ) {
 	tmp_lits[j] = ~lit;
       }

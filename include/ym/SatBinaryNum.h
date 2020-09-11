@@ -29,7 +29,7 @@ public:
   /// @param[in] solver SATソルバ
   /// @param[in] bit_num ビット幅
   SatBinaryNum(SatSolver& solver,
-	       int bit_num);
+	       SizeType bit_num);
 
   /// @brief デストラクタ
   ~SatBinaryNum();
@@ -45,16 +45,16 @@ public:
   /// @param[in] bit_num ビット幅
   void
   init(SatSolver& solver,
-       int bit_num);
+       SizeType bit_num);
 
   /// @brief ビット数を返す．
-  int
+  SizeType
   bit_num() const;
 
   /// @brief ビットに対応する変数を返す．
   /// @param[in] bit 値 ( 0 <= bit < bit_num() )
   SatLiteral
-  bit_var(int bit) const;
+  bit_var(SizeType bit) const;
 
   /// @brief 値に対応する変数のベクタを返す．
   const vector<SatLiteral>&
@@ -62,7 +62,7 @@ public:
 
   /// @brief SATの解から値を得る．
   /// @param[in] model SATの解
-  int
+  SizeType
   val(const SatModel& model) const;
 
 
@@ -78,7 +78,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ビット数
-  int mBitNum;
+  SizeType mBitNum;
 
   // 変数(実際にはリテラル)の配列
   vector<SatLiteral> mVarArray;
@@ -92,7 +92,7 @@ private:
 
 // @brief ビット数を返す．
 inline
-int
+SizeType
 SatBinaryNum::bit_num() const
 {
   return mBitNum;
@@ -102,7 +102,7 @@ SatBinaryNum::bit_num() const
 // @param[in] bit 値 ( 0 <= bit < bit_num() )
 inline
 SatLiteral
-SatBinaryNum::bit_var(int bit) const
+SatBinaryNum::bit_var(SizeType bit) const
 {
   ASSERT_COND( 0 <= bit && bit < bit_num() );
 

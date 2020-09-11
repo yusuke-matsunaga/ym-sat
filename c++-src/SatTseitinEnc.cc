@@ -33,16 +33,16 @@ SatTseitinEnc::~SatTseitinEnc()
 // @param[in] lit_list 入力のリテラルのリスト
 void
 SatTseitinEnc::add_andgate(SatLiteral olit,
-			   const vector<SatLiteral> lit_list)
+			   const vector<SatLiteral>& lit_list)
 {
-  int n = lit_list.size();
-  vector<SatLiteral> tmp_lits(n + 1);
-  for ( int i = 0; i < n; ++ i ) {
-    SatLiteral ilit{lit_list[i]};
-    tmp_lits[i] = ~ilit;
+  SizeType n{lit_list.size()};
+  vector<SatLiteral> tmp_lits;
+  tmp_lits.reserve(n + 1);
+  for ( auto ilit: lit_list ) {
     mSolver.add_clause(ilit, ~olit);
+    tmp_lits.push_back(~ilit);
   }
-  tmp_lits[n] = olit;
+  tmp_lits.push_back(olit);
   mSolver.add_clause(tmp_lits);
 }
 
@@ -51,16 +51,16 @@ SatTseitinEnc::add_andgate(SatLiteral olit,
 // @param[in] lit_list 入力のリテラルのリスト
 void
 SatTseitinEnc::add_orgate(SatLiteral olit,
-			  const vector<SatLiteral> lit_list)
+			  const vector<SatLiteral>& lit_list)
 {
-  int n = lit_list.size();
-  vector<SatLiteral> tmp_lits(n + 1);
-  for ( int i = 0; i < n; ++ i ) {
-    SatLiteral ilit{lit_list[i]};
+  SizeType n{lit_list.size()};
+  vector<SatLiteral> tmp_lits;
+  tmp_lits.reserve(n + 1);
+  for ( auto ilit: lit_list ) {
     mSolver.add_clause(~ilit, olit);
-    tmp_lits[i] = ilit;
+    tmp_lits.push_back(ilit);
   }
-  tmp_lits[n] = ~olit;
+  tmp_lits.push_back(~olit);
   mSolver.add_clause(tmp_lits);
 }
 
@@ -71,9 +71,9 @@ SatTseitinEnc::add_orgate(SatLiteral olit,
 // @param[in] num 要素数
 void
 SatTseitinEnc::_add_xorgate_sub(SatLiteral olit,
-				const vector<SatLiteral> lit_list,
-				int start,
-				int num)
+				const vector<SatLiteral>& lit_list,
+				SizeType start,
+				SizeType num)
 {
   ASSERT_COND( num >= 2 );
 
@@ -89,8 +89,8 @@ SatTseitinEnc::_add_xorgate_sub(SatLiteral olit,
     add_xorgate(olit, lit0, lit1, lit2);
   }
   else {
-    int nl = num / 2;
-    int nr = num - nl;
+    SizeType nl{num / 2};
+    SizeType nr{num - nl};
     auto llit{mSolver.new_variable(false)};
     _add_xorgate_sub(llit, lit_list, start, nl);
     auto rlit{mSolver.new_variable(false)};
@@ -125,10 +125,10 @@ SatTseitinEnc::add_half_adder(SatLiteral alit,
 // @param[in] olit キャリー出力のリテラル
 void
 SatTseitinEnc::add_full_adder(SatLiteral alit,
-			     SatLiteral blit,
-			     SatLiteral ilit,
-			     SatLiteral slit,
-			     SatLiteral olit)
+			      SatLiteral blit,
+			      SatLiteral ilit,
+			      SatLiteral slit,
+			      SatLiteral olit)
 {
   mSolver.add_clause(~slit,  alit,  blit,  ilit);
   mSolver.add_clause( slit,  alit,  blit, ~ilit);
@@ -158,16 +158,16 @@ SatTseitinEnc::add_adder(const vector<SatLiteral>& alits,
 			 const vector<SatLiteral>& slits,
 			 SatLiteral olit)
 {
-  int na = alits.size();
-  int nb = blits.size();
-  int ns = slits.size();
+  SizeType na{alits.size()};
+  SizeType nb{blits.size()};
+  SizeType ns{slits.size()};
   ASSERT_COND( na <= ns );
   ASSERT_COND( nb <= ns );
 
   bool a_zero = false;
   bool b_zero = false;
   bool c_zero = false;
-  for ( int i = 0; i < ns; ++ i ) {
+  for ( SizeType i = 0; i < ns; ++ i ) {
     auto slit{slits[i]};
     auto alit{kSatLiteralX};
     auto blit{kSatLiteralX};
@@ -215,10 +215,10 @@ SatTseitinEnc::add_adder(const vector<SatLiteral>& alits,
 
 BEGIN_NONAMESPACE
 
-int
-get_ln(int n)
+SizeType
+get_ln(SizeType n)
 {
-  int n_ln = 0;
+  SizeType n_ln = 0;
   while ( (1 << n_ln) <= n ) {
     ++ n_ln;
   }
@@ -236,22 +236,21 @@ void
 SatTseitinEnc::add_counter(const vector<SatLiteral>& ilits,
 			   const vector<SatLiteral>& olits)
 {
-  int ni = ilits.size();
-  int no = olits.size();
-
-  int no_exp = 1 << no;
+  SizeType ni{ilits.size()};
+  SizeType no{olits.size()};
+  SizeType no_exp{1U << no};
 
   ASSERT_COND( ni < no_exp );
 
-  int ni_ln = get_ln(ni);
+  SizeType ni_ln{get_ln(ni)};
   if ( ni_ln < no ) {
     // 出力の桁が多すぎる場合
     vector<SatLiteral> olits1(ni_ln);
-    for ( int i = 0; i < ni_ln; ++ i ) {
+    for ( SizeType i = 0; i < ni_ln; ++ i ) {
       olits1[i] = olits[i];
     }
     _add_counter(ilits, olits1);
-    for ( int i = ni_ln; i < no; ++ i ) {
+    for ( SizeType i = ni_ln; i < no; ++ i ) {
       mSolver.add_clause(~olits[i]);
     }
   }
@@ -269,8 +268,8 @@ void
 SatTseitinEnc::_add_counter(const vector<SatLiteral>& ilits,
 			    const vector<SatLiteral>& olits)
 {
-  int ni = ilits.size();
-  int no = olits.size();
+  SizeType ni{ilits.size()};
+  SizeType no{olits.size()};
 
   if ( ni == 1 ) {
     ASSERT_COND( no == 1 );
@@ -311,32 +310,34 @@ SatTseitinEnc::_add_counter(const vector<SatLiteral>& ilits,
     add_adder(clits, dlits, ilits[4], tmp_olits, olits[2]);
   }
   else {
-    int ni1 = (ni - 1) / 2;
+    SizeType ni1{(ni - 1) / 2};
     vector<SatLiteral> tmp_ilits1(ni1);
-    for ( int i = 0; i < ni1; ++ i ) {
+    for ( SizeType i = 0; i < ni1; ++ i ) {
       tmp_ilits1[i] = ilits[i];
     }
-    int no1 = get_ln(ni1);
+
+    SizeType no1{get_ln(ni1)};
     vector<SatLiteral> tmp_olits1(no1);
-    for ( int i = 0; i < no1; ++ i ) {
+    for ( SizeType i = 0; i < no1; ++ i ) {
       tmp_olits1[i] = mSolver.new_variable(false);
     }
     _add_counter(tmp_ilits1, tmp_olits1);
 
-    int ni2 = ni - ni1 - 1;
+    SizeType ni2{ni - ni1 - 1};
     vector<SatLiteral> tmp_ilits2(ni2);
-    for ( int i = 0; i < ni2; ++ i ) {
+    for ( SizeType i = 0; i < ni2; ++ i ) {
       tmp_ilits2[i] = ilits[i + ni1];
     }
-    int no2 = get_ln(ni2);
+
+    SizeType no2{get_ln(ni2)};
     vector<SatLiteral> tmp_olits2(no2);
-    for ( int i = 0; i < no2; ++ i ) {
+    for ( SizeType i = 0; i < no2; ++ i ) {
       tmp_olits2[i] = mSolver.new_variable(false);
     }
     add_counter(tmp_ilits2, tmp_olits2);
 
     vector<SatLiteral> tmp_olits3(no - 1);
-    for ( int i = 0; i < (no - 1); ++ i ) {
+    for ( SizeType i = 0; i < (no - 1); ++ i ) {
       tmp_olits3[i] = olits[i];
     }
     add_adder(tmp_olits1, tmp_olits2, ilits[ni - 1], tmp_olits3, olits[no - 1]);

@@ -84,7 +84,7 @@ public:
   /// @param[in] lit_list 入力のリテラルのリスト
   void
   add_andgate(SatLiteral olit,
-	      const vector<SatLiteral> lit_list);
+	      const vector<SatLiteral>& lit_list);
 
   /// @brief 2入力NANDゲートの入出力の関係を表す条件を追加する．
   /// @param[in] olit 出力のリテラル
@@ -118,7 +118,7 @@ public:
   /// @param[in] lit_list 入力のリテラルのリスト
   void
   add_nandgate(SatLiteral olit,
-	       const vector<SatLiteral> lit_list);
+	       const vector<SatLiteral>& lit_list);
 
   /// @brief 2入力ORゲートの入出力の関係を表す条件を追加する．
   /// @param[in] olit 出力のリテラル
@@ -152,7 +152,7 @@ public:
   /// @param[in] lit_list 入力のリテラルのリスト
   void
   add_orgate(SatLiteral olit,
-	     const vector<SatLiteral> lit_list);
+	     const vector<SatLiteral>& lit_list);
 
   /// @brief 2入力NORゲートの入出力の関係を表す条件を追加する．
   /// @param[in] olit 出力のリテラル
@@ -186,7 +186,7 @@ public:
   /// @param[in] lit_list 入力のリテラルのリスト
   void
   add_norgate(SatLiteral olit,
-	      const vector<SatLiteral> lit_list);
+	      const vector<SatLiteral>& lit_list);
 
   /// @brief 2入力XORゲートの入出力の関係を表す条件を追加する．
   /// @param[in] olit 出力のリテラル
@@ -220,7 +220,7 @@ public:
   /// @param[in] lit_list 入力のリテラルのリスト
   void
   add_xorgate(SatLiteral olit,
-	      const vector<SatLiteral> lit_list);
+	      const vector<SatLiteral>& lit_list);
 
   /// @brief 2入力XNORゲートの入出力の関係を表す条件を追加する．
   /// @param[in] olit 出力のリテラル
@@ -254,7 +254,7 @@ public:
   /// @param[in] lit_list 入力のリテラルのリスト
   void
   add_xnorgate(SatLiteral olit,
-	       const vector<SatLiteral> lit_list);
+	       const vector<SatLiteral>& lit_list);
 
   /// @brief half_adder の入出力の関係を表す条件を追加する．
   /// @param[in] alit, blit 入力のリテラル
@@ -315,9 +315,9 @@ private:
   /// @param[in] num 要素数
   void
   _add_xorgate_sub(SatLiteral olit,
-		   const vector<SatLiteral> lit_list,
-		   int start,
-		   int num);
+		   const vector<SatLiteral>& lit_list,
+		   SizeType start,
+		   SizeType num);
 
   /// @brief add_counter の本体
   /// @param[in] ilits 入力のリテラル
@@ -462,7 +462,7 @@ SatTseitinEnc::add_nandgate(SatLiteral olit,
 inline
 void
 SatTseitinEnc::add_nandgate(SatLiteral olit,
-			    const vector<SatLiteral> lit_list)
+			    const vector<SatLiteral>& lit_list)
 {
   add_andgate(~olit, lit_list);
 }
@@ -560,7 +560,7 @@ SatTseitinEnc::add_norgate(SatLiteral olit,
 inline
 void
 SatTseitinEnc::add_norgate(SatLiteral olit,
-			   const vector<SatLiteral> lit_list)
+			   const vector<SatLiteral>& lit_list)
 {
   add_orgate(~olit, lit_list);
 }
@@ -620,7 +620,7 @@ SatTseitinEnc::add_xorgate(SatLiteral olit,
 inline
 void
 SatTseitinEnc::add_xorgate(SatLiteral olit,
-			   const vector<SatLiteral> lit_list)
+			   const vector<SatLiteral>& lit_list)
 {
   int n = lit_list.size();
   _add_xorgate_sub(olit, lit_list, 0, n);
@@ -671,7 +671,7 @@ SatTseitinEnc::add_xnorgate(SatLiteral olit,
 inline
 void
 SatTseitinEnc::add_xnorgate(SatLiteral olit,
-			    const vector<SatLiteral> lit_list)
+			    const vector<SatLiteral>& lit_list)
 {
   add_xorgate(~olit, lit_list);
 }

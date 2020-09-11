@@ -40,11 +40,11 @@ public:
   /// @brief 変数の数を返す．
   ///
   /// 必ずしも全ての変数が節の中で用いられているとは限らない．
-  int
+  SizeType
   variable_num() const;
 
   /// @brief 節の数を返す．
-  int
+  SizeType
   clause_num() const;
 
   /// @brief 節のリストを返す．
@@ -133,7 +133,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数の数
-  int mVarNum{0};
+  SizeType mVarNum{0};
 
   // 節のリスト
   vector<vector<int>> mClauseList;
@@ -149,7 +149,7 @@ private:
 //
 // 必ずしも全ての変数が節の中で用いられているとは限らない．
 inline
-int
+SizeType
 SatDimacs::variable_num() const
 {
   return mVarNum;
@@ -157,7 +157,7 @@ SatDimacs::variable_num() const
 
 // @brief 節の数を返す．
 inline
-int
+SizeType
 SatDimacs::clause_num() const
 {
   return mClauseList.size();

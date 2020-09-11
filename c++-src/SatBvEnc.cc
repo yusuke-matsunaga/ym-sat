@@ -34,32 +34,32 @@ void
 SatBvEnc::add_eq(const vector<SatLiteral>& a_vec,
 		 const vector<SatLiteral>& b_vec)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
-  int nb = b_vec.size();
+  SizeType nb{b_vec.size()};
   ASSERT_COND( nb > 0 );
 
-  int nmin = na;
+  SizeType nmin = na;
   if ( nmin > nb ) {
     nmin = nb;
   }
 
   if ( na > nmin ) {
     // a_vec[na - 1:nmin] は 0 でなければ等しくない．
-    for ( int bit = nmin; bit < na; ++ bit ) {
+    for ( SizeType bit = nmin; bit < na; ++ bit ) {
       auto lit{a_vec[bit]};
       mSolver.add_clause(~lit);
     }
   }
   if ( nb > nmin ) {
     // b_vec[nb - 1:nmin] は 0 でなければ等しくない．
-    for ( int bit = nmin; bit < nb; ++ bit ) {
+    for ( SizeType bit = nmin; bit < nb; ++ bit ) {
       auto lit{b_vec[bit]};
       mSolver.add_clause(~lit);
     }
   }
   // a_vec と b_vec の各ビットが等しい
-  for ( int bit = 0; bit < nmin; ++ bit ) {
+  for ( SizeType bit = 0; bit < nmin; ++ bit ) {
     auto alit{a_vec[bit]};
     auto blit{b_vec[bit]};
     mSolver.add_clause(~alit,  blit);
@@ -74,7 +74,7 @@ void
 SatBvEnc::add_eq(const vector<SatLiteral>& a_vec,
 		 int b_val)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
   if ( (1 << na) <= b_val ) {
     // 常に成り立たない．
@@ -82,7 +82,7 @@ SatBvEnc::add_eq(const vector<SatLiteral>& a_vec,
     return;
   }
 
-  for ( int bit = 0; bit < na; ++ bit ) {
+  for ( SizeType bit = 0; bit < na; ++ bit ) {
     auto alit{a_vec[bit]};
     if ( b_val & (1 << bit) ) {
       // bi == 1 の場合
@@ -103,12 +103,12 @@ void
 SatBvEnc::add_ne(const vector<SatLiteral>& a_vec,
 		 const vector<SatLiteral>& b_vec)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
-  int nb = b_vec.size();
+  SizeType nb{b_vec.size()};
   ASSERT_COND( nb > 0 );
 
-  int nmin = na;
+  SizeType nmin = na;
   if ( nmin > nb ) {
     nmin = nb;
   }
@@ -116,19 +116,19 @@ SatBvEnc::add_ne(const vector<SatLiteral>& a_vec,
   vector<SatLiteral> tmp_lits;
   if ( na > nmin ) {
     // a_vec[na - 1:nmin] が 0 でなければ等しくない．
-    for ( int bit = nmin; bit < na; ++ bit ) {
+    for ( SizeType bit = nmin; bit < na; ++ bit ) {
       auto alit{a_vec[bit]};
       tmp_lits.push_back(alit);
     }
   }
   if ( nb > nmin ) {
     // b_vec[nb - 1:nmim] が 0 でなければ等しくない．
-    for ( int bit = nmin; bit < nb; ++ bit ) {
+    for ( SizeType bit = nmin; bit < nb; ++ bit ) {
       auto blit{b_vec[bit]};
       tmp_lits.push_back(blit);
     }
   }
-  for ( int bit = 0; bit < nmin; ++ bit ) {
+  for ( SizeType bit = 0; bit < nmin; ++ bit ) {
     // a_vec[i] != b_vec[i] なら等しくない．
     SatLiteral nlit{mSolver.new_variable()};
     auto alit{a_vec[bit]};
@@ -149,7 +149,7 @@ void
 SatBvEnc::add_ne(const vector<SatLiteral>& a_vec,
 		 int b_val)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
   if ( (1 << na) <= b_val ) {
     // 常に成り立っている．
@@ -157,7 +157,7 @@ SatBvEnc::add_ne(const vector<SatLiteral>& a_vec,
   }
 
   vector<SatLiteral> tmp_lits(na);
-  for ( int bit = 0; bit < na; ++ bit ) {
+  for ( SizeType bit = 0; bit < na; ++ bit ) {
     auto alit{a_vec[bit]};
     if ( b_val & (1 << bit) ) {
       tmp_lits[bit] = ~alit;
@@ -178,9 +178,9 @@ void
 SatBvEnc::add_lt(const vector<SatLiteral>& a_vec,
 		 const vector<SatLiteral>& b_vec)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
-  int nb = b_vec.size();
+  SizeType nb{b_vec.size()};
   ASSERT_COND( nb > 0 );
 
   if ( na == 1 && nb == 1 ) {
@@ -200,14 +200,14 @@ SatBvEnc::add_lt(const vector<SatLiteral>& a_vec,
   //       llit: iビット目で a < b が成り立つ．
   // という意味を持つ．
 
-  int n;
+  SizeType n;
   // na < nb の時
   // b_vec の溢れた桁に 1 があれば成り立つ．
   if ( na < nb ) {
     flit = SatLiteral{mSolver.new_variable()};
     vector<SatLiteral> tmp_lits2;
     tmp_lits2.push_back( flit);
-    for ( int bit = na; bit < nb; ++ bit ) {
+    for ( SizeType bit = na; bit < nb; ++ bit ) {
       auto blit{b_vec[bit]};
       tmp_lits.push_back(blit);
       mSolver.add_clause(~flit, ~blit);
@@ -220,7 +220,7 @@ SatBvEnc::add_lt(const vector<SatLiteral>& a_vec,
     flit = SatLiteral{mSolver.new_variable()};
     vector<SatLiteral> tmp_lits2;
     tmp_lits2.push_back( flit);
-    for ( int bit = nb; bit < na; ++ bit ) {
+    for ( SizeType bit = nb; bit < na; ++ bit ) {
       auto alit{a_vec[bit]};
       mSolver.add_clause(~flit, ~alit);
       tmp_lits2.push_back(alit);
@@ -271,7 +271,7 @@ void
 SatBvEnc::add_lt(const vector<SatLiteral>& a_vec,
 		 int b_val)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
   if ( (1 << na) <= b_val ) {
     // 常に成り立つ．
@@ -322,9 +322,9 @@ void
 SatBvEnc::add_le(const vector<SatLiteral>& a_vec,
 		 const vector<SatLiteral>& b_vec)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
-  int nb = b_vec.size();
+  SizeType nb{b_vec.size()};
   ASSERT_COND( nb > 0 );
   vector<SatLiteral> tmp_lits;
   SatLiteral flit{kSatLiteralX};
@@ -342,14 +342,14 @@ SatBvEnc::add_le(const vector<SatLiteral>& a_vec,
     return;
   }
 
-  int n;
+  SizeType n;
   // na < nb の時
   // b_vec の溢れた桁に 1 があれば成り立つ．
   if ( na < nb ) {
     flit = SatLiteral{mSolver.new_variable()};
     vector<SatLiteral> tmp_lits2;
     tmp_lits2.push_back( flit);
-    for ( int bit = na; bit < nb; ++ bit ) {
+    for ( SizeType bit = na; bit < nb; ++ bit ) {
       auto blit{b_vec[bit]};
       tmp_lits.push_back(blit);
       mSolver.add_clause(~flit, ~blit);
@@ -362,7 +362,7 @@ SatBvEnc::add_le(const vector<SatLiteral>& a_vec,
     flit = SatLiteral{mSolver.new_variable()};
     vector<SatLiteral> tmp_lits2;
     tmp_lits2.push_back( flit);
-    for ( int bit = nb; bit < na; ++ bit ) {
+    for ( SizeType bit = nb; bit < na; ++ bit ) {
       auto alit{a_vec[bit]};
       mSolver.add_clause(~flit, ~alit);
       tmp_lits2.push_back(alit);
@@ -423,7 +423,7 @@ void
 SatBvEnc::add_le(const vector<SatLiteral>& a_vec,
 		 int b_val)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
   if ( (1 << na) <= b_val ) {
     // 常に成り立っている．
@@ -485,7 +485,7 @@ void
 SatBvEnc::add_gt(const vector<SatLiteral>& a_vec,
 		 int b_val)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
   if ( (1 << na) <= b_val ) {
     // 常に成りたたない．
@@ -535,7 +535,7 @@ void
 SatBvEnc::add_ge(const vector<SatLiteral>& a_vec,
 		 int b_val)
 {
-  int na = a_vec.size();
+  SizeType na{a_vec.size()};
   ASSERT_COND( na > 0 );
   if ( (1 << na) <= b_val ) {
     // 常に成りたたない．
