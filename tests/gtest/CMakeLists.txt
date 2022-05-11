@@ -2,9 +2,6 @@
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
-include_directories(
-  ${GTEST_INCLUDE_DIR}
-  )
 
 
 # ===================================================================
@@ -17,6 +14,7 @@ include_directories(
 # ===================================================================
 
 
+set ( DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../testdata )
 
 # ===================================================================
 #  テスト用のターゲットの設定
@@ -69,5 +67,5 @@ ym_add_gtest ( sat_Dimacs_test
   $<TARGET_OBJECTS:ym_base_obj_d>
   $<TARGET_OBJECTS:ym_sat_obj_d>
   DEFINITIONS
-  "-DDATA_DIR=\"${PROJECT_SOURCE_DIR}/ym-sat/testdata\""
+  "-DDATA_DIR=\"${DATA_DIR}\""
   )
