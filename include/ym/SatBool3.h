@@ -5,9 +5,8 @@
 /// @brief SatBool3 の定義ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/sat.h"
 
@@ -16,20 +15,19 @@ BEGIN_NAMESPACE_YM
 
 /// @brief 不定値を含む論理値
 /// @ingroup SatGroup
-enum class SatBool3 {
-  /// @brief false
-  False = -1,
-  /// @brief true
-  True  = 1,
-  /// @brief unknown
-  X     = 0
+enum class SatBool3 : ymint8 {
+  False = -1, ///< false
+  True  = 1,  ///< true
+  X     = 0   ///< unknown
 };
 
 /// @brief SatBool3 の否定演算
 /// @ingroup SatGroup
 inline
 SatBool3
-operator~(SatBool3 val)
+operator~(
+  SatBool3 val
+)
 {
   // 条件分岐を用いない dirty hack
   return static_cast<SatBool3>(-static_cast<int>(val));
@@ -39,8 +37,10 @@ operator~(SatBool3 val)
 /// @ingroup SatGroup
 inline
 SatBool3
-operator^=(SatBool3& left,
-	   SatBool3 right)
+operator^=(
+  SatBool3& left,
+  SatBool3 right
+)
 {
   return left = static_cast<SatBool3>(static_cast<int>(left) * static_cast<int>(right) * -1);
 }
@@ -49,8 +49,10 @@ operator^=(SatBool3& left,
 /// @ingroup SatGroup
 inline
 SatBool3
-operator^(SatBool3 left,
-	  SatBool3 right)
+operator^(
+  SatBool3 left,
+  SatBool3 right
+)
 {
   return static_cast<SatBool3>(static_cast<int>(left) * static_cast<int>(right) * -1);
 }
@@ -59,7 +61,9 @@ operator^(SatBool3 left,
 /// @ingroup SatGroup
 inline
 SatBool3
-b2B3(bool b)
+b2B3(
+  bool b
+)
 {
   // 条件分岐を用いない dirty hack
   // true:1 false:0 と仮定している．
@@ -70,8 +74,10 @@ b2B3(bool b)
 /// @ingroup SatGroup
 inline
 ostream&
-operator<<(ostream& s,
-	   SatBool3 val)
+operator<<(
+  ostream& s,
+  SatBool3 val
+)
 {
   switch ( val ) {
   case SatBool3::False: s << "false"; break;
@@ -84,7 +90,9 @@ operator<<(ostream& s,
 /// @brief 整数値に変換する関数(Cython用)
 inline
 int
-__SatBool3_to_int(SatBool3 val)
+__SatBool3_to_int(
+  SatBool3 val
+)
 {
   return static_cast<int>(val);
 }
@@ -92,7 +100,9 @@ __SatBool3_to_int(SatBool3 val)
 /// @brief 整数値から SatBool3 に変換する関数(Cython用)
 inline
 SatBool3
-__int_to_SatBool3(int ival)
+__int_to_SatBool3(
+  int ival
+)
 {
   switch ( ival ) {
   case  0: return SatBool3::X;

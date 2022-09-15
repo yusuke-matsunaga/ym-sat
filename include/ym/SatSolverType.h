@@ -5,7 +5,7 @@
 /// @brief SatSolverType のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2018 Yusuke Matsunaga
+/// Copyright (C) 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/sat.h"
@@ -22,15 +22,18 @@ class SatSolverType
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] type 実装タイプを表す文字列
-  /// @param[in] option オプション文字列
-  /// @param[in] log_out ログを記録するストリームへのポインタ
-  SatSolverType(const string& type = string(),
-		const string& option = string(),
-		ostream* log_out = nullptr);
+  SatSolverType(
+    const string& type = string(),   ///< [in] 実装タイプを表す文字列
+    const string& option = string(), ///< [in] オプション文字列
+    ostream* log_out = nullptr       ///< [in] ログを記録するストリームへのポインタ
+  ) : mType{type},
+      mOption{option},
+      mLogOut{log_out}
+  {
+  }
 
   /// @brief デストラクタ
-  ~SatSolverType();
+  ~SatSolverType() = default;
 
 
 public:
@@ -39,31 +42,38 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容をセットする．
-  /// @param[in] type 実装タイプを表す文字列
-  /// @param[in] option オプション文字列
-  /// @param[in] log_out ログを記録するストリームへのポインタ
   void
-  set(const string& type,
-      const string& option = string(),
-      ostream* log_out = nullptr);
+  set(
+    const string& type,               ///< [in] 実装タイプを表す文字列
+    const string& option = string(),  ///< [in] オプション文字列
+    ostream* log_out = nullptr	      ///< [in] ログを記録するストリームへのポインタ
+  )
+  {
+    mType = type;
+    mOption = option;
+    mLogOut = log_out;
+  }
 
   /// @brief 実装タイプを返す．
   const string&
-  type() const;
+  type() const
+  {
+    return mType;
+  }
 
   /// @brief オプションを返す．
   const string&
-  option() const;
+  option() const
+  {
+    return mOption;
+  }
 
   /// @brief ログ出力のストリームを返す．
   ostream*
-  log_out() const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  log_out() const
+  {
+    return mLogOut;
+  }
 
 
 private:
@@ -81,70 +91,6 @@ private:
   ostream* mLogOut;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] type 実装タイプを表す文字列
-// @param[in] option オプション文字列
-// @param[in] log_out ログを記録するストリームへのポインタ
-inline
-SatSolverType::SatSolverType(const string& type,
-			     const string& option,
-			     ostream* log_out) :
-  mType(type),
-  mOption(option),
-  mLogOut(log_out)
-{
-}
-
-// @brief デストラクタ
-inline
-SatSolverType::~SatSolverType()
-{
-}
-
-// @brief 内容をセットする．
-// @param[in] type 実装タイプを表す文字列
-// @param[in] option オプション文字列
-// @param[in] log_out ログを記録するストリームへのポインタ
-inline
-void
-SatSolverType::set(const string& type,
-		   const string& option,
-		   ostream* log_out)
-{
-  mType = type;
-  mOption = option;
-  mLogOut = log_out;
-}
-
-// @brief 実装タイプを返す．
-inline
-const string&
-SatSolverType::type() const
-{
-  return mType;
-}
-
-// @brief オプションを返す．
-inline
-const string&
-SatSolverType::option() const
-{
-  return mOption;
-}
-
-// @brief ログ出力のストリームを返す．
-inline
-ostream*
-SatSolverType::log_out() const
-{
-  return mLogOut;
-}
 
 END_NAMESPACE_YM_SAT
 

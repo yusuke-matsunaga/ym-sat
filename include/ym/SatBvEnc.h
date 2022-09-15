@@ -5,7 +5,7 @@
 /// @brief SatBvEnc のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2019 Yusuke Matsunaga
+/// Copyright (C) 2019, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/sat.h"
@@ -26,8 +26,9 @@ class SatBvEnc
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] solver SATソルバ
-  SatBvEnc(SatSolver& solver);
+  SatBvEnc(
+    SatSolver& solver ///< [in] SATソルバ
+  );
 
   /// @brief デストラクタ
   ~SatBvEnc();
@@ -39,36 +40,38 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief A == B という条件を追加する．
-  /// @param[in] a_vec, b_vec A,Bを表すビットベクタ
   ///
   /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
   /// 0と仮定する．
   void
-  add_eq(const vector<SatLiteral>& a_vec,
-	 const vector<SatLiteral>& b_vec);
+  add_eq(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  );
 
   /// @brief A == B という条件を追加する．
-  /// @param[in] a_vec Aを表すビットベクタ
-  /// @param[in] b_val Bの値
   void
-  add_eq(const vector<SatLiteral>& a_vec,
-	 int b_val);
+  add_eq(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val                        ///< [in] Bの値
+  );
 
   /// @brief A != B という条件を追加する．
-  /// @param[in] a_vec, b_vec A,Bを表すビットベクタ
   ///
   /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
   /// 0と仮定する．
   void
-  add_ne(const vector<SatLiteral>& a_vec,
-	 const vector<SatLiteral>& b_vec);
+  add_ne(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  );
 
   /// @brief A != B という条件を追加する．
-  /// @param[in] a_vec Aを表すビットベクタ
-  /// @param[in] b_val Bの値
   void
-  add_ne(const vector<SatLiteral>& a_vec,
-	 int b_val);
+  add_ne(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
 
   /// @brief A < B という条件を追加する．
   /// @param[in] a_vec, b_vec A,Bを表すビットベクタ
@@ -76,69 +79,74 @@ public:
   /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
   /// 0と仮定する．
   void
-  add_lt(const vector<SatLiteral>& a_vec,
-	 const vector<SatLiteral>& b_vec);
+  add_lt(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  );
 
   /// @brief A < B という条件を追加する．
-  /// @param[in] a_vec Aを表すビットベクタ
-  /// @param[in] b_val Bの値
   void
-  add_lt(const vector<SatLiteral>& a_vec,
-	 int b_val);
+  add_lt(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
 
   /// @brief A <= B という条件を追加する．
-  /// @param[in] a_vec, b_vec A,Bを表すビットベクタ
   ///
   /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
   /// 0と仮定する．
   void
-  add_le(const vector<SatLiteral>& a_vec,
-	 const vector<SatLiteral>& b_vec);
+  add_le(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  );
 
   /// @brief A <= B という条件を追加する．
-  /// @param[in] a_vec Aを表すビットベクタ
-  /// @param[in] b_val Bの値
   void
-  add_le(const vector<SatLiteral>& a_vec,
-	 int b_val);
+  add_le(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
 
   /// @brief A > B という条件を追加する．
-  /// @param[in] a_vec, b_vec A,Bを表すビットベクタ
   ///
   /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
   /// 0と仮定する．
   void
-  add_gt(const vector<SatLiteral>& a_vec,
-	 const vector<SatLiteral>& b_vec);
+  add_gt(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  )
+  {
+    add_lt(b_vec, a_vec);
+  }
 
   /// @brief A > B という条件を追加する．
-  /// @param[in] a_vec Aを表すビットベクタ
-  /// @param[in] b_val Bの値
   void
-  add_gt(const vector<SatLiteral>& a_vec,
-	 int b_val);
+  add_gt(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
 
   /// @brief A >= B という条件を追加する．
-  /// @param[in] a_vec, b_vec A,Bを表すビットベクタ
   ///
   /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
   /// 0と仮定する．
   void
-  add_ge(const vector<SatLiteral>& a_vec,
-	 const vector<SatLiteral>& b_vec);
+  add_ge(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  )
+  {
+    add_le(b_vec, a_vec);
+  }
 
   /// @brief A >= B という条件を追加する．
-  /// @param[in] a_vec Aを表すビットベクタ
-  /// @param[in] b_val Bの値
   void
-  add_ge(const vector<SatLiteral>& a_vec,
-	 int b_val);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  add_ge(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
 
 
 private:
@@ -150,37 +158,6 @@ private:
   SatSolver& mSolver;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief A > B という条件を追加する．
-// @param[in] a_vec, b_vec A,Bを表すビットベクタ
-//
-// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
-// 0と仮定する．
-inline
-void
-SatBvEnc::add_gt(const vector<SatLiteral>& a_vec,
-		 const vector<SatLiteral>& b_vec)
-{
-  add_lt(b_vec, a_vec);
-}
-
-// @brief A >= B という条件を追加する．
-// @param[in] a_vec, b_vec A,Bを表すビットベクタ
-//
-// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
-// 0と仮定する．
-inline
-void
-SatBvEnc::add_ge(const vector<SatLiteral>& a_vec,
-		 const vector<SatLiteral>& b_vec)
-{
-  add_le(b_vec, a_vec);
-}
 
 END_NAMESPACE_YM_SAT
 

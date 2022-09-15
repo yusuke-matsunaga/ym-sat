@@ -996,9 +996,9 @@ TEST_P(SatTseitinEncTest, add_counter_16_5)
   check_counter(16, 5);
 }
 
-INSTANTIATE_TEST_CASE_P(SatSolverTest,
-			SatTseitinEncTest,
-			::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					  "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+INSTANTIATE_TEST_SUITE_P(SatSolverTest,
+			 SatTseitinEncTest,
+			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
+					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
 
 END_NAMESPACE_YM

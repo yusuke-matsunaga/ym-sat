@@ -5,7 +5,7 @@
 /// @brief SatBinaryNum のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2019 Yusuke Matsunaga
+/// Copyright (C) 2019, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/sat.h"
@@ -26,10 +26,10 @@ public:
   SatBinaryNum();
 
   /// @brief コンストラクタ
-  /// @param[in] solver SATソルバ
-  /// @param[in] bit_num ビット幅
-  SatBinaryNum(SatSolver& solver,
-	       SizeType bit_num);
+  SatBinaryNum(
+    SatSolver& solver, ///< [in] SATソルバ
+    SizeType bit_num   ///< [in] ビット幅
+  );
 
   /// @brief デストラクタ
   ~SatBinaryNum();
@@ -41,35 +41,42 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 初期化を行う．
-  /// @param[in] solver SATソルバ
-  /// @param[in] bit_num ビット幅
   void
-  init(SatSolver& solver,
-       SizeType bit_num);
+  init(
+    SatSolver& solver, ///< [in] SATソルバ
+    SizeType bit_num   ///< [in] ビット幅
+  );
 
   /// @brief ビット数を返す．
   SizeType
-  bit_num() const;
+  bit_num() const
+  {
+    return mBitNum;
+  }
 
   /// @brief ビットに対応する変数を返す．
-  /// @param[in] bit 値 ( 0 <= bit < bit_num() )
   SatLiteral
-  bit_var(SizeType bit) const;
+  bit_var(
+    SizeType bit ///< [in] ビット位置 ( 0 <= bit < bit_num() )
+  ) const
+  {
+    ASSERT_COND( 0 <= bit && bit < bit_num() );
+
+    return mVarArray[bit];
+  }
 
   /// @brief 値に対応する変数のベクタを返す．
   const vector<SatLiteral>&
-  bit_vars() const;
+  bit_vars() const
+  {
+    return mVarArray;
+  }
 
   /// @brief SATの解から値を得る．
-  /// @param[in] model SATの解
   SizeType
-  val(const SatModel& model) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+  val(
+    const SatModel& model ///< [in] SATの解
+  ) const;
 
 
 private:
@@ -84,38 +91,6 @@ private:
   vector<SatLiteral> mVarArray;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief ビット数を返す．
-inline
-SizeType
-SatBinaryNum::bit_num() const
-{
-  return mBitNum;
-}
-
-// @brief ビットに対応する変数を返す．
-// @param[in] bit 値 ( 0 <= bit < bit_num() )
-inline
-SatLiteral
-SatBinaryNum::bit_var(SizeType bit) const
-{
-  ASSERT_COND( 0 <= bit && bit < bit_num() );
-
-  return mVarArray[bit];
-}
-
-// @brief 値に対応する変数のベクタを返す．
-inline
-const vector<SatLiteral>&
-SatBinaryNum::bit_vars() const
-{
-  return mVarArray;
-}
 
 END_NAMESPACE_YM_SAT
 

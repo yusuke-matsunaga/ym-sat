@@ -5,7 +5,7 @@
 /// @brief SatModel のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2019 Yusuke Matsunaga
+/// Copyright (C) 2019, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/sat.h"
@@ -50,35 +50,58 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief サイズを返す．
-  int
-  size() const;
+  SizeType
+  size() const
+  {
+    return mValArray.size();
+  }
 
   /// @brief 対象の値を返す．
-  /// @param[in] lit リテラル
   SatBool3
-  operator[](SatLiteral lit) const;
+  operator[](
+    SatLiteral lit ///< [in] リテラル
+  ) const
+  {
+    ASSERT_COND( lit.is_valid() );
+    int vid = lit.varid();
+    ASSERT_COND( 0 <= vid && vid < mValArray.size() );
+    SatBool3 val = mValArray[vid];
+    if ( lit.is_negative() ) {
+      val = ~val;
+    }
+    return val;
+  }
 
   /// @brief 対象の値を返す(operator[] の別名)．
-  /// @param[in] lit リテラル
   SatBool3
-  get(SatLiteral lit) const;
+  get(
+    SatLiteral lit ///< [in] リテラル
+  ) const
+  {
+    return operator[](lit);
+  }
 
   /// @brief 配列のサイズを設定する．
   void
-  resize(int size);
+  resize(
+    SizeType size ///< [in] サイズ
+  )
+  {
+    mValArray.clear();
+    mValArray.resize(size, SatBool3::X);
+  }
 
   /// @brief 値をセットする．
-  /// @param[in] pos 位置
-  /// @param[in] val 値
   void
-  set(int pos,
-      SatBool3 val);
+  set(
+    SizeType pos, ///< [in] 位置
+    SatBool3 val  ///< [in] 値
+  )
+  {
+    ASSERT_COND( 0 <= pos && pos < mValArray.size() );
 
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
+    mValArray[pos] = val;
+  }
 
 
 private:
@@ -90,66 +113,6 @@ private:
   vector<SatBool3> mValArray;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief サイズを返す．
-inline
-int
-SatModel::size() const
-{
-  return mValArray.size();
-}
-
-// @brief 対象の値を返す．
-// @param[in] lit リテラル
-inline
-SatBool3
-SatModel::operator[](SatLiteral lit) const
-{
-  ASSERT_COND( lit.is_valid() );
-  int vid = lit.varid();
-  ASSERT_COND( 0 <= vid && vid < mValArray.size() );
-  SatBool3 val = mValArray[vid];
-  if ( lit.is_negative() ) {
-    val = ~val;
-  }
-  return val;
-}
-
-// @brief 対象の値を返す(operator[] の別名)．
-// @param[in] lit リテラル
-inline
-SatBool3
-SatModel::get(SatLiteral lit) const
-{
-  return operator[](lit);
-}
-
-// @brief 配列のサイズを設定する．
-inline
-void
-SatModel::resize(int size)
-{
-  mValArray.clear();
-  mValArray.resize(size, SatBool3::X);
-}
-
-// @brief 値をセットする．
-// @param[in] pos 位置
-// @param[in] val 値
-inline
-void
-SatModel::set(int pos,
-	      SatBool3 val)
-{
-  ASSERT_COND( 0 <= pos && pos < mValArray.size() );
-
-  mValArray[pos] = val;
-}
 
 END_NAMESPACE_YM_SAT
 

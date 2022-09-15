@@ -35,8 +35,6 @@ public:
   // SATソルバ
   SatSolver mSolver;
 
-  SatOrderedSet mVar;
-
 };
 
 // @brief コンストラクタ
@@ -123,7 +121,7 @@ TEST_P(SatOrderedSetTest, ge1)
   SatOrderedSet var(mSolver, min, max);
 
   int lval = 7;
-  var.add_ge_constraint(mSolver, lval);
+  var.add_ge_constraint(lval);
 
   int n = max - min + 1;
   vector<SatLiteral> lits(n);
@@ -164,7 +162,7 @@ TEST_P(SatOrderedSetTest, le1)
   SatOrderedSet var(mSolver, min, max);
 
   int uval = 5;
-  var.add_le_constraint(mSolver, uval);
+  var.add_le_constraint(uval);
 
   int n = max - min + 1;
   vector<SatLiteral> lits(n);
@@ -206,7 +204,7 @@ TEST_P(SatOrderedSetTest, droppoff1)
 
   int uval = 5;
   int lval = 7;
-  var.add_dropoff_constraint(mSolver, uval, lval);
+  var.add_dropoff_constraint(uval, lval);
 
   int n = max - min + 1;
   vector<SatLiteral> lits(n);
@@ -240,9 +238,9 @@ TEST_P(SatOrderedSetTest, droppoff1)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(SatSolverTest,
-			SatOrderedSetTest,
-			::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					  "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+INSTANTIATE_TEST_SUITE_P(SatSolverTest,
+			 SatOrderedSetTest,
+			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
+					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
 
 END_NAMESPACE_YM_SAT

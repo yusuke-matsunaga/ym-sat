@@ -3,9 +3,8 @@
 /// @brief SatSolver の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/SatSolver.h"
 
@@ -26,7 +25,6 @@
 
 BEGIN_NAMESPACE_YM
 
-//const SatVarId kSatVarIdIllegal;
 const SatLiteral kSatLiteralX;
 
 END_NAMESPACE_YM
@@ -41,7 +39,9 @@ BEGIN_NONAMESPACE
 
 // SatSolverType のデフォルト値を設定する．
 SatSolverType
-fallback_type(const SatSolverType& src_type)
+fallback_type(
+  const SatSolverType& src_type
+)
 {
   string type = src_type.type();
   if ( type == "minisat" ) {
@@ -87,7 +87,9 @@ END_NONAMESPACE
 // @brief 継承クラスを作るクラスメソッド
 // @param[in] solver_type SATソルバのタイプ
 unique_ptr<SatSolverImpl>
-SatSolverImpl::new_impl(const SatSolverType& solver_type)
+SatSolverImpl::new_impl(
+  const SatSolverType& solver_type
+)
 {
   const string& type = solver_type.type();
   const string& option = solver_type.option();
@@ -129,11 +131,11 @@ SatSolverImpl::new_impl(const SatSolverType& solver_type)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] solver_type 実装タイプ
-SatSolver::SatSolver(const SatSolverType& solver_type) :
-  mType{fallback_type(solver_type)},
-  mImpl{SatSolverImpl::new_impl(mType)},
-  mLogger{SatLogger::new_impl(mType)}
+SatSolver::SatSolver(
+  const SatSolverType& solver_type
+) : mType{fallback_type(solver_type)},
+    mImpl{SatSolverImpl::new_impl(mType)},
+    mLogger{SatLogger::new_impl(mType)}
 {
 }
 
@@ -145,13 +147,13 @@ SatSolver::~SatSolver()
 }
 
 // @brief 変数を追加する．
-// @param[in] decision 決定変数の時に true とする．
-// @return 新しい変数を表すリテラルを返す．
 SatLiteral
-SatSolver::new_variable(bool decision)
+SatSolver::new_variable(
+  bool decision
+)
 {
   int id = mImpl->new_variable(decision);
-  auto lit{SatLiteral::conv_from_varid(id, false)};
+  auto lit = SatLiteral::conv_from_varid(id, false);
   if ( decision ) {
     mImpl->freeze_literal(lit);
   }
@@ -164,19 +166,19 @@ SatSolver::new_variable(bool decision)
 }
 
 // @brief リテラルを 'フリーズ' する．
-//
-// lingeling 以外は無効
 void
-SatSolver::freeze_literal(SatLiteral lit)
+SatSolver::freeze_literal(
+  SatLiteral lit
+)
 {
   mImpl->freeze_literal(lit);
 }
 
 // @brief リテラルを 'フリーズ' する．
-//
-// lingeling 以外は無効
 void
-SatSolver::freeze_literal(const vector<SatLiteral>& lits)
+SatSolver::freeze_literal(
+  const vector<SatLiteral>& lits
+)
 {
   for ( auto lit: lits ) {
     mImpl->freeze_literal(lit);
@@ -198,17 +200,11 @@ stop_solver(int)
 END_NONAMESPACE
 
 // @brief assumption 付きの SAT 問題を解く．
-// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-// @param[in] time_limit 時間制約(秒) 0 で制約なし
-// @return 結果(SatBool3)を返す．
-//
-// 結果の意味は以下の通り
-// * kB3True  充足した．
-// * kB3False 充足不能が判明した．
-// * kB3X     わからなかった．
 SatBool3
-SatSolver::solve(const vector<SatLiteral>& assumptions,
-		 int time_limit)
+SatSolver::solve(
+  const vector<SatLiteral>& assumptions,
+  int time_limit
+)
 {
   sig_t old_func = nullptr;
   expired = false;
@@ -242,8 +238,6 @@ SatSolver::solve(const vector<SatLiteral>& assumptions,
 }
 
 // @brief 探索を中止する．
-//
-// 割り込みハンドラや別スレッドから非同期に呼ばれることを仮定している．
 void
 SatSolver::stop()
 {
@@ -258,17 +252,19 @@ SatSolver::sane() const
 }
 
 // @brief 現在の内部状態を得る．
-// @param[out] stats 状態を格納する構造体
 void
-SatSolver::get_stats(SatStats& stats) const
+SatSolver::get_stats(
+  SatStats& stats
+) const
 {
   mImpl->get_stats(stats);
 }
 
 // @brief DIMACS 形式で制約節を出力する．
-// @param[in] s 出力先のストリーム
 void
-SatSolver::write_DIMACS(ostream& s) const
+SatSolver::write_DIMACS(
+  ostream& s
+) const
 {
   s << "p cnf " << variable_num() << " " << clause_num() << endl;
   for ( auto clause: mClauseList ) {
@@ -288,35 +284,38 @@ SatSolver::write_DIMACS(ostream& s) const
 }
 
 // @brief conflict_limit の最大値
-// @param[in] val 設定する値
-// @return 以前の設定値を返す．
-int
-SatSolver::set_max_conflict(int val)
+SizeType
+SatSolver::set_max_conflict(
+  SizeType val
+)
 {
   return mImpl->set_max_conflict(val);
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
-// @param[in] msg_handler 登録するメッセージハンドラ
 void
-SatSolver::reg_msg_handler(SatMsgHandler* msg_handler)
+SatSolver::reg_msg_handler(
+  SatMsgHandler* msg_handler
+)
 {
   mImpl->reg_msg_handler(msg_handler);
 }
 
 // @brief 時間計測機能を制御する
 void
-SatSolver::timer_on(bool enable)
+SatSolver::timer_on(
+  bool enable
+)
 {
   mImpl->timer_on(enable);
 }
 
 // @brief set_conditional_literal() の下請け関数
-// @param[in] n conditional_literal の数
-// @param[in] lits conditional_literal の配列
 void
-SatSolver::_set_conditional_literals(int n,
-				     SatLiteral lits[])
+SatSolver::_set_conditional_literals(
+  SizeType n,
+  SatLiteral lits[]
+)
 {
   mConditionalLits.clear();
   mConditionalLits.resize(n);
@@ -326,9 +325,10 @@ SatSolver::_set_conditional_literals(int n,
 }
 
 // @brief add_clause() の下請け関数
-// @param[in] lits リテラルのリスト
 void
-SatSolver::_add_clause(const vector<SatLiteral>& lits)
+SatSolver::_add_clause(
+  const vector<SatLiteral>& lits
+)
 {
   vector<SatLiteral> tmp_lits;
   tmp_lits.reserve(lits.size() + mConditionalLits.size());
@@ -344,11 +344,11 @@ SatSolver::_add_clause(const vector<SatLiteral>& lits)
 }
 
 // @brief add_clause() の下請け関数
-// @param[in] n リテラル数
-// @param[in] lits リテラルの配列
 void
-SatSolver::_add_clause(int n,
-		       SatLiteral lits[])
+SatSolver::_add_clause(
+  SizeType n,
+  SatLiteral lits[]
+)
 {
   vector<SatLiteral> tmp_lits;
   tmp_lits.reserve(n + mConditionalLits.size());
@@ -364,9 +364,10 @@ SatSolver::_add_clause(int n,
 }
 
 // @brief _add_clause() の下請け関数
-// @param[in] lits リテラルのリスト
 void
-SatSolver::_add_clause_sub(const vector<SatLiteral>& lits)
+SatSolver::_add_clause_sub(
+  const vector<SatLiteral>& lits
+)
 {
   mClauseList.push_back(lits);
 
