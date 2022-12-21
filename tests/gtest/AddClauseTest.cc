@@ -3,9 +3,8 @@
 /// @brief AddClauseTest の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017, 2018 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
@@ -34,22 +33,28 @@ public:
 
   /// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
   void
-  check(int ni,
-	const vector<int>& vals);
+  check(
+    int ni,
+    const vector<int>& vals
+  );
 
   /// @brief check の条件リテラル付き版
   ///
   /// 最初の変数が1のときのみ意味を持つ．
   void
-  check_with_cond1(int ni,
-		   const vector<int>& vals);
+  check_with_cond1(
+    int ni,
+    const vector<int>& vals
+  );
 
   /// @brief 論理ゲートの真理値表からチェック用のベクタを作る．
   void
-  make_vals(int ni,
-	    const vector<int>& tv,
-	    bool inv,
-	    vector<int>& vals);
+  make_vals(
+    int ni,
+    const vector<int>& tv,
+    bool inv,
+    vector<int>& vals
+  );
 
 
 public:
@@ -70,9 +75,10 @@ public:
   vector<SatLiteral> mCondVarList;
 };
 
+
 AddClauseTest::AddClauseTest() :
-  mSolver(GetParam()),
-  mVarNum(100),
+  mSolver{GetParam()},
+  mVarNum{100},
   mVarList(mVarNum),
   mCondVarList(2)
 {
@@ -89,8 +95,10 @@ AddClauseTest::~AddClauseTest()
 
 // @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
 void
-AddClauseTest::check(int ni,
-		     const vector<int>& vals)
+AddClauseTest::check(
+  int ni,
+  const vector<int>& vals
+)
 {
   try {
     int np = 1U << ni;
@@ -117,8 +125,10 @@ AddClauseTest::check(int ni,
 //
 // 最初の変数が1のときのみ意味を持つ．
 void
-AddClauseTest::check_with_cond1(int ni,
-				const vector<int>& vals)
+AddClauseTest::check_with_cond1(
+  int ni,
+  const vector<int>& vals
+)
 {
   try {
     int np = 1U << ni;
@@ -158,10 +168,12 @@ AddClauseTest::check_with_cond1(int ni,
 
 // @brief 論理ゲートの真理値表からチェック用のベクタを作る．
 void
-AddClauseTest::make_vals(int ni,
-			 const vector<int>& tv,
-			 bool inv,
-			 vector<int>& vals)
+AddClauseTest::make_vals(
+  int ni,
+  const vector<int>& tv,
+  bool inv,
+  vector<int>& vals
+)
 {
   int np = 1 << ni;
   int ni1 = ni + 1;
@@ -1898,9 +1910,9 @@ TEST_P(AddClauseTest, add_clause_with_cond5n_1)
   mSolver.clear_conditional_literals();
 }
 
-INSTANTIATE_TEST_CASE_P(SatSolverTest,
-			AddClauseTest,
-			::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					  "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+INSTANTIATE_TEST_SUITE_P(SatSolverTest,
+			 AddClauseTest,
+			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
+					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
 
 END_NAMESPACE_YM

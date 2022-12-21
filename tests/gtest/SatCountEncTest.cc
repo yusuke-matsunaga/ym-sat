@@ -3,9 +3,8 @@
 /// @brief SatCountEncTest の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017, 2018, 2019 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018, 2019, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
@@ -35,39 +34,53 @@ public:
 
   /// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
   void
-  check(int ni,
-	const vector<int>& vals);
+  check(
+    int ni,
+    const vector<int>& vals
+  );
 
   /// @brief at_most_k のチェックを行う．
   void
-  check_at_most(int n,
-		int k);
+  check_at_most(
+    int n,
+    int k
+  );
 
   /// @brief at_most_k のチェックを行う．
   void
-  check_at_most_sub(int n,
-		    int k);
+  check_at_most_sub(
+    int n,
+    int k
+  );
 
   /// @brief at_least_k のチェックを行う．
   void
-  check_at_least(int n,
-		 int k);
+  check_at_least(
+    int n,
+    int k
+  );
 
   /// @brief exact_k のチェックを行う．
   void
-  check_exact(int n,
-	      int k);
+  check_exact(
+    int n,
+    int k
+  );
 
   /// @brief not_one のチェックを行う．
   void
-  check_not_one(int n);
+  check_not_one(
+    int n
+  );
 
   /// @brief 論理ゲートの真理値表からチェック用のベクタを作る．
   void
-  make_vals(int ni,
-	    const vector<int>& tv,
-	    bool inv,
-	    vector<int>& vals);
+  make_vals(
+    int ni,
+    const vector<int>& tv,
+    bool inv,
+    vector<int>& vals
+  );
 
 
 public:
@@ -106,8 +119,10 @@ SatCountEncTest::~SatCountEncTest()
 
 // @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
 void
-SatCountEncTest::check(int ni,
-		       const vector<int>& vals)
+SatCountEncTest::check(
+  int ni,
+  const vector<int>& vals
+)
 {
   try {
     int np = 1U << ni;
@@ -132,8 +147,10 @@ SatCountEncTest::check(int ni,
 
 // @brief at_most_k のチェックを行う．
 void
-SatCountEncTest::check_at_most(int n,
-			       int k)
+SatCountEncTest::check_at_most(
+  int n,
+  int k
+)
 {
   int np = 1U << n;
   for ( int p: Range(np) ) {
@@ -165,8 +182,10 @@ SatCountEncTest::check_at_most(int n,
 
 // @brief at_least_k のチェックを行う．
 void
-SatCountEncTest::check_at_least(int n,
-				int k)
+SatCountEncTest::check_at_least(
+  int n,
+  int k
+)
 {
   int np = 1U << n;
   for ( int p: Range(np) ) {
@@ -190,8 +209,10 @@ SatCountEncTest::check_at_least(int n,
 
 // @brief exact_k のチェックを行う．
 void
-SatCountEncTest::check_exact(int n,
-			     int k)
+SatCountEncTest::check_exact(
+  int n,
+  int k
+)
 {
   int np = 1U << n;
   for ( int p: Range(np) ) {
@@ -215,7 +236,9 @@ SatCountEncTest::check_exact(int n,
 
 // @brief not_one のチェックを行う．
 void
-SatCountEncTest::check_not_one(int n)
+SatCountEncTest::check_not_one(
+  int n
+)
 {
   int np = 1U << n;
   for ( int p: Range(np) ) {
@@ -239,10 +262,12 @@ SatCountEncTest::check_not_one(int n)
 
 // @brief 論理ゲートの真理値表からチェック用のベクタを作る．
 void
-SatCountEncTest::make_vals(int ni,
-			   const vector<int>& tv,
-			   bool inv,
-			   vector<int>& vals)
+SatCountEncTest::make_vals(
+  int ni,
+  const vector<int>& tv,
+  bool inv,
+  vector<int>& vals
+)
 {
   int np = 1 << ni;
   int ni1 = ni + 1;
@@ -410,6 +435,48 @@ TEST_P(SatCountEncTest, add_at_most_10_3)
 }
 
 TEST_P(SatCountEncTest, add_at_most_10_5)
+{
+  int n = 10;
+  int k = 5;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_at_most_k(lits, k);
+
+  check_at_most(n, k);
+}
+
+TEST_P(SatCountEncTest, add_at_most_15_3)
+{
+  int n = 10;
+  int k = 3;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_at_most_k(lits, k);
+
+  check_at_most(n, k);
+}
+
+TEST_P(SatCountEncTest, add_at_most_15_5)
+{
+  int n = 10;
+  int k = 5;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_at_most_k(lits, k);
+
+  check_at_most(n, k);
+}
+
+TEST_P(SatCountEncTest, add_at_most_15_10)
 {
   int n = 10;
   int k = 5;
@@ -597,6 +664,48 @@ TEST_P(SatCountEncTest, add_at_least_10_5)
   check_at_least(n, k);
 }
 
+TEST_P(SatCountEncTest, add_at_least_15_3)
+{
+  int n = 10;
+  int k = 3;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_at_least_k(lits, k);
+
+  check_at_least(n, k);
+}
+
+TEST_P(SatCountEncTest, add_at_least_15_5)
+{
+  int n = 10;
+  int k = 5;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_at_least_k(lits, k);
+
+  check_at_least(n, k);
+}
+
+TEST_P(SatCountEncTest, add_at_least_15_10)
+{
+  int n = 10;
+  int k = 5;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_at_least_k(lits, k);
+
+  check_at_least(n, k);
+}
+
 TEST_P(SatCountEncTest, add_exact_one2)
 {
   auto lit1{mVarList[0]};
@@ -763,6 +872,48 @@ TEST_P(SatCountEncTest, add_exact_10_5)
   check_exact(n, k);
 }
 
+TEST_P(SatCountEncTest, add_exact_15_3)
+{
+  int n = 10;
+  int k = 3;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_exact_k(lits, k);
+
+  check_exact(n, k);
+}
+
+TEST_P(SatCountEncTest, add_exact_15_5)
+{
+  int n = 10;
+  int k = 5;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_exact_k(lits, k);
+
+  check_exact(n, k);
+}
+
+TEST_P(SatCountEncTest, add_exact_15_10)
+{
+  int n = 10;
+  int k = 5;
+  vector<SatLiteral> lits(n);
+  for ( int i: Range(n) ) {
+    lits[i] = mVarList[i];
+  }
+
+  mEnc.add_exact_k(lits, k);
+
+  check_exact(n, k);
+}
+
 TEST_P(SatCountEncTest, add_not_one2)
 {
   auto lit1{mVarList[0]};
@@ -836,9 +987,9 @@ TEST_P(SatCountEncTest, add_not_oneN)
   check_not_one(n);
 }
 
-INSTANTIATE_TEST_CASE_P(SatSolverTest,
-			SatCountEncTest,
-			::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					  "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+INSTANTIATE_TEST_SUITE_P(SatSolverTest,
+			 SatCountEncTest,
+			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
+					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
 
 END_NAMESPACE_YM

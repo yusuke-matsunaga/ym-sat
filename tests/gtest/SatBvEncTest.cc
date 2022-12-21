@@ -3,9 +3,8 @@
 /// @brief SatBvEncTest の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2019 Yusuke Matsunaga
+/// Copyright (C) 2019, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
@@ -34,88 +33,88 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief add_eq(vector, vector) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_size b_vec のサイズ
   void
-  check_add_eq1(int a_size,
-		int b_size);
+  check_add_eq1(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_size  ///< [in] b_vec のサイズ
+  );
 
   /// @brief add_eq(vector, val) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_val bの値
   void
-  check_add_eq2(int a_size,
-		int b_val);
+  check_add_eq2(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_val   ///< [in] bの値
+  );
 
   /// @brief add_ne(vector, vector) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_size b_vec のサイズ
   void
-  check_add_ne1(int a_size,
-		int b_size);
+  check_add_ne1(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_size  ///< [in] b_vec のサイズ
+  );
 
   /// @brief add_ne(vector, val) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_val bの値
   void
-  check_add_ne2(int a_size,
-		int b_val);
+  check_add_ne2(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_val   ///< [in] bの値
+  );
 
   /// @brief add_lt(vector, vector) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_size b_vec のサイズ
   void
-  check_add_lt1(int a_size,
-		int b_size);
+  check_add_lt1(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_size  ///< [in] b_vec のサイズ
+  );
 
   /// @brief add_lt(vector, val) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_val bの値
   void
-  check_add_lt2(int a_size,
-		int b_val);
+  check_add_lt2(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_val   ///< [in] bの値
+  );
 
   /// @brief add_le(vector, vector) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_size b_vec のサイズ
   void
-  check_add_le1(int a_size,
-		int b_size);
+  check_add_le1(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_size  ///< [in] b_vec のサイズ
+  );
 
   /// @brief add_le(vector, val) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_val bの値
   void
-  check_add_le2(int a_size,
-		int b_val);
+  check_add_le2(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_val   ///< [in] bの値
+  );
 
   /// @brief add_gt(vector, vector) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_size b_vec のサイズ
   void
-  check_add_gt1(int a_size,
-		int b_size);
+  check_add_gt1(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_size  ///< [in] b_vec のサイズ
+  );
 
   /// @brief add_gt(vector, val) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_val bの値
   void
-  check_add_gt2(int a_size,
-		int b_val);
+  check_add_gt2(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_val   ///< [in] bの値
+  );
 
   /// @brief add_ge(vector, vector) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_size b_vec のサイズ
   void
-  check_add_ge1(int a_size,
-		int b_size);
+  check_add_ge1(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_size  ///< [in] b_vec のサイズ
+  );
 
   /// @brief add_ge(vector, val) のチェック
-  /// @param[in] a_size a_vec のサイズ
-  /// @param[in] b_val bの値
   void
-  check_add_ge2(int a_size,
-		int b_val);
+  check_add_ge2(
+    int a_size, ///< [in] a_vec のサイズ
+    int b_val   ///< [in] bの値
+  );
 
 
 public:
@@ -128,9 +127,10 @@ public:
 
 };
 
+
 // @brief コンストラクタ
 SatBvEncTest::SatBvEncTest() :
-  mSolver(GetParam())
+  mSolver{GetParam()}
 {
   //cout << "Running on SatSolver(" << GetParam() << ")" << endl;
 }
@@ -141,11 +141,11 @@ SatBvEncTest::~SatBvEncTest()
 }
 
 // @brief add_eq(vector, vector) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_size b_vec のサイズ
 void
-SatBvEncTest::check_add_eq1(int a_size,
-			    int b_size)
+SatBvEncTest::check_add_eq1(
+  int a_size,
+  int b_size
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -217,11 +217,11 @@ SatBvEncTest::check_add_eq1(int a_size,
 }
 
 // @brief add_eq(vector, val) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_val bの値
 void
-SatBvEncTest::check_add_eq2(int a_size,
-			    int b_val)
+SatBvEncTest::check_add_eq2(
+  int a_size,
+  int b_val
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -273,11 +273,11 @@ SatBvEncTest::check_add_eq2(int a_size,
 }
 
 // @brief add_ne(vector, vector) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_size b_vec のサイズ
 void
-SatBvEncTest::check_add_ne1(int a_size,
-			    int b_size)
+SatBvEncTest::check_add_ne1(
+  int a_size,
+  int b_size
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -349,11 +349,11 @@ SatBvEncTest::check_add_ne1(int a_size,
 }
 
 // @brief add_ne(vector, val) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_val bの値
 void
-SatBvEncTest::check_add_ne2(int a_size,
-			    int b_val)
+SatBvEncTest::check_add_ne2(
+  int a_size,
+  int b_val
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -409,11 +409,11 @@ SatBvEncTest::check_add_ne2(int a_size,
 }
 
 // @brief add_lt(vector, vector) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_size b_vec のサイズ
 void
-SatBvEncTest::check_add_lt1(int a_size,
-			    int b_size)
+SatBvEncTest::check_add_lt1(
+  int a_size,
+  int b_size
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -492,11 +492,11 @@ SatBvEncTest::check_add_lt1(int a_size,
 }
 
 // @brief add_lt(vector, val) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_val bの値
 void
-SatBvEncTest::check_add_lt2(int a_size,
-			    int b_val)
+SatBvEncTest::check_add_lt2(
+  int a_size,
+  int b_val
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -549,11 +549,11 @@ SatBvEncTest::check_add_lt2(int a_size,
 }
 
 // @brief add_le(vector, vector) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_size b_vec のサイズ
 void
-SatBvEncTest::check_add_le1(int a_size,
-			    int b_size)
+SatBvEncTest::check_add_le1(
+  int a_size,
+  int b_size
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -626,11 +626,11 @@ SatBvEncTest::check_add_le1(int a_size,
 }
 
 // @brief add_le(vector, val) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_val bの値
 void
-SatBvEncTest::check_add_le2(int a_size,
-			    int b_val)
+SatBvEncTest::check_add_le2(
+  int a_size,
+  int b_val
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -683,11 +683,11 @@ SatBvEncTest::check_add_le2(int a_size,
 }
 
 // @brief add_gt(vector, vector) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_size b_vec のサイズ
 void
-SatBvEncTest::check_add_gt1(int a_size,
-			    int b_size)
+SatBvEncTest::check_add_gt1(
+  int a_size,
+  int b_size
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -766,11 +766,11 @@ SatBvEncTest::check_add_gt1(int a_size,
 }
 
 // @brief add_gt(vector, val のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_val bの値
 void
-SatBvEncTest::check_add_gt2(int a_size,
-			    int b_val)
+SatBvEncTest::check_add_gt2(
+  int a_size,
+  int b_val
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -823,11 +823,11 @@ SatBvEncTest::check_add_gt2(int a_size,
 }
 
 // @brief add_ge(vector, vector) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_size b_vec のサイズ
 void
-SatBvEncTest::check_add_ge1(int a_size,
-			    int b_size)
+SatBvEncTest::check_add_ge1(
+  int a_size,
+  int b_size
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -906,11 +906,11 @@ SatBvEncTest::check_add_ge1(int a_size,
 }
 
 // @brief add_ge(vector, val) のチェック
-// @param[in] a_size a_vec のサイズ
-// @param[in] b_val bの値
 void
-SatBvEncTest::check_add_ge2(int a_size,
-			    int b_val)
+SatBvEncTest::check_add_ge2(
+  int a_size,
+  int b_val
+)
 {
   vector<SatLiteral> a_vec(a_size);
   for ( int i: Range(a_size) ) {
@@ -1173,15 +1173,16 @@ TEST_P(SatBvEncTest, add_ge2_4_24)
 }
 
 #if 0
-INSTANTIATE_TEST_CASE_P(SatSolverTest,
-			SatBvEncTest,
-			::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					  "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+// glueminisat2 で落ちるみたい
+INSTANTIATE_TEST_SUITE_P(SatSolverTest,
+			 SatBvEncTest,
+			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
+					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
 #endif
 
-INSTANTIATE_TEST_CASE_P(SatSolverTest,
-			SatBvEncTest,
-			::testing::Values("lingeling", "minisat2", "minisat",
-					  "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+INSTANTIATE_TEST_SUITE_P(SatSolverTest,
+			 SatBvEncTest,
+			 ::testing::Values("lingeling", "minisat2", "minisat",
+					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
 
 END_NAMESPACE_YM

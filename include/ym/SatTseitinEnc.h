@@ -394,12 +394,10 @@ public:
   );
 
   /// @brief 1's counter の入出力の関係を表す条件を追加する．
-  ///
-  /// ilits のサイズ < 2^(olits のサイズ) でなければならない．
-  void
+  /// @return 個数を表す2進数を表すリテラルのリストを返す．
+  vector<SatLiteral>
   add_counter(
-    const vector<SatLiteral>& ilits, ///< [in] 入力のリテラルのリスト
-    const vector<SatLiteral>& olits  ///< [in] 出力のリテラルのリスト
+    const vector<SatLiteral>& ilits ///< [in] 入力のリテラルのリスト
   );
 
 
@@ -415,15 +413,6 @@ private:
     const vector<SatLiteral>& lit_list, ///< [in] 入力のリテラルのリスト
     SizeType start,                     ///< [in] 開始位置
     SizeType num                        ///< [in] 要素数
-  );
-
-  /// @brief add_counter の本体
-  ///
-  /// ベクタサイズのチェックを行わない．
-  void
-  _add_counter(
-    const vector<SatLiteral>& ilits, ///< [in] 入力のリテラル
-    const vector<SatLiteral>& olits  ///< [in] 出力のリテラル
   );
 
 

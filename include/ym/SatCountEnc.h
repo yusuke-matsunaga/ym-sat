@@ -545,7 +545,11 @@ public:
   add_exact_k(
     const vector<SatLiteral>& lit_list, ///< [in] 入力のリテラルのリスト
     SizeType k                          ///< [in] しきい値
-  );
+  )
+  {
+    add_at_most_k(lit_list, k);
+    add_at_least_k(lit_list, k);
+  }
 
   /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
   void

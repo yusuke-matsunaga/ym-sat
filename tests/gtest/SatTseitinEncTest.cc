@@ -3,9 +3,8 @@
 /// @brief SatTseitinEncTest の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017, 2018 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018, 2022 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
@@ -35,54 +34,77 @@ public:
 
   /// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
   void
-  check(int ni,
-	const vector<int>& vals);
+  check(
+    int ni,
+    const vector<int>& vals
+  );
+
+  /// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
+  void
+  check(
+    const vector<SatLiteral>& var_list,
+    const vector<int>& vals
+  );
 
   /// @brief AND ゲートのチェックを行う．
   void
-  check_and(int ni);
+  check_and(
+    int ni
+  );
 
   /// @brief NAND ゲートのチェックを行う．
   void
-  check_nand(int ni);
+  check_nand(
+    int ni
+  );
 
   /// @brief OR ゲートのチェックを行う．
   void
-  check_or(int ni);
+  check_or(
+    int ni
+  );
 
   /// @brief NOR ゲートのチェックを行う．
   void
-  check_nor(int ni);
+  check_nor(
+    int ni
+  );
 
   /// @brief XOR ゲートのチェックを行う．
   void
-  check_xor(int ni);
+  check_xor(
+    int ni
+  );
 
   /// @brief XNOR ゲートのチェックを行う．
   void
-  check_xnor(int ni);
+  check_xnor(
+    int ni
+  );
 
   /// @brief adder のチェックを行う．
-  /// @param[in] na, nb 入力のビット幅
-  /// @param[in] ns 出力のビット幅
   void
-  check_adder(int na,
-	      int nb,
-	      int ns);
+  check_adder(
+    int na, ///< [in] a のビット幅
+    int nb, ///< [in] b のビット幅
+    int ns  ///< [in] s のビット幅
+  );
 
   /// @brief counter のチェックを行う．
-  /// @param[in] ni 入力のビット幅
-  /// @param[in] no 出力のビット幅
   void
-  check_counter(int ni,
-		int no);
+  check_counter(
+    int ni, ///< [in] 入力のビット幅
+    int no  ///< [in] 出力のビット幅
+  );
 
   /// @brief 論理ゲートの真理値表からチェック用のベクタを作る．
   void
-  make_vals(int ni,
-	    const vector<int>& tv,
-	    bool inv,
-	    vector<int>& vals);
+  make_vals(
+    int ni,
+    const vector<int>& tv,
+    bool inv,
+    vector<int>& vals
+  );
 
 
 public:
@@ -106,10 +128,11 @@ public:
   vector<SatLiteral> mCondVarList;
 };
 
+
 SatTseitinEncTest::SatTseitinEncTest() :
-  mSolver(GetParam()),
-  mEnc(mSolver),
-  mVarNum(100),
+  mSolver{GetParam()},
+  mEnc{mSolver},
+  mVarNum{100},
   mVarList(mVarNum),
   mCondVarList(2)
 {
@@ -126,15 +149,46 @@ SatTseitinEncTest::~SatTseitinEncTest()
 
 // @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
 void
-SatTseitinEncTest::check(int ni,
-			 const vector<int>& vals)
+SatTseitinEncTest::check(
+  int ni,
+  const vector<int>& vals
+)
 {
   try {
     int np = 1U << ni;
     for ( int p: Range(np) ) {
       vector<SatLiteral> assumptions;
       for ( int i: Range(ni) ) {
-	auto lit{mVarList[i]};
+	auto lit = mVarList[i];
+	if ( (p & (1 << i)) == 0 ) {
+	  lit = ~lit;
+	}
+	assumptions.push_back(lit);
+      }
+      SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
+      SatBool3 stat = mSolver.solve(assumptions);
+      EXPECT_EQ( exp_ans, stat );
+    }
+  }
+  catch ( AssertError x ) {
+    cout << x << endl;
+  }
+}
+
+// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
+void
+SatTseitinEncTest::check(
+  const vector<SatLiteral>& var_list,
+  const vector<int>& vals
+)
+{
+  try {
+    SizeType ni = var_list.size();
+    int np = 1U << ni;
+    for ( int p: Range(np) ) {
+      vector<SatLiteral> assumptions;
+      for ( int i: Range(ni) ) {
+	auto lit = var_list[i];
 	if ( (p & (1 << i)) == 0 ) {
 	  lit = ~lit;
 	}
@@ -152,7 +206,9 @@ SatTseitinEncTest::check(int ni,
 
 // @brief AND ゲートのチェックを行う．
 void
-SatTseitinEncTest::check_and(int ni)
+SatTseitinEncTest::check_and(
+  int ni
+)
 {
   int np = 1 << ni;
   vector<int> tv(np);
@@ -175,7 +231,9 @@ SatTseitinEncTest::check_and(int ni)
 
 // @brief NAND ゲートのチェックを行う．
 void
-SatTseitinEncTest::check_nand(int ni)
+SatTseitinEncTest::check_nand(
+  int ni
+)
 {
   int np = 1 << ni;
   vector<int> tv(np);
@@ -198,7 +256,9 @@ SatTseitinEncTest::check_nand(int ni)
 
 // @brief OR ゲートのチェックを行う．
 void
-SatTseitinEncTest::check_or(int ni)
+SatTseitinEncTest::check_or(
+  int ni
+)
 {
   int np = 1 << ni;
   vector<int> tv(np);
@@ -221,7 +281,9 @@ SatTseitinEncTest::check_or(int ni)
 
 // @brief NOR ゲートのチェックを行う．
 void
-SatTseitinEncTest::check_nor(int ni)
+SatTseitinEncTest::check_nor(
+  int ni
+)
 {
   int np = 1 << ni;
   vector<int> tv(np);
@@ -244,7 +306,9 @@ SatTseitinEncTest::check_nor(int ni)
 
 // @brief XOR ゲートのチェックを行う．
 void
-SatTseitinEncTest::check_xor(int ni)
+SatTseitinEncTest::check_xor(
+  int ni
+)
 {
   int np = 1 << ni;
   vector<int> tv(np);
@@ -266,7 +330,9 @@ SatTseitinEncTest::check_xor(int ni)
 
 // @brief XNOR ゲートのチェックを行う．
 void
-SatTseitinEncTest::check_xnor(int ni)
+SatTseitinEncTest::check_xnor(
+  int ni
+)
 {
   int np = 1 << ni;
   vector<int> tv(np);
@@ -287,12 +353,12 @@ SatTseitinEncTest::check_xnor(int ni)
 }
 
 // @brief adder のチェックを行う．
-// @param[in] na, nb 入力のビット幅
-// @param[in] ns 出力のビット幅
 void
-SatTseitinEncTest::check_adder(int na,
-			       int nb,
-			       int ns)
+SatTseitinEncTest::check_adder(
+  int na,
+  int nb,
+  int ns
+)
 {
   ASSERT_COND( na <= ns );
   ASSERT_COND( nb <= ns );
@@ -356,11 +422,11 @@ SatTseitinEncTest::check_adder(int na,
 }
 
 // @brief counter のチェックを行う．
-// @param[in] ni 入力のビット幅
-// @param[in] no 出力のビット幅
 void
-SatTseitinEncTest::check_counter(int ni,
-				 int no)
+SatTseitinEncTest::check_counter(
+  int ni,
+  int no
+)
 {
   int no_exp = (1 << no);
 
@@ -369,17 +435,21 @@ SatTseitinEncTest::check_counter(int ni,
 
   int vpos = 0;
   vector<SatLiteral> ilits(ni);
-  vector<SatLiteral> olits(no);
   for ( int i = 0; i < ni; ++ i ) {
     ilits[i] = mVarList[vpos];
     ++ vpos;
   }
-  for ( int i = 0; i < no; ++ i ) {
-    olits[i] = mVarList[vpos];
-    ++ vpos;
-  }
 
-  mEnc.add_counter(ilits, olits);
+  auto olits = mEnc.add_counter(ilits);
+
+  vector<SatLiteral> var_list(ni + no);
+  for ( SizeType i = 0; i < ni; ++ i ) {
+    var_list[i] = ilits[i];
+  }
+  for ( SizeType i = 0; i < no; ++ i ) {
+    var_list[i + ni] = olits[i];
+  }
+  vpos = ni + no;
 
   int nexp = (1 << vpos);
   vector<int> vals(nexp);
@@ -404,15 +474,17 @@ SatTseitinEncTest::check_counter(int ni,
     }
   }
 
-  check(vpos, vals);
+  check(var_list, vals);
 }
 
 // @brief 論理ゲートの真理値表からチェック用のベクタを作る．
 void
-SatTseitinEncTest::make_vals(int ni,
-			     const vector<int>& tv,
-			     bool inv,
-			     vector<int>& vals)
+SatTseitinEncTest::make_vals(
+  int ni,
+  const vector<int>& tv,
+  bool inv,
+  vector<int>& vals
+)
 {
   int np = 1 << ni;
   int ni1 = ni + 1;
@@ -919,11 +991,6 @@ TEST_P(SatTseitinEncTest, add_adder_3_1_5)
 TEST_P(SatTseitinEncTest, add_counter_2_2)
 {
   check_counter(2, 2);
-}
-
-TEST_P(SatTseitinEncTest, add_counter_2_4)
-{
-  check_counter(2, 4);
 }
 
 TEST_P(SatTseitinEncTest, add_counter_3_2)
