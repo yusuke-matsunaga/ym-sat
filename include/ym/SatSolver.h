@@ -256,6 +256,1084 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
+  /// @name Tseitin's encoding を行う関数
+  /// @{
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 2つのリテラルが等しいという条件を追加する．
+  ///
+  /// 具体的には (~lit1 + lit2)(lit1 + ~lit2) の２つの節を追加する．
+  void
+  add_buffgate(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    add_clause(~lit1,  lit2);
+    add_clause( lit1, ~lit2);
+  }
+
+  /// @brief 2つのリテラルが等しくないという条件を追加する．
+  ///
+  /// 具体的には (~lit1 + ~lit2)(lit1 + lit2) の２つの節を追加する．
+  void
+  add_notgate(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    add_buffgate(~lit1, lit2);
+  }
+
+  /// @brief 2入力ANDゲートの入出力の関係を表す条件を追加する．
+  void
+  add_andgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2  ///< [in] 入力のリテラル2
+  )
+  {
+    add_clause(~lit1, ~lit2,  olit);
+    add_clause( lit1,        ~olit);
+    add_clause(        lit2, ~olit);
+  }
+
+  /// @brief 3入力ANDゲートの入出力の関係を表す条件を追加する．
+  void
+  add_andgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3  ///< [in] 入力のリテラル3
+  )
+  {
+    add_clause(~lit1, ~lit2, ~lit3,  olit);
+    add_clause( lit1,               ~olit);
+    add_clause(        lit2,        ~olit);
+    add_clause(               lit3, ~olit);
+  }
+
+  /// @brief 4入力ANDゲートの入出力の関係を表す条件を追加する．
+  void
+  add_andgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3, ///< [in] 入力のリテラル3
+    SatLiteral lit4  ///< [in] 入力のリテラル4
+  )
+  {
+    add_clause(~lit1, ~lit2, ~lit3, ~lit4,  olit);
+    add_clause( lit1,                      ~olit);
+    add_clause(        lit2,               ~olit);
+    add_clause(               lit3,        ~olit);
+    add_clause(                      lit4, ~olit);
+  }
+
+  /// @brief n入力ANDゲートの入出力の関係を表す条件を追加する．
+  void
+  add_andgate(
+    SatLiteral olit,                   ///< [in] 出力のリテラル
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief 2入力NANDゲートの入出力の関係を表す条件を追加する．
+  void
+  add_nandgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2  ///< [in] 入力のリテラル2
+  )
+  {
+    add_andgate(~olit, lit1, lit2);
+  }
+
+  /// @brief 3入力NANDゲートの入出力の関係を表す条件を追加する．
+  void
+  add_nandgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3  ///< [in] 入力のリテラル3
+  )
+  {
+    add_andgate(~olit, lit1, lit2, lit3);
+  }
+
+  /// @brief 4入力NANDゲートの入出力の関係を表す条件を追加する．
+  void
+  add_nandgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3, ///< [in] 入力のリテラル3
+    SatLiteral lit4  ///< [in] 入力のリテラル4
+  )
+  {
+    add_andgate(~olit, lit1, lit2, lit3, lit4);
+  }
+
+  /// @brief n入力NANDゲートの入出力の関係を表す条件を追加する．
+  void
+  add_nandgate(
+    SatLiteral olit,                    ///< [in] 出力のリテラル
+    const vector<SatLiteral>& lit_list  ///< [in] 入力のリテラルのリスト
+  )
+  {
+    add_andgate(~olit, lit_list);
+  }
+
+  /// @brief 2入力ORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_orgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2  ///< [in] 入力のリテラル2
+  )
+  {
+    add_clause( lit1,  lit2, ~olit);
+    add_clause(~lit1,         olit);
+    add_clause(       ~lit2,  olit);
+  }
+
+  /// @brief 3入力ORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_orgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3  ///< [in] 入力のリテラル3
+  )
+  {
+    add_clause( lit1,  lit2,  lit3, ~olit);
+    add_clause(~lit1,                olit);
+    add_clause(       ~lit2,         olit);
+    add_clause(              ~lit3,  olit);
+  }
+
+  /// @brief 4入力ORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_orgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3, ///< [in] 入力のリテラル3
+    SatLiteral lit4  ///< [in] 入力のリテラル4
+  )
+  {
+    add_clause( lit1,  lit2,  lit3,  lit4, ~olit);
+    add_clause(~lit1,                       olit);
+    add_clause(       ~lit2,                olit);
+    add_clause(              ~lit3,         olit);
+    add_clause(                     ~lit4,  olit);
+  }
+
+  /// @brief n入力ORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_orgate(
+    SatLiteral olit,                   ///< [in] 出力のリテラル
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief 2入力NORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_norgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2  ///< [in] 入力のリテラル2
+  )
+  {
+    add_orgate(~olit, lit1, lit2);
+  }
+
+  /// @brief 3入力NORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_norgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3  ///< [in] 入力のリテラル3
+  )
+  {
+    add_orgate(~olit, lit1, lit2, lit3);
+  }
+
+  /// @brief 4入力NORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_norgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3, ///< [in] 入力のリテラル3
+    SatLiteral lit4  ///< [in] 入力のリテラル4
+  )
+  {
+    add_orgate(~olit, lit1, lit2, lit3, lit4);
+  }
+
+  /// @brief n入力NORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_norgate(
+    SatLiteral olit,                   ///< [in] 出力のリテラル
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  )
+  {
+    add_orgate(~olit, lit_list);
+  }
+
+  /// @brief 2入力XORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_xorgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2  ///< [in] 入力のリテラル2
+  )
+  {
+    add_clause( lit1,  lit2, ~olit);
+    add_clause( lit1, ~lit2,  olit);
+    add_clause(~lit1,  lit2,  olit);
+    add_clause(~lit1, ~lit2, ~olit);
+  }
+
+  /// @brief 3入力XORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_xorgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3  ///< [in] 入力のリテラル3
+  )
+  {
+    add_clause( lit1,  lit2,  lit3, ~olit);
+    add_clause( lit1,  lit2, ~lit3,  olit);
+    add_clause( lit1, ~lit2,  lit3,  olit);
+    add_clause( lit1, ~lit2, ~lit3, ~olit);
+    add_clause(~lit1,  lit2,  lit3,  olit);
+    add_clause(~lit1,  lit2, ~lit3, ~olit);
+    add_clause(~lit1, ~lit2,  lit3, ~olit);
+    add_clause(~lit1, ~lit2, ~lit3,  olit);
+  }
+
+  /// @brief 4入力XORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_xorgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3, ///< [in] 入力のリテラル3
+    SatLiteral lit4  ///< [in] 入力のリテラル4
+  )
+  {
+    _add_xorgate_sub(olit, vector<SatLiteral>{lit1, lit2, lit3, lit4}, 0, 4);
+  }
+
+  /// @brief n入力XORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_xorgate(
+    SatLiteral olit,                   ///< [in] 出力のリテラル
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  )
+  {
+    SizeType n = lit_list.size();
+    _add_xorgate_sub(olit, lit_list, 0, n);
+  }
+
+  /// @brief 2入力XNORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_xnorgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2  ///< [in] 入力のリテラル2
+  )
+  {
+    add_xorgate(~olit, lit1, lit2);
+  }
+
+  /// @brief 3入力XNORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_xnorgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3  ///< [in] 入力のリテラル3
+  )
+  {
+    add_xorgate(~olit, lit1, lit2, lit3);
+  }
+
+  /// @brief 4入力XORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_xnorgate(
+    SatLiteral olit, ///< [in] 出力のリテラル
+    SatLiteral lit1, ///< [in] 入力のリテラル1
+    SatLiteral lit2, ///< [in] 入力のリテラル2
+    SatLiteral lit3, ///< [in] 入力のリテラル3
+    SatLiteral lit4  ///< [in] 入力のリテラル4
+  )
+  {
+    add_xorgate(~olit, lit1, lit2, lit3, lit4);
+  }
+
+  /// @brief n入力XNORゲートの入出力の関係を表す条件を追加する．
+  void
+  add_xnorgate(
+    SatLiteral olit,                   ///< [in] 出力のリテラル
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  )
+  {
+    add_xorgate(~olit, lit_list);
+  }
+
+  /// @brief half_adder の入出力の関係を表す条件を追加する．
+  void
+  add_half_adder(
+    SatLiteral alit, ///< [in] 入力Aのリテラル
+    SatLiteral blit, ///< [in] 入力Bのリテラル
+    SatLiteral slit, ///< [in] 和の出力のリテラル
+    SatLiteral olit  ///< [in] キャリー出力のリテラル
+  );
+
+  /// @brief full_adder の入出力の関係を表す条件を追加する．
+  void
+  add_full_adder(
+    SatLiteral alit, ///< [in] 入力Aのリテラル
+    SatLiteral blit, ///< [in] 入力Bのリテラル
+    SatLiteral ilit, ///< [in] キャリー入力のリテラル
+    SatLiteral slit, ///< [in] 和の出力のリテラル
+    SatLiteral olit  ///< [in] キャリー出力のリテラル
+  );
+
+  /// @brief 多ビットadderの入出力の関係を表す条件を追加する．
+  ///
+  /// * alits, blits のサイズ <= slits のサイズでなければならない．
+  /// * 片方が短い場合には上位ビットに0を仮定する．
+  void
+  add_adder(
+    const vector<SatLiteral>& alits, ///< [in] 入力Aのリテラルのリスト
+    const vector<SatLiteral>& blits, ///< [in] 入力Bのリテラルのリスト
+    SatLiteral ilit,                 ///< [in] キャリー入力のリテラル
+    const vector<SatLiteral>& slits, ///< [in] 出力のリテラルのリスト
+    SatLiteral olit                  ///< [in] キャリー出力のリテラル
+  );
+
+  /// @brief 1's counter の入出力の関係を表す条件を追加する．
+  /// @return 個数を表す2進数を表すリテラルのリストを返す．
+  vector<SatLiteral>
+  add_counter(
+    const vector<SatLiteral>& ilits ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
+  void
+  add_at_most_one(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    add_clause(~lit1, ~lit2);
+  }
+
+  /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
+  void
+  add_at_most_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3
+  )
+  {
+    add_clause(~lit1, ~lit2);
+    add_clause(~lit1, ~lit3);
+    add_clause(~lit2, ~lit3);
+  }
+
+  /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
+  void
+  add_at_most_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4
+  )
+  {
+    add_clause(~lit1, ~lit2);
+    add_clause(~lit1, ~lit3);
+    add_clause(~lit1, ~lit4);
+    add_clause(~lit2, ~lit3);
+    add_clause(~lit2, ~lit4);
+    add_clause(~lit3, ~lit4);
+  }
+
+  /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
+  void
+  add_at_most_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5
+  )
+  {
+    add_clause(~lit1, ~lit2);
+    add_clause(~lit1, ~lit3);
+    add_clause(~lit1, ~lit4);
+    add_clause(~lit1, ~lit5);
+    add_clause(~lit2, ~lit3);
+    add_clause(~lit2, ~lit4);
+    add_clause(~lit2, ~lit5);
+    add_clause(~lit3, ~lit4);
+    add_clause(~lit3, ~lit5);
+    add_clause(~lit4, ~lit5);
+  }
+
+  /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
+  void
+  add_at_most_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5,
+    SatLiteral lit6
+  )
+  {
+    add_clause(~lit1, ~lit2);
+    add_clause(~lit1, ~lit3);
+    add_clause(~lit1, ~lit4);
+    add_clause(~lit1, ~lit5);
+    add_clause(~lit1, ~lit6);
+    add_clause(~lit2, ~lit3);
+    add_clause(~lit2, ~lit4);
+    add_clause(~lit2, ~lit5);
+    add_clause(~lit2, ~lit6);
+    add_clause(~lit3, ~lit4);
+    add_clause(~lit3, ~lit5);
+    add_clause(~lit3, ~lit6);
+    add_clause(~lit4, ~lit5);
+    add_clause(~lit4, ~lit6);
+    add_clause(~lit5, ~lit6);
+  }
+
+  /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
+  void
+  add_at_most_one(
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief 与えられたリテラルのうち2つしか true にならない条件を追加する．
+  void
+  add_at_most_two(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    // 無条件でなりたつ．
+  }
+
+  /// @brief 与えられたリテラルのうち2つしか true にならない条件を追加する．
+  void
+  add_at_most_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3
+  )
+  {
+    add_clause(~lit1, ~lit2, ~lit3);
+  }
+
+  /// @brief 与えられたリテラルのうち2つしか true にならない条件を追加する．
+  void
+  add_at_most_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4
+  )
+  {
+    add_clause(~lit1, ~lit2, ~lit3       );
+    add_clause(~lit1, ~lit2       , ~lit4);
+    add_clause(~lit1,        ~lit3, ~lit4);
+    add_clause(       ~lit2, ~lit3, ~lit4);
+  }
+
+  /// @brief 与えられたリテラルのうち2つしか true にならない条件を追加する．
+  void
+  add_at_most_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5
+  )
+  {
+    add_clause(~lit1, ~lit2, ~lit3              );
+    add_clause(~lit1, ~lit2,        ~lit4       );
+    add_clause(~lit1, ~lit2,               ~lit5);
+    add_clause(~lit1,        ~lit3, ~lit4       );
+    add_clause(~lit1,        ~lit3,        ~lit5);
+    add_clause(~lit1,               ~lit4, ~lit5);
+    add_clause(       ~lit2, ~lit3, ~lit4       );
+    add_clause(       ~lit2, ~lit3,        ~lit5);
+    add_clause(       ~lit2,        ~lit4, ~lit5);
+    add_clause(              ~lit3, ~lit4, ~lit5);
+  }
+
+  /// @brief 与えられたリテラルのうち2つしか true にならない条件を追加する．
+  void
+  add_at_most_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5,
+    SatLiteral lit6
+  )
+  {
+    add_clause(~lit1, ~lit2, ~lit3                     );
+    add_clause(~lit1, ~lit2,        ~lit4              );
+    add_clause(~lit1, ~lit2,               ~lit5       );
+    add_clause(~lit1, ~lit2,                      ~lit6);
+    add_clause(~lit1,        ~lit3, ~lit4              );
+    add_clause(~lit1,        ~lit3,        ~lit5       );
+    add_clause(~lit1,        ~lit3,               ~lit6);
+    add_clause(~lit1,               ~lit4, ~lit5       );
+    add_clause(~lit1,               ~lit4,        ~lit6);
+    add_clause(~lit1,                      ~lit5, ~lit6);
+    add_clause(       ~lit2, ~lit3, ~lit4              );
+    add_clause(       ~lit2, ~lit3,        ~lit5       );
+    add_clause(       ~lit2, ~lit3,               ~lit6);
+    add_clause(       ~lit2,        ~lit4, ~lit5       );
+    add_clause(       ~lit2,        ~lit4,        ~lit6);
+    add_clause(       ~lit2,               ~lit5, ~lit6);
+    add_clause(              ~lit3, ~lit4, ~lit5       );
+    add_clause(              ~lit3, ~lit4,        ~lit6);
+    add_clause(              ~lit3,        ~lit5, ~lit6);
+    add_clause(                     ~lit4, ~lit5, ~lit6);
+  }
+
+  /// @brief 与えられたリテラルのうち2つしか true にならない条件を追加する．
+  void
+  add_at_most_two(
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief 与えられたリテラルのうちk個しか true にならない条件を追加する．
+  void
+  add_at_most_k(
+    const vector<SatLiteral>& lit_list, ///< [in] 入力のリテラルのリスト
+    SizeType k                          ///< [in] しきい値
+  );
+
+  /// @brief 与えられたリテラルのうち1以上は true になる条件を追加する．
+  void
+  add_at_least_one(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    add_clause( lit1,  lit2);
+  }
+
+  /// @brief 与えられたリテラルのうち1つ以上は true になる条件を追加する．
+  void
+  add_at_least_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3
+  )
+  {
+    add_clause( lit1,  lit2,  lit3);
+  }
+
+  /// @brief 与えられたリテラルのうち1つ以上は true になる条件を追加する．
+  void
+  add_at_least_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4
+  )
+  {
+    add_clause( lit1,  lit2,  lit3,  lit4);
+  }
+
+  /// @brief 与えられたリテラルのうち1つ以上は true になる条件を追加する．
+  void
+  add_at_least_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5
+  )
+  {
+    add_clause( lit1,  lit2,  lit3,  lit4,  lit5);
+  }
+
+  /// @brief 与えられたリテラルのうち1つ以上は true になる条件を追加する．
+  void
+  add_at_least_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5,
+    SatLiteral lit6
+  )
+  {
+    add_clause( lit1,  lit2,  lit3,  lit4,  lit5,  lit6);
+  }
+
+  /// @brief 与えられたリテラルのうち1つ以上は true になる条件を追加する．
+  void
+  add_at_least_one(
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  )
+  {
+    add_clause(lit_list);
+  }
+
+  /// @brief 与えられたリテラルのうち2以上は true になる条件を追加する．
+  void
+  add_at_least_two(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    add_clause(lit1);
+    add_clause(lit2);
+  }
+
+  /// @brief 与えられたリテラルのうち2つ以上は true になる条件を追加する．
+  void
+  add_at_least_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3
+  )
+  {
+    // 2つ以上が False にならない．
+    add_clause( lit1,  lit2       );
+    add_clause( lit1,         lit3);
+    add_clause(        lit2,  lit3);
+  }
+
+  /// @brief 与えられたリテラルのうち2つ以上は true になる条件を追加する．
+  void
+  add_at_least_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4
+  )
+  {
+    // 3つ以上が False にならない．
+    add_clause( lit1,  lit2,  lit3       );
+    add_clause( lit1,  lit2,         lit4);
+    add_clause( lit1,         lit3,  lit4);
+    add_clause(        lit2,  lit3,  lit4);
+  }
+
+  /// @brief 与えられたリテラルのうち2つ以上は true になる条件を追加する．
+  void
+  add_at_least_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5
+  )
+  {
+    // 4つ以上が False にならない．
+    add_clause( lit1,  lit2,  lit3,  lit4       );
+    add_clause( lit1,  lit2,  lit3,         lit5);
+    add_clause( lit1,  lit2,         lit4,  lit5);
+    add_clause( lit1,         lit3,  lit4,  lit5);
+    add_clause(        lit2,  lit3,  lit4,  lit5);
+  }
+
+  /// @brief 与えられたリテラルのうち2つ以上は true になる条件を追加する．
+  void
+  add_at_least_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5,
+    SatLiteral lit6
+  )
+  {
+    // 5つ以上が False にならない．
+    add_clause( lit1,  lit2,  lit3,  lit4,  lit5       );
+    add_clause( lit1,  lit2,  lit3,  lit4,         lit6);
+    add_clause( lit1,  lit2,  lit3,         lit5,  lit6);
+    add_clause( lit1,  lit2,         lit4,  lit5,  lit6);
+    add_clause( lit1,         lit3,  lit4,  lit5,  lit6);
+    add_clause(        lit2,  lit3,  lit4,  lit5,  lit6);
+  }
+
+  /// @brief 与えられたリテラルのうち2つ以上は true になる条件を追加する．
+  void
+  add_at_least_two(
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief 与えられたリテラルのうちk個以上は true になる条件を追加する．
+  void
+  add_at_least_k(
+    const vector<SatLiteral>& lit_list, ///< [in] 入力のリテラルのリスト
+    SizeType k                          ///< [in] しきい値
+  );
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  void
+  add_exact_one(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    add_at_most_one(lit1, lit2);
+    add_at_least_one(lit1, lit2);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  void
+  add_exact_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3
+  )
+  {
+    add_at_most_one(lit1, lit2, lit3);
+    add_at_least_one(lit1, lit2, lit3);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  void
+  add_exact_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4
+  )
+  {
+    add_at_most_one(lit1, lit2, lit3, lit4);
+    add_at_least_one(lit1, lit2, lit3, lit4);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  void
+  add_exact_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5
+  )
+  {
+    add_at_most_one(lit1, lit2, lit3, lit4, lit5);
+    add_at_least_one(lit1, lit2, lit3, lit4, lit5);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  void
+  add_exact_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5,
+    SatLiteral lit6
+  )
+  {
+    add_at_most_one(lit1, lit2, lit3, lit4, lit5, lit6);
+    add_at_least_one(lit1, lit2, lit3, lit4, lit5, lit6);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に1つが true になる条件を追加する．
+  void
+  add_exact_one(
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  void
+  add_exact_two(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    add_at_most_two(lit1, lit2);
+    add_at_least_two(lit1, lit2);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  void
+  add_exact_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3
+  )
+  {
+    add_at_most_two(lit1, lit2, lit3);
+    add_at_least_two(lit1, lit2, lit3);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  void
+  add_exact_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4
+  )
+  {
+    add_at_most_two(lit1, lit2, lit3, lit4);
+    add_at_least_two(lit1, lit2, lit3, lit4);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  void
+  add_exact_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5
+  )
+  {
+    add_at_most_two(lit1, lit2, lit3, lit4, lit5);
+    add_at_least_two(lit1, lit2, lit3, lit4, lit5);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  void
+  add_exact_two(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5,
+    SatLiteral lit6
+  )
+  {
+    add_at_most_two(lit1, lit2, lit3, lit4, lit5, lit6);
+    add_at_least_two(lit1, lit2, lit3, lit4, lit5, lit6);
+  }
+
+  /// @brief 与えられたリテラルのうち厳密に2つが true になる条件を追加する．
+  void
+  add_exact_two(
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief 与えられたリテラルのうち厳密にk個が true になる条件を追加する．
+  void
+  add_exact_k(
+    const vector<SatLiteral>& lit_list, ///< [in] 入力のリテラルのリスト
+    SizeType k                          ///< [in] しきい値
+  )
+  {
+    add_at_most_k(lit_list, k);
+    add_at_least_k(lit_list, k);
+  }
+
+  /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+  void
+  add_not_one(
+    SatLiteral lit1,
+    SatLiteral lit2
+  )
+  {
+    add_clause( lit1, ~lit2);
+    add_clause(~lit1,  lit2);
+  }
+
+  /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+  void
+  add_not_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3
+  )
+  {
+    add_clause( lit1,  lit2, ~lit3);
+    add_clause( lit1, ~lit2,  lit3);
+    add_clause(~lit1,  lit2,  lit3);
+  }
+
+  /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+  void
+  add_not_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4
+  )
+  {
+    add_clause( lit1,  lit2,  lit3, ~lit4);
+    add_clause( lit1,  lit2, ~lit3,  lit4);
+    add_clause( lit1, ~lit2,  lit3,  lit4);
+    add_clause(~lit1,  lit2,  lit3,  lit4);
+  }
+
+  /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+  void
+  add_not_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5
+  )
+  {
+    add_clause( lit1,  lit2,  lit3,  lit4, ~lit5);
+    add_clause( lit1,  lit2,  lit3, ~lit4,  lit5);
+    add_clause( lit1,  lit2, ~lit3,  lit4,  lit5);
+    add_clause( lit1, ~lit2,  lit3,  lit4,  lit5);
+    add_clause(~lit1,  lit2,  lit3,  lit4,  lit5);
+  }
+
+  /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+  void
+  add_not_one(
+    SatLiteral lit1,
+    SatLiteral lit2,
+    SatLiteral lit3,
+    SatLiteral lit4,
+    SatLiteral lit5,
+    SatLiteral lit6
+  )
+  {
+    add_clause( lit1,  lit2,  lit3,  lit4,  lit5, ~lit6);
+    add_clause( lit1,  lit2,  lit3,  lit4, ~lit5,  lit6);
+    add_clause( lit1,  lit2,  lit3, ~lit4,  lit5,  lit6);
+    add_clause( lit1,  lit2, ~lit3,  lit4,  lit5,  lit6);
+    add_clause( lit1, ~lit2,  lit3,  lit4,  lit5,  lit6);
+    add_clause(~lit1,  lit2,  lit3,  lit4,  lit5,  lit6);
+  }
+
+  /// @brief 与えられたリテラルのうちtrueになっている個数が1でない条件を追加する．
+  void
+  add_not_one(
+    const vector<SatLiteral>& lit_list ///< [in] 入力のリテラルのリスト
+  );
+
+  /// @brief A == B という条件を追加する．
+  ///
+  /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
+  /// 0と仮定する．
+  void
+  add_eq(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  );
+
+  /// @brief A == B という条件を追加する．
+  void
+  add_eq(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val                        ///< [in] Bの値
+  );
+
+  /// @brief A != B という条件を追加する．
+  ///
+  /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
+  /// 0と仮定する．
+  void
+  add_ne(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  );
+
+  /// @brief A != B という条件を追加する．
+  void
+  add_ne(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
+
+  /// @brief A < B という条件を追加する．
+  /// @param[in] a_vec, b_vec A,Bを表すビットベクタ
+  ///
+  /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
+  /// 0と仮定する．
+  void
+  add_lt(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  );
+
+  /// @brief A < B という条件を追加する．
+  void
+  add_lt(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
+
+  /// @brief A <= B という条件を追加する．
+  ///
+  /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
+  /// 0と仮定する．
+  void
+  add_le(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  );
+
+  /// @brief A <= B という条件を追加する．
+  void
+  add_le(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
+
+  /// @brief A > B という条件を追加する．
+  ///
+  /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
+  /// 0と仮定する．
+  void
+  add_gt(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  )
+  {
+    add_lt(b_vec, a_vec);
+  }
+
+  /// @brief A > B という条件を追加する．
+  void
+  add_gt(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
+
+  /// @brief A >= B という条件を追加する．
+  ///
+  /// a_vec と b_vec のビット長が異なるときは短い方の上位ビットを
+  /// 0と仮定する．
+  void
+  add_ge(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    const vector<SatLiteral>& b_vec  ///< [in] B を表すビットベクタ
+  )
+  {
+    add_le(b_vec, a_vec);
+  }
+
+  /// @brief A >= B という条件を追加する．
+  void
+  add_ge(
+    const vector<SatLiteral>& a_vec, ///< [in] A を表すビットベクタ
+    int b_val			     ///< [in] Bの値
+  );
+
+  //////////////////////////////////////////////////////////////////////
+  /// @}
+  //////////////////////////////////////////////////////////////////////
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
   /// @name 動作制御を行う関数
   /// @{
   //////////////////////////////////////////////////////////////////////
@@ -432,6 +1510,38 @@ private:
   void
   _add_clause_sub(
     const vector<SatLiteral>& lits ///< [in] リテラルのリスト
+  );
+
+  /// @brief n入力XORゲートの入出力の関係を表す条件を追加する．
+  void
+  _add_xorgate_sub(
+    SatLiteral olit,                    ///< [in] 出力のリテラル
+    const vector<SatLiteral>& lit_list, ///< [in] 入力のリテラルのリスト
+    SizeType start,                     ///< [in] 開始位置
+    SizeType num                        ///< [in] 要素数
+  );
+
+  /// @brief add_at_most_one() の下請け関数
+  void
+  _add_at_most_one(
+    const vector<SatLiteral>& lit_list,
+    SatLiteral olit
+  );
+
+  /// @brief add_at_most_two() の下請け関数
+  void
+  _add_at_most_two(
+    const vector<SatLiteral>& lit_list,
+    SatLiteral olit1,
+    SatLiteral olit0
+  );
+
+  /// @brief add_at_least_two() の下請け関数
+  void
+  _add_at_least_two(
+    const vector<SatLiteral>& lit_list,
+    SatLiteral olit1,
+    SatLiteral olit0
   );
 
 

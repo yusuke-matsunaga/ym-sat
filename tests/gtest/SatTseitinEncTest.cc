@@ -7,8 +7,8 @@
 /// All rights reserved.
 
 #include "gtest/gtest.h"
+#include <random>
 #include "ym/SatSolver.h"
-#include "ym/SatTseitinEnc.h"
 #include "ym/SatModel.h"
 #include "ym/Range.h"
 
@@ -36,13 +36,6 @@ public:
   void
   check(
     int ni,
-    const vector<int>& vals
-  );
-
-  /// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
-  void
-  check(
-    const vector<SatLiteral>& var_list,
     const vector<int>& vals
   );
 
@@ -97,6 +90,13 @@ public:
     int no  ///< [in] 出力のビット幅
   );
 
+  /// @brief counter のチェックを行う．
+  void
+  check_counter2(
+    int ni, ///< [in] 入力のビット幅
+    int no  ///< [in] 出力のビット幅
+  );
+
   /// @brief 論理ゲートの真理値表からチェック用のベクタを作る．
   void
   make_vals(
@@ -115,9 +115,6 @@ public:
   // SATソルバ
   SatSolver mSolver;
 
-  // Tseitin's encoder
-  SatTseitinEnc mEnc;
-
   // 変数の数
   int mVarNum;
 
@@ -131,13 +128,12 @@ public:
 
 SatTseitinEncTest::SatTseitinEncTest() :
   mSolver{GetParam()},
-  mEnc{mSolver},
-  mVarNum{100},
+  mVarNum{1000},
   mVarList(mVarNum),
   mCondVarList(2)
 {
   for ( int i: Range(mVarNum) ) {
-    mVarList[i] = mSolver.new_variable();
+    mVarList[i] = mSolver.new_variable(true);
   }
   mCondVarList[0] = mSolver.new_variable();
   mCondVarList[1] = mSolver.new_variable();
@@ -160,35 +156,6 @@ SatTseitinEncTest::check(
       vector<SatLiteral> assumptions;
       for ( int i: Range(ni) ) {
 	auto lit = mVarList[i];
-	if ( (p & (1 << i)) == 0 ) {
-	  lit = ~lit;
-	}
-	assumptions.push_back(lit);
-      }
-      SatBool3 exp_ans = vals[p] ? SatBool3::True : SatBool3::False;
-      SatBool3 stat = mSolver.solve(assumptions);
-      EXPECT_EQ( exp_ans, stat );
-    }
-  }
-  catch ( AssertError x ) {
-    cout << x << endl;
-  }
-}
-
-// @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．
-void
-SatTseitinEncTest::check(
-  const vector<SatLiteral>& var_list,
-  const vector<int>& vals
-)
-{
-  try {
-    SizeType ni = var_list.size();
-    int np = 1U << ni;
-    for ( int p: Range(np) ) {
-      vector<SatLiteral> assumptions;
-      for ( int i: Range(ni) ) {
-	auto lit = var_list[i];
 	if ( (p & (1 << i)) == 0 ) {
 	  lit = ~lit;
 	}
@@ -386,7 +353,7 @@ SatTseitinEncTest::check_adder(
   SatLiteral olit = mVarList[vpos];
   ++ vpos;
 
-  mEnc.add_adder(alits, blits, ilit, slits, olit);
+  mSolver.add_adder(alits, blits, ilit, slits, olit);
 
   int nexp = (1 << vpos);
   vector<int> vals(nexp);
@@ -433,25 +400,20 @@ SatTseitinEncTest::check_counter(
   ASSERT_COND( ni < no_exp );
   ASSERT_COND( ni + no < mVarNum );
 
-  int vpos = 0;
   vector<SatLiteral> ilits(ni);
   for ( int i = 0; i < ni; ++ i ) {
-    ilits[i] = mVarList[vpos];
-    ++ vpos;
+    ilits[i] = mVarList[i];
   }
 
-  auto olits = mEnc.add_counter(ilits);
+  auto tmp_olits = mSolver.add_counter(ilits);
 
-  vector<SatLiteral> var_list(ni + no);
-  for ( SizeType i = 0; i < ni; ++ i ) {
-    var_list[i] = ilits[i];
+  for ( int i = 0; i < no; ++ i ) {
+    auto olit = mVarList[i + ni];
+    mSolver.add_clause( olit, ~tmp_olits[i]);
+    mSolver.add_clause(~olit,  tmp_olits[i]);
   }
-  for ( SizeType i = 0; i < no; ++ i ) {
-    var_list[i + ni] = olits[i];
-  }
-  vpos = ni + no;
 
-  int nexp = (1 << vpos);
+  int nexp = (1 << (ni + no));
   vector<int> vals(nexp);
   for ( int bits = 0; bits < nexp; ++ bits ) {
     int c_exp = 0;
@@ -474,7 +436,114 @@ SatTseitinEncTest::check_counter(
     }
   }
 
-  check(var_list, vals);
+  check((ni + no), vals);
+}
+
+// @brief counter のチェックを行う．
+void
+SatTseitinEncTest::check_counter2(
+  int ni,
+  int no
+)
+{
+  int no_exp = (1 << no);
+
+  ASSERT_COND( ni < no_exp );
+  ASSERT_COND( ni + no < mVarNum );
+
+  vector<SatLiteral> ilits(ni);
+  for ( int i = 0; i < ni; ++ i ) {
+    ilits[i] = mVarList[i];
+  }
+
+  auto tmp_olits = mSolver.add_counter(ilits);
+
+  for ( int i = 0; i < no; ++ i ) {
+    auto olit = mVarList[i + ni];
+    mSolver.add_clause( olit, ~tmp_olits[i]);
+    mSolver.add_clause(~olit,  tmp_olits[i]);
+  }
+
+  std::mt19937 randgen;
+  SizeType num = 200000;
+  bool random = true;
+  if ( num > (1 << ni) ) {
+    num = (1 << ni);
+    random = false;
+  }
+  std::uniform_int_distribution ud(0, 1);
+  for ( int j = 0; j < num; ++ j ) {
+    int c_exp = 0;
+    vector<SatLiteral> assumptions;
+    vector<int> ivals(ni, 0);
+    for ( int i = 0; i < ni; ++ i ) {
+      auto lit = mVarList[i];
+      if ( random ) {
+	if ( ud(randgen) ) {
+	  ivals[i] = 1;
+	}
+      }
+      else {
+	ivals[i] = ((j >> i) & 1);
+      }
+      if ( ivals[i] ) {
+	++ c_exp;
+      }
+      else {
+	lit = ~lit;
+      }
+      assumptions.push_back(lit);
+    }
+    for ( int i = 0; i < no; ++ i ) {
+      auto lit = mVarList[i + ni];
+      if ( (c_exp & (1 << i)) == 0 ) {
+	lit = ~lit;
+      }
+      assumptions.push_back(lit);
+    }
+    SatBool3 stat = mSolver.solve(assumptions);
+    EXPECT_EQ( SatBool3::True, stat );
+    bool ng = false;
+    for ( SizeType i = 0; i < no; ++ i ) {
+      auto olit = mVarList[i + ni];
+      auto v = mSolver.read_model(olit);
+      SatBool3 exp_val;
+      if ( c_exp & (1 << i) ) {
+	exp_val = SatBool3::True;
+      }
+      else {
+	exp_val = SatBool3::False;
+      }
+      if ( exp_val != v ) {
+	ng = true;
+      }
+    }
+    if ( ng ) {
+      int c = 0;
+      vector<int> ovals(no, 0);
+      for ( SizeType i = 0; i < no; ++ i ) {
+	auto olit = mVarList[i + ni];
+	auto v = mSolver.read_model(olit);
+	if ( v == SatBool3::True ) {
+	  c |= (1 << i);
+	  ovals[i] = 1;
+	}
+      }
+      cout << "ivals: ";
+      for ( SizeType i = 0; i < ni; ++ i ) {
+	cout << " " << ivals[i];
+      }
+      cout << endl;
+      cout << "ovals: ";
+      for ( SizeType i = 0; i < no; ++ i ) {
+	cout << " " << ovals[i];
+      }
+      cout << endl;
+      cout << "c_exp = " << c_exp
+	   << ", c = " << c << endl;
+    }
+    EXPECT_FALSE( ng );
+  }
 }
 
 // @brief 論理ゲートの真理値表からチェック用のベクタを作る．
@@ -504,7 +573,7 @@ TEST_P(SatTseitinEncTest, add_buffgate)
   SatLiteral lit1(mVarList[0]);
   SatLiteral lit2(mVarList[1]);
 
-  mEnc.add_buffgate(lit1, lit2);
+  mSolver.add_buffgate(lit1, lit2);
 
   vector<int> vals(
     {
@@ -525,7 +594,7 @@ TEST_P(SatTseitinEncTest, add_notgate)
   SatLiteral lit1(mVarList[0]);
   SatLiteral lit2(mVarList[1]);
 
-  mEnc.add_notgate(lit1, lit2);
+  mSolver.add_notgate(lit1, lit2);
 
   vector<int> vals(
     {
@@ -547,7 +616,7 @@ TEST_P(SatTseitinEncTest, add_andgate2)
   SatLiteral lit2(mVarList[1]);
   SatLiteral olit(mVarList[2]);
 
-  mEnc.add_andgate(olit, lit1, lit2);
+  mSolver.add_andgate(olit, lit1, lit2);
 
   check_and(2);
 }
@@ -559,7 +628,7 @@ TEST_P(SatTseitinEncTest, add_andgate3)
   SatLiteral lit3(mVarList[2]);
   SatLiteral olit(mVarList[3]);
 
-  mEnc.add_andgate(olit, lit1, lit2, lit3);
+  mSolver.add_andgate(olit, lit1, lit2, lit3);
 
   check_and(3);
 }
@@ -572,7 +641,7 @@ TEST_P(SatTseitinEncTest, add_andgate4)
   SatLiteral lit4(mVarList[3]);
   SatLiteral olit(mVarList[4]);
 
-  mEnc.add_andgate(olit, lit1, lit2, lit3, lit4);
+  mSolver.add_andgate(olit, lit1, lit2, lit3, lit4);
 
   check_and(4);
 }
@@ -593,7 +662,7 @@ TEST_P(SatTseitinEncTest, add_andgate5)
   lits[3] = lit4;
   lits[4] = lit5;
 
-  mEnc.add_andgate(olit, lits);
+  mSolver.add_andgate(olit, lits);
 
   check_and(5);
 }
@@ -604,7 +673,7 @@ TEST_P(SatTseitinEncTest, add_nandgate2)
   SatLiteral lit2(mVarList[1]);
   SatLiteral olit(mVarList[2]);
 
-  mEnc.add_nandgate(olit, lit1, lit2);
+  mSolver.add_nandgate(olit, lit1, lit2);
 
   check_nand(2);
 }
@@ -616,7 +685,7 @@ TEST_P(SatTseitinEncTest, add_nandgate3)
   SatLiteral lit3(mVarList[2]);
   SatLiteral olit(mVarList[3]);
 
-  mEnc.add_nandgate(olit, lit1, lit2, lit3);
+  mSolver.add_nandgate(olit, lit1, lit2, lit3);
 
   check_nand(3);
 }
@@ -629,7 +698,7 @@ TEST_P(SatTseitinEncTest, add_nandgate4)
   SatLiteral lit4(mVarList[3]);
   SatLiteral olit(mVarList[4]);
 
-  mEnc.add_nandgate(olit, lit1, lit2, lit3, lit4);
+  mSolver.add_nandgate(olit, lit1, lit2, lit3, lit4);
 
   check_nand(4);
 }
@@ -650,7 +719,7 @@ TEST_P(SatTseitinEncTest, add_nandgate5)
   lits[3] = lit4;
   lits[4] = lit5;
 
-  mEnc.add_nandgate(olit, lits);
+  mSolver.add_nandgate(olit, lits);
 
   check_nand(5);
 }
@@ -661,7 +730,7 @@ TEST_P(SatTseitinEncTest, add_orgate2)
   SatLiteral lit2(mVarList[1]);
   SatLiteral olit(mVarList[2]);
 
-  mEnc.add_orgate(olit, lit1, lit2);
+  mSolver.add_orgate(olit, lit1, lit2);
 
   check_or(2);
 }
@@ -673,7 +742,7 @@ TEST_P(SatTseitinEncTest, add_orgate3)
   SatLiteral lit3(mVarList[2]);
   SatLiteral olit(mVarList[3]);
 
-  mEnc.add_orgate(olit, lit1, lit2, lit3);
+  mSolver.add_orgate(olit, lit1, lit2, lit3);
 
   check_or(3);
 }
@@ -686,7 +755,7 @@ TEST_P(SatTseitinEncTest, add_orgate4)
   SatLiteral lit4(mVarList[3]);
   SatLiteral olit(mVarList[4]);
 
-  mEnc.add_orgate(olit, lit1, lit2, lit3, lit4);
+  mSolver.add_orgate(olit, lit1, lit2, lit3, lit4);
 
   check_or(4);
 }
@@ -707,7 +776,7 @@ TEST_P(SatTseitinEncTest, add_orgate5)
   lits[3] = lit4;
   lits[4] = lit5;
 
-  mEnc.add_orgate(olit, lits);
+  mSolver.add_orgate(olit, lits);
 
   check_or(5);
 }
@@ -718,7 +787,7 @@ TEST_P(SatTseitinEncTest, add_norgate2)
   SatLiteral lit2(mVarList[1]);
   SatLiteral olit(mVarList[2]);
 
-  mEnc.add_norgate(olit, lit1, lit2);
+  mSolver.add_norgate(olit, lit1, lit2);
 
   check_nor(2);
 }
@@ -730,7 +799,7 @@ TEST_P(SatTseitinEncTest, add_norgate3)
   SatLiteral lit3(mVarList[2]);
   SatLiteral olit(mVarList[3]);
 
-  mEnc.add_norgate(olit, lit1, lit2, lit3);
+  mSolver.add_norgate(olit, lit1, lit2, lit3);
 
   check_nor(3);
 }
@@ -743,7 +812,7 @@ TEST_P(SatTseitinEncTest, add_norgate4)
   SatLiteral lit4(mVarList[3]);
   SatLiteral olit(mVarList[4]);
 
-  mEnc.add_norgate(olit, lit1, lit2, lit3, lit4);
+  mSolver.add_norgate(olit, lit1, lit2, lit3, lit4);
 
   check_nor(4);
 }
@@ -764,7 +833,7 @@ TEST_P(SatTseitinEncTest, add_norgate5)
   lits[3] = lit4;
   lits[4] = lit5;
 
-  mEnc.add_norgate(olit, lits);
+  mSolver.add_norgate(olit, lits);
 
   check_nor(5);
 }
@@ -775,7 +844,7 @@ TEST_P(SatTseitinEncTest, add_xorgate2)
   SatLiteral lit2(mVarList[1]);
   SatLiteral olit(mVarList[2]);
 
-  mEnc.add_xorgate(olit, lit1, lit2);
+  mSolver.add_xorgate(olit, lit1, lit2);
 
   check_xor(2);
 }
@@ -787,7 +856,7 @@ TEST_P(SatTseitinEncTest, add_xorgate3)
   SatLiteral lit3(mVarList[2]);
   SatLiteral olit(mVarList[3]);
 
-  mEnc.add_xorgate(olit, lit1, lit2, lit3);
+  mSolver.add_xorgate(olit, lit1, lit2, lit3);
 
   check_xor(3);
 }
@@ -800,7 +869,7 @@ TEST_P(SatTseitinEncTest, add_xorgate4)
   SatLiteral lit4(mVarList[3]);
   SatLiteral olit(mVarList[4]);
 
-  mEnc.add_xorgate(olit, lit1, lit2, lit3, lit4);
+  mSolver.add_xorgate(olit, lit1, lit2, lit3, lit4);
 
   check_xor(4);
 }
@@ -821,7 +890,7 @@ TEST_P(SatTseitinEncTest, add_xorgate5)
   lits[3] = lit4;
   lits[4] = lit5;
 
-  mEnc.add_xorgate(olit, lits);
+  mSolver.add_xorgate(olit, lits);
 
   check_xor(5);
 }
@@ -832,7 +901,7 @@ TEST_P(SatTseitinEncTest, add_xnorgate2)
   SatLiteral lit2(mVarList[1]);
   SatLiteral olit(mVarList[2]);
 
-  mEnc.add_xnorgate(olit, lit1, lit2);
+  mSolver.add_xnorgate(olit, lit1, lit2);
 
   check_xnor(2);
 }
@@ -844,7 +913,7 @@ TEST_P(SatTseitinEncTest, add_xnorgate3)
   SatLiteral lit3(mVarList[2]);
   SatLiteral olit(mVarList[3]);
 
-  mEnc.add_xnorgate(olit, lit1, lit2, lit3);
+  mSolver.add_xnorgate(olit, lit1, lit2, lit3);
 
   check_xnor(3);
 }
@@ -857,7 +926,7 @@ TEST_P(SatTseitinEncTest, add_xnorgate4)
   SatLiteral lit4(mVarList[3]);
   SatLiteral olit(mVarList[4]);
 
-  mEnc.add_xnorgate(olit, lit1, lit2, lit3, lit4);
+  mSolver.add_xnorgate(olit, lit1, lit2, lit3, lit4);
 
   check_xnor(4);
 }
@@ -878,7 +947,7 @@ TEST_P(SatTseitinEncTest, add_xnorgate5)
   lits[3] = lit4;
   lits[4] = lit5;
 
-  mEnc.add_xnorgate(olit, lits);
+  mSolver.add_xnorgate(olit, lits);
 
   check_xnor(5);
 }
@@ -890,7 +959,7 @@ TEST_P(SatTseitinEncTest, add_half_adder)
   SatLiteral slit(mVarList[2]);
   SatLiteral olit(mVarList[3]);
 
-  mEnc.add_half_adder(alit, blit, slit, olit);
+  mSolver.add_half_adder(alit, blit, slit, olit);
 
   vector<int> vals(16);
   // olit, slit, blit, alit
@@ -920,7 +989,7 @@ TEST_P(SatTseitinEncTest, add_full_adder)
   SatLiteral slit(mVarList[3]);
   SatLiteral olit(mVarList[4]);
 
-  mEnc.add_full_adder(alit, blit, clit, slit, olit);
+  mSolver.add_full_adder(alit, blit, clit, slit, olit);
 
   vector<int> vals(32);
   // olit, slit, clit, blit, alit
@@ -1063,9 +1132,40 @@ TEST_P(SatTseitinEncTest, add_counter_16_5)
   check_counter(16, 5);
 }
 
+TEST_P(SatTseitinEncTest, add_counter2_2_2)
+{
+  check_counter2(2, 2);
+}
+
+TEST_P(SatTseitinEncTest, add_counter2_3_2)
+{
+  check_counter2(3, 2);
+}
+
+TEST_P(SatTseitinEncTest, add_counter2_20_5)
+{
+  check_counter2(20, 5);
+}
+
+TEST_P(SatTseitinEncTest, add_counter2_50_6)
+{
+  check_counter2(50, 6);
+}
+
+TEST_P(SatTseitinEncTest, add_counter2_100_7)
+{
+  check_counter2(100, 7);
+}
+
+#if 0
 INSTANTIATE_TEST_SUITE_P(SatSolverTest,
 			 SatTseitinEncTest,
 			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
 					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+#endif
+
+INSTANTIATE_TEST_SUITE_P(SatSolverTest,
+			 SatTseitinEncTest,
+			 ::testing::Values("minisat2"));
 
 END_NAMESPACE_YM

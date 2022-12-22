@@ -8,7 +8,6 @@
 
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
-#include "ym/SatBvEnc.h"
 #include "ym/SatModel.h"
 #include "ym/Range.h"
 
@@ -157,8 +156,7 @@ SatBvEncTest::check_add_eq1(
     b_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_eq(a_vec, b_vec);
+  mSolver.add_eq(a_vec, b_vec);
 
   int exp_a = 1 << a_size;
   int exp_b = 1 << b_size;
@@ -228,8 +226,7 @@ SatBvEncTest::check_add_eq2(
     a_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_eq(a_vec, b_val);
+  mSolver.add_eq(a_vec, b_val);
 
   int exp_a = 1 << a_size;
   int nall = exp_a;
@@ -289,8 +286,7 @@ SatBvEncTest::check_add_ne1(
     b_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_ne(a_vec, b_vec);
+  mSolver.add_ne(a_vec, b_vec);
 
   int exp_a = 1 << a_size;
   int exp_b = 1 << b_size;
@@ -360,8 +356,7 @@ SatBvEncTest::check_add_ne2(
     a_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_ne(a_vec, b_val);
+  mSolver.add_ne(a_vec, b_val);
 
   int exp_a = 1 << a_size;
   int nall = exp_a;
@@ -425,8 +420,7 @@ SatBvEncTest::check_add_lt1(
     b_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_lt(a_vec, b_vec);
+  mSolver.add_lt(a_vec, b_vec);
 
   int exp_a = 1 << a_size;
   int exp_b = 1 << b_size;
@@ -503,8 +497,7 @@ SatBvEncTest::check_add_lt2(
     a_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_lt(a_vec, b_val);
+  mSolver.add_lt(a_vec, b_val);
 
   int exp_a = 1 << a_size;
   int nall = exp_a;
@@ -565,8 +558,7 @@ SatBvEncTest::check_add_le1(
     b_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_eq(a_vec, b_vec);
+  mSolver.add_eq(a_vec, b_vec);
 
   int exp_a = 1 << a_size;
   int exp_b = 1 << b_size;
@@ -637,8 +629,7 @@ SatBvEncTest::check_add_le2(
     a_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_le(a_vec, b_val);
+  mSolver.add_le(a_vec, b_val);
 
   int exp_a = 1 << a_size;
   int nall = exp_a;
@@ -699,8 +690,7 @@ SatBvEncTest::check_add_gt1(
     b_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_gt(a_vec, b_vec);
+  mSolver.add_gt(a_vec, b_vec);
 
   int exp_a = 1 << a_size;
   int exp_b = 1 << b_size;
@@ -777,8 +767,7 @@ SatBvEncTest::check_add_gt2(
     a_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_gt(a_vec, b_val);
+  mSolver.add_gt(a_vec, b_val);
 
   int exp_a = 1 << a_size;
   int nall = exp_a;
@@ -839,8 +828,7 @@ SatBvEncTest::check_add_ge1(
     b_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_ge(a_vec, b_vec);
+  mSolver.add_ge(a_vec, b_vec);
 
   int exp_a = 1 << a_size;
   int exp_b = 1 << b_size;
@@ -917,8 +905,7 @@ SatBvEncTest::check_add_ge2(
     a_vec[i] = mSolver.new_variable();
   }
 
-  SatBvEnc bvenc(mSolver);
-  bvenc.add_ge(a_vec, b_val);
+  mSolver.add_ge(a_vec, b_val);
 
   int exp_a = 1 << a_size;
   int nall = exp_a;

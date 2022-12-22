@@ -8,7 +8,6 @@
 
 #include "gtest/gtest.h"
 #include "ym/SatSolver.h"
-#include "ym/SatCountEnc.h"
 #include "ym/SatModel.h"
 #include "ym/Range.h"
 
@@ -91,9 +90,6 @@ public:
   // SATソルバ
   SatSolver mSolver;
 
-  // count encoder
-  SatCountEnc mEnc;
-
   // 変数の数
   int mVarNum;
 
@@ -103,9 +99,8 @@ public:
 };
 
 SatCountEncTest::SatCountEncTest() :
-  mSolver(GetParam()),
-  mEnc(mSolver),
-  mVarNum(100),
+  mSolver{GetParam()},
+  mVarNum{100},
   mVarList(mVarNum)
 {
   for ( int i: Range(mVarNum) ) {
@@ -287,7 +282,7 @@ TEST_P(SatCountEncTest, add_at_most_one2)
   auto lit1{mVarList[0]};
   auto lit2{mVarList[1]};
 
-  mEnc.add_at_most_one(lit1, lit2);
+  mSolver.add_at_most_one(lit1, lit2);
 
   check_at_most(2, 1);
 }
@@ -298,7 +293,7 @@ TEST_P(SatCountEncTest, add_at_most_one3)
   auto lit2{mVarList[1]};
   auto lit3{mVarList[2]};
 
-  mEnc.add_at_most_one(lit1, lit2, lit3);
+  mSolver.add_at_most_one(lit1, lit2, lit3);
 
   check_at_most(3, 1);
 }
@@ -310,7 +305,7 @@ TEST_P(SatCountEncTest, add_at_most_one4)
   auto lit3{mVarList[2]};
   auto lit4{mVarList[3]};
 
-  mEnc.add_at_most_one(lit1, lit2, lit3, lit4);
+  mSolver.add_at_most_one(lit1, lit2, lit3, lit4);
 
   check_at_most(4, 1);
 }
@@ -323,7 +318,7 @@ TEST_P(SatCountEncTest, add_at_most_one5)
   auto lit4{mVarList[3]};
   auto lit5{mVarList[4]};
 
-  mEnc.add_at_most_one(lit1, lit2, lit3, lit4, lit5);
+  mSolver.add_at_most_one(lit1, lit2, lit3, lit4, lit5);
 
   check_at_most(5, 1);
 }
@@ -337,7 +332,7 @@ TEST_P(SatCountEncTest, add_at_most_one6)
   auto lit5{mVarList[4]};
   auto lit6{mVarList[5]};
 
-  mEnc.add_at_most_one(lit1, lit2, lit3, lit4, lit5, lit6);
+  mSolver.add_at_most_one(lit1, lit2, lit3, lit4, lit5, lit6);
 
   check_at_most(6, 1);
 }
@@ -350,7 +345,7 @@ TEST_P(SatCountEncTest, add_at_most_oneN)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_most_one(lits);
+  mSolver.add_at_most_one(lits);
 
   check_at_most(n, 1);
 }
@@ -363,7 +358,7 @@ TEST_P(SatCountEncTest, add_at_most_two3)
   auto lit2{mVarList[1]};
   auto lit3{mVarList[2]};
 
-  mEnc.add_at_most_two(lit1, lit2, lit3);
+  mSolver.add_at_most_two(lit1, lit2, lit3);
 
   check_at_most(3, 2);
 }
@@ -375,7 +370,7 @@ TEST_P(SatCountEncTest, add_at_most_two4)
   auto lit3{mVarList[2]};
   auto lit4{mVarList[3]};
 
-  mEnc.add_at_most_two(lit1, lit2, lit3, lit4);
+  mSolver.add_at_most_two(lit1, lit2, lit3, lit4);
 
   check_at_most(4, 2);
 }
@@ -388,7 +383,7 @@ TEST_P(SatCountEncTest, add_at_most_two5)
   auto lit4{mVarList[3]};
   auto lit5{mVarList[4]};
 
-  mEnc.add_at_most_two(lit1, lit2, lit3, lit4, lit5);
+  mSolver.add_at_most_two(lit1, lit2, lit3, lit4, lit5);
 
   check_at_most(5, 2);
 }
@@ -402,7 +397,7 @@ TEST_P(SatCountEncTest, add_at_most_two6)
   auto lit5{mVarList[4]};
   auto lit6{mVarList[5]};
 
-  mEnc.add_at_most_two(lit1, lit2, lit3, lit4, lit5, lit6);
+  mSolver.add_at_most_two(lit1, lit2, lit3, lit4, lit5, lit6);
 
   check_at_most(6, 2);
 }
@@ -415,7 +410,7 @@ TEST_P(SatCountEncTest, add_at_most_twoN)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_most_two(lits);
+  mSolver.add_at_most_two(lits);
 
   check_at_most(n, 2);
 }
@@ -429,7 +424,7 @@ TEST_P(SatCountEncTest, add_at_most_10_3)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_most_k(lits, k);
+  mSolver.add_at_most_k(lits, k);
 
   check_at_most(n, k);
 }
@@ -443,7 +438,7 @@ TEST_P(SatCountEncTest, add_at_most_10_5)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_most_k(lits, k);
+  mSolver.add_at_most_k(lits, k);
 
   check_at_most(n, k);
 }
@@ -457,7 +452,7 @@ TEST_P(SatCountEncTest, add_at_most_15_3)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_most_k(lits, k);
+  mSolver.add_at_most_k(lits, k);
 
   check_at_most(n, k);
 }
@@ -471,7 +466,7 @@ TEST_P(SatCountEncTest, add_at_most_15_5)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_most_k(lits, k);
+  mSolver.add_at_most_k(lits, k);
 
   check_at_most(n, k);
 }
@@ -485,7 +480,7 @@ TEST_P(SatCountEncTest, add_at_most_15_10)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_most_k(lits, k);
+  mSolver.add_at_most_k(lits, k);
 
   check_at_most(n, k);
 }
@@ -495,7 +490,7 @@ TEST_P(SatCountEncTest, add_at_least_one2)
   auto lit1{mVarList[0]};
   auto lit2{mVarList[1]};
 
-  mEnc.add_at_least_one(lit1, lit2);
+  mSolver.add_at_least_one(lit1, lit2);
 
   check_at_least(2, 1);
 }
@@ -506,7 +501,7 @@ TEST_P(SatCountEncTest, add_at_least_one3)
   auto lit2{mVarList[1]};
   auto lit3{mVarList[2]};
 
-  mEnc.add_at_least_one(lit1, lit2, lit3);
+  mSolver.add_at_least_one(lit1, lit2, lit3);
 
   check_at_least(3, 1);
 }
@@ -518,7 +513,7 @@ TEST_P(SatCountEncTest, add_at_least_one4)
   auto lit3{mVarList[2]};
   auto lit4{mVarList[3]};
 
-  mEnc.add_at_least_one(lit1, lit2, lit3, lit4);
+  mSolver.add_at_least_one(lit1, lit2, lit3, lit4);
 
   check_at_least(4, 1);
 }
@@ -531,7 +526,7 @@ TEST_P(SatCountEncTest, add_at_least_one5)
   auto lit4{mVarList[3]};
   auto lit5{mVarList[4]};
 
-  mEnc.add_at_least_one(lit1, lit2, lit3, lit4, lit5);
+  mSolver.add_at_least_one(lit1, lit2, lit3, lit4, lit5);
 
   check_at_least(5, 1);
 }
@@ -545,7 +540,7 @@ TEST_P(SatCountEncTest, add_at_least_one6)
   auto lit5{mVarList[4]};
   auto lit6{mVarList[5]};
 
-  mEnc.add_at_least_one(lit1, lit2, lit3, lit4, lit5, lit6);
+  mSolver.add_at_least_one(lit1, lit2, lit3, lit4, lit5, lit6);
 
   check_at_least(6, 1);
 }
@@ -558,7 +553,7 @@ TEST_P(SatCountEncTest, add_at_least_oneN)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_least_one(lits);
+  mSolver.add_at_least_one(lits);
 
   check_at_least(7, 1);
 }
@@ -568,7 +563,7 @@ TEST_P(SatCountEncTest, add_at_least_two2)
   auto lit1{mVarList[0]};
   auto lit2{mVarList[1]};
 
-  mEnc.add_at_least_two(lit1, lit2);
+  mSolver.add_at_least_two(lit1, lit2);
 
   check_at_least(2, 2);
 }
@@ -579,7 +574,7 @@ TEST_P(SatCountEncTest, add_at_least_two3)
   auto lit2{mVarList[1]};
   auto lit3{mVarList[2]};
 
-  mEnc.add_at_least_two(lit1, lit2, lit3);
+  mSolver.add_at_least_two(lit1, lit2, lit3);
 
   check_at_least(3, 2);
 }
@@ -591,7 +586,7 @@ TEST_P(SatCountEncTest, add_at_least_two4)
   auto lit3{mVarList[2]};
   auto lit4{mVarList[3]};
 
-  mEnc.add_at_least_two(lit1, lit2, lit3, lit4);
+  mSolver.add_at_least_two(lit1, lit2, lit3, lit4);
 
   check_at_least(4, 2);
 }
@@ -604,7 +599,7 @@ TEST_P(SatCountEncTest, add_at_least_two5)
   auto lit4{mVarList[3]};
   auto lit5{mVarList[4]};
 
-  mEnc.add_at_least_two(lit1, lit2, lit3, lit4, lit5);
+  mSolver.add_at_least_two(lit1, lit2, lit3, lit4, lit5);
 
   check_at_least(5, 2);
 }
@@ -618,7 +613,7 @@ TEST_P(SatCountEncTest, add_at_least_two6)
   auto lit5{mVarList[4]};
   auto lit6{mVarList[5]};
 
-  mEnc.add_at_least_two(lit1, lit2, lit3, lit4, lit5, lit6);
+  mSolver.add_at_least_two(lit1, lit2, lit3, lit4, lit5, lit6);
 
   check_at_least(6, 2);
 }
@@ -631,7 +626,7 @@ TEST_P(SatCountEncTest, add_at_least_twoN)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_least_two(lits);
+  mSolver.add_at_least_two(lits);
 
   check_at_least(7, 2);
 }
@@ -645,7 +640,7 @@ TEST_P(SatCountEncTest, add_at_least_10_3)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_least_k(lits, k);
+  mSolver.add_at_least_k(lits, k);
 
   check_at_least(n, k);
 }
@@ -659,7 +654,7 @@ TEST_P(SatCountEncTest, add_at_least_10_5)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_least_k(lits, k);
+  mSolver.add_at_least_k(lits, k);
 
   check_at_least(n, k);
 }
@@ -673,7 +668,7 @@ TEST_P(SatCountEncTest, add_at_least_15_3)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_least_k(lits, k);
+  mSolver.add_at_least_k(lits, k);
 
   check_at_least(n, k);
 }
@@ -687,7 +682,7 @@ TEST_P(SatCountEncTest, add_at_least_15_5)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_least_k(lits, k);
+  mSolver.add_at_least_k(lits, k);
 
   check_at_least(n, k);
 }
@@ -701,7 +696,7 @@ TEST_P(SatCountEncTest, add_at_least_15_10)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_at_least_k(lits, k);
+  mSolver.add_at_least_k(lits, k);
 
   check_at_least(n, k);
 }
@@ -711,7 +706,7 @@ TEST_P(SatCountEncTest, add_exact_one2)
   auto lit1{mVarList[0]};
   auto lit2{mVarList[1]};
 
-  mEnc.add_exact_one(lit1, lit2);
+  mSolver.add_exact_one(lit1, lit2);
 
   check_exact(2, 1);
 }
@@ -722,7 +717,7 @@ TEST_P(SatCountEncTest, add_exact_one3)
   auto lit2{mVarList[1]};
   auto lit3{mVarList[2]};
 
-  mEnc.add_exact_one(lit1, lit2, lit3);
+  mSolver.add_exact_one(lit1, lit2, lit3);
 
   check_exact(3, 1);
 }
@@ -734,7 +729,7 @@ TEST_P(SatCountEncTest, add_exact_one4)
   auto lit3{mVarList[2]};
   auto lit4{mVarList[3]};
 
-  mEnc.add_exact_one(lit1, lit2, lit3, lit4);
+  mSolver.add_exact_one(lit1, lit2, lit3, lit4);
 
   check_exact(4, 1);
 }
@@ -747,7 +742,7 @@ TEST_P(SatCountEncTest, add_exact_one5)
   auto lit4{mVarList[3]};
   auto lit5{mVarList[4]};
 
-  mEnc.add_exact_one(lit1, lit2, lit3, lit4, lit5);
+  mSolver.add_exact_one(lit1, lit2, lit3, lit4, lit5);
 
   check_exact(5, 1);
 }
@@ -761,7 +756,7 @@ TEST_P(SatCountEncTest, add_exact_one6)
   auto lit5{mVarList[4]};
   auto lit6{mVarList[5]};
 
-  mEnc.add_exact_one(lit1, lit2, lit3, lit4, lit5, lit6);
+  mSolver.add_exact_one(lit1, lit2, lit3, lit4, lit5, lit6);
 
   check_exact(6, 1);
 }
@@ -774,7 +769,7 @@ TEST_P(SatCountEncTest, add_exact_oneN)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_exact_one(lits);
+  mSolver.add_exact_one(lits);
 
   check_exact(7, 1);
 }
@@ -787,7 +782,7 @@ TEST_P(SatCountEncTest, add_exact_two3)
   auto lit2{mVarList[1]};
   auto lit3{mVarList[2]};
 
-  mEnc.add_exact_two(lit1, lit2, lit3);
+  mSolver.add_exact_two(lit1, lit2, lit3);
 
   check_exact(3, 2);
 }
@@ -799,7 +794,7 @@ TEST_P(SatCountEncTest, add_exact_two4)
   auto lit3{mVarList[2]};
   auto lit4{mVarList[3]};
 
-  mEnc.add_exact_two(lit1, lit2, lit3, lit4);
+  mSolver.add_exact_two(lit1, lit2, lit3, lit4);
 
   check_exact(4, 2);
 }
@@ -812,7 +807,7 @@ TEST_P(SatCountEncTest, add_exact_two5)
   auto lit4{mVarList[3]};
   auto lit5{mVarList[4]};
 
-  mEnc.add_exact_two(lit1, lit2, lit3, lit4, lit5);
+  mSolver.add_exact_two(lit1, lit2, lit3, lit4, lit5);
 
   check_exact(5, 2);
 }
@@ -826,7 +821,7 @@ TEST_P(SatCountEncTest, add_exact_two6)
   auto lit5{mVarList[4]};
   auto lit6{mVarList[5]};
 
-  mEnc.add_exact_two(lit1, lit2, lit3, lit4, lit5, lit6);
+  mSolver.add_exact_two(lit1, lit2, lit3, lit4, lit5, lit6);
 
   check_exact(6, 2);
 }
@@ -839,7 +834,7 @@ TEST_P(SatCountEncTest, add_exact_twoN)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_exact_two(lits);
+  mSolver.add_exact_two(lits);
 
   check_exact(7, 2);
 }
@@ -853,7 +848,7 @@ TEST_P(SatCountEncTest, add_exact_10_3)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_exact_k(lits, k);
+  mSolver.add_exact_k(lits, k);
 
   check_exact(n, k);
 }
@@ -867,7 +862,7 @@ TEST_P(SatCountEncTest, add_exact_10_5)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_exact_k(lits, k);
+  mSolver.add_exact_k(lits, k);
 
   check_exact(n, k);
 }
@@ -881,7 +876,7 @@ TEST_P(SatCountEncTest, add_exact_15_3)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_exact_k(lits, k);
+  mSolver.add_exact_k(lits, k);
 
   check_exact(n, k);
 }
@@ -895,7 +890,7 @@ TEST_P(SatCountEncTest, add_exact_15_5)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_exact_k(lits, k);
+  mSolver.add_exact_k(lits, k);
 
   check_exact(n, k);
 }
@@ -909,7 +904,7 @@ TEST_P(SatCountEncTest, add_exact_15_10)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_exact_k(lits, k);
+  mSolver.add_exact_k(lits, k);
 
   check_exact(n, k);
 }
@@ -919,7 +914,7 @@ TEST_P(SatCountEncTest, add_not_one2)
   auto lit1{mVarList[0]};
   auto lit2{mVarList[1]};
 
-  mEnc.add_not_one(lit1, lit2);
+  mSolver.add_not_one(lit1, lit2);
 
   check_not_one(2);
 }
@@ -930,7 +925,7 @@ TEST_P(SatCountEncTest, add_not_one3)
   auto lit2{mVarList[1]};
   auto lit3{mVarList[2]};
 
-  mEnc.add_not_one(lit1, lit2, lit3);
+  mSolver.add_not_one(lit1, lit2, lit3);
 
   check_not_one(3);
 }
@@ -942,7 +937,7 @@ TEST_P(SatCountEncTest, add_not_one4)
   auto lit3{mVarList[2]};
   auto lit4{mVarList[3]};
 
-  mEnc.add_not_one(lit1, lit2, lit3, lit4);
+  mSolver.add_not_one(lit1, lit2, lit3, lit4);
 
   check_not_one(4);
 }
@@ -955,7 +950,7 @@ TEST_P(SatCountEncTest, add_not_one5)
   auto lit4{mVarList[3]};
   auto lit5{mVarList[4]};
 
-  mEnc.add_not_one(lit1, lit2, lit3, lit4, lit5);
+  mSolver.add_not_one(lit1, lit2, lit3, lit4, lit5);
 
   check_not_one(5);
 }
@@ -969,7 +964,7 @@ TEST_P(SatCountEncTest, add_not_one6)
   auto lit5{mVarList[4]};
   auto lit6{mVarList[5]};
 
-  mEnc.add_not_one(lit1, lit2, lit3, lit4, lit5, lit6);
+  mSolver.add_not_one(lit1, lit2, lit3, lit4, lit5, lit6);
 
   check_not_one(6);
 }
@@ -982,7 +977,7 @@ TEST_P(SatCountEncTest, add_not_oneN)
     lits[i] = mVarList[i];
   }
 
-  mEnc.add_not_one(lits);
+  mSolver.add_not_one(lits);
 
   check_not_one(n);
 }

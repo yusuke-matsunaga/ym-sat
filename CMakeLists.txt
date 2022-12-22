@@ -55,12 +55,12 @@ add_subdirectory( py_ymsat )
 set (ym_sat_SOURCES
   c++-src/SatMsgHandlerS.cc
   c++-src/SatSolver.cc
-  c++-src/SatBvEnc.cc
-  c++-src/SatCountEnc.cc
+  c++-src/SatSolver_bv.cc
+  c++-src/SatSolver_count.cc
+  c++-src/SatSolver_tseitin.cc
   c++-src/SatLogger.cc
   c++-src/SatLoggerS.cc
   c++-src/SatStats.cc
-  c++-src/SatTseitinEnc.cc
   c++-src/SatBinaryNum.cc
   c++-src/SatOrderedSet.cc
   c++-src/SatDimacs.cc

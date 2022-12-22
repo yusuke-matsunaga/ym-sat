@@ -1,35 +1,23 @@
 
-/// @file SatTseitinEnc.cc
-/// @brief SatTseitinEnc の実装ファイル
+/// @file SatSolver_TseitinEnc.cc
+/// @brief SatSolver の実装ファイル(Tseitin encoding関係)
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2019, 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/SatTseitinEnc.h"
+#include "ym/SatSolver.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-// クラス SatTseitinEnc
+// クラス SatSolver
 //////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-SatTseitinEnc::SatTseitinEnc(
-  SatSolver& solver
-) : mSolver{solver}
-{
-}
-
-// @brief デストラクタ
-SatTseitinEnc::~SatTseitinEnc()
-{
-}
 
 // @brief n入力ANDゲートの入出力の関係を表す条件を追加する．
 void
-SatTseitinEnc::add_andgate(
+SatSolver::add_andgate(
   SatLiteral olit,
   const vector<SatLiteral>& lit_list
 )
@@ -38,16 +26,16 @@ SatTseitinEnc::add_andgate(
   vector<SatLiteral> tmp_lits;
   tmp_lits.reserve(n + 1);
   for ( auto ilit: lit_list ) {
-    mSolver.add_clause(ilit, ~olit);
+    add_clause(ilit, ~olit);
     tmp_lits.push_back(~ilit);
   }
   tmp_lits.push_back(olit);
-  mSolver.add_clause(tmp_lits);
+  add_clause(tmp_lits);
 }
 
 // @brief n入力ORゲートの入出力の関係を表す条件を追加する．
 void
-SatTseitinEnc::add_orgate(
+SatSolver::add_orgate(
   SatLiteral olit,
   const vector<SatLiteral>& lit_list
 )
@@ -56,16 +44,16 @@ SatTseitinEnc::add_orgate(
   vector<SatLiteral> tmp_lits;
   tmp_lits.reserve(n + 1);
   for ( auto ilit: lit_list ) {
-    mSolver.add_clause(~ilit, olit);
+    add_clause(~ilit, olit);
     tmp_lits.push_back(ilit);
   }
   tmp_lits.push_back(~olit);
-  mSolver.add_clause(tmp_lits);
+  add_clause(tmp_lits);
 }
 
 // @brief n入力XORゲートの入出力の関係を表す条件を追加する．
 void
-SatTseitinEnc::_add_xorgate_sub(
+SatSolver::_add_xorgate_sub(
   SatLiteral olit,
   const vector<SatLiteral>& lit_list,
   SizeType start,
@@ -88,9 +76,9 @@ SatTseitinEnc::_add_xorgate_sub(
   else {
     SizeType nl{num / 2};
     SizeType nr{num - nl};
-    auto llit = mSolver.new_variable(false);
+    auto llit = new_variable(false);
     _add_xorgate_sub(llit, lit_list, start, nl);
-    auto rlit = mSolver.new_variable(false);
+    auto rlit = new_variable(false);
     _add_xorgate_sub(rlit, lit_list, start + nl, nr);
     add_xorgate(olit, llit, rlit);
   }
@@ -98,25 +86,25 @@ SatTseitinEnc::_add_xorgate_sub(
 
 // @brief half_adder の入出力の関係を表す条件を追加する．
 void
-SatTseitinEnc::add_half_adder(
+SatSolver::add_half_adder(
   SatLiteral alit,
   SatLiteral blit,
   SatLiteral slit,
   SatLiteral olit
 )
 {
-  mSolver.add_clause(~slit,  alit,  blit);
-  mSolver.add_clause( slit,  alit, ~blit);
-  mSolver.add_clause( slit, ~alit,  blit);
-  mSolver.add_clause(~slit, ~alit, ~blit);
-  mSolver.add_clause(~olit,  alit       );
-  mSolver.add_clause(~olit,         blit);
-  mSolver.add_clause( olit, ~alit, ~blit);
+  add_clause(~slit,  alit,  blit);
+  add_clause( slit,  alit, ~blit);
+  add_clause( slit, ~alit,  blit);
+  add_clause(~slit, ~alit, ~blit);
+  add_clause(~olit,  alit       );
+  add_clause(~olit,         blit);
+  add_clause( olit, ~alit, ~blit);
 }
 
 // @brief full_adder の入出力の関係を表す条件を追加する．
 void
-SatTseitinEnc::add_full_adder(
+SatSolver::add_full_adder(
   SatLiteral alit,
   SatLiteral blit,
   SatLiteral ilit,
@@ -124,25 +112,25 @@ SatTseitinEnc::add_full_adder(
   SatLiteral olit
 )
 {
-  mSolver.add_clause(~slit,  alit,  blit,  ilit);
-  mSolver.add_clause( slit,  alit,  blit, ~ilit);
-  mSolver.add_clause( slit,  alit, ~blit,  ilit);
-  mSolver.add_clause(~slit,  alit, ~blit, ~ilit);
-  mSolver.add_clause( slit, ~alit,  blit,  ilit);
-  mSolver.add_clause(~slit, ~alit,  blit, ~ilit);
-  mSolver.add_clause(~slit, ~alit, ~blit,  ilit);
-  mSolver.add_clause( slit, ~alit, ~blit, ~ilit);
-  mSolver.add_clause(~olit,  alit,  blit       );
-  mSolver.add_clause(~olit,  alit,         ilit);
-  mSolver.add_clause(~olit,         blit,  ilit);
-  mSolver.add_clause( olit, ~alit, ~blit       );
-  mSolver.add_clause( olit, ~alit,        ~ilit);
-  mSolver.add_clause( olit,        ~blit, ~ilit);
+  add_clause(~slit,  alit,  blit,  ilit);
+  add_clause( slit,  alit,  blit, ~ilit);
+  add_clause( slit,  alit, ~blit,  ilit);
+  add_clause(~slit,  alit, ~blit, ~ilit);
+  add_clause( slit, ~alit,  blit,  ilit);
+  add_clause(~slit, ~alit,  blit, ~ilit);
+  add_clause(~slit, ~alit, ~blit,  ilit);
+  add_clause( slit, ~alit, ~blit, ~ilit);
+  add_clause(~olit,  alit,  blit       );
+  add_clause(~olit,  alit,         ilit);
+  add_clause(~olit,         blit,  ilit);
+  add_clause( olit, ~alit, ~blit       );
+  add_clause( olit, ~alit,        ~ilit);
+  add_clause( olit,        ~blit, ~ilit);
 }
 
 // @brief 多ビットadderの入出力の関係を表す条件を追加する．
 void
-SatTseitinEnc::add_adder(
+SatSolver::add_adder(
   const vector<SatLiteral>& alits,
   const vector<SatLiteral>& blits,
   SatLiteral ilit,
@@ -177,28 +165,28 @@ SatTseitinEnc::add_adder(
     }
     if ( a_zero && b_zero ) {
       if ( c_zero ) {
-	mSolver.add_clause(~slit);
+	add_clause(~slit);
       }
       else {
 	add_buffgate(ilit, slit);
 	c_zero = true;
       }
       if ( i == (ns - 1) ) {
-	mSolver.add_clause(~olit);
+	add_clause(~olit);
       }
     }
     else if ( a_zero ) { // !b_zero
-      auto olit1 = i < (ns - 1) ? mSolver.new_variable(false) : olit;
+      auto olit1 = i < (ns - 1) ? new_variable(false) : olit;
       add_half_adder(blit, ilit, slit, olit1);
       ilit = olit1;
     }
     else if ( b_zero ) { // !a_zero
-      auto olit1 = i < (ns - 1) ? mSolver.new_variable(false) : olit;
+      auto olit1 = i < (ns - 1) ? new_variable(false) : olit;
       add_half_adder(alit, ilit, slit, olit1);
       ilit = olit1;
     }
     else { // !a_zero && !b_zero
-      auto olit1 = i < (ns - 1) ? mSolver.new_variable(false) : olit;
+      auto olit1 = i < (ns - 1) ? new_variable(false) : olit;
       add_full_adder(alit, blit, ilit, slit, olit1);
       ilit = olit1;
     }
@@ -223,7 +211,7 @@ END_NONAMESPACE
 
 // @brief 1's counter の入出力の関係を表す条件を追加する．
 vector<SatLiteral>
-SatTseitinEnc::add_counter(
+SatSolver::add_counter(
   const vector<SatLiteral>& ilits
 )
 {
@@ -233,26 +221,26 @@ SatTseitinEnc::add_counter(
     return {olit};
   }
   else if ( ni == 2 ) {
-    auto olit0 = mSolver.new_variable(false);
-    auto olit1 = mSolver.new_variable(false);
+    auto olit0 = new_variable(false);
+    auto olit1 = new_variable(false);
     add_half_adder(ilits[0], ilits[1], olit0, olit1);
     return {olit0, olit1};
   }
   else if ( ni == 3 ) {
-    auto olit0 = mSolver.new_variable(false);
-    auto olit1 = mSolver.new_variable(false);
+    auto olit0 = new_variable(false);
+    auto olit1 = new_variable(false);
     add_full_adder(ilits[0], ilits[1], ilits[2], olit0, olit1);
     return {olit0, olit1};
   }
   else if ( ni == 4 ) {
-    auto olit0 = mSolver.new_variable(false);
-    auto olit1 = mSolver.new_variable(false);
-    auto olit2 = mSolver.new_variable(false);
-    auto c0 = mSolver.new_variable(false);
-    auto c1 = mSolver.new_variable(false);
-    auto d0 = mSolver.new_variable(false);
-    auto d1 = mSolver.new_variable(false);
-    auto e1 = mSolver.new_variable(false);
+    auto olit0 = new_variable(false);
+    auto olit1 = new_variable(false);
+    auto olit2 = new_variable(false);
+    auto c0 = new_variable(false);
+    auto c1 = new_variable(false);
+    auto d0 = new_variable(false);
+    auto d1 = new_variable(false);
+    auto e1 = new_variable(false);
     add_half_adder(ilits[0], ilits[1], c0, c1);
     add_half_adder(ilits[2], ilits[3], d0, d1);
     add_half_adder(c0, d0, olit0, e1);
@@ -260,14 +248,14 @@ SatTseitinEnc::add_counter(
     return {olit0, olit1, olit2};
   }
   else if ( ni == 5 ) {
-    auto olit0 = mSolver.new_variable(false);
-    auto olit1 = mSolver.new_variable(false);
-    auto olit2 = mSolver.new_variable(false);
-    auto c0 = mSolver.new_variable(false);
-    auto c1 = mSolver.new_variable(false);
-    auto d0 = mSolver.new_variable(false);
-    auto d1 = mSolver.new_variable(false);
-    auto e1 = mSolver.new_variable(false);
+    auto olit0 = new_variable(false);
+    auto olit1 = new_variable(false);
+    auto olit2 = new_variable(false);
+    auto c0 = new_variable(false);
+    auto c1 = new_variable(false);
+    auto d0 = new_variable(false);
+    auto d1 = new_variable(false);
+    auto e1 = new_variable(false);
     add_half_adder(ilits[0], ilits[1], c0, c1);
     add_half_adder(ilits[2], ilits[3], d0, d1);
     vector<SatLiteral> clits{c0, c1};
@@ -294,7 +282,7 @@ SatTseitinEnc::add_counter(
     SizeType no{get_ln(ni)};
     vector<SatLiteral> olits(no);
     for ( SizeType i = 0; i < no; ++ i ) {
-      olits[i] = mSolver.new_variable(false);
+      olits[i] = new_variable(false);
     }
     vector<SatLiteral> tmp_olits3(no - 1);
     for ( SizeType i = 0; i < (no - 1); ++ i ) {
