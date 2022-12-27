@@ -471,7 +471,7 @@ SatTseitinEncTest::check_counter2(
     num = (1 << ni);
     random = false;
   }
-  std::uniform_int_distribution ud(0, 1);
+  std::uniform_int_distribution<int> ud(0, 1);
   for ( int j = 0; j < num; ++ j ) {
     int c_exp = 0;
     vector<SatLiteral> assumptions;
