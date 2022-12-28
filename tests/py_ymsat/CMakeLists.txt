@@ -76,3 +76,8 @@ add_test( py_ymsat_SatBool3_test
   py_ymsat
   ${CMAKE_CURRENT_SOURCE_DIR}/SatBool3_test.py
   )
+
+add_test( py_ymsat_SatSolver_test
+  py_ymsat
+  ${CMAKE_CURRENT_SOURCE_DIR}/SatSolver_test.py
+  )

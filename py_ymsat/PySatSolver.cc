@@ -37,7 +37,7 @@ SatSolver_new(
 )
 {
   const char* type_str = nullptr;
-  if ( !PyArg_ParseTuple(args, "!s", &type_str) ) {
+  if ( !PyArg_ParseTuple(args, "|s", &type_str) ) {
     return nullptr;
   }
   SatSolverType solver_type;
