@@ -26,13 +26,6 @@
 # ===================================================================
 # インクルードパスの設定
 # ===================================================================
-include_directories(
-  ${PROJECT_BINARY_DIR}/include
-  ${PROJECT_SOURCE_DIR}/ym-common/include
-  ${PROJECT_SOURCE_DIR}/ym-base/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/private_include
-  )
 
 
 # ===================================================================
@@ -44,16 +37,10 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory( c++-src )
 if ( Python3_FOUND )
   add_subdirectory( py_ymsat )
 endif ( Python3_FOUND )
-add_subdirectory( tests )
-
-
-# ===================================================================
-#  ソースの設定
-# ===================================================================
+add_subdirectory( gtest )
 
 
 # ===================================================================
