@@ -465,7 +465,7 @@ SatTseitinEncTest::check_counter2(
   }
 
   std::mt19937 randgen;
-  SizeType num = 200000;
+  SizeType num = 20000;
   bool random = true;
   if ( num > (1 << ni) ) {
     num = (1 << ni);
@@ -1125,11 +1125,6 @@ TEST_P(SatTseitinEncTest, add_counter_14_4)
 TEST_P(SatTseitinEncTest, add_counter_15_4)
 {
   check_counter(15, 4);
-}
-
-TEST_P(SatTseitinEncTest, add_counter_16_5)
-{
-  check_counter(16, 5);
 }
 
 TEST_P(SatTseitinEncTest, add_counter2_2_2)
