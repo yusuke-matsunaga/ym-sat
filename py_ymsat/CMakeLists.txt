@@ -8,6 +8,7 @@
 # インクルードパスの設定
 # ===================================================================
 include_directories(
+  ${Python3_INCLUDE_DIRS}
   )
 
 
@@ -22,8 +23,9 @@ include_directories(
 
 set ( py_ymsat_SOURCES
   PySatBool3.cc
+  PySatLiteral.cc
+  PySatSolver.cc
   ymsat_module.cc
-  py_ymsat.cc
   )
 
 
@@ -31,11 +33,15 @@ set ( py_ymsat_SOURCES
 #  library ターゲットの設定
 # ===================================================================
 
-add_executable( py_ymsat
+ym_add_object_library( py_ymsat
   ${py_ymsat_SOURCES}
+  )
+
+add_executable( py_ymsat
+  py_ymsat.cc
+  $<TARGET_OBJECTS:py_ymsat_obj>
   $<TARGET_OBJECTS:ym_sat_obj>
   $<TARGET_OBJECTS:ym_base_obj>
-  ${YM_SUBMODULE_OBJ_LIST}
   )
 
 target_compile_definitions ( py_ymsat
@@ -57,7 +63,8 @@ target_link_options( py_ymsat
   )
 
 add_executable( py_ymsat_d
-  ${py_ymsat_SOURCES}
+  py_ymsat.cc
+  $<TARGET_OBJECTS:py_ymsat_obj_d>
   $<TARGET_OBJECTS:ym_sat_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   ${YM_SUBMODULE_OBJ_D_LIST}

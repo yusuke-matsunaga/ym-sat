@@ -37,27 +37,6 @@ public:
     PyObject* m ///< [in] 親のモジュールを表す PyObject
   );
 
-  /// @brief SatSolver を表す PyObject から SatSolver を取り出す．
-  /// @return 変換が成功したら true を返す．
-  ///
-  /// エラーの場合にはPython例外がセットされる．
-  static
-  bool
-  FromPyObject(
-    PyObject* obj,  ///< [in] SatSolver を表す PyObject
-    SatSolver& val ///< [out] 変換された SatSolver を格納する変数
-  );
-
-  /// @brief SatSolver を表す PyObject を作る．
-  /// @return 生成した PyObject を返す．
-  ///
-  /// 返り値は新しい参照が返される．
-  static
-  PyObject*
-  ToPyObject(
-    SatSolver val ///< [in] 値
-  );
-
   /// @brief PyObject が SatSolver タイプか調べる．
   static
   bool
@@ -70,19 +49,9 @@ public:
   ///
   /// _check(obj) == true であると仮定している．
   static
-  SatSolver
+  SatSolver&
   _get(
     PyObject* obj ///< [in] 変換元の PyObject
-  );
-
-  /// @brief SatSolver を表す PyObject に値を設定する．
-  ///
-  /// _check(obj) == true であると仮定している．
-  static
-  void
-  _put(
-    PyObject* obj, ///< [in] 対象の PyObject
-    SatSolver val ///< [in] 設定する値
   );
 
   /// @brief SatSolver を表すオブジェクトの型定義を返す．

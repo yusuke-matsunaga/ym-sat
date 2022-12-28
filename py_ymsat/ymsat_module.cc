@@ -10,12 +10,10 @@
 #include <Python.h>
 
 #include "ym/sat.h"
-#include "PySatBool3.h"
-#if 0
-#include "PySatLiteral.h"
-#include "PySatSolver.h"
-#include "PySatModel.h"
-#endif
+#include "ym/PySatBool3.h"
+#include "ym/PySatLiteral.h"
+#include "ym/PySatSolver.h"
+
 
 BEGIN_NAMESPACE_YM
 
@@ -50,7 +48,6 @@ PyInit_ymsat()
     goto error;
   }
 
-#if 0
   if ( !PySatLiteral::init(m) ) {
     goto error;
   }
@@ -58,11 +55,6 @@ PyInit_ymsat()
   if ( !PySatSolver::init(m) ) {
     goto error;
   }
-
-  if ( !PySatModel::init(m) ) {
-    goto error;
-  }
-#endif
 
   return m;
 

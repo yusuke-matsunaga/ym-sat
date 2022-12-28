@@ -6,7 +6,7 @@
 /// Copyright (C) 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "PySatLiteral.h"
+#include "ym/PySatLiteral.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -50,31 +50,78 @@ SatLiteral_dealloc(
   Py_TYPE(self)->tp_free(self);
 }
 
-// 初期化関数(__init__()相当)
-int
-SatLiteral_init(
+// 適正値の時に true を返す．
+PyObject*
+SatLiteral_is_valid(
   PyObject* self,
-  PyObject* args,
-  PyObject* Py_UNUSED(kwds)
+  PyObject* Py_UNUSED(args)
 )
 {
-  return 0;
+  auto lit = PySatLiteral::_get(self);
+  auto v = lit.is_valid();
+  return PyBool_FromLong(v);
 }
 
-// repr() 関数
+// 肯定のリテラルの時 true を返す．
 PyObject*
-SatLiteral_repr(
-  PyObject* self
+SatLiteral_is_positive(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
 )
 {
-  auto val = PySatLiteral::_get(self);
-  // val から 文字列を作る．
-  const char* tmp_str = nullptr;
-  return Py_BuildValue("s", tmp_str);
+  auto lit = PySatLiteral::_get(self);
+  auto v = lit.is_positive();
+  return PyBool_FromLong(v);
+}
+
+// 否定のリテラルの時 true を返す．
+PyObject*
+SatLiteral_is_negative(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto lit = PySatLiteral::_get(self);
+  auto v = lit.is_negative();
+  return PyBool_FromLong(v);
+}
+
+// 肯定のリテラルを返す．
+PyObject*
+SatLiteral_make_positive(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto lit = PySatLiteral::_get(self);
+  auto ans = lit.make_positive();
+  return PySatLiteral::ToPyObject(ans);
+}
+
+// 否定のリテラルを返す．
+PyObject*
+SatLiteral_make_negative(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto lit = PySatLiteral::_get(self);
+  auto ans = lit.make_negative();
+  return PySatLiteral::ToPyObject(ans);
 }
 
 // メソッド定義
 PyMethodDef SatLiteral_methods[] = {
+  {"is_valid", SatLiteral_is_valid, METH_NOARGS,
+   PyDoc_STR("return True if valid")},
+  {"is_positive", SatLiteral_is_positive, METH_NOARGS,
+   PyDoc_STR("return True if the literal is positive")},
+  {"is_negative", SatLiteral_is_positive, METH_NOARGS,
+   PyDoc_STR("return True if the literal is negative")},
+  {"make_positive", SatLiteral_make_positive, METH_NOARGS,
+   PyDoc_STR("return the positive literal")},
+  {"make_negative", SatLiteral_make_negative, METH_NOARGS,
+   PyDoc_STR("return the negative literal")},
   {nullptr, nullptr, 0, nullptr}
 };
 
@@ -123,7 +170,7 @@ SatLiteral_mul(
 {
   if ( PySatLiteral::_check(self) && PySatLiteral::_check(other) ) {
     auto val1 = PySatLiteral::_get(self);
-    auto val2 = PySatLiteral::_get(other);
+    auto val2 = PyObject_IsTrue(other);
     return PySatLiteral::ToPyObject(val1 * val2);
   }
   Py_RETURN_NOTIMPLEMENTED;
@@ -131,47 +178,9 @@ SatLiteral_mul(
 
 // 数値演算メソッド定義
 PyNumberMethods SatLiteral_number = {
+  .nb_multiply = SatLiteral_mul,
   .nb_invert = SatLiteral_invert,
-  .nb_mul = SatLiteral_mul,
-  .nb_inplace_mul = SatLiteral_mul
-};
-
-// マップオブジェクトのサイズ
-Py_ssize_t
-SatLiteral_Size(
-  PyObject* self
-)
-{
-  auto val = PySatLiteral::_get(self);
-  return val.size();
-}
-
-// マップオブジェクトの要素取得関数
-PyObject*
-SatLiteral_GetItem(
-  PyObject* self,
-  PyObject* key
-)
-{
-  return nullptr;
-}
-
-// マップオブジェクトの要素設定関数
-int
-SatLiteral_SetItem(
-  PyObject* self,
-  PyObject* key,
-  PyObject* v
-)
-{
-  return -1;
-}
-
-// マップオブジェクト構造体
-PyMappingMethods SatLiteral_mapping = {
-  .mp_length = SatLiteral%_Size,
-  .mp_subscript = SatLiteral_GetItem,
-  .mp_ass_subscript = SatLiteral_SetItem
+  .nb_inplace_multiply = SatLiteral_mul
 };
 
 // ハッシュ関数
@@ -180,9 +189,40 @@ SatLiteral_hash(
   PyObject* self
 )
 {
-  auto val = PySatLiteral::_get(self);
-  return val.hash();
+  auto lit = PySatLiteral::_get(self);
+  return lit.hash();
 }
+
+// 変数番号を返す．
+PyObject*
+SatLiteral_varid(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto lit = PySatLiteral::_get(self);
+  int v = lit.varid();
+  return PyLong_FromLong(v);
+}
+
+// インデックス値を返す．
+PyObject*
+SatLiteral_index(
+  PyObject* self,
+  void* Py_UNUSED(closure)
+)
+{
+  auto lit = PySatLiteral::_get(self);
+  int v = lit.index();
+  return PyLong_FromLong(v);
+}
+
+// getset メソッド定義
+PyGetSetDef SatLiteral_getsetters[] = {
+  {"varid", SatLiteral_varid, nullptr, PyDoc_STR("Variable ID")},
+  {"index", SatLiteral_index, nullptr, PyDoc_STR("index")},
+  {nullptr, nullptr, nullptr, nullptr}
+};
 
 END_NONAMESPACE
 
@@ -201,11 +241,9 @@ PySatLiteral::init(
   SatLiteralType.tp_doc = PyDoc_STR("SatLiteral objects");
   SatLiteralType.tp_richcompare = SatLiteral_richcmpfunc;
   SatLiteralType.tp_methods = SatLiteral_methods;
-  SatLiteralType.tp_init = SatLiteral_init;
+  SatLiteralType.tp_getset = SatLiteral_getsetters;
   SatLiteralType.tp_new = SatLiteral_new;
-  SatLiteralType.tp_repr = SatLiteral_repr;
-  SatLiteralType.tp_as_number = SatLiteral_number;
-  SatLiteralType.tp_as_mapping = SatLiteral_mapping;
+  SatLiteralType.tp_as_number = &SatLiteral_number;
   SatLiteralType.tp_hash = SatLiteral_hash;
   if ( PyType_Ready(&SatLiteralType) < 0 ) {
     return false;
