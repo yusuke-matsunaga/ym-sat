@@ -167,6 +167,324 @@ SatSolver_add_clause(
 }
 
 PyObject*
+SatSolver_add_buffgate(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* lit1_obj = nullptr;
+  PyObject* lit2_obj = nullptr;
+  if ( !PyArg_ParseTuple(args, "!O!O",
+			 PySatLiteral::_typeobject(), &lit1_obj,
+			 PySatLiteral::_typeobject(), &lit2_obj) ) {
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  auto lit1 = PySatLiteral::_get(lit1_obj);
+  auto lit2 = PySatLiteral::_get(lit2_obj);
+  solver.add_buffgate(lit1, lit2);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_notgate(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* lit1_obj = nullptr;
+  PyObject* lit2_obj = nullptr;
+  if ( !PyArg_ParseTuple(args, "!O!O",
+			 PySatLiteral::_typeobject(), &lit1_obj,
+			 PySatLiteral::_typeobject(), &lit2_obj) ) {
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  auto lit1 = PySatLiteral::_get(lit1_obj);
+  auto lit2 = PySatLiteral::_get(lit2_obj);
+  solver.add_notgate(lit1, lit2);
+  Py_RETURN_NONE;
+}
+
+bool
+parse_args2(
+  PyObject* args,
+  SatLiteral& olit,
+  vector<SatLiteral>& lit_list
+)
+{
+  if ( PySequence_Check(args) ) {
+    auto n = PySequence_Size(args);
+    if ( n <= 1 ) {
+      PyErr_SetString(PyExc_TypeError, "SatLiteral and sequence of SatLiterals are expected.");
+      return false;
+    }
+    {
+      auto arg0 = PySequence_GetItem(args, 0);
+      if ( !PySatLiteral::_check(arg0) ) {
+	Py_DECREF(arg0);
+	PyErr_SetString(PyExc_TypeError, "1st argument should be a SatLiteral.");
+	return false;
+      }
+      olit = PySatLiteral::_get(arg0);
+      Py_DECREF(arg0);
+    }
+    for ( int i = 1; i < n; ++ i ) {
+      auto arg = PySequence_GetItem(args, i);
+      bool stat = parse_args(arg, lit_list);
+      Py_DECREF(arg);
+      if ( !stat ) {
+	return false;
+      }
+    }
+    return true;
+  }
+  PyErr_SetString(PyExc_TypeError, "SatLiteral or sequence of SatLiterals are expected.");
+  return false;
+}
+
+PyObject*
+SatSolver_add_andgate(
+  PyObject* self,
+  PyObject* args
+)
+{
+  SatLiteral olit;
+  vector<SatLiteral> lit_list;
+  if ( !parse_args2(args, olit, lit_list) ) {
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  solver.add_andgate(olit, lit_list);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_nandgate(
+  PyObject* self,
+  PyObject* args
+)
+{
+  SatLiteral olit;
+  vector<SatLiteral> lit_list;
+  if ( !parse_args2(args, olit, lit_list) ) {
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  solver.add_nandgate(olit, lit_list);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_orgate(
+  PyObject* self,
+  PyObject* args
+)
+{
+  SatLiteral olit;
+  vector<SatLiteral> lit_list;
+  if ( !parse_args2(args, olit, lit_list) ) {
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  solver.add_orgate(olit, lit_list);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_norgate(
+  PyObject* self,
+  PyObject* args
+)
+{
+  SatLiteral olit;
+  vector<SatLiteral> lit_list;
+  if ( !parse_args2(args, olit, lit_list) ) {
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  solver.add_norgate(olit, lit_list);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_xorgate(
+  PyObject* self,
+  PyObject* args
+)
+{
+  SatLiteral olit;
+  vector<SatLiteral> lit_list;
+  if ( !parse_args2(args, olit, lit_list) ) {
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  solver.add_xorgate(olit, lit_list);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_xnorgate(
+  PyObject* self,
+  PyObject* args
+)
+{
+  SatLiteral olit;
+  vector<SatLiteral> lit_list;
+  if ( !parse_args2(args, olit, lit_list) ) {
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  solver.add_xnorgate(olit, lit_list);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_half_adder(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* alit_obj = nullptr;
+  PyObject* blit_obj = nullptr;
+  PyObject* slit_obj = nullptr;
+  PyObject* clit_obj = nullptr;
+  if ( !PyArg_ParseTuple(args, "!O!O!O!O",
+			 PySatLiteral::_typeobject(), &alit_obj,
+			 PySatLiteral::_typeobject(), &blit_obj,
+			 PySatLiteral::_typeobject(), &slit_obj,
+			 PySatLiteral::_typeobject(), &clit_obj) ) {
+    return nullptr;
+  }
+  auto alit = PySatLiteral::_get(alit_obj);
+  auto blit = PySatLiteral::_get(blit_obj);
+  auto slit = PySatLiteral::_get(slit_obj);
+  auto clit = PySatLiteral::_get(clit_obj);
+  auto& solver = PySatSolver::_get(self);
+  solver.add_half_adder(alit, blit, slit, clit);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_full_adder(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* alit_obj = nullptr;
+  PyObject* blit_obj = nullptr;
+  PyObject* ilit_obj = nullptr;
+  PyObject* slit_obj = nullptr;
+  PyObject* clit_obj = nullptr;
+  if ( !PyArg_ParseTuple(args, "!O!O!O!O!O",
+			 PySatLiteral::_typeobject(), &alit_obj,
+			 PySatLiteral::_typeobject(), &blit_obj,
+			 PySatLiteral::_typeobject(), &ilit_obj,
+			 PySatLiteral::_typeobject(), &slit_obj,
+			 PySatLiteral::_typeobject(), &clit_obj) ) {
+    return nullptr;
+  }
+  auto alit = PySatLiteral::_get(alit_obj);
+  auto blit = PySatLiteral::_get(blit_obj);
+  auto ilit = PySatLiteral::_get(ilit_obj);
+  auto slit = PySatLiteral::_get(slit_obj);
+  auto clit = PySatLiteral::_get(clit_obj);
+  auto& solver = PySatSolver::_get(self);
+  solver.add_full_adder(alit, blit, ilit, slit, clit);
+  Py_RETURN_NONE;
+}
+
+bool
+conv_to_lit_list(
+  PyObject* obj,
+  vector<SatLiteral>& lit_list
+)
+{
+  lit_list.clear();
+  if ( !PySequence_Check(obj) ) {
+    return false;
+  }
+  SizeType n = PySequence_Size(obj);
+  for ( SizeType i = 0; i < n; ++ i ) {
+    auto obj1 = PySequence_GetItem(obj, i);
+    if ( !PySatLiteral::_check(obj1) ) {
+      Py_DECREF(obj1);
+      return false;
+    }
+    auto lit = PySatLiteral::_get(obj1);
+    lit_list.push_back(lit);
+    Py_DECREF(obj1);
+  }
+  return true;
+}
+
+PyObject*
+SatSolver_add_adder(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* alits_obj = nullptr;
+  PyObject* blits_obj = nullptr;
+  PyObject* ilit_obj = nullptr;
+  PyObject* slits_obj = nullptr;
+  PyObject* clit_obj = nullptr;
+  if ( !PyArg_ParseTuple(args, "OO!OO!O",
+			 &alits_obj, &blits_obj,
+			 PySatLiteral::_typeobject(), &ilit_obj,
+			 &slits_obj,
+			 PySatLiteral::_typeobject(), &clit_obj) ) {
+    return nullptr;
+  }
+  vector<SatLiteral> alits;
+  if ( !conv_to_lit_list(alits_obj, alits) ) {
+    PyErr_SetString(PyExc_TypeError, "1st argument should be a list of SatLiteral");
+    return nullptr;
+  }
+  vector<SatLiteral> blits;
+  if ( !conv_to_lit_list(blits_obj, blits) ) {
+    PyErr_SetString(PyExc_TypeError, "2nd argument should be a list of SatLiteral");
+    return nullptr;
+  }
+  auto ilit = PySatLiteral::_get(ilit_obj);
+  vector<SatLiteral> slits;
+  if ( !conv_to_lit_list(slits_obj, slits) ) {
+    PyErr_SetString(PyExc_TypeError, "4th argument should be a list of SatLiteral");
+    return nullptr;
+  }
+  auto clit = PySatLiteral::_get(clit_obj);
+  auto& solver = PySatSolver::_get(self);
+  solver.add_adder(alits, blits, ilit, slits, clit);
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_counter(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* ilits_obj = nullptr;
+  if ( !PyArg_ParseTuple(args, "O", &ilits_obj) ) {
+    return nullptr;
+  }
+  vector<SatLiteral> ilits;
+  if ( !conv_to_lit_list(ilits_obj, ilits) ) {
+    PyErr_SetString(PyExc_TypeError, "1st argument should be a list of SatLiteral");
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  auto olits = solver.add_counter(ilits);
+  SizeType n = olits.size();
+  PyObject* ans_obj = PyTuple_New(n);
+  for ( SizeType i = 0; i < n; ++ i ) {
+    auto lit_obj = PySatLiteral::ToPyObject(olits[i]);
+    PyTuple_SetItem(ans_obj, i, lit_obj);
+  }
+  return ans_obj;
+}
+
+PyObject*
 SatSolver_solve(
   PyObject* self,
   PyObject* args,
@@ -235,6 +553,30 @@ PyMethodDef SatSolver_methods[] = {
    PyDoc_STR("make the literal 'frozen'")},
   {"add_clause", SatSolver_add_clause, METH_VARARGS,
    PyDoc_STR("add clause")},
+  {"add_buffgate", SatSolver_add_buffgate, METH_VARARGS,
+   PyDoc_STR("add clause representing BUFF gate")},
+  {"add_notgate", SatSolver_add_notgate, METH_VARARGS,
+   PyDoc_STR("add clause representing NOT gate")},
+  {"add_andgate", SatSolver_add_andgate, METH_VARARGS,
+   PyDoc_STR("add clause representing AND gate")},
+  {"add_nandgate", SatSolver_add_nandgate, METH_VARARGS,
+   PyDoc_STR("add clause representing NAND gate")},
+  {"add_orgate", SatSolver_add_orgate, METH_VARARGS,
+   PyDoc_STR("add clause representing OR gate")},
+  {"add_norgate", SatSolver_add_norgate, METH_VARARGS,
+   PyDoc_STR("add clause representing NOR gate")},
+  {"add_xorgate", SatSolver_add_xorgate, METH_VARARGS,
+   PyDoc_STR("add clause representing XOR gate")},
+  {"add_xnorgate", SatSolver_add_xnorgate, METH_VARARGS,
+   PyDoc_STR("add clause representing XNOR gate")},
+  {"add_half_adder", SatSolver_add_half_adder, METH_VARARGS,
+   PyDoc_STR("add clause representing HALF-ADDER")},
+  {"add_full_adder", SatSolver_add_full_adder, METH_VARARGS,
+   PyDoc_STR("add clause representing FULL-ADDER")},
+  {"add_adder", SatSolver_add_adder, METH_VARARGS,
+   PyDoc_STR("add clause representing ADDER")},
+  {"add_counter", SatSolver_add_counter, METH_VARARGS,
+   PyDoc_STR("add clause representing COUNTER")},
   {"solve", reinterpret_cast<PyCFunction>(SatSolver_solve), METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("solve the SAT problem")},
   {"model_size", SatSolver_model_size, METH_NOARGS,

@@ -22,7 +22,7 @@ include_directories(
 # ===================================================================
 
 set ( py_ymsat_SOURCES
-  ymsat_module.cc
+  ../../py_ymsat/ymsat_module.cc
   py_ymsat.cc
   )
 
@@ -72,12 +72,10 @@ target_link_libraries ( py_ymsat_d
 # テストターゲット
 # ===================================================================
 
-add_test( py_ymsat_SatBool3_test
-  py_ymsat
-  ${CMAKE_CURRENT_SOURCE_DIR}/SatBool3_test.py
+add_test( py_ymsat_test
+  pytest ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-add_test( py_ymsat_SatSolver_test
-  py_ymsat
-  ${CMAKE_CURRENT_SOURCE_DIR}/SatSolver_test.py
+set_property ( TEST py_ymsat_test
+  PROPERTY ENVIRONMENT PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/../../py_ymsat
   )

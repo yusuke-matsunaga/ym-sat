@@ -36,6 +36,23 @@ ym_add_object_library( py_ymsat
   ${py_ymsat_SOURCES}
   )
 
+add_library( py_ymsatlib
+  SHARED
+  ymsat_module.cc
+  $<TARGET_OBJECTS:py_ymsat_obj>
+  $<TARGET_OBJECTS:ym_sat_obj>
+  $<TARGET_OBJECTS:ym_base_obj>
+  )
+
+set_target_properties( py_ymsatlib
+  PROPERTIES
+  PREFIX ""
+  OUTPUT_NAME "ymsat"
+  )
+
+target_link_libraries( py_ymsatlib
+  ${YM_LIB_DEPENDS}
+  )
 
 # ===================================================================
 # テストターゲット

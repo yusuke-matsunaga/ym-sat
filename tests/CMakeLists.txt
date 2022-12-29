@@ -37,10 +37,10 @@
 # サブディレクトリの設定
 # ===================================================================
 
+add_subdirectory( gtest )
 if ( Python3_FOUND )
   add_subdirectory( py_ymsat )
 endif ( Python3_FOUND )
-add_subdirectory( gtest )
 
 
 # ===================================================================
