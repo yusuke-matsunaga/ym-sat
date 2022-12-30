@@ -73,9 +73,5 @@ target_link_libraries ( py_ymsat_d
 # ===================================================================
 
 add_test( py_ymsat_test
-  pytest ${CMAKE_CURRENT_SOURCE_DIR}
-  )
-
-set_property ( TEST py_ymsat_test
-  PROPERTY ENVIRONMENT PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/../../py_ymsat
+  py_ymsat -m pytest ${CMAKE_CURRENT_SOURCE_DIR}
   )
