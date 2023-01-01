@@ -22,6 +22,7 @@ include_directories(
 # ===================================================================
 
 set ( py_ymsat_SOURCES
+  ymsat_module.cc
   PySatBool3.cc
   PySatLiteral.cc
   PySatSolver.cc
@@ -38,7 +39,6 @@ ym_add_object_library( py_ymsat
 
 add_library( py_ymsatlib
   SHARED
-  ymsat_module.cc
   $<TARGET_OBJECTS:py_ymsat_obj>
   $<TARGET_OBJECTS:ym_sat_obj>
   $<TARGET_OBJECTS:ym_base_obj>

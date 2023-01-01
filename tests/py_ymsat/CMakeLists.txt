@@ -22,7 +22,6 @@ include_directories(
 # ===================================================================
 
 set ( py_ymsat_SOURCES
-  ../../py_ymsat/ymsat_module.cc
   py_ymsat.cc
   )
 
