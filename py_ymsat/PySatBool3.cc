@@ -39,7 +39,7 @@ SatBool3_new(
 )
 {
   if ( type != &SatBool3Type ) {
-    PyErr_SetString(PyExc_TypeError, "py_ymsat.SatBool3 cannot be overloaded");
+    PyErr_SetString(PyExc_TypeError, "SatBool3 cannot be overloaded");
     return nullptr;
   }
   const char* val_str;
@@ -168,11 +168,10 @@ reg_value(
   SatBool3 val
 )
 {
-  auto self = SatBool3Type.tp_alloc(&SatBool3Type, 0);
-  PySatBool3::_put(self, val);
-  obj = self;
-  Py_INCREF(self);
-  if ( PyDict_SetItemString(type.tp_dict, name, self) < 0 ) {
+  obj = type.tp_alloc(&type, 0);
+  PySatBool3::_put(obj, val);
+  Py_INCREF(obj);
+  if ( PyDict_SetItemString(type.tp_dict, name, obj) < 0 ) {
     return false;
   }
   return true;
