@@ -238,22 +238,16 @@ PySatLiteral::init(
   SatLiteralType.tp_itemsize = 0;
   SatLiteralType.tp_dealloc = SatLiteral_dealloc;
   SatLiteralType.tp_flags = Py_TPFLAGS_DEFAULT;
-  SatLiteralType.tp_doc = PyDoc_STR("SatLiteral objects");
+  SatLiteralType.tp_doc = PyDoc_STR("SatLiteral object");
   SatLiteralType.tp_richcompare = SatLiteral_richcmpfunc;
   SatLiteralType.tp_methods = SatLiteral_methods;
   SatLiteralType.tp_getset = SatLiteral_getsetters;
   SatLiteralType.tp_new = SatLiteral_new;
   SatLiteralType.tp_as_number = &SatLiteral_number;
   SatLiteralType.tp_hash = SatLiteral_hash;
-  if ( PyType_Ready(&SatLiteralType) < 0 ) {
-    return false;
-  }
 
   // 型オブジェクトの登録
-  auto type_obj = reinterpret_cast<PyObject*>(&SatLiteralType);
-  Py_INCREF(type_obj);
-  if ( PyModule_AddObject(m, "SatLiteral", type_obj) < 0 ) {
-    Py_DECREF(type_obj);
+  if ( !reg_type(m, "SatLiteral", &SatLiteralType) ) {
     goto error;
   }
 

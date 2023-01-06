@@ -600,18 +600,12 @@ PySatSolver::init(
   PySatSolverType.tp_itemsize = 0;
   PySatSolverType.tp_dealloc = SatSolver_dealloc;
   PySatSolverType.tp_flags = Py_TPFLAGS_DEFAULT;
-  PySatSolverType.tp_doc = PyDoc_STR("SatSolver objects");
+  PySatSolverType.tp_doc = PyDoc_STR("SatSolver object");
   PySatSolverType.tp_methods = SatSolver_methods;
   PySatSolverType.tp_new = SatSolver_new;
-  if ( PyType_Ready(&PySatSolverType) < 0 ) {
-    return false;
-  }
 
   // 型オブジェクトの登録
-  auto type_obj = reinterpret_cast<PyObject*>(&PySatSolverType);
-  Py_INCREF(type_obj);
-  if ( PyModule_AddObject(m, "SatSolver", type_obj) < 0 ) {
-    Py_DECREF(type_obj);
+  if ( !reg_type(m, "SatSolver", &PySatSolverType) ) {
     goto error;
   }
 

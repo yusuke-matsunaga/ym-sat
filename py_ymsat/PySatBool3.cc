@@ -191,21 +191,15 @@ PySatBool3::init(
   SatBool3Type.tp_itemsize = 0;
   SatBool3Type.tp_dealloc = SatBool3_dealloc;
   SatBool3Type.tp_flags = Py_TPFLAGS_DEFAULT;
-  SatBool3Type.tp_doc = PyDoc_STR("SatBool3 objects");
+  SatBool3Type.tp_doc = PyDoc_STR("SatBool3 object");
   SatBool3Type.tp_richcompare = SatBool3_richcmpfunc;
   SatBool3Type.tp_methods = SatBool3_methods;
   SatBool3Type.tp_new = SatBool3_new;
   SatBool3Type.tp_repr = SatBool3_repr;
   SatBool3Type.tp_as_number = &SatBool3_number;
-  if ( PyType_Ready(&SatBool3Type) < 0 ) {
-    return false;
-  }
 
   // 型オブジェクトの登録
-  auto type_obj = reinterpret_cast<PyObject*>(&SatBool3Type);
-  Py_INCREF(type_obj);
-  if ( PyModule_AddObject(m, "SatBool3", type_obj) < 0 ) {
-    Py_DECREF(type_obj);
+  if ( !reg_type(m, "SatBool3", &SatBool3Type) ) {
     goto error;
   }
 
