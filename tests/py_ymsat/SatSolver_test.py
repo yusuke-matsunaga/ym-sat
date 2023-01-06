@@ -26,8 +26,8 @@ def test_add_clause1(solver):
 
     r = solver.solve()
 
-    assert r == ymsat.SatBool3.true
+    assert r == ymsat.SatBool3._True
 
-    assert solver.read_model(v1) == ymsat.SatBool3.false
-    assert solver.read_model(v2) == ymsat.SatBool3.false
-    assert solver.read_model(v3) == ymsat.SatBool3.false
+    assert solver.read_model(v1) == ymsat.SatBool3._False
+    assert solver.read_model(v2) == ymsat.SatBool3._False
+    assert solver.read_model(v3) == ymsat.SatBool3._False
