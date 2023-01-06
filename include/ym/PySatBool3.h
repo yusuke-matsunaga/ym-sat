@@ -11,7 +11,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include "ym/PyBase.h"
 #include "ym/SatBool3.h"
 
 
@@ -23,8 +22,7 @@ BEGIN_NAMESPACE_YM
 ///
 /// 複数の関数をひとまとめにしているだけなので実は名前空間として用いている．
 //////////////////////////////////////////////////////////////////////
-class PySatBool3 :
-  public PyBase
+class PySatBool3
 {
 public:
   //////////////////////////////////////////////////////////////////////
@@ -75,16 +73,6 @@ public:
   SatBool3
   _get(
     PyObject* obj ///< [in] 変換元の PyObject
-  );
-
-  /// @brief SatBool3 を表す PyObject に値を設定する．
-  ///
-  /// _check(obj) == true であると仮定している．
-  static
-  void
-  _put(
-    PyObject* obj, ///< [in] 対象の PyObject
-    SatBool3 val ///< [in] 設定する値
   );
 
   /// @brief SatBool3 を表すオブジェクトの型定義を返す．

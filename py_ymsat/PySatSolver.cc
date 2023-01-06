@@ -10,6 +10,7 @@
 #include "ym/PySatBool3.h"
 #include "ym/PySatLiteral.h"
 #include "ym/SatSolverType.h"
+#include "ym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -605,7 +606,7 @@ PySatSolver::init(
   PySatSolverType.tp_new = SatSolver_new;
 
   // 型オブジェクトの登録
-  if ( !reg_type(m, "SatSolver", &PySatSolverType) ) {
+  if ( !PyModule::reg_type(m, "SatSolver", &PySatSolverType) ) {
     goto error;
   }
 

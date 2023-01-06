@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ym/PySatLiteral.h"
+#include "ym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -247,7 +248,7 @@ PySatLiteral::init(
   SatLiteralType.tp_hash = SatLiteral_hash;
 
   // 型オブジェクトの登録
-  if ( !reg_type(m, "SatLiteral", &SatLiteralType) ) {
+  if ( !PyModule::reg_type(m, "SatLiteral", &SatLiteralType) ) {
     goto error;
   }
 

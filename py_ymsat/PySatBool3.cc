@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ym/PySatBool3.h"
+#include "ym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -159,19 +160,27 @@ PyNumberMethods SatBool3_number = {
   .nb_inplace_xor = SatBool3_xor
 };
 
-// 定数オブジェクトの登録
-bool
-reg_value(
-  PyTypeObject& type,
-  PyObject*& obj,
-  const char* name,
+// 定数オブジェクトの構築
+PyObject*
+new_const(
   SatBool3 val
 )
 {
-  obj = type.tp_alloc(&type, 0);
-  PySatBool3::_put(obj, val);
+  auto obj = SatBool3Type.tp_alloc(&SatBool3Type, 0);
+  auto satbool3_obj = reinterpret_cast<SatBool3Object*>(obj);
+  satbool3_obj->mVal = val;
+  return obj;
+}
+
+// 定数オブジェクトの登録
+bool
+reg_obj(
+  const char* name,
+  PyObject* obj
+)
+{
   Py_INCREF(obj);
-  if ( PyDict_SetItemString(type.tp_dict, name, obj) < 0 ) {
+  if ( PyDict_SetItemString(SatBool3Type.tp_dict, name, obj) < 0 ) {
     return false;
   }
   return true;
@@ -199,18 +208,23 @@ PySatBool3::init(
   SatBool3Type.tp_as_number = &SatBool3_number;
 
   // 型オブジェクトの登録
-  if ( !reg_type(m, "SatBool3", &SatBool3Type) ) {
+  if ( !PyModule::reg_type(m, "SatBool3", &SatBool3Type) ) {
     goto error;
   }
 
+  // 定数オブジェクトの生成
+  SatBool3_True = new_const(SatBool3::True);
+  SatBool3_False = new_const(SatBool3::False);
+  SatBool3_X = new_const(SatBool3::X);
+
   // 定数オブジェクトの登録
-  if ( !reg_value(SatBool3Type, SatBool3_True, "true", SatBool3::True) ) {
+  if ( !reg_obj("_True", SatBool3_True) ) {
     goto error;
   }
-  if ( !reg_value(SatBool3Type, SatBool3_False, "false", SatBool3::False) ) {
+  if ( !reg_obj("_False", SatBool3_False) ) {
     goto error;
   }
-  if ( !reg_value(SatBool3Type, SatBool3_X, "x", SatBool3::X) ) {
+  if ( !reg_obj("_X", SatBool3_X) ) {
     goto error;
   }
 
@@ -273,17 +287,6 @@ PySatBool3::_get(
 {
   auto satbool3_obj = reinterpret_cast<SatBool3Object*>(obj);
   return satbool3_obj->mVal;
-}
-
-// @brief SatBool3 を表す PyObject に値を設定する．
-void
-PySatBool3::_put(
-  PyObject* obj,
-  SatBool3 val
-)
-{
-  auto satbool3_obj = reinterpret_cast<SatBool3Object*>(obj);
-  satbool3_obj->mVal = val;
 }
 
 // @brief SatBool3 を表すオブジェクトの型定義を返す．

@@ -13,6 +13,7 @@
 #include "ym/PySatBool3.h"
 #include "ym/PySatLiteral.h"
 #include "ym/PySatSolver.h"
+#include "ym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -39,7 +40,7 @@ END_NONAMESPACE
 PyMODINIT_FUNC
 PyInit_ymsat()
 {
-  auto m = PyModule_Create(&ymsat_module);
+  auto m = PyModule::init(&ymsat_module);
   if ( m == nullptr ) {
     return nullptr;
   }
