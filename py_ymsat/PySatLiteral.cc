@@ -34,10 +34,9 @@ SatLiteral_new(
   PyObject* Py_UNUSED(kwds)
 )
 {
-  auto self = type->tp_alloc(type, 0);
-  // auto satliteral_obj = reinterpret_cast<SatLiteralObject*>(self);
-  // 必要なら satliteral_obj->mVal の初期化を行う．
-  return self;
+  // 明示的なインスタンス化は禁止
+  PyErr_SetString(PyExc_ValueError, "Instantiation of 'Satliteral' is disabled");
+  return nullptr;
 }
 
 // 終了関数
@@ -280,8 +279,9 @@ PySatLiteral::ToPyObject(
   SatLiteral val
 )
 {
-  auto obj = SatLiteral_new(_typeobject(), nullptr, nullptr);
-  _put(obj, val);
+  auto obj = SatLiteralType.tp_alloc(&SatLiteralType, 0);
+  auto satliteral_obj = reinterpret_cast<SatLiteralObject*>(obj);
+  satliteral_obj->mVal = val;
   return obj;
 }
 
@@ -302,17 +302,6 @@ PySatLiteral::_get(
 {
   auto satliteral_obj = reinterpret_cast<SatLiteralObject*>(obj);
   return satliteral_obj->mVal;
-}
-
-// @brief SatLiteral を表す PyObject に値を設定する．
-void
-PySatLiteral::_put(
-  PyObject* obj,
-  SatLiteral val
-)
-{
-  auto satliteral_obj = reinterpret_cast<SatLiteralObject*>(obj);
-  satliteral_obj->mVal = val;
 }
 
 // @brief SatLiteral を表すオブジェクトの型定義を返す．

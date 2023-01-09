@@ -3,7 +3,7 @@
 /// @brief Python SatBool3 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2022, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/PySatBool3.h"
@@ -36,15 +36,21 @@ PyObject*
 SatBool3_new(
   PyTypeObject* type,
   PyObject* args,
-  PyObject* Py_UNUSED(kwds)
+  PyObject* kwds
 )
 {
   if ( type != &SatBool3Type ) {
     PyErr_SetString(PyExc_TypeError, "SatBool3 cannot be overloaded");
     return nullptr;
   }
-  const char* val_str;
-  if ( !PyArg_ParseTuple(args, "s", &val_str) ) {
+  static const char* kwlist[] = {
+    "name",
+    nullptr
+  };
+  const char* val_str = nullptr;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "s",
+				    const_cast<char**>(kwlist),
+				    &val_str) ) {
     return nullptr;
   }
   SatBool3 val;

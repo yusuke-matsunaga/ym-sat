@@ -34,11 +34,17 @@ PyObject*
 SatSolver_new(
   PyTypeObject* type,
   PyObject* args,
-  PyObject* Py_UNUSED(kwds)
+  PyObject* kwds
 )
 {
+  static const char* kwlist[] = {
+    "type",
+    nullptr
+  };
   const char* type_str = nullptr;
-  if ( !PyArg_ParseTuple(args, "|s", &type_str) ) {
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "|s",
+				    const_cast<char**>(kwlist),
+				    &type_str) ) {
     return nullptr;
   }
   SatSolverType solver_type;

@@ -75,16 +75,6 @@ public:
     PyObject* obj ///< [in] 変換元の PyObject
   );
 
-  /// @brief SatLiteral を表す PyObject に値を設定する．
-  ///
-  /// _check(obj) == true であると仮定している．
-  static
-  void
-  _put(
-    PyObject* obj, ///< [in] 対象の PyObject
-    SatLiteral val ///< [in] 設定する値
-  );
-
   /// @brief SatLiteral を表すオブジェクトの型定義を返す．
   static
   PyTypeObject*
