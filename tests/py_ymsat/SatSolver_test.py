@@ -8,12 +8,12 @@
 """
 
 import pytest
-import ymsat
+from ymsat import SatSolver, SatBool3
 
 
 @pytest.fixture
 def solver():
-    return ymsat.SatSolver()
+    return SatSolver()
 
 def test_add_clause1(solver):
     v1 = solver.new_variable()
@@ -26,8 +26,8 @@ def test_add_clause1(solver):
 
     r = solver.solve()
 
-    assert r == ymsat.SatBool3._True
+    assert r == SatBool3._True
 
-    assert solver.read_model(v1) == ymsat.SatBool3._False
-    assert solver.read_model(v2) == ymsat.SatBool3._False
-    assert solver.read_model(v3) == ymsat.SatBool3._False
+    assert solver.read_model(v1) == SatBool3._False
+    assert solver.read_model(v2) == SatBool3._False
+    assert solver.read_model(v3) == SatBool3._False

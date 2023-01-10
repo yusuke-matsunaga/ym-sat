@@ -610,7 +610,7 @@ PySatSolver::init(
   PyObject* m
 )
 {
-  PySatSolverType.tp_name = "sat.SatSolver";
+  PySatSolverType.tp_name = "SatSolver";
   PySatSolverType.tp_basicsize = sizeof(SatSolverObject);
   PySatSolverType.tp_itemsize = 0;
   PySatSolverType.tp_dealloc = SatSolver_dealloc;

@@ -159,8 +159,19 @@ SatBool3_xor(
   Py_RETURN_NOTIMPLEMENTED;
 }
 
+// bool 値への変換
+int
+SatBool3_bool(
+  PyObject* self
+)
+{
+  auto val = PySatBool3::_get(self);
+  return val == SatBool3::True;
+}
+
 // 数値演算メソッド定義
 PyNumberMethods SatBool3_number = {
+  .nb_bool = SatBool3_bool,
   .nb_invert = SatBool3_invert,
   .nb_xor = SatBool3_xor,
   .nb_inplace_xor = SatBool3_xor

@@ -35,7 +35,7 @@ SatLiteral_new(
 )
 {
   // 明示的なインスタンス化は禁止
-  PyErr_SetString(PyExc_ValueError, "Instantiation of 'Satliteral' is disabled");
+  PyErr_SetString(PyExc_TypeError, "Instantiation of 'SatLiteral' is disabled");
   return nullptr;
 }
 
@@ -116,7 +116,7 @@ PyMethodDef SatLiteral_methods[] = {
    PyDoc_STR("return True if valid")},
   {"is_positive", SatLiteral_is_positive, METH_NOARGS,
    PyDoc_STR("return True if the literal is positive")},
-  {"is_negative", SatLiteral_is_positive, METH_NOARGS,
+  {"is_negative", SatLiteral_is_negative, METH_NOARGS,
    PyDoc_STR("return True if the literal is negative")},
   {"make_positive", SatLiteral_make_positive, METH_NOARGS,
    PyDoc_STR("return the positive literal")},
@@ -168,7 +168,8 @@ SatLiteral_mul(
   PyObject* other
 )
 {
-  if ( PySatLiteral::_check(self) && PySatLiteral::_check(other) ) {
+  if ( PySatLiteral::_check(self) &&
+       PyBool_Check(other) ) {
     auto val1 = PySatLiteral::_get(self);
     auto val2 = PyObject_IsTrue(other);
     return PySatLiteral::ToPyObject(val1 * val2);
