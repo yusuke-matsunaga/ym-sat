@@ -71,12 +71,18 @@ SatSolver_dealloc(
 PyObject*
 SatSolver_new_variable(
   PyObject* self,
-  PyObject* args
+  PyObject* args,
+  PyObject* kwds
 )
 {
-  bool decision = true;
-  if ( !PyArg_ParseTuple(args, "|b", &decision) ) {
-    PyErr_SetString(PyExc_TypeError, "1st argument should be Boolean.");
+  static const char* kwlist[] = {
+    "decision",
+    nullptr
+  };
+  int decision = true;
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "|p",
+				    const_cast<char**>(kwlist),
+				    &decision) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::_get(self);
@@ -499,7 +505,7 @@ SatSolver_solve(
 )
 {
   static const char* kwlist[] = {
-    "",
+    "assumptions",
     "time_limit",
     nullptr
   };
@@ -550,7 +556,8 @@ SatSolver_read_model(
 
 // メソッド定義
 PyMethodDef SatSolver_methods[] = {
-  {"new_variable", SatSolver_new_variable, METH_VARARGS,
+  {"new_variable", reinterpret_cast<PyCFunction>(SatSolver_new_variable),
+   METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("allocate a new variable(return SatLiteral)")},
   {"set_conditional_literals", SatSolver_set_conditional_literals, METH_VARARGS,
    PyDoc_STR("set conditional literals")},
@@ -584,7 +591,8 @@ PyMethodDef SatSolver_methods[] = {
    PyDoc_STR("add clause representing ADDER")},
   {"add_counter", SatSolver_add_counter, METH_VARARGS,
    PyDoc_STR("add clause representing COUNTER")},
-  {"solve", reinterpret_cast<PyCFunction>(SatSolver_solve), METH_VARARGS | METH_KEYWORDS,
+  {"solve", reinterpret_cast<PyCFunction>(SatSolver_solve),
+   METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("solve the SAT problem")},
   {"model_size", SatSolver_model_size, METH_NOARGS,
    PyDoc_STR("return the size of the model")},
