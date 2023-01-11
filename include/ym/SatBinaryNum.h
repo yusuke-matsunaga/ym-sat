@@ -23,16 +23,19 @@ class SatBinaryNum
 public:
 
   /// @brief コンストラクタ
-  SatBinaryNum();
+  SatBinaryNum() = default;
 
   /// @brief コンストラクタ
   SatBinaryNum(
     SatSolver& solver, ///< [in] SATソルバ
     SizeType bit_num   ///< [in] ビット幅
-  );
+  )
+  {
+    init(solver, bit_num);
+  }
 
   /// @brief デストラクタ
-  ~SatBinaryNum();
+  ~SatBinaryNum() = default;
 
 
 public:
@@ -45,7 +48,15 @@ public:
   init(
     SatSolver& solver, ///< [in] SATソルバ
     SizeType bit_num   ///< [in] ビット幅
-  );
+  )
+  {
+    mBitNum = bit_num;
+    mVarArray.clear();
+    mVarArray.resize(mBitNum);
+    for ( SizeType i = 0; i < mBitNum; ++ i ) {
+      mVarArray[i] = solver.new_variable();
+    }
+  }
 
   /// @brief ビット数を返す．
   SizeType
@@ -76,7 +87,17 @@ public:
   SizeType
   val(
     const SatModel& model ///< [in] SATの解
-  ) const;
+  ) const
+  {
+    SizeType ans = 0;
+    for ( SizeType bit = 0; bit < bit_num(); ++ bit ) {
+      auto lit{bit_var(bit)};
+      if ( model[lit] == SatBool3::True ) {
+	ans |= (1 << bit);
+      }
+    }
+    return ans;
+  }
 
 
 private:
@@ -85,7 +106,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ビット数
-  SizeType mBitNum;
+  SizeType mBitNum{0};
 
   // 変数(実際にはリテラル)の配列
   vector<SatLiteral> mVarArray;

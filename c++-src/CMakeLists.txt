@@ -29,7 +29,6 @@ set (ym_sat_SOURCES
   SatLogger.cc
   SatLoggerS.cc
   SatStats.cc
-  SatBinaryNum.cc
   SatOrderedSet.cc
   SatDimacs.cc
 

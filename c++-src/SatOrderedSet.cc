@@ -6,7 +6,6 @@
 /// Copyright (C) 2019 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/SatOrderedSet.h"
 #include "ym/SatSolver.h"
 #include "ym/SatModel.h"
