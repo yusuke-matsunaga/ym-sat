@@ -74,6 +74,13 @@ ym_add_gtest ( sat_comp_test
   $<TARGET_OBJECTS:ym_sat_obj_d>
   )
 
+ym_add_gtest ( sat_comp_const_test
+  comp_const_test.cc
+  SatTestFixture.cc
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  )
+
 ym_add_gtest ( sat_SatOrderedSet_test
   SatOrderedSetTest.cc
   $<TARGET_OBJECTS:ym_base_obj_d>

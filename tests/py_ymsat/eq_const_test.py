@@ -13,7 +13,7 @@ from ymsat import SatBool3, SatSolver
 from solver_test import SolverTest
 
 
-class EqConstTest(SolverTest):
+class CompConstTest(SolverTest):
 
     def __init__(self, solver_type=None):
         super().__init__(solver_type)
@@ -78,7 +78,7 @@ class EqConstTest(SolverTest):
                 
 @pytest.fixture
 def sat_test_fixture():
-    return EqConstTest()
+    return CompConstTest()
 
 @pytest.fixture(params=[(1, 1), (2, 3), (5, 6), (7, 10), (7, 13), (10, 496), (15, 0), (15, 10)])
 def na_b(request):
