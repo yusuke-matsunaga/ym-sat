@@ -146,10 +146,10 @@ SatSolverMiniSat::set_max_conflict(int val)
 }
 
 // @brief 現在の内部状態を得る．
-// @param[out] stats 状態を格納する構造体
-void
-SatSolverMiniSat::get_stats(SatStats& stats) const
+SatStats
+SatSolverMiniSat::get_stats() const
 {
+  SatStats stats;
   stats.mRestart = mSolver.stats.starts;
   stats.mVarNum = mSolver.nVars();
   stats.mConstrClauseNum = mSolver.nClauses();
@@ -161,6 +161,7 @@ SatSolverMiniSat::get_stats(SatStats& stats) const
   stats.mPropagationNum = mSolver.stats.propagations;
   stats.mConflictLimit = 0;
   stats.mLearntLimit = 0;
+  return stats;
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録

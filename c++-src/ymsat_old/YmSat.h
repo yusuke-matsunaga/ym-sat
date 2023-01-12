@@ -149,9 +149,8 @@ public:
   forget_learnt_clause();
 
   /// @brief 現在の内部状態を得る．
-  /// @param[out] stats 状態を格納する構造体
-  void
-  get_stats(SatStats& stats) const override;
+  SatStats
+  get_stats() const override;
 
   /// @brief conflict_limit の最大値
   /// @param[in] val 設定する値

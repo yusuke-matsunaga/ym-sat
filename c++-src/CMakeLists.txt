@@ -28,7 +28,6 @@ set (ym_sat_SOURCES
   SatSolver_tseitin.cc
   SatLogger.cc
   SatLoggerS.cc
-  SatStats.cc
   SatOrderedSet.cc
   SatDimacs.cc
 

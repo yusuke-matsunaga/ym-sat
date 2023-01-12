@@ -252,12 +252,10 @@ SatSolver::sane() const
 }
 
 // @brief 現在の内部状態を得る．
-void
-SatSolver::get_stats(
-  SatStats& stats
-) const
+SatStats
+SatSolver::get_stats() const
 {
-  mImpl->get_stats(stats);
+  return mImpl->get_stats();
 }
 
 // @brief DIMACS 形式で制約節を出力する．

@@ -121,11 +121,10 @@ YmSat::sane() const
 }
 
 // @brief 現在の内部状態を得る．
-// @param[out] stats 状態を格納する構造体
-void
-YmSat::get_stats(SatStats& stats) const
+SatStats
+YmSat::get_stats() const
 {
-  mMgr.get_stats(stats);
+  return mMgr.get_stats();
 }
 
 END_NAMESPACE_YM_SAT

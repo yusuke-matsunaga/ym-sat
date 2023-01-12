@@ -357,9 +357,8 @@ public:
   set_learnt_limit(int limit);
 
   /// @brief 現在の内部状態を得る．
-  /// @param[out] stats 状態を格納する構造体
-  void
-  get_stats(SatStats& stats) const;
+  SatStats
+  get_stats() const;
 
   /// @brief ヒープの内容を出力する
   /// @param[in] s 出力先のストリーム

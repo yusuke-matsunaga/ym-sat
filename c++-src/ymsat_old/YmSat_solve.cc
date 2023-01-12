@@ -132,8 +132,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
 
     // メッセージ出力を行う．
     {
-      SatStats stats;
-      get_stats(stats);
+      auto stats = get_stats();
       for ( auto handler: mMsgHandlerList ) {
 	handler->print_message(stats);
       }
@@ -181,8 +180,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
 
   // 終了メッセージを出力させる．
   {
-    SatStats stats;
-    get_stats(stats);
+    auto stats = get_stats();
     for ( auto handler: mMsgHandlerList ) {
       handler->print_footer(stats);
     }

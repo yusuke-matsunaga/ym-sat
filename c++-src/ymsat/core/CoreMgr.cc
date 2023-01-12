@@ -1224,10 +1224,10 @@ CoreMgr::dump_heap(ostream& s) const
 }
 
 // @brief 現在の内部状態を得る．
-// @param[out] stats 状態を格納する構造体
-void
-CoreMgr::get_stats(SatStats& stats) const
+SatStats
+CoreMgr::get_stats() const
 {
+  SatStats stats;
   stats.mVarNum = variable_num();
   stats.mConstrClauseNum = clause_num();
   stats.mConstrLitNum = literal_num();
@@ -1240,6 +1240,7 @@ CoreMgr::get_stats(SatStats& stats) const
   stats.mConflictLimit = conflict_limit();
   stats.mLearntLimit = learnt_limit();
   stats.mTime = mAccTime;
+  return stats;
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
@@ -1264,8 +1265,7 @@ CoreMgr::print_header()
 void
 CoreMgr::print_stats()
 {
-  SatStats stats;
-  get_stats(stats);
+  auto stats = get_stats();
   for ( auto handler_p: mMsgHandlerList ) {
     SatMsgHandler& handler = *(handler_p);
     handler.print_message(stats);
@@ -1276,8 +1276,7 @@ CoreMgr::print_stats()
 void
 CoreMgr::print_footer()
 {
-  SatStats stats;
-  get_stats(stats);
+  auto stats = get_stats();
   for ( auto handler_p: mMsgHandlerList ) {
     SatMsgHandler& handler = *(handler_p);
     handler.print_footer(stats);

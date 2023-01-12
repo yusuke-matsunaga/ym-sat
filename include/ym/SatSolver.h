@@ -13,6 +13,7 @@
 #include "ym/SatLiteral.h"
 #include "ym/SatModel.h"
 #include "ym/SatSolverType.h"
+#include "ym/SatStats.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -1358,9 +1359,9 @@ public:
   /// @return 結果(SatBool3)を返す．
   ///
   /// 結果の意味は以下の通り
-  /// * kB3True  充足した．
-  /// * kB3False 充足不能が判明した．
-  /// * kB3X     わからなかった．
+  /// * SatBool3::True  充足した．
+  /// * SatBool3::False 充足不能が判明した．
+  /// * SatBool3::X     わからなかった．
   SatBool3
   solve(
     const vector<SatLiteral>& assumptions, ///< [in] あらかじめ仮定する変数の値割り当てリスト
@@ -1445,10 +1446,8 @@ public:
   sane() const;
 
   /// @brief 現在の内部状態を得る．
-  void
-  get_stats(
-    SatStats& stats ///< [out] 状態を格納する構造体
-  ) const;
+  SatStats
+  get_stats() const;
 
   /// @brief 変数の数を得る．
   SizeType

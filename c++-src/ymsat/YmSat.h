@@ -143,9 +143,8 @@ public:
   sane() const override;
 
   /// @brief 現在の内部状態を得る．
-  /// @param[out] stats 状態を格納する構造体
-  void
-  get_stats(SatStats& stats) const override;
+  SatStats
+  get_stats() const override;
 
   //////////////////////////////////////////////////////////////////////
   /// @}

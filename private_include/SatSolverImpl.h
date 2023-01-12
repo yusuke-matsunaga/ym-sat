@@ -12,6 +12,7 @@
 #include "ym/sat.h"
 #include "ym/SatBool3.h"
 #include "ym/SatLiteral.h"
+#include "ym/SatStats.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -88,10 +89,9 @@ public:
   stop() = 0;
 
   /// @brief 現在の内部状態を得る．
-  /// @param[out] stats 状態を格納する構造体
   virtual
-  void
-  get_stats(SatStats& stats) const = 0;
+  SatStats
+  get_stats() const = 0;
 
   /// @brief conflict_limit の最大値
   /// @param[in] val 設定する値

@@ -325,9 +325,10 @@ YmSat::add_clause(const vector<SatLiteral>& lits)
 
 // @brief 現在の内部状態を得る．
 // @param[out] stats 状態を格納する構造体
-void
-YmSat::get_stats(SatStats& stats) const
+SatStats
+YmSat::get_stats() const
 {
+  SatStats stats;
   stats.mRestart = mRestart;
   stats.mVarNum = mVarNum;
   stats.mConstrClauseNum = mConstrClauseNum;
@@ -340,6 +341,7 @@ YmSat::get_stats(SatStats& stats) const
   stats.mConflictLimit = mConflictLimit;
   stats.mLearntLimit = mLearntLimit;
   stats.mTime = mAccTime;
+  return stats;
 }
 
 // @brief conflict_limit の最大値

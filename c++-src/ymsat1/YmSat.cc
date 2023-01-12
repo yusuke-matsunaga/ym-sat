@@ -437,8 +437,7 @@ YmSat::solve(const vector<SatLiteral>& assumptions,
       mConflictLimit = mMaxConflict;
     }
     mLearntLimit = static_cast<int>(learnt_limit);
-    SatStats stats;
-    get_stats(stats);
+    auto stats = get_stats();
     for ( auto handler: mMsgHandlerList ) {
       handler->print_message(stats);
     }
@@ -519,10 +518,10 @@ YmSat::set_max_conflict(int val)
 }
 
 // @brief 現在の内部状態を得る．
-// @param[out] stats 状態を格納する構造体
-void
-YmSat::get_stats(SatStats& stats) const
+SatStats
+YmSat::get_stats() const
 {
+  SatStats stats;
   stats.mRestart = mRestart;
   stats.mVarNum = mVarNum;
   stats.mConstrClauseNum = mConstrClauseList.size() + mConstrBinNum;
@@ -535,6 +534,7 @@ YmSat::get_stats(SatStats& stats) const
   stats.mConflictLimit = mConflictLimit;
   stats.mLearntLimit = mLearntLimit;
   stats.mTime = mAccTime;
+  return stats;
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
