@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
-"""大小比較に関するエンコーディングのテスト
+"""SatSolver.add_at_most_XXX()関するエンコーディングのテスト
 
-:file: countenc_test.py
+:file: at_most_test.py
 :author: Yusuke Matsunaga (松永 裕介)
 :copyright: Copyright (C) 2023 Yusuke Matsunaga, All rights reserved.
 """
@@ -12,60 +12,24 @@ from ymsat import SatBool3, SatSolver
 from solver_test import SolverTest
 
 
-class CountEncTest(SolverTest):
+class AtMostTest(SolverTest):
 
     def __init__(self, solver_type=None):
         super().__init__(solver_type)
 
     def check_at_most(self, n, k):
-        np = 1 << n
-        for p in range(np):
-            assumptions = []
-            c = 0
-            for i in range(n):
-                lit = self.var_list[i]
-                if p & (1 << i):
-                    c += 1
-                else:
-                    lit *= True
-                assumptions.append(lit)
-            exp_ans = SatBool3._True if c <= k else SatBool3._False
-            ans = self.solver.solve(assumptions)
-            assert ans == exp_ans
+        self.check_common(n, lambda c: c <= k)
 
     def check_at_least(self, n, k):
-        np = 1 << n
-        for p in range(np):
-            assumptions = []
-            c = 0
-            for i in range(n):
-                lit = self.var_list[i]
-                if p & (1 << i):
-                    c += 1
-                else:
-                    lit *= True
-                assumptions.append(lit)
-            exp_ans = SatBool3._True if c >= k else SatBool3._False
-            ans = self.solver.solve(assumptions)
-            assert ans == exp_ans
+        self.check_common(n, lambda c: c >= k)
 
     def check_exact(self, n, k):
-        np = 1 << n
-        for p in range(np):
-            assumptions = []
-            c = 0
-            for i in range(n):
-                lit = self.var_list[i]
-                if p & (1 << i):
-                    c += 1
-                else:
-                    lit *= True
-                assumptions.append(lit)
-            exp_ans = SatBool3._True if c == k else SatBool3._False
-            ans = self.solver.solve(assumptions)
-            assert ans == exp_ans
+        self.check_common(n, lambda c: c == k)
 
     def check_not_one(self, n):
+        self.check_common(n, lambda c: c != 1)
+        
+    def check_common(self, n, comp):
         np = 1 << n
         for p in range(np):
             assumptions = []
@@ -77,13 +41,13 @@ class CountEncTest(SolverTest):
                 else:
                     lit *= True
                 assumptions.append(lit)
-            exp_ans = SatBool3._True if c != 1 else SatBool3._False
+            exp_ans = SatBool3._True if comp(c) else SatBool3._False
             ans = self.solver.solve(assumptions)
             assert ans == exp_ans
 
 @pytest.fixture
 def sat_test_fixture():
-    return CountEncTest()
+    return AtMostTest()
 
 def test_at_most_one_2(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]

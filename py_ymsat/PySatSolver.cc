@@ -724,7 +724,7 @@ SatSolver_add_ne(
       PyErr_SetString(PyExc_TypeError, "argument 2 must be an int or a list of SatLiteral");
       return nullptr;
     }
-    solver.add_eq(lit1_list, lit2_list);
+    solver.add_ne(lit1_list, lit2_list);
   }
   Py_RETURN_NONE;
 }
@@ -745,13 +745,115 @@ SatSolver_add_lt(
     PyErr_SetString(PyExc_TypeError, "argument 1 must be a list of SatLiteral");
     return nullptr;
   }
-  vector<SatLiteral> lit2_list;
-  if ( !conv_to_lit_list(obj2, lit2_list) ) {
+  auto& solver = PySatSolver::_get(self);
+  if ( PyLong_Check(obj2) ) {
+    int bval = PyLong_AsLong(obj2);
+    solver.add_lt(lit1_list, bval);
+  }
+  else {
+    vector<SatLiteral> lit2_list;
+    if ( !conv_to_lit_list(obj2, lit2_list) ) {
+      PyErr_SetString(PyExc_TypeError, "argument 1 must be a list of SatLiteral");
+      return nullptr;
+    }
+    solver.add_lt(lit1_list, lit2_list);
+  }
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_le(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* obj1 = nullptr;
+  PyObject* obj2 = nullptr;
+  if ( !PyArg_ParseTuple(args, "OO", &obj1, &obj2) ) {
+    return nullptr;
+  }
+  vector<SatLiteral> lit1_list;
+  if ( !conv_to_lit_list(obj1, lit1_list) ) {
     PyErr_SetString(PyExc_TypeError, "argument 1 must be a list of SatLiteral");
     return nullptr;
   }
   auto& solver = PySatSolver::_get(self);
-  solver.add_eq(lit1_list, lit2_list);
+  if ( PyLong_Check(obj2) ) {
+    int bval = PyLong_AsLong(obj2);
+    solver.add_le(lit1_list, bval);
+  }
+  else {
+    vector<SatLiteral> lit2_list;
+    if ( !conv_to_lit_list(obj2, lit2_list) ) {
+      PyErr_SetString(PyExc_TypeError, "argument 1 must be a list of SatLiteral");
+      return nullptr;
+    }
+    solver.add_le(lit1_list, lit2_list);
+  }
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_gt(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* obj1 = nullptr;
+  PyObject* obj2 = nullptr;
+  if ( !PyArg_ParseTuple(args, "OO", &obj1, &obj2) ) {
+    return nullptr;
+  }
+  vector<SatLiteral> lit1_list;
+  if ( !conv_to_lit_list(obj1, lit1_list) ) {
+    PyErr_SetString(PyExc_TypeError, "argument 1 must be a list of SatLiteral");
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  if ( PyLong_Check(obj2) ) {
+    int bval = PyLong_AsLong(obj2);
+    solver.add_gt(lit1_list, bval);
+  }
+  else {
+    vector<SatLiteral> lit2_list;
+    if ( !conv_to_lit_list(obj2, lit2_list) ) {
+      PyErr_SetString(PyExc_TypeError, "argument 1 must be a list of SatLiteral");
+      return nullptr;
+    }
+    solver.add_gt(lit1_list, lit2_list);
+  }
+  Py_RETURN_NONE;
+}
+
+PyObject*
+SatSolver_add_ge(
+  PyObject* self,
+  PyObject* args
+)
+{
+  PyObject* obj1 = nullptr;
+  PyObject* obj2 = nullptr;
+  if ( !PyArg_ParseTuple(args, "OO", &obj1, &obj2) ) {
+    return nullptr;
+  }
+  vector<SatLiteral> lit1_list;
+  if ( !conv_to_lit_list(obj1, lit1_list) ) {
+    PyErr_SetString(PyExc_TypeError, "argument 1 must be a list of SatLiteral");
+    return nullptr;
+  }
+  auto& solver = PySatSolver::_get(self);
+  if ( PyLong_Check(obj2) ) {
+    int bval = PyLong_AsLong(obj2);
+    solver.add_ge(lit1_list, bval);
+  }
+  else {
+    vector<SatLiteral> lit2_list;
+    if ( !conv_to_lit_list(obj2, lit2_list) ) {
+      PyErr_SetString(PyExc_TypeError, "argument 1 must be a list of SatLiteral");
+      return nullptr;
+    }
+    solver.add_ge(lit1_list, lit2_list);
+  }
   Py_RETURN_NONE;
 }
 
@@ -873,6 +975,14 @@ PyMethodDef SatSolver_methods[] = {
    PyDoc_STR("add clause representing the condition 'A = B'")},
   {"add_ne", SatSolver_add_ne, METH_VARARGS,
    PyDoc_STR("add clause representing the condition 'A != B'")},
+  {"add_lt", SatSolver_add_lt, METH_VARARGS,
+   PyDoc_STR("add clause representing the condition 'A < B'")},
+  {"add_le", SatSolver_add_le, METH_VARARGS,
+   PyDoc_STR("add clause representing the condition 'A <= B'")},
+  {"add_gt", SatSolver_add_gt, METH_VARARGS,
+   PyDoc_STR("add clause representing the condition 'A > B'")},
+  {"add_ge", SatSolver_add_ge, METH_VARARGS,
+   PyDoc_STR("add clause representing the condition 'A >= B'")},
   {"solve", reinterpret_cast<PyCFunction>(SatSolver_solve),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("solve the SAT problem")},
