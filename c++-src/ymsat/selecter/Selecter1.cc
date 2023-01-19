@@ -63,7 +63,7 @@ Selecter1::next_decision()
     return ~dlit;
   }
 
-  return kSatLiteralX;
+  return SatLiteral::X;
 }
 
 END_NAMESPACE_YM_SAT

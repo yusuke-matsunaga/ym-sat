@@ -173,7 +173,7 @@ SatSolver::add_lt(
   }
 
   vector<SatLiteral> tmp_lits;
-  auto flit = kSatLiteralX;
+  auto flit = SatLiteral::X;
 
   // 以降で elit: iビット目以上の全桁が等しい
   //        flit: i+1ビット目以上の全桁が等しい
@@ -305,7 +305,7 @@ SatSolver::add_le(
   SizeType nb{b_vec.size()};
   ASSERT_COND( nb > 0 );
   vector<SatLiteral> tmp_lits;
-  auto flit = kSatLiteralX;
+  auto flit = SatLiteral::X;
 
   // 以降で elit: iビット目以上の全桁が等しい
   //       flit: i+1ビット目以上の全桁が等しい

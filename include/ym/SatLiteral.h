@@ -11,7 +11,7 @@
 #include "ym/sat.h"
 
 
-BEGIN_NAMESPACE_YM
+BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
 /// @ingroup SatGroup
@@ -30,10 +30,7 @@ public:
   /// @brief デフォルトコンストラクタ
   ///
   /// 内容は不定なのであまり使わない方が良い．
-  SatLiteral(
-  ) : mIndex{-1}
-  {
-  }
+  SatLiteral() = default;
 
   /// @brief コピーコンストラクタの変種
   SatLiteral(
@@ -67,7 +64,7 @@ public:
   static
   SatLiteral
   index2literal(
-    int index ///< [in] 変数番号と極性をエンコードしたもの
+    SizeType index ///< [in] 変数番号と極性をエンコードしたもの
   )
   {
     SatLiteral ans;
@@ -97,7 +94,7 @@ public:
       mIndex = -1;
     }
     else {
-      mIndex = (varid << 1) + static_cast<int>(inv);
+      mIndex = (varid << 1) + static_cast<SizeType>(inv);
     }
   }
 
@@ -111,7 +108,7 @@ public:
   bool
   is_valid() const
   {
-    return mIndex >= 0;
+    return mIndex != -1;
   }
 
   /// @brief 変数番号を得る．
@@ -145,11 +142,11 @@ public:
   SizeType
   hash() const
   {
-    return static_cast<SizeType>(mIndex);
+    return mIndex;
   }
 
   /// @brief 配列のインデックスとして使用可能な数を返す．
-  int
+  SizeType
   index() const
   {
     return mIndex;
@@ -225,7 +222,7 @@ private:
   /// @brief 反転用のビットマスクを返す．
   ///
   /// 普通は 1U だが不正な値のときは 0U となる．
-  int
+  SizeType
   neg_mask() const
   {
     return is_valid() ? 1U : 0U;
@@ -238,14 +235,19 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数番号と極性をパックしたもの
-  int mIndex;
+  SizeType mIndex{static_cast<SizeType>(-1)};
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 定数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 未定義リテラル
+  static
+  const SatLiteral X;
 
 };
-
-/// @relates SatLiteral
-/// @brief 未定義リテラル
-extern
-const SatLiteral kSatLiteralX;
 
 /// @relates SatLiteral
 /// @brief 等価比較
@@ -349,37 +351,20 @@ operator<<(
 //////////////////////////////////////////////////////////////////////
 
 /// @brief リテラルのベクタ
-typedef vector<SatLiteral> SatLiteralVector;
+//typedef vector<SatLiteral> SatLiteralVector;
 
-/// @brief リテラルのリスト
-typedef list<SatLiteral> SatLiteralList;
-
-END_NAMESPACE_YM
+END_NAMESPACE_YM_SAT
 
 
 BEGIN_NAMESPACE_STD
 
-/// @brief SatLiteral の等価比較関数クラス
-template <>
-struct equal_to<YM_NAMESPACE::SatLiteral>
-{
-  bool
-  operator()(
-    YM_NAMESPACE::SatLiteral n1,
-    YM_NAMESPACE::SatLiteral n2
-  ) const
-  {
-    return n1 == n2;
-  }
-};
-
 /// @brief SatLiteral をキーにしたハッシュ関数クラス
 template <>
-struct hash<YM_NAMESPACE::SatLiteral>
+struct hash<YM_NAMESPACE::nsSat::SatLiteral>
 {
   SizeType
   operator()(
-    YM_NAMESPACE::SatLiteral lit
+    YM_NAMESPACE::nsSat::SatLiteral lit
   ) const
   {
     return lit.hash();

@@ -23,13 +23,9 @@
 #include <signal.h>
 
 
-BEGIN_NAMESPACE_YM
-
-const SatLiteral kSatLiteralX;
-
-END_NAMESPACE_YM
-
 BEGIN_NAMESPACE_YM_SAT
+
+const SatLiteral SatLiteral::X;
 
 //////////////////////////////////////////////////////////////////////
 // SatSolverImpl

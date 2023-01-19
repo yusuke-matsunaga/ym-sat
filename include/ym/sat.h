@@ -50,6 +50,7 @@ class SatCountEnc;
 class SatTseitinEnc;
 class SatDimacs;
 class SatModel;
+class SatLiteral;
 class SatOrderedSet;
 class SatSolver;
 class SatSolverType;
@@ -61,14 +62,13 @@ END_NAMESPACE_YM_SAT
 
 BEGIN_NAMESPACE_YM
 
-class SatLiteral;
-
 using nsSat::SatBinaryNum;
 using nsSat::SatBvEnc;
 using nsSat::SatCountEnc;
 using nsSat::SatTseitinEnc;
 using nsSat::SatDimacs;
 using nsSat::SatModel;
+using nsSat::SatLiteral;
 using nsSat::SatOrderedSet;
 using nsSat::SatSolver;
 using nsSat::SatSolverType;

@@ -18,7 +18,7 @@ TEST(SatLiteralTest, empty_constructor)
 
   EXPECT_FALSE( lit1.is_valid() );
 
-  EXPECT_EQ( kSatLiteralX, lit1 );
+  EXPECT_EQ( SatLiteral::X, lit1 );
 }
 
 TEST(SatLiteralTest,  simple_constructor)

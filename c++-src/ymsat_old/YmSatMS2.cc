@@ -168,7 +168,7 @@ YmSatMS2::next_decision()
     return SatLiteral::conv_from_varid(vid, inv);
   }
 
-  return kSatLiteralX;
+  return SatLiteral::X;
 }
 
 BEGIN_NONAMESPACE

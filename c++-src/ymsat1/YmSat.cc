@@ -838,7 +838,7 @@ YmSat::next_decision()
       }
     }
   }
-  return kSatLiteralX;
+  return SatLiteral::X;
 }
 
 // CNF を簡単化する．

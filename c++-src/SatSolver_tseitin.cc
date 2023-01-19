@@ -149,8 +149,8 @@ SatSolver::add_adder(
   bool c_zero = false;
   for ( SizeType i = 0; i < ns; ++ i ) {
     auto slit = slits[i];
-    auto alit = kSatLiteralX;
-    auto blit = kSatLiteralX;
+    auto alit = SatLiteral::X;
+    auto blit = SatLiteral::X;
     if ( i < na ) {
       alit = alits[i];
     }
