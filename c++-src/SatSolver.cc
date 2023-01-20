@@ -95,11 +95,9 @@ SatSolver::new_variable(
   bool decision
 )
 {
-  int id = mImpl->new_variable(decision);
-  auto lit = SatLiteral::conv_from_varid(id, false);
-  if ( decision ) {
-    mImpl->freeze_literal(lit);
-  }
+  auto varid = mImpl->new_variable(decision);
+  auto lit = SatLiteral::conv_from_varid(varid, false);
+  mImpl->reg_lit(varid, lit);
 
   mLogger->new_variable(lit);
 

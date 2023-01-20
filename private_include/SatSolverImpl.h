@@ -118,6 +118,46 @@ public:
     bool enable
   ) = 0;
 
+  /// @brief リテラルを登録する．
+  void
+  reg_lit(
+    SizeType varid, ///< [in] 変数番号
+    SatLiteral lit  ///< [in] リテラル
+  )
+  {
+    mLitMap.emplace(varid, lit);
+  }
+
+
+protected:
+  //////////////////////////////////////////////////////////////////////
+  // 継承クラスから用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief リテラルを得る．
+  SatLiteral
+  get_lit(
+    SizeType varid, ///< [in] 変数番号
+    bool inv        ///< [in] 反転フラグ
+  ) const
+  {
+    ASSERT_COND( mLitMap.count(varid) > 0 );
+    auto lit = mLitMap.at(varid);
+    if ( inv ) {
+      lit = ~lit;
+    }
+    return lit;
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+  // 変数番号と SatLiteral の対応表
+  unordered_map<SizeType, SatLiteral> mLitMap;
+
 };
 
 END_NAMESPACE_YM_SAT

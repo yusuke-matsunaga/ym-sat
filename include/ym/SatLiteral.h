@@ -18,6 +18,9 @@ BEGIN_NAMESPACE_YM_SAT
 /// @class SatLiteral SatLiteral.h "ym/SatLiteral.h"
 /// @brief リテラル(変数番号＋極性)を表すクラス
 ///
+/// ユーザーは SatSolver::new_variable() の返り値としてのみ
+/// このクラスのインスタンスを生成できる．
+///
 /// 変数番号は 0 から始まる非負の整数
 /// 単純には最下位ビットで極性を表すだけだが，
 /// 不正な値のときにはこのビットに1を立てない．
@@ -25,6 +28,8 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 class SatLiteral
 {
+  friend class SatSolver;
+
 public:
 
   /// @brief デフォルトコンストラクタ
@@ -44,6 +49,12 @@ public:
       mIndex ^= neg_mask();
     }
   }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内容をセットする関数
+  //////////////////////////////////////////////////////////////////////
 
   /// @brief 変数番号と極性からの変換関数
   static
@@ -71,15 +82,6 @@ public:
     ans.mIndex = index;
     return ans;
   }
-
-  // コピーコンストラクタ,代入演算子,デストラクタはデフォルト
-  // のものがそのまま使える．
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 内容をセットする関数
-  //////////////////////////////////////////////////////////////////////
 
   /// @brief 内容を設定する．
   void
@@ -345,26 +347,17 @@ operator<<(
   return s;
 }
 
-
-//////////////////////////////////////////////////////////////////////
-// 上記のクラスを要素とするコンテナクラス
-//////////////////////////////////////////////////////////////////////
-
-/// @brief リテラルのベクタ
-//typedef vector<SatLiteral> SatLiteralVector;
-
 END_NAMESPACE_YM_SAT
-
 
 BEGIN_NAMESPACE_STD
 
 /// @brief SatLiteral をキーにしたハッシュ関数クラス
 template <>
-struct hash<YM_NAMESPACE::nsSat::SatLiteral>
+struct hash<YM_NAMESPACE::SatLiteral>
 {
   SizeType
   operator()(
-    YM_NAMESPACE::nsSat::SatLiteral lit
+    YM_NAMESPACE::SatLiteral lit
   ) const
   {
     return lit.hash();

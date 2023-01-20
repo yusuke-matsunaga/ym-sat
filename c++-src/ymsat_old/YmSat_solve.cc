@@ -539,8 +539,8 @@ YmSat::reduce_CNF()
       var_list.push_back(var);
     }
     else {
-      del_satisfied_watcher(SatLiteral::conv_from_varid(var, false));
-      del_satisfied_watcher(SatLiteral::conv_from_varid(var, true));
+      del_satisfied_watcher(Literal::conv_from_varid(var, false));
+      del_satisfied_watcher(Literal::conv_from_varid(var, true));
     }
   }
   mVarHeap.build(var_list);

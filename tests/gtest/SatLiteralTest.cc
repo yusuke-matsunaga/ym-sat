@@ -8,6 +8,7 @@
 
 #include "gtest/gtest.h"
 #include "ym/SatLiteral.h"
+#include "ym/SatSolver.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -23,8 +24,10 @@ TEST(SatLiteralTest, empty_constructor)
 
 TEST(SatLiteralTest,  simple_constructor)
 {
-  for (int val = 0; val < 10; ++ val) {
-    auto lit1{SatLiteral::conv_from_varid(val, false)};
+  SatSolver solver;
+
+  for (SizeType val = 0; val < 10; ++ val) {
+    auto lit1 = solver.new_variable();
 
     EXPECT_TRUE( lit1.is_valid() );
     EXPECT_EQ( val, lit1.varid() );
