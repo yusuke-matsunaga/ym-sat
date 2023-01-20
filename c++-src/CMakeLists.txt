@@ -72,12 +72,12 @@ set (ym_sat_SOURCES
   ymsat1/VarHeap.cc
   ymsat1/YmSat.cc
 
-  ymsat_old/AssignList.cc
+  #ymsat_old/AssignList.cc
   ymsat_old/SaBase.cc
   ymsat_old/SaFactory.cc
   ymsat_old/SaUIP1.cc
   ymsat_old/SaUIP2.cc
-  ymsat_old/SatClause.cc
+  #ymsat_old/SatClause.cc
   ymsat_old/VarHeap.cc
   ymsat_old/YmSat_base.cc
   ymsat_old/YmSat_solve.cc

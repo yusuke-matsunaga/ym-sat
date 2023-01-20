@@ -108,11 +108,10 @@ public:
   }
 
   /// @brief 制約節を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < clause_num() )
   /// @return 制約節を返す．
   const Clause*
   clause(
-    SizeType pos
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < clause_num() )
   ) const
   {
     ASSERT_COND( pos >= 0 && pos < clause_num() );
@@ -120,13 +119,11 @@ public:
   }
 
   /// @brief 二項制約節の内容を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < bin_clause_num() )
-  /// @param[out] lit0, lit1 リテラル
   void
   bin_clause(
-    SizeType pos,
-    Literal& lit0,
-    Literal& lit1
+    SizeType pos,  ///< [in] 位置番号 ( 0 <= pos < bin_clause_num() )
+    Literal& lit0, ///< [out] リテラル0
+    Literal& lit1  ///< [out] リテラル1
   ) const
   {
     ASSERT_COND( pos >= 0 && pos < bin_clause_num() );
@@ -135,10 +132,9 @@ public:
   }
 
   /// @brief 単項節の内容を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < unit_clause_num() )
   Literal
   unit_clause(
-    SizeType pos
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < unit_clause_num() )
   ) const
   {
     ASSERT_COND( pos >= 0 && pos < unit_clause_num() );
@@ -152,14 +148,13 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 変数を追加する．
-  /// @param[in] decision 決定変数の時に true とする．
   /// @return 新しい変数番号を返す．
   ///
   /// 実際には変数番号を割り当てるだけで alloc_var()
   /// を呼ばれてはじめて実際の領域を確保する．
   int
   new_variable(
-    bool decision
+    bool decision ///< [in] 決定変数の時に true とする．
   );
 
   /// @brief 変数に関する領域を実際に確保する．
@@ -173,17 +168,15 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 節を追加する．
-  /// @param[in] lits リテラルのベクタ
   void
   add_clause(
-    const vector<SatLiteral>& lits
+    const vector<SatLiteral>& lits ///< [in] リテラルのベクタ
   );
 
   /// @brief 学習節を追加する．
-  /// @param[in] lits 追加するリテラルのリスト
   void
   add_learnt_clause(
-    const vector<Literal>& lits
+    const vector<Literal>& lits ///< [in] 追加するリテラルのリスト
   );
 
 
@@ -193,10 +186,9 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief watcher list を得る．
-  /// @param[in] lit リテラル
   WatcherList&
   watcher_list(
-    Literal lit
+    Literal lit ///< [in] リテラル
   )
   {
     auto index = lit.index();
@@ -205,31 +197,26 @@ public:
   }
 
   /// @brief Watcher を追加する．
-  /// @param[in] lit リテラル
-  /// @param[in] reason 理由
   void
   add_watcher(
-    Literal lit,
-    Reason reason
+    Literal lit,  ///< [in] リテラル
+    Reason reason ///< [in] 理由
   )
   {
     watcher_list(lit).add(Watcher{reason});
   }
 
   /// @brief watcher を削除する．
-  /// @param[in] lit リテラル
-  /// @param[in] reason 理由
   void
   del_watcher(
-    Literal lit,
-    Reason reason
+    Literal lit,  ///< [in] リテラル
+    Reason reason ///< [in] 理由
   );
 
   /// @brief 充足された watcher を削除する．
-  /// @param[in] watch_lit リテラル
   void
   del_satisfied_watcher(
-    Literal watch_lit
+    Literal watch_lit ///< [in] リテラル
   );
 
 
@@ -239,10 +226,9 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 変数の評価を行う．
-  /// @param[in] var 変数番号
   SatBool3
   eval(
-    int var
+    int var ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( var >= 0 && var < mVarNum );
@@ -251,13 +237,12 @@ public:
   }
 
   /// @brief リテラルの評価を行う．
-  /// @param[in] lit リテラル
   ///
   /// 肯定のリテラルの場合は変数の eval() 結果と同じ．
   /// 否定のリテラルの場合は結果を反転する．
   SatBool3
   eval(
-    Literal lit
+    Literal lit ///< [in] リテラル
   ) const
   {
     auto index = lit.index();
@@ -270,10 +255,9 @@ public:
   }
 
   /// @brief バックトラック前の値を得る．
-  /// @param[in] var 変数番号
   SatBool3
   prev_val(
-    int var
+    int var ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( var >= 0 && var < mVarNum );
@@ -282,12 +266,10 @@ public:
   }
 
   /// @brief 値の割当てを行う．
-  /// @param[in] lit 割り当てるリテラル
-  /// @param[in] reason 割り当ての理由
   void
   assign(
-    Literal lit,
-    Reason reason = Reason{}
+    Literal lit,             ///< [in] 割り当てるリテラル
+    Reason reason = Reason{} ///< [in] 割り当ての理由
   )
   {
     auto lindex = lit.index();
@@ -304,17 +286,16 @@ public:
   }
 
   /// @brief 値の割当てが可能かチェックする．
-  /// @param[in] lit 割り当てるリテラル
   /// @return 矛盾が起きたら false を返す．
   ///
   /// すでに同じ値が割り当てられていたらなにもしない．
   /// 割り当てには assign() を呼び出す．
   bool
   check_and_assign(
-    Literal lit
+    Literal lit ///< [in] 割り当てるリテラル
   )
   {
-    SatBool3 old_val = eval(lit);
+    auto old_val = eval(lit);
     if ( old_val != SatBool3::X ) {
       return old_val == SatBool3::True;
     }
@@ -337,20 +318,18 @@ public:
   }
 
   /// @brief 割り当てリストの pos 番めの要素を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < last_assign() )
   Literal
   get_assign(
-    SizeType pos
+    SizeType pos ///< [in] 位置番号 ( 0 <= pos < last_assign() )
   ) const
   {
     return mAssignList.get(pos);
   }
 
   /// @brief 変数の decision level を返す．
-  /// @param[in] var 変数番号
   int
   decision_level(
-    int var
+    int var ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( var >= 0 && var < mVarNum );
@@ -364,29 +343,22 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief SAT 問題を解く．
-  /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-  /// @param[out] model 充足するときの値の割り当てを格納する配列．
-  /// @param[in] controller コントローラー
-  /// @param[in] analyzer 解析器
-  /// @param[in] selecter リテラル選択器
   /// @retval SatBool3::True 充足した．
   /// @retval SatBool3::False 充足不能が判明した．
   /// @retval SatBool3::X わからなかった．
-  /// @note i 番めの変数の割り当て結果は model[i] に入る．
   SatBool3
   solve(
-    const vector<SatLiteral>& assumptions,
-    SatModel& model,
-    Controller& controller,
-    Analyzer& analyzer,
-    Selecter& selecter
+    const vector<SatLiteral>& assumptions, ///< [in] あらかじめ仮定する変数の値割り当てリスト
+    SatModel& model,                       ///< [out] 充足するときの値の割り当てを格納する配列．
+    Controller& controller,                ///< [in] コントローラー
+    Analyzer& analyzer,                    ///< [in] 解析器
+    Selecter& selecter                     ///< [in] リテラル選択器
   );
 
   /// @brief 変数の割り当て理由を返す．
-  /// @param[in] var 変数番号
   Reason
   reason(
-    int var
+    int var ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( var >= 0 && var < mVarNum );
@@ -416,10 +388,9 @@ public:
   }
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
-  /// @param[in] msg_handler 登録するメッセージハンドラ
   void
   reg_msg_handler(
-    SatMsgHandler* msg_handler
+    SatMsgHandler* msg_handler ///< [in] 登録するメッセージハンドラ
   );
 
 
@@ -429,12 +400,10 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief アクティビティの低減率を設定する．
-  /// @param[in] var_decay 変数の低減率
-  /// @param[in] clause_decay 節の低減率
   void
   set_decay(
-    double var_decay,
-    double clause_decay
+    double var_decay,   ///< [in] 変数の低減率
+    double clause_decay ///< [in] 節の低減率
   )
   {
     mVarDecay = var_decay;
@@ -442,10 +411,9 @@ public:
   }
 
   /// @brief 変数のアクティビティを増加させる．
-  /// @param[in] var 変数番号
   void
   bump_var_activity(
-    int var
+    int var ///< [in] 変数番号
   );
 
   /// @brief 変数のアクティビティを定率で減少させる．
@@ -456,10 +424,9 @@ public:
   }
 
   /// @brief 学習節のアクティビティを増加させる．
-  /// @param[in] clause 対象の学習節
   void
   bump_clause_activity(
-    Clause* clause
+    Clause* clause ///< [in] 対象の学習節
   );
 
   /// @brief 学習節のアクティビティを定率で減少させる．
@@ -478,7 +445,7 @@ public:
   /// @brief 与えられた変数のリストからヒープ木を構成する．
   void
   build(
-    const vector<int>& var_list
+    const vector<int>& var_list ///< [in] 変数番号のリスト
   );
 
   /// @brief リスタート回数を返す．
@@ -581,9 +548,6 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 探索を行う本体の関数
-  /// @param[in] controller Controller オブジェクト
-  /// @param[in] analyzer Analyzer オブジェクト
-  /// @param[in] selecter Selecter オブジェクト
   /// @retval SatBool3::True 充足した．
   /// @retval SatBool3::False 充足できないことがわかった．
   /// @retval SatBool3::X 矛盾の生起回数が mConflictLimit を超えた．
@@ -593,9 +557,9 @@ private:
   /// 削減される場合もある．
   SatBool3
   search(
-    Controller& controller,
-    Analyzer& analyzer,
-    Selecter& selecter
+    Controller& controller, ///< [in] Controller オブジェクト
+    Analyzer& analyzer,     ///< [in] Analyzer オブジェクト
+    Selecter& selecter      ///< [in] Selecter オブジェクト
   );
 
   /// @brief バックトラック用のマーカーをセットする．
@@ -614,10 +578,9 @@ private:
   implication();
 
   /// @brief level までバックトラックする
-  /// @param[in] level バックトラックするレベル
   void
   backtrack(
-    int level
+    int level ///< [in] バックトラックするレベル
   );
 
   /// @brief 動作フラグを得る．
@@ -628,28 +591,24 @@ private:
   }
 
   /// @brief mTmpLits を確保する．
-  /// @param[in] lit_num 必要なサイズ
   void
   alloc_lits(
-    SizeType lit_num
+    SizeType lit_num ///< [in] 必要なサイズ
   );
 
   /// @brief 新しい節を生成する．
-  /// @param[in] lit_num リテラル数
-  /// @param[in] learnt 学習節のとき true とするフラグ
   ///
   /// リテラルは mTmpLits[] に入れておく．
   Clause*
   new_clause(
-    SizeType lit_num,
-    bool learnt = false
+    SizeType lit_num,   ///< [in] リテラル数
+    bool learnt = false ///< [in] 学習節のとき true とするフラグ
   );
 
   /// @brief 節を削除する．
-  /// @param[in] clause 削除する節
   void
   delete_clause(
-    Clause* clause
+    Clause* clause ///< [in] 削除する節
   );
 
   /// @brief CNF を簡単化する．
@@ -660,12 +619,11 @@ private:
   reduce_CNF();
 
   /// @brief 充足している節を取り除く
-  /// @param[in] clause_list 節のリスト
   ///
   /// reduce_CNF() の中で用いられる．
   void
   sweep_clause(
-    vector<Clause*>& clause_list
+    vector<Clause*>& clause_list ///< [in] 節のリスト
   );
 
   /// @brief 学習節の整理を行なう．
@@ -673,10 +631,9 @@ private:
   reduce_learnt_clause();
 
   /// @brief 学習節が使われているか調べる．
-  /// @param[in] clause 対象の節
   bool
   is_locked(
-    Clause* clause
+    Clause* clause ///< [in] 対象の節
   ) const;
 
   /// @brief 変数に関する配列を拡張する．
@@ -688,10 +645,9 @@ private:
   clear();
 
   /// @brief 変数をヒープに追加する．
-  /// @param[in] var 追加する変数
   void
   add_var(
-    int var
+    int var ///< [in] 追加する変数
   )
   {
     set(var, mHeapNum);
@@ -700,14 +656,13 @@ private:
   }
 
   /// @brief 変数を再びヒープに追加する．
-  /// @param[in] var 追加する変数
   void
   push(
-    int var
+    int var ///< [in] 追加する変数
   )
   {
     if ( mHeapPos[var] == -1 ) {
-      SizeType pos = mHeapNum;
+      auto pos = mHeapNum;
       ++ mHeapNum;
       set(var, pos);
       move_up(pos);
@@ -722,7 +677,8 @@ private:
   }
 
   /// @brief アクティビティ最大の変数番号を取り出す．
-  /// @note 該当の変数はヒープから取り除かれる．
+  ///
+  /// 該当の変数はヒープから取り除かれる．
   int
   pop_top()
   {
@@ -746,7 +702,6 @@ private:
   );
 
   /// @brief 引数の位置にある要素を適当な位置まで上げてゆく
-  /// @param[in] pos 対象の要素の位置
   void
   move_up(
     SizeType pos ///< [in] 対象の要素の位置
@@ -887,10 +842,10 @@ private:
     /// @brief コンストラクタ
     BinClause(
       Literal l0,
-      Literal l1)
+      Literal l1
+    ) : mLit0{l0},
+	mLit1{l1}
     {
-      mLit0 = l0;
-      mLit1 = l1;
     }
 
     Literal mLit0;
@@ -904,10 +859,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数のアクティビティの増加量
-  double mVarBump;
+  double mVarBump{1.0};
 
   // 変数のアクティビティの減衰量
-  double mVarDecay;
+  double mVarDecay{0.95};
 
   // 学習節のアクティビティの増加量
   double mClauseBump;
@@ -916,7 +871,7 @@ private:
   double mClauseDecay;
 
   // 正常の時に true となっているフラグ
-  bool mSane;
+  bool mSane{true};
 
   // 制約節の配列
   vector<Clause*> mConstrClauseList;
@@ -928,16 +883,16 @@ private:
   vector<Literal> mConstrUnitList;
 
   // 制約節の総リテラル数 (二項制約節も含む)
-  SizeType mConstrLitNum;
+  SizeType mConstrLitNum{0};
 
   // 学習節の配列
   vector<Clause*> mLearntClauseList;
 
   // 二項学習節の数
-  SizeType mLearntBinNum;
+  SizeType mLearntBinNum{0};
 
   // 学習節の総リテラル数 (二項制約節も含む)
-  SizeType mLearntLitNum;
+  SizeType mLearntLitNum{0};
 
 #if YMSAT_USE_DVAR
   // dvar 配列
@@ -945,34 +900,34 @@ private:
 #endif
 
   // 変数の数
-  SizeType mVarNum;
+  SizeType mVarNum{0};
 
   // 前回の alloc_var で処理した時の変数の数
-  SizeType mOldVarNum;
+  SizeType mOldVarNum{0};
 
   // 変数関係の配列のサイズ
-  SizeType mVarSize;
+  SizeType mVarSize{0};
 
   // 値の配列
   // サイズは mVarSize
-  ymuint8* mVal;
+  ymuint8* mVal{nullptr};
 
   // 値が割り当てられたときのレベルの配列
   // サイズは mVarSize
-  int* mDecisionLevel;
+  int* mDecisionLevel{nullptr};
 
   // 値が割り当てられた理由の配列
   // サイズは mVarSize
-  Reason* mReason;
+  Reason* mReason{nullptr};
 
   // watcher list の配列
   // サイズは mVarSize * 2
-  WatcherList* mWatcherList;
+  WatcherList* mWatcherList{nullptr};
 
 #if YMSAT_USE_WEIGHTARRAY
   // 変数の極性ごとの重み
   // サイズは mVarSize * 2
-  double* mWeightArray;
+  double* mWeightArray{nullptr};
 #endif
 
   // 値割り当てを保持するリスト
@@ -985,55 +940,55 @@ private:
   SizeType mSweep_props;
 
   // add_clause で一時的に利用するリテラル配列
-  Literal* mTmpLits;
+  Literal* mTmpLits{nullptr};
 
   // mTmpLits のサイズ
-  SizeType mTmpLitsSize;
+  SizeType mTmpLitsSize{0};
 
   // 矛盾の解析時にテンポラリに使用される節
-  Clause* mTmpBinClause;
+  Clause* mTmpBinClause{nullptr};
 
   // ヒープ上の位置の配列
   // サイズは mVarSize
-  SizeType* mHeapPos;
+  SizeType* mHeapPos{nullptr};
 
   // アクティビティの配列
   // サイズは mVarSize
-  double* mActivity;
+  double* mActivity{nullptr};
 
   // ヒープ用の配列
   // サイズは mVarSize
-  int* mHeap;
+  int* mHeap{nullptr};
 
   // ヒープの要素数
-  SizeType mHeapNum;
+  SizeType mHeapNum{0};
 
   // 動作フラグ
-  bool mGoOn;
+  bool mGoOn{false};
 
   // リスタート回数
-  SizeType mRestartNum;
+  SizeType mRestartNum{0};
 
   // 総コンフリクト数
-  SizeType mConflictNum;
+  SizeType mConflictNum{0};
 
   // 総 decision 数
-  SizeType mDecisionNum;
+  SizeType mDecisionNum{0};
 
   // 総 implication 数
-  SizeType mPropagationNum;
+  SizeType mPropagationNum{0};
 
   // コンフリクト数の制限
-  SizeType mConflictLimit;
+  SizeType mConflictLimit{0};
 
   // 学習節の制限
-  SizeType mLearntLimit;
+  SizeType mLearntLimit{0};
 
   // トータルのコンフリクト数の制限
-  SizeType mMaxConflict;
+  SizeType mMaxConflict{0};
 
   // mTimer を使うとき true にするフラグ
-  bool mTimerOn;
+  bool mTimerOn{false};
 
   using Clock = std::chrono::system_clock;
   using TimePoint = std::chrono::time_point<Clock>;

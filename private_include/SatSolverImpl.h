@@ -5,9 +5,8 @@
 /// @brief SatSolverImpl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2018, 2019 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018, 2019, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/sat.h"
 #include "ym/SatBool3.h"
@@ -26,10 +25,11 @@ class SatSolverImpl
 public:
 
   /// @brief 継承クラスを作るクラスメソッド
-  /// @param[in] solver_type SATソルバのタイプ
   static
   unique_ptr<SatSolverImpl>
-  new_impl(const SatSolverType& solver_type);
+  new_impl(
+    const SatSolverType& solver_type ///< [in] SATソルバのタイプ
+  );
 
   /// @brief デストラクタ
   virtual
@@ -47,39 +47,42 @@ public:
   sane() const = 0;
 
   /// @brief 変数を追加する．
-  /// @param[in] decision 決定変数の時に true とする．
   /// @return 新しい変数番号を返す．
   /// @note 変数番号は 0 から始まる．
   virtual
   int
-  new_variable(bool decition) = 0;
+  new_variable(
+    bool decition ///< [in] 決定変数の時に true とする．
+  ) = 0;
 
   /// @brief リテラルを 'フリーズ' する．
   ///
   /// lingeling 以外は無効
   virtual
   void
-  freeze_literal(SatLiteral lit) = 0;
+  freeze_literal(
+    SatLiteral lit ///< [in] 対象のリテラル
+  ) = 0;
 
   /// @brief 節を追加する．
-  /// @param[in] lits リテラルのベクタ
   virtual
   void
-  add_clause(const vector<SatLiteral>& lits) = 0;
+  add_clause(
+    const vector<SatLiteral>& lits ///< [in] リテラルのベクタ
+  ) = 0;
 
   /// @brief SAT 問題を解く．
-  /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-  /// @param[out] model 充足するときの値の割り当てを格納する配列．
-  /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
   /// @retval kB3True 充足した．
   /// @retval kB3False 充足不能が判明した．
   /// @retval kB3X わからなかった．
   /// @note i 番めの変数の割り当て結果は model[i] に入る．
   virtual
   SatBool3
-  solve(const vector<SatLiteral>& assumptions,
-	SatModel& model,
-	vector<SatLiteral>& conflicts) = 0;
+  solve(
+    const vector<SatLiteral>& assumptions, ///< [in] あらかじめ仮定する変数の値割り当てリスト
+    SatModel& model,                       ///< [out] 充足するときの値の割り当てを格納する配列．
+    vector<SatLiteral>& conflicts          ///< [out] 充足不能の場合に原因となっている仮定を入れる配列．
+  ) = 0;
 
   /// @brief 探索を中止する．
   ///
@@ -94,22 +97,26 @@ public:
   get_stats() const = 0;
 
   /// @brief conflict_limit の最大値
-  /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
   virtual
-  int
-  set_max_conflict(int val) = 0;
+  SizeType
+  set_max_conflict(
+    SizeType val ///< [in] 設定する値
+  ) = 0;
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
-  /// @param[in] msg_handler 登録するメッセージハンドラ
   virtual
   void
-  reg_msg_handler(SatMsgHandler* msg_handler) = 0;
+  reg_msg_handler(
+    SatMsgHandler* msg_handler ///< [in] 登録するメッセージハンドラ
+  ) = 0;
 
   /// @brief 時間計測機能を制御する
   virtual
   void
-  timer_on(bool enable) = 0;
+  timer_on(
+    bool enable
+  ) = 0;
 
 };
 

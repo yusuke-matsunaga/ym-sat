@@ -86,8 +86,8 @@ public:
   /// @brief conflict_limit の最大値
   /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
-  int
-  set_max_conflict(int val) override;
+  SizeType
+  set_max_conflict(SizeType val) override;
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
   /// @param[in] msg_handler 登録するメッセージハンドラ

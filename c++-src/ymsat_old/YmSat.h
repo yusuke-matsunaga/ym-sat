@@ -5,14 +5,13 @@
 /// @brief YmSat のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "SatSolverImpl.h"
 #include "ymsat_old.h"
-#include "SatClause.h"
-#include "SatReason.h"
+#include "Clause.h"
+#include "Reason.h"
 #include "AssignList.h"
 #include "Watcher.h"
 #include "VarHeap.h"
@@ -23,7 +22,7 @@
 
 BEGIN_NAMESPACE_YM_YMSATOLD
 
-class SatAnalyzer;
+class Analyzer;
 
 //////////////////////////////////////////////////////////////////////
 /// @class YmSat YmSat.h "YmSat.h"
@@ -32,7 +31,7 @@ class SatAnalyzer;
 class YmSat :
   public nsSat::SatSolverImpl
 {
-  friend class SatAnalyzer;
+  friend class Analyzer;
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -42,46 +41,37 @@ public:
   struct Params
   {
     /// @brief 変数の decay 値
-    double mVarDecay;
+    double mVarDecay{1.0};
 
     /// @brief 学習節の decay 値
-    double mClauseDecay;
+    double mClauseDecay{1.0};
 
 #if YMSAT_USE_LBD
     /// @brief LBD ヒューリスティックを使うとき true
-    bool mUseLbd;
+    bool mUseLbd{false};
+#endif
 
     /// @brief コンストラクタ
-    Params() :
-      mVarDecay(1.0),
-      mClauseDecay(1.0),
-      mUseLbd(false)
-    {
-    }
+    Params() = default;
 
+#if YMSAT_USE_LBD
     /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay,
-	   bool use_lbd) :
-      mVarDecay(var_decay),
-      mClauseDecay(clause_decay),
-      mUseLbd(use_lbd)
+    Params(
+      double var_decay,
+      double clause_decay,
+      bool use_lbd
+    ) : mVarDecay{var_decay},
+	mClauseDecay{clause_decay},
+	mUseLbd{use_lbd}
     {
     }
 #else
-
-    /// @brief コンストラクタ
-    Params() :
-      mVarDecay(1.0),
-      mClauseDecay(1.0)
-    {
-    }
-
     /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay) :
-      mVarDecay(var_decay),
-      mClauseDecay(clause_decay)
+    Params(
+      double var_decay,
+      double clause_decay
+    ) : mVarDecay{var_decay},
+	mClauseDecay{clause_decay}
     {
     }
 #endif
@@ -91,8 +81,9 @@ public:
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] option オプション文字列
-  YmSat(const string& option = string());
+  YmSat(
+    const string& option = string{} ///< [in] オプション文字列
+  );
 
   /// @brief デストラクタ
   ~YmSat();
@@ -108,35 +99,36 @@ public:
   sane() const override;
 
   /// @brief 変数を追加する．
-  /// @param[in] decision 決定変数の時に true とする．
   /// @return 新しい変数番号を返す．
-  /// @note 変数番号は 0 から始まる．
   int
-  new_variable(bool decision) override;
+  new_variable(
+    bool decision ///< [in] 決定変数の時に true とする．
+  ) override;
 
   /// @brief リテラルを 'フリーズ' する．
   ///
   /// lingeling 以外は無効
   void
-  freeze_literal(SatLiteral lit) override;
+  freeze_literal(
+    SatLiteral lit
+  ) override;
 
   /// @brief 節を追加する．
-  /// @param[in] lits リテラルのベクタ
   void
-  add_clause(const vector<SatLiteral>& lits) override;
+  add_clause(
+    const vector<SatLiteral>& lits ///< [in] リテラルのベクタ
+  ) override;
 
   /// @brief SAT 問題を解く．
-  /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-  /// @param[out] model 充足するときの値の割り当てを格納する配列．
-  /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
   /// @retval SatBool3::True 充足した．
   /// @retval SatBool3::False 充足不能が判明した．
   /// @retval SatBool3::X わからなかった．
-  /// @note i 番めの変数の割り当て結果は model[i] に入る．
   SatBool3
-  solve(const vector<SatLiteral>& assumptions,
-	SatModel& model,
-	vector<SatLiteral>& conflicts) override;
+  solve(
+    const vector<SatLiteral>& assumptions, ///< [in] あらかじめ仮定する変数の値割り当てリスト
+    SatModel& model,                       ///< [out] 充足するときの値の割り当てを格納する配列．
+    vector<SatLiteral>& conflicts          ///< [out] 充足不能の場合に原因となっている仮定を入れる配列．
+  ) override;
 
   /// @brief 探索を中止する．
   ///
@@ -153,19 +145,23 @@ public:
   get_stats() const override;
 
   /// @brief conflict_limit の最大値
-  /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
-  int
-  set_max_conflict(int val) override;
+  SizeType
+  set_max_conflict(
+    SizeType val ///< [in] 設定する値
+  ) override;
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
-  /// @param[in] msg_handler 登録するメッセージハンドラ
   void
-  reg_msg_handler(SatMsgHandler* msg_handler) override;
+  reg_msg_handler(
+    SatMsgHandler* msg_handler ///< [in] 登録するメッセージハンドラ
+  ) override;
 
   /// @brief 時間計測機能を制御する
   void
-  timer_on(bool enable) override;
+  timer_on(
+    bool enable
+  ) override;
 
 
 private:
@@ -193,7 +189,9 @@ private:
   /// @param[in] restart リスタート回数
   virtual
   void
-  update_on_restart(int restart) = 0;
+  update_on_restart(
+    SizeType restart
+  ) = 0;
 
   /// @brief コンフリクト時に制御パラメータの更新を行う．
   virtual
@@ -201,9 +199,9 @@ private:
   update_on_conflict() = 0;
 
   /// @brief 次の割り当てを選ぶ．
-  /// @note 割り当てられる変数がない場合には kSatLiteralX を返す．
+  /// @note 割り当てられる変数がない場合には Literal::X を返す．
   virtual
-  SatLiteral
+  Literal
   next_decision() = 0;
 
   /// @brief 学習節の整理を行なう．
@@ -222,82 +220,169 @@ protected:
   /// @brief 矛盾回数の制限値を設定する．
   /// @param[in] limit 設定する値
   void
-  set_conflict_limit(int limit);
+  set_conflict_limit(
+    SizeType limit
+  )
+  {
+    mConflictLimit = limit;
+  }
 
   /// @brief 学習節の制限値を設定する．
   /// @param[in] limit 設定する値
   void
-  set_learnt_limit(int limit);
+  set_learnt_limit(
+    SizeType limit
+  )
+  {
+    mLearntLimit = limit;
+  }
 
   /// @brief 変数ヒープを得る．
   VarHeap&
-  var_heap();
+  var_heap()
+  {
+    return mVarHeap;
+  }
 
   /// @brief 変数の数を得る．
-  int
-  variable_num();
+  SizeType
+  variable_num()
+  {
+    return mVarNum;
+  }
 
   /// @brief 制約節数を得る．
-  int
-  clause_num();
+  SizeType
+  clause_num()
+  {
+    return mConstrClauseNum;
+  }
 
   /// @brief 学習節のリストを返す．
-  vector<SatClause*>&
-  learnt_clause_list();
+  vector<Clause*>&
+  learnt_clause_list()
+  {
+    return mLearntClauseList;
+  }
 
   /// @brief 節を削除する．
   /// @param[in] clause 削除する節
   void
-  delete_clause(SatClause* clause);
+  delete_clause(
+    Clause* clause
+  );
 
   /// @brief 学習節のアクティビティ増加量を返す．
   double
-  clause_bump() const;
+  clause_bump() const
+  {
+    return mClauseBump;
+  }
 
   /// @brief watcher list を得る．
   /// @param[in] lit リテラル
   WatcherList&
-  watcher_list(SatLiteral lit);
+  watcher_list(
+    Literal lit
+  )
+  {
+    auto index = lit.index();
+    ASSERT_COND( index < (mVarNum * 2) );
+    return mWatcherList[index];
+  }
 
   /// @brief 変数1の評価を行う．
   /// @param[in] id 変数番号
   SatBool3
-  eval(int id) const;
+  eval(
+    int id
+  ) const
+  {
+    ASSERT_COND( id >= 0 && id < mVarNum );
+
+    return cur_val(mVal[id]);
+  }
 
   /// @brief literal の評価を行う．
   /// @param[in] l リテラル
   SatBool3
-  eval(SatLiteral l) const;
+  eval(
+    Literal l
+  ) const
+  {
+    auto index = l.index();
+    ASSERT_COND( (index / 2) < mVarNum );
+    int x = mVal[index / 2] & 3U;
+    int inv = index & 1U;
+    int d = 1 - (inv * 2);
+    return static_cast<SatBool3>((static_cast<int>(x) - 1) * d);
+  }
 
   /// @brief 変数の直前の値を返す．
   SatBool3
-  old_val(int id) const;
+  old_val(
+    int id
+  ) const
+  {
+    ASSERT_COND( id >= 0 && id < mVarNum );
+
+    return conv_to_Bool3((mVal[id] >> 2) & 3U);
+  }
 
   /// @brief 現在の decision level を返す．
   int
-  decision_level() const;
+  decision_level() const
+  {
+    return mAssignList.cur_level();
+  }
 
   /// @brief 変数の decision level を返す．
   /// @param[in] varid 変数番号
   int
-  decision_level(int varid) const;
+  decision_level(
+    int varid
+  ) const
+  {
+    ASSERT_COND( varid >= 0 && varid < mVarNum );
+
+    return mDecisionLevel[varid];
+  }
 
 #if YMSAT_USE_LBD
   /// @brief LBD を計算する．
   /// @param[in] clause 対象の節
   int
-  calc_lbd(const SatClause* clause);
+  calc_lbd(
+    const Clause* clause
+  );
 #endif
 
   /// @brief 変数の割り当て理由を返す．
   /// @param[in] varid 変数番号
-  SatReason
-  reason(int varid) const;
+  Reason
+  reason(
+    int varid
+  ) const
+  {
+    ASSERT_COND( varid >= 0 && varid < mVarNum );
+
+    return mReason[varid];
+  }
 
   /// @brief 学習節が使われているか調べる．
   /// @param[in] clause 対象の節
   bool
-  is_locked(SatClause* clause) const;
+  is_locked(
+    Clause* clause
+  ) const
+  {
+    // 直感的には分かりにくいが，節の最初のリテラルは
+    // 残りのリテラルによって含意されていることになっている．
+    // そこで最初のリテラルの変数の割り当て理由が自分自身か
+    // どうかを調べれば clause が割り当て理由として用いられて
+    // いるかわかる．
+    return reason(clause->wl0().varid()) == Reason{clause};
+  }
 
 
 private:
@@ -310,15 +395,17 @@ private:
   /// @brief 割当てキューに基づいて implication を行う．
   /// @return 矛盾が生じたら矛盾の原因を返す．
   ///
-  /// 矛盾が生じていなかったら kNullSatReason を返す．
+  /// 矛盾が生じていなかったら Reason::None を返す．
   /// 矛盾の原因とは実際には充足していない節である．
-  SatReason
+  Reason
   implication();
 
   /// @brief バックトラックする
   /// @param[in] level バックトラックするレベル
   void
-  backtrack(int level);
+  backtrack(
+    int level
+  );
 
   /// @brief 値の割当てか可能かチェックする．
   /// @param[in] lit 割り当てるリテラル
@@ -327,14 +414,39 @@ private:
   /// すでに同じ値が割り当てられていたらなにもしない．
   /// 割り当てには assign() を呼び出す．
   bool
-  check_and_assign(SatLiteral lit);
+  check_and_assign(
+    Literal lit
+  )
+  {
+    auto old_val = eval(lit);
+    if ( old_val != SatBool3::X ) {
+      return old_val == SatBool3::True;
+    }
+    assign(lit);
+    return true;
+  }
 
   /// @brief 値の割当てを行う．
   /// @param[in] lit 割り当てるリテラル
   /// @param[in] reason 割り当ての理由
   void
-  assign(SatLiteral lit,
-	 SatReason reason = SatReason());
+  assign(
+    Literal lit,
+    Reason reason = Reason::None
+  )
+  {
+    auto lindex = lit.index();
+    int vindex = lindex / 2;
+    int inv = lindex & 1U;
+    ymuint8 x = 2 - inv * 2;
+    ASSERT_COND( vindex < mVarNum );
+    mVal[vindex] = x;
+    mDecisionLevel[vindex] = decision_level();
+    mReason[vindex] = reason;
+
+    // mAssignList に格納する．
+    mAssignList.put(lit);
+  }
 
   /// @brief CNF を簡単化する．
   ///
@@ -348,59 +460,86 @@ private:
   ///
   /// reduce_CNF() の中で用いられる．
   void
-  sweep_clause(vector<SatClause*>& clause_list);
+  sweep_clause(
+    vector<Clause*>& clause_list
+  );
 
   /// @brief 学習節を追加する．
   /// @param[in] learnt_lits 追加する節のもととなるリテラルのリスト
   void
-  add_learnt_clause(const vector<SatLiteral>& learnt_lits);
+  add_learnt_clause(
+    const vector<Literal>& learnt_lits
+  );
 
   /// @brief mTmpLits を確保する．
   /// @param[in] lit_num リテラル数
   void
-  alloc_lits(int lit_num);
+  alloc_lits(
+    SizeType lit_num
+  );
 
   /// @brief 新しい節を生成する．
   /// @param[in] lit_num リテラル数
   /// @param[in] learnt 学習節のとき true とするフラグ
   /// @param[in] lbd 学習節のときの literal block distance
   /// @note リテラルは mTmpLits に格納されている．
-  SatClause*
-  new_clause(int lit_num,
-	     bool learnt = false);
+  Clause*
+  new_clause(
+    SizeType lit_num,
+    bool learnt = false
+  );
 
   /// @brief Watcher を追加する．
   /// @param[in] watch_lit リテラル
   /// @param[in] reason 理由
   void
-  add_watcher(SatLiteral watch_lit,
-	      SatReason reason);
+  add_watcher(
+    Literal watch_lit,
+    Reason reason
+  )
+  {
+    watcher_list(watch_lit).add(Watcher{reason});
+  }
 
   /// @brief watcher を削除する．
   /// @param[in] watch_lit リテラル
   /// @param[in] reason 理由
   void
-  del_watcher(SatLiteral watch_lit,
-	      SatReason reason);
+  del_watcher(
+    Literal watch_lit,
+    Reason reason
+  );
 
   /// @brief 充足された watcher を削除する．
   /// @param[in] watch_lit リテラル
   void
-  del_satisfied_watcher(SatLiteral watch_lit);
+  del_satisfied_watcher(
+    Literal watch_lit
+  );
 
   /// @brief 変数のアクティビティを増加させる．
   /// @param[in] var 変数番号
   void
-  bump_var_activity(int var);
+  bump_var_activity(
+    int var
+  )
+  {
+    mVarHeap.bump_var_activity(var);
+  }
 
   /// @brief 変数のアクティビティを定率で減少させる．
   void
-  decay_var_activity();
+  decay_var_activity()
+  {
+    mVarHeap.decay_var_activity();
+  }
 
   /// @brief 学習節のアクティビティを増加させる．
   /// @param[in] clause 対象の学習節
   void
-  bump_clause_activity(SatClause* clause);
+  bump_clause_activity(
+    Clause* clause
+  );
 
   /// @brief 学習節のアクティビティを定率で減少させる．
   void
@@ -414,6 +553,35 @@ private:
   void
   expand_var();
 
+  static
+  SatBool3
+  conv_to_Bool3(
+    ymuint8 x
+  )
+  {
+    int tmp = static_cast<int>(x) - 1;
+    return static_cast<SatBool3>(tmp);
+  }
+
+  static
+  SatBool3
+  cur_val(
+    ymuint8 x
+  )
+  {
+    return conv_to_Bool3(x & 3U);
+  }
+
+  static
+  ymuint8
+  conv_from_Bool3(
+    SatBool3 b
+  )
+  {
+    int tmp = static_cast<int>(b) + 1;
+    return static_cast<ymuint8>(tmp);
+  }
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -424,20 +592,19 @@ private:
   struct BinClause
   {
     /// @brief 空のコンストラクタ
-    BinClause()
-    {
-    }
+    BinClause() = default;
 
     /// @brief コンストラクタ
-    BinClause(SatLiteral l0,
-	      SatLiteral l1)
+    BinClause(
+      Literal l0,
+      Literal l1
+    ) : mLit0{l0},
+	mLit1{l1}
     {
-      mLit0 = l0;
-      mLit1 = l1;
     }
 
-    SatLiteral mLit0;
-    SatLiteral mLit1;
+    Literal mLit0;
+    Literal mLit1;
   };
 
 
@@ -447,32 +614,32 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 解析器
-  SatAnalyzer* mAnalyzer;
+  Analyzer* mAnalyzer;
 
   // 正常の時に true となっているフラグ
-  bool mSane;
+  bool mSane{true};
 
   // 制約節のリスト
   // ただし二項節は含まない．
-  vector<SatClause*> mConstrClauseList;
+  vector<Clause*> mConstrClauseList;
 
   // 二項節を表すリテラルのリスト
   vector<BinClause> mConstrBinList;
 
   // 制約節の数(二項節も含む)
-  int mConstrClauseNum;
+  SizeType mConstrClauseNum{0};
 
   // 制約節の総リテラル数 (二項制約節も含む)
-  int mConstrLitNum;
+  SizeType mConstrLitNum{0};
 
   // 学習節のリスト
-  vector<SatClause*> mLearntClauseList;
+  vector<Clause*> mLearntClauseList;
 
   // 二項学習節の数
-  int mLearntBinNum;
+  SizeType mLearntBinNum{0};
 
   // 学習節の総リテラル数 (二項制約節も含む)
-  int mLearntLitNum;
+  SizeType mLearntLitNum{0};
 
 #if YMSAT_USE_DVAR
   // dvar 配列
@@ -480,34 +647,34 @@ private:
 #endif
 
   // 変数の数
-  int mVarNum;
+  SizeType mVarNum{0};
 
   // 前回の alloc_var で処理した時の変数の数
-  int mOldVarNum;
+  SizeType mOldVarNum{0};
 
   // 変数関係の配列のサイズ
-  int mVarSize;
+  SizeType mVarSize{0};
 
   // 値の配列
   // サイズは mVarSize
-  ymuint8* mVal;
+  ymuint8* mVal{nullptr};
 
   // 値が割り当てられたときのレベルの配列
   // サイズは mVarSize
-  int* mDecisionLevel;
+  int* mDecisionLevel{nullptr};
 
   // 値が割り当てられた理由の配列
   // サイズは mVarSize
-  SatReason* mReason;
+  Reason* mReason{nullptr};
 
   // watcher list の配列
   // サイズは mVarSize * 2
-  WatcherList* mWatcherList;
+  WatcherList* mWatcherList{nullptr};
 
 #if YMSAT_USE_WEIGHTARRAY
   // 変数の極性ごとの重み
   // サイズは mVarSize * 2
-  double* mWeightArray;
+  double* mWeightArray{nullptr};
 #endif
 
   // 変数のヒープ木
@@ -516,17 +683,17 @@ private:
 #if YMSAT_USE_LBD
   // calc_lbd() 用の作業領域
   // サイズは decision_level() + 1
-  bool* mLbdTmp;
+  bool* mLbdTmp{nullptr};
 
   // mLbdTmp のサイズ．
-  int mLbdTmpSize;
+  SizeType mLbdTmpSize{0};
 #endif
 
   // 矛盾の解析時にテンポラリに使用される節
-  SatClause* mTmpBinClause;
+  Clause* mTmpBinClause{nullptr};
 
   // search 開始時の decision level
-  int mRootLevel;
+  int mRootLevel{0};
 
   // 値割り当てを保持するリスト
   AssignList mAssignList;
@@ -544,7 +711,7 @@ private:
   double mClauseDecay;
 
   // mTimer を使うとき true にするフラグ
-  bool mTimerOn;
+  bool mTimerOn{false};
 
   using Clock = std::chrono::system_clock;
   using TimePoint = std::chrono::time_point<Clock>;
@@ -560,37 +727,37 @@ private:
   Params mParams;
 
   // restart 数
-  int mRestart;
+  SizeType mRestart{0};
 
   // 総コンフリクト数
-  int mConflictNum;
+  SizeType mConflictNum{0};
 
   // 総 decision 数
-  int mDecisionNum;
+  SizeType mDecisionNum{0};
 
   // 総 implication 数
-  int mPropagationNum;
+  SizeType mPropagationNum{0};
 
   // コンフリクト数の制限
-  int mConflictLimit;
+  SizeType mConflictLimit{0};
 
   // 学習節の制限
-  int mLearntLimit;
+  SizeType mLearntLimit{0};
 
   // トータルのコンフリクト数の制限
-  int mMaxConflict;
+  SizeType mMaxConflict{0};
 
   // stop() が用いるフラグ
-  bool mGoOn;
+  bool mGoOn{false};
 
   // メッセージハンドラのリスト
   vector<SatMsgHandler*> mMsgHandlerList;
 
   // add_clause で一時的に利用するリテラル配列
-  SatLiteral* mTmpLits;
+  Literal* mTmpLits{nullptr};
 
   // mTmpLits のサイズ
-  int mTmpLitsSize;
+  SizeType mTmpLitsSize{0};
 
 
 private:
@@ -631,7 +798,7 @@ private:
 
 };
 
-
+#if 0
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
@@ -680,7 +847,7 @@ YmSat::clause_num()
 
 // @brief 学習節のリストを返す．
 inline
-vector<SatClause*>&
+vector<Clause*>&
 YmSat::learnt_clause_list()
 {
   return mLearntClauseList;
@@ -697,7 +864,7 @@ YmSat::clause_bump() const
 // watcher list を得る．
 inline
 WatcherList&
-YmSat::watcher_list(SatLiteral lit)
+YmSat::watcher_list(Literal lit)
 {
   int index = lit.index();
   ASSERT_COND( index < (mVarNum * 2) );
@@ -707,8 +874,8 @@ YmSat::watcher_list(SatLiteral lit)
 // Watcher を追加する．
 inline
 void
-YmSat::add_watcher(SatLiteral watch_lit,
-		   SatReason reason)
+YmSat::add_watcher(Literal watch_lit,
+		   Reason reason)
 {
   watcher_list(watch_lit).add(Watcher(reason));
 }
@@ -745,7 +912,7 @@ YmSat::eval(int id) const
 // literal の評価を行う．
 inline
 SatBool3
-YmSat::eval(SatLiteral l) const
+YmSat::eval(Literal l) const
 {
   int index = l.index();
   ASSERT_COND( (index / 2) < mVarNum );
@@ -769,7 +936,7 @@ YmSat::old_val(int id) const
 // 矛盾が起きたら false を返す．
 inline
 bool
-YmSat::check_and_assign(SatLiteral lit)
+YmSat::check_and_assign(Literal lit)
 {
   auto old_val = eval(lit);
   if ( old_val != SatBool3::X ) {
@@ -794,8 +961,8 @@ END_NONAMESPACE
 // 値の割当てを行う．
 inline
 void
-YmSat::assign(SatLiteral lit,
-	      SatReason reason)
+YmSat::assign(Literal lit,
+	      Reason reason)
 {
   int lindex = lit.index();
   int vindex = lindex / 2;
@@ -830,7 +997,7 @@ YmSat::decision_level(int varid) const
 
 // 変数の割り当て理由を返す．
 inline
-SatReason
+Reason
 YmSat::reason(int varid) const
 {
   ASSERT_COND( varid >= 0 && varid < mVarNum );
@@ -841,14 +1008,14 @@ YmSat::reason(int varid) const
 // @brief clase が含意の理由になっているか調べる．
 inline
 bool
-YmSat::is_locked(SatClause* clause) const
+YmSat::is_locked(Clause* clause) const
 {
   // 直感的には分かりにくいが，節の最初のリテラルは
   // 残りのリテラルによって含意されていることになっている．
   // そこで最初のリテラルの変数の割り当て理由が自分自身か
   // どうかを調べれば clause が割り当て理由として用いられて
   // いるかわかる．
-  return reason(clause->wl0().varid()) == SatReason{clause};
+  return reason(clause->wl0().varid()) == Reason{clause};
 }
 
 // @brief 変数のアクティビティを増加させる．
@@ -867,6 +1034,7 @@ YmSat::decay_var_activity()
 {
   mVarHeap.decay_var_activity();
 }
+#endif
 
 END_NAMESPACE_YM_YMSATOLD
 

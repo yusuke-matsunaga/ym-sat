@@ -64,22 +64,27 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 変数を追加する．
-  /// @param[in] decision 決定変数の時に true とする．
   /// @return 新しい変数番号を返す．
-  /// @note 変数番号は 0 から始まる．
+  ///
+  /// 変数番号は 0 から始まる．
   int
-  new_variable(bool decision) override;
+  new_variable(
+    bool decision ///< [in] 決定変数の時に true とする．
+  ) override;
 
   /// @brief リテラルを 'フリーズ' する．
   ///
   /// lingeling 以外は無効
   void
-  freeze_literal(SatLiteral lit) override;
+  freeze_literal(
+    SatLiteral lit ///< [in] リテラル
+  ) override;
 
   /// @brief 節を追加する．
-  /// @param[in] lits リテラルのベクタ
   void
-  add_clause(const vector<SatLiteral>& lits) override;
+  add_clause(
+    const vector<SatLiteral>& lits ///< [in] リテラルのベクタ
+  ) override;
 
   //////////////////////////////////////////////////////////////////////
   /// @}
@@ -93,17 +98,16 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief SAT 問題を解く．
-  /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-  /// @param[out] model 充足するときの値の割り当てを格納する配列．
-  /// @param[out] conflicts 充足不能の場合に原因となっている仮定を入れる配列．
-  /// @retval kB3True 充足した．
-  /// @retval kB3False 充足不能が判明した．
-  /// @retval kB3X わからなかった．
+  /// @retval SatBool3::True 充足した．
+  /// @retval SatBool3::False 充足不能が判明した．
+  /// @retval SatBool3::X わからなかった．
   /// @note i 番めの変数の割り当て結果は model[i] に入る．
   SatBool3
-  solve(const vector<SatLiteral>& assumptions,
-	SatModel& model,
-	vector<SatLiteral>& conflicts) override;
+  solve(
+    const vector<SatLiteral>& assumptions, ///< [in] あらかじめ仮定する変数の値割り当てリスト
+    SatModel& model,                       ///< [out] 充足するときの値の割り当てを格納する配列．
+    vector<SatLiteral>& conflicts          ///< [out] 充足不能の場合に原因となっている仮定を入れる配列．
+  ) override;
 
   /// @brief 探索を中止する．
   ///
@@ -113,18 +117,22 @@ public:
 
   /// @brief 時間計測機能を制御する
   void
-  timer_on(bool enable) override;
+  timer_on(
+    bool enable
+  ) override;
 
   /// @brief conflict_limit の最大値
-  /// @param[in] val 設定する値
   /// @return 以前の設定値を返す．
-  int
-  set_max_conflict(int val) override;
+  SizeType
+  set_max_conflict(
+    SizeType val ///< [in] 設定する値
+  ) override;
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
-  /// @param[in] msg_handler 登録するメッセージハンドラ
   void
-  reg_msg_handler(SatMsgHandler* msg_handler) override;
+  reg_msg_handler(
+    SatMsgHandler* msg_handler ///< [in] 登録するメッセージハンドラ
+  ) override;
 
   //////////////////////////////////////////////////////////////////////
   /// @}
@@ -157,57 +165,98 @@ protected:
 
   /// @brief コアマネージャを返す．
   CoreMgr&
-  mgr();
+  mgr()
+  {
+    return mMgr;
+  }
 
   /// @brief Controler をセットする．
   void
-  set_controller(Controller* controller);
+  set_controller(Controller* controller)
+  {
+    mController = controller;
+  }
 
   /// @brief Analyzer をセットする．
   void
-  set_analyzer(Analyzer* analyzer);
+  set_analyzer(Analyzer* analyzer)
+  {
+    mAnalyzer = analyzer;
+  }
 
   /// @brief Selecter をセットする．
   void
-  set_selecter(Selecter* selecter);
+  set_selecter(Selecter* selecter)
+  {
+    mSelecter = selecter;
+  }
 
   /// @brief 制約節の数を得る．
-  int
-  _clause_num() const;
+  SizeType
+  _clause_num() const
+  {
+    return mMgr.clause_num();
+  }
 
   /// @brief 総矛盾数を返す．
-  int
-  conflict_num() const;
+  SizeType
+  conflict_num() const
+  {
+    return mMgr.conflict_num();
+  }
 
   /// @brief 総分岐数を返す．
-  int
-  decision_num() const;
+  SizeType
+  decision_num() const
+  {
+    return mMgr.decision_num();
+  }
 
   /// @brief 総インプリケーション数を返す．
-  int
-  propagation_num() const;
+  SizeType
+  propagation_num() const
+  {
+    return mMgr.propagation_num();
+  }
 
   /// @brief 矛盾回数の制限値を得る．
-  int
-  conflict_limit() const;
+  SizeType
+  conflict_limit() const
+  {
+    return mMgr.conflict_limit();
+  }
 
   /// @brief 学習節の制限値を得る．
-  int
-  learnt_limit() const;
+  SizeType
+  learnt_limit() const
+  {
+    return mMgr.learnt_limit();
+  }
 
   /// @brief conflict_limit の最大値を返す．
-  int
-  max_conflict() const;
+  SizeType
+  max_conflict() const
+  {
+    return mMgr.max_conflict();
+  }
 
   /// @brief 矛盾回数の制限値を設定する．
-  /// @param[in] limit 設定する値
   void
-  set_conflict_limit(int limit);
+  set_conflict_limit(
+    SizeType limit ///< [in] 設定する値
+  )
+  {
+    mMgr.set_conflict_limit(limit);
+  }
 
   /// @brief 学習節の制限値を設定する．
-  /// @param[in] limit 設定する値
   void
-  set_learnt_limit(int limit);
+  set_learnt_limit(
+    SizeType limit ///< [in] 設定する値
+  )
+  {
+    mMgr.set_learnt_limit(limit);
+  }
 
 
 private:
@@ -228,119 +277,6 @@ private:
   Selecter* mSelecter;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief コアマネージャを返す．
-inline
-CoreMgr&
-YmSat::mgr()
-{
-  return mMgr;
-}
-
-// @brief Controler をセットする．
-inline
-void
-YmSat::set_controller(Controller* controller)
-{
-  mController = controller;
-}
-
-// @brief Analyzer をセットする．
-inline
-void
-YmSat::set_analyzer(Analyzer* analyzer)
-{
-  mAnalyzer = analyzer;
-}
-
-// @brief Selecter を返す．
-inline
-void
-YmSat::set_selecter(Selecter* selecter)
-{
-  mSelecter = selecter;
-}
-
-// @brief 制約節の数を得る．
-inline
-int
-YmSat::_clause_num() const
-{
-  return mMgr.clause_num();
-}
-
-// @brief 総矛盾数を返す．
-inline
-int
-YmSat::conflict_num() const
-{
-  return mMgr.conflict_num();
-}
-
-// @brief 総分岐数を返す．
-inline
-int
-YmSat::decision_num() const
-{
-  return mMgr.decision_num();
-}
-
-// @brief 総インプリケーション数を返す．
-inline
-int
-YmSat::propagation_num() const
-{
-  return mMgr.propagation_num();
-}
-
-// @brief 矛盾回数の制限値を得る．
-inline
-int
-YmSat::conflict_limit() const
-{
-  return mMgr.conflict_limit();
-}
-
-// @brief 学習節の制限値を得る．
-inline
-int
-YmSat::learnt_limit() const
-{
-  return mMgr.learnt_limit();
-}
-
-// @brief conflict_limit の最大値
-// @param[in] val 設定する値
-// @return 以前の設定値を返す．
-inline
-int
-YmSat::max_conflict() const
-{
-  return mMgr.max_conflict();
-}
-
-// @brief 矛盾回数の制限値を設定する．
-// @param[in] limit 設定する値
-inline
-void
-YmSat::set_conflict_limit(int limit)
-{
-  mMgr.set_conflict_limit(limit);
-}
-
-// @brief 学習節の制限値を設定する．
-// @param[in] limit 設定する値
-inline
-void
-YmSat::set_learnt_limit(int limit)
-{
-  mMgr.set_learnt_limit(limit);
-}
 
 END_NAMESPACE_YM_SAT
 

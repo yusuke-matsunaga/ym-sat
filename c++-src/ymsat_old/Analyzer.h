@@ -1,21 +1,25 @@
-﻿#ifndef ANALYZER_H
-#define ANALYZER_H
+﻿#ifndef YMSAT1OLD_ANALYZER_H
+#define YMSAT1OLD_ANALYZER_H
 
 /// @file Analyzer.h
 /// @brief Analyzer のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/sat.h"
-#include "CoreMgr.h"
+#include "YmSat.h"
 #include "Reason.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
-class Clause;
+class Class;
+
+END_NAMESPACE_YM_SAT
+
+
+BEGIN_NAMESPACE_YM_YMSATOLD
 
 //////////////////////////////////////////////////////////////////////
 /// @class Analyzer Analyzer.h "Analyzer.h"
@@ -36,8 +40,8 @@ public:
 
   /// @brief コンストラクタ
   Analyzer(
-    CoreMgr& mgr ///< [in] コアマネージャ
-  ) : mMgr{mgr}
+    YmSat* solver ///< [in] SATソルバ
+  ) : mSolver{solver}
   {
   }
 
@@ -52,18 +56,19 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 解析を行う．
-  /// @return バックトラックレベルと学習された節を表すリテラルのベクタを返す．
+  /// @return バックトラックレベル
   virtual
-  tuple<int, vector<Literal>>
+  int
   analyze(
-    Reason creason ///< [in] 矛盾の原因
+    Reason creason,         ///< [in] 矛盾の原因
+    vector<Literal>& learnt ///< [in] 学習された節を表すリテラルのベクタ
   ) = 0;
 
   /// @brief 新しい変数が追加されたときに呼ばれる仮想関数
   virtual
   void
   alloc_var(
-    SizeType size ///< [in] 要求するサイズ
+    SizeType size
   ) = 0;
 
 
@@ -76,14 +81,14 @@ protected:
   int
   decision_level() const
   {
-    return mMgr.decision_level();
+    return mSolver->decision_level();
   }
 
   /// @brief 割り当てリストの末尾の位置を得る．
   SizeType
   last_assign()
   {
-    return mMgr.last_assign();
+    return mSolver->mAssignList.size() - 1;
   }
 
   /// @brief 割り当てリストの pos 番めの要素を得る．
@@ -92,34 +97,34 @@ protected:
     SizeType pos ///< [in] 位置番号
   )
   {
-    return mMgr.get_assign(pos);
+    return mSolver->mAssignList.get(pos);
   }
 
   /// @brief 変数の decision level を得る．
   int
   decision_level(
-    int varid ///< [in] 対象の変数
+    SizeType varid ///< [in] 対象の変数
   ) const
   {
-    return mMgr.decision_level(varid);
+    return mSolver->decision_level(varid);
   }
 
   /// @brief 変数の割り当て理由を得る．
   Reason
   reason(
-    int varid ///< [in] 対象の変数
+    SizeType varid ///< [in] 対象の変数
   ) const
   {
-    return mMgr.reason(varid);
+    return mSolver->reason(varid);
   }
 
   /// @brief 変数のアクティビティを増加させる．
   void
   bump_var_activity(
-    int varid ///< [in] 対象の変数
+    SizeType varid ///< [in] 対象の変数
   )
   {
-    mMgr.bump_var_activity(varid);
+    mSolver->bump_var_activity(varid);
   }
 
   /// @brief 節のアクティビティを上げる．
@@ -128,7 +133,7 @@ protected:
     Clause* clause ///< [in] 対象の節
   )
   {
-    mMgr.bump_clause_activity(clause);
+    mSolver->bump_clause_activity(clause);
   }
 
 
@@ -137,8 +142,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // コアマネージャ
-  CoreMgr& mMgr;
+  // YmSat へのポインタ
+  YmSat* mSolver;
 
 };
 
@@ -155,12 +160,12 @@ public:
   static
   Analyzer*
   gen_analyzer(
-    CoreMgr& mgr,                   ///< [in] コアマネージャ
+    YmSat* solver,                  ///< [in] SATソルバ
     const string& option = string{} ///< [in] どのクラスを生成するかを決めるオプション文字列
   );
 
 };
 
-END_NAMESPACE_YM_SAT
+END_NAMESPACE_YM_YMSATOLD
 
-#endif // ANALYZER_H
+#endif // YMSAT1_SATANALYZER_H

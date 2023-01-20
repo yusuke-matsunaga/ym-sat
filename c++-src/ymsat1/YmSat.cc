@@ -509,10 +509,10 @@ YmSat::reduce_learnt_clause()
 // @brief conflict_limit の最大値
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．
-int
-YmSat::set_max_conflict(int val)
+SizeType
+YmSat::set_max_conflict(SizeType val)
 {
-  int old_val = mMaxConflict;
+  auto old_val = mMaxConflict;
   mMaxConflict = val;
   return old_val;
 }

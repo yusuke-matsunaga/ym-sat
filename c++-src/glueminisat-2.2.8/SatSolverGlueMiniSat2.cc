@@ -158,8 +158,8 @@ SatSolverGlueMiniSat2::stop()
 // @brief conflict_limit の最大値
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．
-int
-SatSolverGlueMiniSat2::set_max_conflict(int val)
+SizeType
+SatSolverGlueMiniSat2::set_max_conflict(SizeType val)
 {
   // 無効
   return 0;

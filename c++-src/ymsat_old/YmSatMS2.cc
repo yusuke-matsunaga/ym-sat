@@ -86,7 +86,9 @@ YmSatMS2::init_control_parameters()
 // @brief リスタート時に制御パラメータの更新を行う．
 // @param[in] restart リスタート回数
 void
-YmSatMS2::update_on_restart(int restart)
+YmSatMS2::update_on_restart(
+  SizeType restart
+)
 {
   double restart_inc = 2.0;
   set_conflict_limit(static_cast<int>(luby(restart_inc, restart)) * 100);
@@ -106,7 +108,7 @@ YmSatMS2::update_on_conflict()
 }
 
 // 次の割り当てを選ぶ
-SatLiteral
+Literal
 YmSatMS2::next_decision()
 {
   // 一定確率でランダムな変数を選ぶ．
@@ -116,7 +118,7 @@ YmSatMS2::next_decision()
     auto vid = rd_var(mRandGen);
     if ( eval(vid) == SatBool3::X ) {
       bool inv = rd_freq(mRandGen) < 0.5;
-      return SatLiteral::conv_from_varid(vid, inv);
+      return Literal::conv_from_varid(vid, inv);
     }
   }
 
@@ -142,8 +144,8 @@ YmSatMS2::next_decision()
     }
     {
 #if 0
-      auto plit{SatLiteral::conv_from_varid(vid, false)};
-      auto nlit{SatLiteral::conv_from_varid(vid, true)};
+      auto plit = Literal::conv_from_varid(vid, false);
+      auto nlit = Literal::conv_from_varid(vid, true);
       if ( mParams.mWlPosi ) {
 	// Watcher の多い方の極性を(わざと)選ぶ
 	if ( watcher_list(nlit).num() >= watcher_list(plit).num() ) {
@@ -165,48 +167,34 @@ YmSatMS2::next_decision()
 #endif
     }
   end:
-    return SatLiteral::conv_from_varid(vid, inv);
+    return Literal::conv_from_varid(vid, inv);
   }
 
-  return SatLiteral::X;
+  return Literal::X;
 }
-
-BEGIN_NONAMESPACE
-// reduce_learnt_clause で用いる SatClause の比較関数
-class SatClauseLess
-{
-public:
-  bool
-  operator()(SatClause* a,
-	     SatClause* b)
-  {
-    return a->activity() < b->activity();
-  }
-};
-END_NONAMESPACE
 
 // @brief 学習節の整理を行なう．
 void
 YmSatMS2::reduce_learnt_clause()
 {
-  vector<SatClause*>& lc_list = learnt_clause_list();
+  auto& lc_list = learnt_clause_list();
 
-  int n = lc_list.size();
-  int n2 = n / 2;
+  SizeType n = lc_list.size();
+  SizeType n2 = n / 2;
 
   // 足切りのための制限値
   double abs_limit = clause_bump() / n;
 
   // SatClauseLess を用いて学習節をソートする．
-  sort(lc_list.begin(), lc_list.end(), SatClauseLess());
+  sort(lc_list.begin(), lc_list.end(), ClauseLess{});
 
   // 前半の節は基本削除する．
   // 残す節は，
   // - binary clause (今の実装では SatClause の形にはなっていない)
   // - 現在の割当の理由となっている節
-  int wpos = 0;
-  for ( int i = 0; i < n2; ++ i ) {
-    auto clause{lc_list[i]};
+  SizeType wpos = 0;
+  for ( SizeType i = 0; i < n2; ++ i ) {
+    auto clause = lc_list[i];
     if ( !is_locked(clause) ) {
       delete_clause(clause);
     }
@@ -218,8 +206,8 @@ YmSatMS2::reduce_learnt_clause()
 
   // 残りの節はアクティビティが規定値以下の節を削除する．
   // ただし，上と同じ例外はある．
-  for ( int i = n2; i < n; ++ i ) {
-    auto clause{lc_list[i]};
+  for ( SizeType i = n2; i < n; ++ i ) {
+    auto clause = lc_list[i];
     if ( !is_locked(clause) && clause->activity() < abs_limit ) {
       delete_clause(clause);
     }

@@ -5,9 +5,8 @@
 /// @brief VarHeap のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018, 203 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ymsat_old.h"
 
@@ -37,14 +36,19 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief アクティビティの低減率を設定する．
-  /// @param[in] decay 低減率
   void
-  set_decay(double decay);
+  set_decay(
+    double decay ///< [in] 低減率
+  )
+  {
+    mVarDecay = decay;
+  }
 
   /// @brief 変数のアクティビティを増加させる．
-  /// @param[in] var 変数番号
   void
-  bump_var_activity(int var);
+  bump_var_activity(
+    int var ///< [in] 変数番号
+  );
 
   /// @brief 変数のアクティビティを定率で減少させる．
   void
@@ -52,36 +56,76 @@ public:
 
   /// @brief 空にする．
   void
-  clear();
+  clear()
+  {
+    mHeapNum = 0;
+  }
 
   /// @brief size 個の要素を格納出来るだけの領域を確保する．
-  /// @param[in] size 必要なサイズ
   void
-  alloc_var(int size);
+  alloc_var(
+    SizeType size ///< [in] 必要なサイズ
+  );
 
   /// @brief 要素が空の時 true を返す．
   bool
-  empty() const;
+  empty() const
+  {
+    return mHeapNum == 0;
+  }
 
   /// @brief 変数を始めてヒープに追加する．
-  /// @param[in] var 追加する変数
   void
-  add_var(int var);
+  add_var(
+    int var ///< [in] 追加する変数
+  )
+  {
+    set(var, mHeapNum);
+    mActivity[var] = 0.0;
+    ++ mHeapNum;
+}
 
   /// @brief 変数を再びヒープに追加する．
-  /// @param[in] var 追加する変数
   void
-  push(int var);
+  push(
+    int var ///< [in] 追加する変数
+  )
+  {
+    if ( mHeapPos[var] == -1 ) {
+      auto pos = mHeapNum;
+      ++ mHeapNum;
+      set(var, pos);
+      move_up(pos);
+    }
+  }
 
   /// @brief アクティビティ最大の変数番号を取り出す．
-  /// @note 該当の変数はヒープから取り除かれる．
+  ///
+  /// 該当の変数はヒープから取り除かれる．
   int
-  pop_top();
+  pop_top()
+  {
+    ASSERT_COND(mHeapNum > 0 );
+
+    int ans = mHeap[0];
+    mHeapPos[ans] = -1;
+    -- mHeapNum;
+    if ( mHeapNum > 0 ) {
+      int vindex = mHeap[mHeapNum];
+      set(vindex, 0);
+      move_down(0);
+    }
+    return ans;
+  }
 
   /// @brief 変数のアクティビティを返す．
-  /// @param[in] var 対象の変数
   double
-  activity(int var) const;
+  activity(
+    int var ///< [in] 対象の変数
+  ) const
+  {
+    return mActivity[var];
+  }
 
   /// @brief 変数のアクティビティを初期化する．
   void
@@ -89,12 +133,15 @@ public:
 
   /// @brief 与えられた変数のリストからヒープ木を構成する．
   void
-  build(const vector<int>& var_list);
+  build(
+    const vector<int>& var_list
+  );
 
   /// @brief 内容を出力する
-  /// @param[in] s 出力先のストリーム
   void
-  dump(ostream& s) const;
+  dump(
+    ostream& s ///< [in] 出力先のストリーム
+  ) const;
 
 
 private:
@@ -103,41 +150,76 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 引数の位置にある要素を適当な位置まで沈めてゆく
-  /// @param[in] pos 対象の要素の位置
   void
-  move_down(int pos);
+  move_down(
+    SizeType pos ///< [in] 対象の要素の位置
+  );
 
   /// @brief 引数の位置にある要素を適当な位置まで上げてゆく
-  /// @param[in] vindex 対象の変数番号
   void
-  move_up(int vindex);
+  move_up(
+    SizeType pos ///< [in] 対象の要素の位置
+  )
+  {
+    int vindex = mHeap[pos];
+    double val = mActivity[vindex];
+    while ( pos > 0 ) {
+      auto pos_p = parent(pos);
+      int vindex_p = mHeap[pos_p];
+      double val_p = mActivity[vindex_p];
+      if ( val_p >= val ) {
+	break;
+      }
+      set(vindex, pos_p);
+      set(vindex_p, pos);
+      pos = pos_p;
+    }
+  }
 
   /// @brief 変数を配列にセットする．
-  /// @param[in] vindex 対象の変数番号
-  /// @param[in] pos 位置
-  /// @note mHeap と mHeapPos の一貫性を保つためにはこの関数を使うこと．
+  ///
+  /// mHeap と mHeapPos の一貫性を保つためにはこの関数を使うこと．
   void
-  set(int vindex,
-      int pos);
+  set(
+    int vindex,  ///< [in] 対象の変数番号
+    SizeType pos ///< [in] 位置
+  )
+  {
+    mHeap[pos] = vindex;
+    mHeapPos[vindex] = pos;
+  }
 
   /// @brief 左の子供の位置を計算する
-  /// @param[in] pos 親の位置
   static
-  int
-  left(int pos);
+  SizeType
+  left(
+    SizeType pos ///< [in] 親の位置
+  )
+  {
+    return pos + pos + 1;
+  }
 
   /// @brief 右の子供の位置を計算する．
-  /// @param[in] pos 親の位置
   static
-  int
-  right(int pos);
+  SizeType
+  right(
+    SizeType pos ///< [in] 親の位置
+  )
+  {
+    return pos + pos + 2;
+  }
 
   /// @brief 親の位置を計算する．
-  /// @param[in] pos 子供の位置
-  /// @note 左の子供でも右の子供でも同じ
+  ///
+  /// 左の子供でも右の子供でも同じ
   static
-  int
-  parent(int pos);
+  SizeType
+  parent(
+    SizeType pos ///< [in] 子供の位置
+  )
+  {
+    return (pos - 1) >> 1;
+  }
 
 
 private:
@@ -146,167 +228,33 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数のアクティビティの増加量
-  double mVarBump;
+  double mVarBump{1.0};
 
   // 変数のアクティビティの減衰量
-  double mVarDecay;
+  double mVarDecay{0.95};
 
   // 変数の数
-  int mVarNum;
+  SizeType mVarNum{0};
 
   // 変数関係の配列のサイズ
-  int mVarSize;
+  SizeType mVarSize{0};
 
   // ヒープ上の位置の配列
   // サイズは mVarSize
-  int* mHeapPos;
+  SizeType* mHeapPos{nullptr};
 
   // アクティビティ
   // サイズは mVarSize
-  double* mActivity;
+  double* mActivity{nullptr};
 
   // ヒープ用の配列
   // サイズは mVarSize
-  int* mHeap;
+  int* mHeap{nullptr};
 
   // ヒープの要素数
-  int mHeapNum;
+  SizeType mHeapNum{0};
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief アクティビティの低減率を設定する．
-inline
-void
-VarHeap::set_decay(double decay)
-{
-  mVarDecay = decay;
-}
-
-// @brief 空にする．
-inline
-void
-VarHeap::clear()
-{
-  mHeapNum = 0;
-}
-
-// @brief 要素が空の時 true を返す．
-inline
-bool
-VarHeap::empty() const
-{
-  return mHeapNum == 0;
-}
-
-// @brief 変数を始めてヒープに追加する．
-// @param[in] var 変数番号
-inline
-void
-VarHeap::add_var(int var)
-{
-  set(var, mHeapNum);
-  mActivity[var] = 0.0;
-  ++ mHeapNum;
-}
-
-// @brief 変数のアクティビティを返す．
-// @param[in] var 変数番号
-inline
-double
-VarHeap::activity(int var) const
-{
-  return mActivity[var];
-}
-
-// @brief 要素を追加する．
-inline
-void
-VarHeap::push(int var)
-{
-  if ( mHeapPos[var] == -1 ) {
-    int pos = mHeapNum;
-    ++ mHeapNum;
-    set(var, pos);
-    move_up(pos);
-  }
-}
-
-// @brief もっともアクティビティの高い変数を返す．
-inline
-int
-VarHeap::pop_top()
-{
-  ASSERT_COND(mHeapNum > 0 );
-
-  int ans = mHeap[0];
-  mHeapPos[ans] = -1;
-  -- mHeapNum;
-  if ( mHeapNum > 0 ) {
-    int vindex = mHeap[mHeapNum];
-    set(vindex, 0);
-    move_down(0);
-  }
-  return ans;
-}
-
-// 引数の位置にある要素を適当な位置まで上げてゆく
-inline
-void
-VarHeap::move_up(int pos)
-{
-  int vindex = mHeap[pos];
-  double val = mActivity[vindex];
-  while ( pos > 0 ) {
-    int pos_p = parent(pos);
-    int vindex_p = mHeap[pos_p];
-    double val_p = mActivity[vindex_p];
-    if ( val_p >= val ) {
-      break;
-    }
-    set(vindex, pos_p);
-    set(vindex_p, pos);
-    pos = pos_p;
-  }
-}
-
-// 変数を配列にセットする．
-inline
-void
-VarHeap::set(int vindex,
-	     int pos)
-{
-  mHeap[pos] = vindex;
-  mHeapPos[vindex] = pos;
-}
-
-// @brief 左の子供の位置を計算する
-inline
-int
-VarHeap::left(int pos)
-{
-  return pos + pos + 1;
-}
-
-// @brief 右の子供の位置を計算する．
-inline
-int
-VarHeap::right(int pos)
-{
-  return pos + pos + 2;
-}
-
-// @brief 親の位置を計算する．
-inline
-int
-VarHeap::parent(int pos)
-{
-  return (pos - 1) >> 1;
-}
 
 END_NAMESPACE_YM_YMSATOLD
 

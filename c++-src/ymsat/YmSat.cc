@@ -96,9 +96,9 @@ YmSat::timer_on(
 }
 
 // @brief conflict_limit の最大値
-int
+SizeType
 YmSat::set_max_conflict(
-  int val
+  SizeType val
 )
 {
   return mMgr.set_max_conflict(val);

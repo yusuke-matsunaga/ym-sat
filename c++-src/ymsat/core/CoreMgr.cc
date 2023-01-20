@@ -24,36 +24,10 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-CoreMgr::CoreMgr() :
-  mVarBump(1.0),
-  mVarDecay(0.95),
-  mSane(true),
-  mConstrLitNum(0),
-  mLearntBinNum(0),
-  mLearntLitNum(0),
-  mVarNum(0),
-  mOldVarNum(0),
-  mVarSize(0),
-  mVal(nullptr),
-  mDecisionLevel(nullptr),
-  mReason(nullptr),
-  mWatcherList(nullptr),
-#if YMSAT_USE_WEIGHTARRAY
-  mWeightArray(nullptr),
-#endif
-  mHeapPos(nullptr),
-  mActivity(nullptr),
-  mHeap(nullptr),
-  mHeapNum(0),
-
-  mRestartNum(0),
-  mConflictNum(0),
-  mDecisionNum(0),
-  mPropagationNum(0),
-  mConflictLimit(0),
-  mLearntLimit(0),
-  mMaxConflict(1024 * 100)
+CoreMgr::CoreMgr()
 {
+  mMaxConflict = 1024 * 100;
+
   mSweep_assigns = -1;
   mSweep_props = 0;
 

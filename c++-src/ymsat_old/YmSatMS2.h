@@ -5,9 +5,8 @@
 /// @brief YmSatMS2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2015, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "YmSat.h"
 
@@ -109,33 +108,31 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief search() 用の条件パラメータの初期化を行う．
-  virtual
   void
-  init_control_parameters();
+  init_control_parameters() override;
 
   /// @brief リスタート時に制御パラメータの更新を行う．
   /// @param[in] restart リスタート回数
-  virtual
   void
-  update_on_restart(int restart);
+  update_on_restart(
+    SizeType restart
+  ) override;
 
   /// @brief コンフリクト時に制御パラメータの更新を行う．
-  virtual
   void
-  update_on_conflict();
+  update_on_conflict() override;
 
   /// @brief 次の割り当てを選ぶ．
-  /// @note 割り当てられる変数がない場合には kSatLiteralX を返す．
-  virtual
-  SatLiteral
-  next_decision();
+  ///
+  /// 割り当てられる変数がない場合には Literal::X を返す．
+  Literal
+  next_decision() override;
 
   /// @brief 学習節の整理を行なう．
   ///
   /// 実際には条件が成り立った時のみ整理する．
-  virtual
   void
-  reduce_learnt_clause();
+  reduce_learnt_clause() override;
 
 
 private:

@@ -138,8 +138,8 @@ SatSolverMiniSat::stop()
 // @brief conflict_limit の最大値
 // @param[in] val 設定する値
 // @return 以前の設定値を返す．
-int
-SatSolverMiniSat::set_max_conflict(int val)
+SizeType
+SatSolverMiniSat::set_max_conflict(SizeType val)
 {
   // 無効
   return 0;
