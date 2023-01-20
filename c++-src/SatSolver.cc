@@ -7,18 +7,8 @@
 /// All rights reserved.
 
 #include "ym/SatSolver.h"
-
-#include "ymsat/YmSatMS2.h"
-#include "ymsat/YmSat1.h"
-#include "ymsat1/YmSat.h"
-#include "ymsat_old/YmSatMS2.h"
-#include "MiniSat/SatSolverMiniSat.h"
-#include "MiniSat2/SatSolverMiniSat2.h"
-#include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
-#include "lingeling/SatSolverLingeling.h"
-
+#include "SatSolverImpl.h"
 #include "SatLogger.h"
-
 #include <sys/time.h>
 #include <signal.h>
 
@@ -27,98 +17,55 @@ BEGIN_NAMESPACE_YM_SAT
 
 const SatLiteral SatLiteral::X;
 
+
 //////////////////////////////////////////////////////////////////////
-// SatSolverImpl
+// SatSolverType
 //////////////////////////////////////////////////////////////////////
 
-BEGIN_NONAMESPACE
-
-// SatSolverType のデフォルト値を設定する．
-SatSolverType
-fallback_type(
-  const SatSolverType& src_type
-)
+SatSolverType::SatSolverType(
+  const string& type,
+  const string& option,
+  ostream* log_out
+) : mType{type},
+    mOption{option},
+    mLogOut{log_out}
 {
-  string type = src_type.type();
-  if ( type == "minisat" ) {
+  if ( mType == "minisat" ) {
     // minisat-1.4
     ;
   }
-  else if ( type == "minisat2" ) {
+  else if ( mType == "minisat2" ) {
     // minisat-2.2
     ;
   }
-  else if ( type == "glueminisat2" ) {
+  else if ( mType == "glueminisat2" ) {
     // glueminisat-2.2.8
     ;
   }
-  else if ( type == "lingeling" ) {
+  else if ( mType == "lingeling" ) {
     ;
   }
-  else if ( type == "ymsat1" ) {
+  else if ( mType == "ymsat1" ) {
     ;
   }
-  else if ( type == "ymsat2" ) {
+  else if ( mType == "ymsat2" ) {
     ;
   }
-  else if ( type == "ymsat2old" ) {
+  else if ( mType == "ymsat2old" ) {
     ;
   }
-  else if ( type == "ymsat1_old" ) {
+  else if ( mType == "ymsat1_old" ) {
     ;
   }
-  else if ( type == "" ) {
+  else if ( mType == "" ) {
     // lingeling 今はデフォルトにしている．
-    type = "lingeling";
+    mType = "lingeling";
   }
   else {
-    cerr << "SatSolver: unknown type '" << type << "', ymsat2 is used, instead." << endl;
-    type = "lingeling";
+    mType = "lingeling";
+    cerr << "SatSolver: unknown type '" << type << "', '"
+	 << mType << "' is used, instead." << endl;
   }
-  return SatSolverType(type, src_type.option(), src_type.log_out());
-}
-
-END_NONAMESPACE
-
-// @brief 継承クラスを作るクラスメソッド
-// @param[in] solver_type SATソルバのタイプ
-unique_ptr<SatSolverImpl>
-SatSolverImpl::new_impl(
-  const SatSolverType& solver_type
-)
-{
-  const string& type = solver_type.type();
-  const string& option = solver_type.option();
-  if ( type == "minisat" ) {
-    // minisat-1.4
-    return unique_ptr<SatSolverImpl>(new SatSolverMiniSat(option));
-  }
-  else if ( type == "minisat2" ) {
-    // minisat-2.2
-    return unique_ptr<SatSolverImpl>(new SatSolverMiniSat2(option));
-  }
-  else if ( type == "glueminisat2" ) {
-    // glueminisat-2.2.8
-    return unique_ptr<SatSolverImpl>(new SatSolverGlueMiniSat2(option));
-  }
-  else if ( type == "lingeling" ) {
-    // lingeling
-    return unique_ptr<SatSolverImpl>(new SatSolverLingeling(option));
-  }
-  else if ( type == "ymsat1" ) {
-    return unique_ptr<SatSolverImpl>(new YmSat1(option));
-  }
-  else if ( type == "ymsat2" ) {
-    return unique_ptr<SatSolverImpl>(new YmSatMS2(option));
-  }
-  else if ( type == "ymsat2old" ) {
-    return unique_ptr<SatSolverImpl>(new nsSatold::YmSatMS2(option));
-  }
-  else if ( type == "ymsat1_old" ) {
-    return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(option));
-  }
-  ASSERT_NOT_REACHED;
-  return unique_ptr<SatSolverImpl>{nullptr};
 }
 
 
@@ -129,7 +76,7 @@ SatSolverImpl::new_impl(
 // @brief コンストラクタ
 SatSolver::SatSolver(
   const SatSolverType& solver_type
-) : mType{fallback_type(solver_type)},
+) : mType{solver_type},
     mImpl{SatSolverImpl::new_impl(mType)},
     mLogger{SatLogger::new_impl(mType)}
 {

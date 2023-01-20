@@ -5,9 +5,8 @@
 /// @brief SaUIP2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "SaBase.h"
 
@@ -24,8 +23,9 @@ class SaUIP2 :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] solver SATソルバ
-  SaUIP2(YmSat* solver);
+  SaUIP2(
+    YmSat* solver ///< [in] SATソルバ
+  );
 
   /// @brief デストラクタ
   ~SaUIP2();
@@ -37,12 +37,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 解析を行う．
-  /// @param[in] creason 矛盾を起こした原因
-  /// @param[out] learnt 学習された節を表すリテラルのベクタ
   /// @return バックトラックレベル
   int
-  analyze(SatReason creason,
-	  vector<SatLiteral>& learnt) override;
+  analyze(
+    Reason creason,         ///< [in] 矛盾を起こした原因
+    vector<Literal>& learnt ///< [out] 学習された節を表すリテラルのベクタ
+  ) override;
 
 
 protected:
@@ -51,8 +51,10 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   void
-  capture(SatReason creason,
-	  vector<SatLiteral>& learnt);
+  capture(
+    Reason creason,
+    vector<Literal>& learnt
+  );
 
 };
 

@@ -23,14 +23,10 @@ public:
 
   /// @brief コンストラクタ
   SatSolverType(
-    const string& type = string(),   ///< [in] 実装タイプを表す文字列
-    const string& option = string(), ///< [in] オプション文字列
+    const string& type = string{},   ///< [in] 実装タイプを表す文字列
+    const string& option = string{}, ///< [in] オプション文字列
     ostream* log_out = nullptr       ///< [in] ログを記録するストリームへのポインタ
-  ) : mType{type},
-      mOption{option},
-      mLogOut{log_out}
-  {
-  }
+  );
 
   /// @brief デストラクタ
   ~SatSolverType() = default;
@@ -45,7 +41,7 @@ public:
   void
   set(
     const string& type,               ///< [in] 実装タイプを表す文字列
-    const string& option = string(),  ///< [in] オプション文字列
+    const string& option = string{},  ///< [in] オプション文字列
     ostream* log_out = nullptr	      ///< [in] ログを記録するストリームへのポインタ
   )
   {

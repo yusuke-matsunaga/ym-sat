@@ -26,6 +26,7 @@ set (ym_sat_SOURCES
   SatSolver_bv.cc
   SatSolver_count.cc
   SatSolver_tseitin.cc
+  SatSolverImpl.cc
   SatLogger.cc
   SatLoggerS.cc
   SatOrderedSet.cc
@@ -63,21 +64,17 @@ set (ym_sat_SOURCES
   ymsat/YmSat1.cc
   ymsat/YmSatMS2.cc
 
-  ymsat1/AssignList.cc
   ymsat1/SaBase.cc
   ymsat1/SaFactory.cc
   ymsat1/SaUIP1.cc
   ymsat1/SaUIP2.cc
-  ymsat1/SatClause.cc
   ymsat1/VarHeap.cc
   ymsat1/YmSat.cc
 
-  #ymsat_old/AssignList.cc
   ymsat_old/SaBase.cc
   ymsat_old/SaFactory.cc
   ymsat_old/SaUIP1.cc
   ymsat_old/SaUIP2.cc
-  #ymsat_old/SatClause.cc
   ymsat_old/VarHeap.cc
   ymsat_old/YmSat_base.cc
   ymsat_old/YmSat_solve.cc
