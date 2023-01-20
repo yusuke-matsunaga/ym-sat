@@ -48,7 +48,7 @@ VarHeap::alloc_var(
   if ( mVarSize != old_size ) {
     mHeapPos = new SizeType[mVarSize];
     mActivity = new double[mVarSize];
-    mHeap = new int[mVarSize];
+    mHeap = new SatVarId[mVarSize];
     for ( SizeType i = 0; i < old_var_num; ++ i ) {
       mHeapPos[i] = old_heap_pos[i];
       mActivity[i] = old_activity[i];
@@ -68,7 +68,7 @@ VarHeap::alloc_var(
 // 変数のアクティビティを増加させる．
 void
 VarHeap::bump_var_activity(
-  int varid
+  SatVarId varid
 )
 {
   double& act = mActivity[varid];
@@ -104,7 +104,7 @@ VarHeap::reset_activity()
 // @brief 与えられた変数のリストからヒープ木を構成する．
 void
 VarHeap::build(
-  const vector<int>& var_list
+  const vector<SatVarId>& var_list
 )
 {
   for ( SizeType i = 0; i < mVarSize; ++ i ) {
@@ -130,7 +130,7 @@ VarHeap::move_down(
   SizeType pos
 )
 {
-  int vindex_p = mHeap[pos];
+  auto vindex_p = mHeap[pos];
   double val_p = mActivity[vindex_p];
   for ( ; ; ) {
     // ヒープ木の性質から親から子の位置がわかる
@@ -143,10 +143,10 @@ VarHeap::move_down(
     // 左右の子供のうちアクティビティの大きい方を pos_c とする．
     // 同点なら左を選ぶ．
     auto pos_c = pos_l;
-    int vindex_c = mHeap[pos_c];
+    auto vindex_c = mHeap[pos_c];
     double val_c = mActivity[vindex_c];
     if ( pos_r < mHeapNum ) {
-      int vindex_r = mHeap[pos_r];
+      auto vindex_r = mHeap[pos_r];
       double val_r = mActivity[vindex_r];
       if ( val_c < val_r ) {
 	pos_c = pos_r;
@@ -176,11 +176,11 @@ VarHeap::dump(
   SizeType nc = 1;
   const char* spc = "";
   for ( SizeType i = 0; i < mHeapNum; ++ i ) {
-    int vindex = mHeap[i];
+    auto vindex = mHeap[i];
     ASSERT_COND( mHeapPos[vindex] == i );
     if ( i > 0 ) {
       SizeType p = parent(i);
-      int pindex = mHeap[p];
+      auto pindex = mHeap[p];
       ASSERT_COND( mActivity[pindex] >= mActivity[vindex] );
     }
     s << spc << vindex << "("

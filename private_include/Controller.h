@@ -52,7 +52,7 @@ public:
   virtual
   void
   _update_on_restart(
-    int restart ///< [in] リスタート回数
+    SizeType restart ///< [in] リスタート回数
   ) = 0;
 
   /// @brief 矛盾発生時の処理

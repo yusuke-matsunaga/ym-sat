@@ -98,7 +98,7 @@ protected:
   /// @brief 変数の decision level を得る．
   int
   decision_level(
-    int varid ///< [in] 対象の変数
+    SatVarId varid ///< [in] 対象の変数
   ) const
   {
     return mMgr.decision_level(varid);
@@ -107,7 +107,7 @@ protected:
   /// @brief 変数の割り当て理由を得る．
   Reason
   reason(
-    int varid ///< [in] 対象の変数
+    SatVarId varid ///< [in] 対象の変数
   ) const
   {
     return mMgr.reason(varid);
@@ -116,7 +116,7 @@ protected:
   /// @brief 変数のアクティビティを増加させる．
   void
   bump_var_activity(
-    int varid ///< [in] 対象の変数
+    SatVarId varid ///< [in] 対象の変数
   )
   {
     mMgr.bump_var_activity(varid);

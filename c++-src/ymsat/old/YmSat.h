@@ -100,7 +100,7 @@ public:
 
   /// @brief 変数を追加する．
   /// @return 新しい変数番号を返す．
-  int
+  SatVarId
   new_variable(
     bool decision ///< [in] 決定変数の時に true とする．
   ) override;
@@ -290,7 +290,7 @@ protected:
   /// @brief 変数の評価を行う．
   SatBool3
   eval(
-    int id ///< [in] 変数番号
+    SatVarId id ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( id >= 0 && id < mVarNum );
@@ -315,7 +315,7 @@ protected:
   /// @brief 変数の直前の値を返す．
   SatBool3
   old_val(
-    int id ///< [in] 変数番号
+    SatVarId id ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( id >= 0 && id < mVarNum );
@@ -333,7 +333,7 @@ protected:
   /// @brief 変数の decision level を返す．
   int
   decision_level(
-    int varid ///< [in] 変数番号
+    SatVarId varid ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( varid >= 0 && varid < mVarNum );
@@ -496,7 +496,7 @@ private:
   /// @brief 変数のアクティビティを増加させる．
   void
   bump_var_activity(
-    int var ///< [in] 変数番号
+    SatVarId var ///< [in] 変数番号
   )
   {
     mVarHeap.bump_var_activity(var);

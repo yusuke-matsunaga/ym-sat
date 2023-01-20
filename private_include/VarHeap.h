@@ -47,7 +47,7 @@ public:
   /// @brief 変数のアクティビティを増加させる．
   void
   bump_var_activity(
-    int var ///< [in] 変数番号
+    SatVarId var ///< [in] 変数番号
   );
 
   /// @brief 変数のアクティビティを定率で減少させる．
@@ -77,7 +77,7 @@ public:
   /// @brief 変数を始めてヒープに追加する．
   void
   add_var(
-    int var ///< [in] 追加する変数
+    SatVarId var ///< [in] 追加する変数
   )
   {
     set(var, mHeapNum);
@@ -88,7 +88,7 @@ public:
   /// @brief 変数を再びヒープに追加する．
   void
   push(
-    int var ///< [in] 追加する変数
+    SatVarId var ///< [in] 追加する変数
   )
   {
     if ( mHeapPos[var] == -1 ) {
@@ -102,16 +102,16 @@ public:
   /// @brief アクティビティ最大の変数番号を取り出す．
   ///
   /// 該当の変数はヒープから取り除かれる．
-  int
+  SatVarId
   pop_top()
   {
     ASSERT_COND(mHeapNum > 0 );
 
-    int ans = mHeap[0];
+    auto ans = mHeap[0];
     mHeapPos[ans] = -1;
     -- mHeapNum;
     if ( mHeapNum > 0 ) {
-      int vindex = mHeap[mHeapNum];
+      auto vindex = mHeap[mHeapNum];
       set(vindex, 0);
       move_down(0);
     }
@@ -121,7 +121,7 @@ public:
   /// @brief 変数のアクティビティを返す．
   double
   activity(
-    int var ///< [in] 対象の変数
+    SatVarId var ///< [in] 対象の変数
   ) const
   {
     return mActivity[var];
@@ -134,7 +134,7 @@ public:
   /// @brief 与えられた変数のリストからヒープ木を構成する．
   void
   build(
-    const vector<int>& var_list
+    const vector<SatVarId>& var_list
   );
 
   /// @brief 内容を出力する
@@ -161,11 +161,11 @@ private:
     SizeType pos ///< [in] 対象の要素の位置
   )
   {
-    int vindex = mHeap[pos];
+    auto vindex = mHeap[pos];
     double val = mActivity[vindex];
     while ( pos > 0 ) {
       auto pos_p = parent(pos);
-      int vindex_p = mHeap[pos_p];
+      auto vindex_p = mHeap[pos_p];
       double val_p = mActivity[vindex_p];
       if ( val_p >= val ) {
 	break;
@@ -181,8 +181,8 @@ private:
   /// mHeap と mHeapPos の一貫性を保つためにはこの関数を使うこと．
   void
   set(
-    int vindex,  ///< [in] 対象の変数番号
-    SizeType pos ///< [in] 位置
+    SatVarId vindex, ///< [in] 対象の変数番号
+    SizeType pos     ///< [in] 位置
   )
   {
     mHeap[pos] = vindex;
@@ -249,7 +249,7 @@ private:
 
   // ヒープ用の配列
   // サイズは mVarSize
-  int* mHeap{nullptr};
+  SatVarId* mHeap{nullptr};
 
   // ヒープの要素数
   SizeType mHeapNum{0};

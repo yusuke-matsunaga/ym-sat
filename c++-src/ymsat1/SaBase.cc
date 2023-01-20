@@ -83,7 +83,7 @@ SaBase::make_minimal(
 // たどることはないし，以前の結果が false ならそのままでよい．
 bool
 SaBase::check_recur(
-  int varid,
+  SatVarId varid,
   ymuint64 lmask
 )
 {
@@ -157,7 +157,7 @@ SaBase::reorder(
 // var->mMark を設定してキューに積む
 void
 SaBase::set_mark_and_putq(
-  int var
+  SatVarId var
 )
 {
   set_mark(var, true);

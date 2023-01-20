@@ -34,19 +34,6 @@ public:
   /// 内容は不定なのであまり使わない方が良い．
   Literal() = default;
 
-  /// @brief コピーコンストラクタの変種
-  Literal(
-    const Literal& lit, ///< [in] リテラル
-    bool inv = false       ///< [in] 極性フラグ
-                           ///       - false: 反転なし (正極性)
-                           ///       - true:  反転あり (負極性)
-  ) : mIndex{lit.mIndex}
-  {
-    if ( inv ) {
-      mIndex ^= neg_mask();
-    }
-  }
-
   /// @brief SatLiteral からの変換コンストラクタ
   Literal(
     const SatLiteral& src ///< [in] もととなるリテラル
@@ -61,7 +48,7 @@ public:
   static
   Literal
   conv_from_varid(
-    SizeType varid,  ///< [in] 変数番号
+    SatVarId varid,  ///< [in] 変数番号
     bool inv = false ///< [in] 極性フラグ
                      ///       - false: 反転なし (正極性)
                      ///       - true:  反転あり (負極性)
@@ -96,7 +83,7 @@ public:
   /// @brief 内容を設定する．
   void
   set(
-    SizeType varid,  ///< [in] 変数番号
+    SatVarId varid,  ///< [in] 変数番号
     bool inv = false ///< [in] 極性フラグ
 		     ///       - false: 反転なし (正極性)
     		     ///       - true:  反転あり (負極性)
@@ -115,19 +102,19 @@ public:
   bool
   is_valid() const
   {
-    return mIndex != -1;
+    return mIndex != BAD_SATVARID;
   }
 
   /// @brief 変数番号を得る．
   /// @return 変数番号
-  SizeType
+  SatVarId
   varid() const
   {
     if ( is_valid() ) {
       return mIndex >> 1;
     }
     else {
-      return -1;
+      return BAD_SATVARID;
     }
   }
 

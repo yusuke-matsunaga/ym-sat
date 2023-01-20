@@ -37,69 +37,6 @@ public:
   /// 内容は不定なのであまり使わない方が良い．
   SatLiteral() = default;
 
-  /// @brief コピーコンストラクタの変種
-  SatLiteral(
-    const SatLiteral& lit, ///< [in] リテラル
-    bool inv = false       ///< [in] 極性フラグ
-                           ///       - false: 反転なし (正極性)
-                           ///       - true:  反転あり (負極性)
-  ) : mIndex{lit.mIndex}
-  {
-    if ( inv ) {
-      mIndex ^= neg_mask();
-    }
-  }
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内容をセットする関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 変数番号と極性からの変換関数
-  static
-  SatLiteral
-  conv_from_varid(
-    int varid,       ///< [in] 変数番号
-    bool inv = false ///< [in] 極性フラグ
-                     ///       - false: 反転なし (正極性)
-                     ///       - true:  反転あり (負極性)
-  )
-  {
-    SatLiteral ans;
-    ans.set(varid, inv);
-    return ans;
-  }
-
-  /// @brief index からの変換関数
-  static
-  SatLiteral
-  index2literal(
-    SizeType index ///< [in] 変数番号と極性をエンコードしたもの
-  )
-  {
-    SatLiteral ans;
-    ans.mIndex = index;
-    return ans;
-  }
-
-  /// @brief 内容を設定する．
-  void
-  set(
-    int varid,       ///< [in] 変数番号
-    bool inv = false ///< [in] 極性フラグ
-		     ///       - false: 反転なし (正極性)
-    		     ///       - true:  反転あり (負極性)
-  )
-  {
-    if ( varid < 0 ) {
-      mIndex = -1;
-    }
-    else {
-      mIndex = (varid << 1) + static_cast<SizeType>(inv);
-    }
-  }
-
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -110,19 +47,19 @@ public:
   bool
   is_valid() const
   {
-    return mIndex != -1;
+    return mIndex != BAD_SATVARID;
   }
 
   /// @brief 変数番号を得る．
   /// @return 変数番号
-  int
+  SatVarId
   varid() const
   {
     if ( is_valid() ) {
       return mIndex >> 1;
     }
     else {
-      return -1;
+      return BAD_SATVARID;
     }
   }
 
@@ -178,7 +115,7 @@ public:
   SatLiteral
   operator~() const
   {
-    return index2literal(mIndex ^ neg_mask());
+    return SatLiteral{mIndex ^ neg_mask()};
   }
 
   /// @brief 極性を作用させる
@@ -203,7 +140,7 @@ public:
   make_positive() const
   {
     // 不正な値の場合でもこれはOK
-    return index2literal(mIndex & ~1U);
+    return SatLiteral{mIndex & ~1U};
   }
 
   /// @brief 同じ変数の負極性リテラルを返す．
@@ -212,7 +149,52 @@ public:
   SatLiteral
   make_negative() const
   {
-    return index2literal(mIndex | neg_mask());
+    return SatLiteral{mIndex | neg_mask()};
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内容をセットする関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brif 内容を直接指定したコンストラクタ
+  SatLiteral(
+    SizeType index
+  ) : mIndex{index}
+  {
+  }
+
+  /// @brief 変数番号と極性からの変換関数
+  static
+  SatLiteral
+  conv_from_varid(
+    int varid,       ///< [in] 変数番号
+    bool inv = false ///< [in] 極性フラグ
+                     ///       - false: 反転なし (正極性)
+                     ///       - true:  反転あり (負極性)
+  )
+  {
+    SatLiteral ans;
+    ans.set(varid, inv);
+    return ans;
+  }
+
+  /// @brief 内容を設定する．
+  void
+  set(
+    int varid,       ///< [in] 変数番号
+    bool inv = false ///< [in] 極性フラグ
+		     ///       - false: 反転なし (正極性)
+    		     ///       - true:  反転あり (負極性)
+  )
+  {
+    if ( varid < 0 ) {
+      mIndex = -1;
+    }
+    else {
+      mIndex = (varid << 1) + static_cast<SizeType>(inv);
+    }
   }
 
 

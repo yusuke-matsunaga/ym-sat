@@ -5,7 +5,7 @@
 /// @brief ControllerMS1 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "Controller.h"
@@ -79,8 +79,9 @@ public:
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr Coreマネージャ
-  ControllerMS1(CoreMgr& mgr);
+  ControllerMS1(
+    CoreMgr& mgr ///< [in] Coreマネージャ
+  );
 
   /// @brief デストラクタ
   ~ControllerMS1();
@@ -96,9 +97,10 @@ private:
   _init() override;
 
   /// @brief リスタート時の処理
-  /// @param[in] restart リスタート回数
   void
-  _update_on_restart(int restart) override;
+  _update_on_restart(
+    SizeType restart ///< [in] リスタート回数
+  ) override;
 
   /// @brief 矛盾発生時の処理
   void

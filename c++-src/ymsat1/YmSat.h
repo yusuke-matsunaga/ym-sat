@@ -110,7 +110,7 @@ public:
   /// @brief 変数を追加する．
   /// @return 新しい変数番号を返す．
   /// @note 変数番号は 0 から始まる．
-  int
+  SatVarId
   new_variable(
     bool decision ///< [in] 決定変数の時に true とする．
   ) override;
@@ -319,7 +319,7 @@ private:
   /// @brief 変数1の評価を行う．
   SatBool3
   eval(
-    int id ///< [in] 変数番号
+    SatVarId id ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( id >= 0 && id < mVarNum );
@@ -350,7 +350,7 @@ private:
   /// @brief 変数の decision level を返す．
   int
   decision_level(
-    int varid ///< [in] 変数番号
+    SatVarId varid ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( varid >= 0 && varid < mVarNum );
@@ -368,7 +368,7 @@ private:
   /// @brief 変数の割り当て理由を返す．
   Reason
   reason(
-    int varid ///< [in] 変数番号
+    SatVarId varid ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( varid >= 0 && varid < mVarNum );
@@ -392,7 +392,7 @@ private:
   /// @brief 変数のアクティビティを増加させる．
   void
   bump_var_activity(
-    int var ///< [in] 変数番号
+    SatVarId var ///< [in] 変数番号
   )
   {
     mVarHeap.bump_var_activity(var);
@@ -426,7 +426,7 @@ private:
       if ( mVarSize < mVarNum ) {
 	expand_var();
       }
-      for ( int var = mOldVarNum; var < mVarNum; ++ var ) {
+      for ( SatVarId var = mOldVarNum; var < mVarNum; ++ var ) {
 	mVal[var] = conv_from_Bool3(SatBool3::X);
 	mVarHeap.add_var(var);
       }
@@ -483,19 +483,19 @@ private:
   vector<Clause*> mConstrClauseList;
 
   // 二項制約節の数
-  int mConstrBinNum;
+  SizeType mConstrBinNum;
 
   // 制約節の総リテラル数 (二項制約節も含む)
-  int mConstrLitNum;
+  SizeType mConstrLitNum;
 
   // 学習節の配列
   vector<Clause*> mLearntClause;
 
   // 二項学習節の数
-  int mLearntBinNum;
+  SizeType mLearntBinNum;
 
   // 学習節の総リテラル数 (二項制約節も含む)
-  int mLearntLitNum;
+  SizeType mLearntLitNum;
 
 #if YMSAT_USE_DVAR
   // dvar 配列
@@ -503,13 +503,13 @@ private:
 #endif
 
   // 変数の数
-  int mVarNum;
+  SizeType mVarNum;
 
   // 前回の alloc_var で処理した時の変数の数
-  int mOldVarNum;
+  SizeType mOldVarNum;
 
   // 変数関係の配列のサイズ
-  int mVarSize;
+  SizeType mVarSize;
 
   // 値の配列
   // サイズは mVarSize
@@ -542,7 +542,7 @@ private:
   bool* mLbdTmp;
 
   // mLbdTmp のサイズ．
-  int mLbdTmpSize;
+  SizeType mLbdTmpSize;
 #endif
 
   // 矛盾の解析時にテンポラリに使用される節
@@ -580,25 +580,25 @@ private:
   Params mParams;
 
   // restart 数
-  int mRestart;
+  SizeType mRestart;
 
   // 総コンフリクト数
-  int mConflictNum;
+  SizeType mConflictNum;
 
   // 総 decision 数
-  int mDecisionNum;
+  SizeType mDecisionNum;
 
   // 総 implication 数
-  int mPropagationNum;
+  SizeType mPropagationNum;
 
   // コンフリクト数の制限
-  int mConflictLimit;
+  SizeType mConflictLimit;
 
   // 学習節の制限
-  int mLearntLimit;
+  SizeType mLearntLimit;
 
   // トータルのコンフリクト数の制限
-  int mMaxConflict;
+  SizeType mMaxConflict;
 
   // stop() が用いるフラグ
   bool mGoOn;
@@ -610,7 +610,7 @@ private:
   Literal* mTmpLits;
 
   // mTmpLits のサイズ
-  int mTmpLitsSize;
+  SizeType mTmpLitsSize;
 
   // search() で用いられるリテラル配列
   vector<Literal> mLearntLits;

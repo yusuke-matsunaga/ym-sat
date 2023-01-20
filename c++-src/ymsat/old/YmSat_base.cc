@@ -114,7 +114,7 @@ YmSat::sane() const
 }
 
 // @brief 変数を追加する．
-int
+SatVarId
 YmSat::new_variable(
   bool decision
 )
@@ -123,7 +123,7 @@ YmSat::new_variable(
     // エラー
     cout << "Error!: decision_level() != 0" << endl;
     ASSERT_NOT_REACHED;
-    return -1;
+    return BAD_SATVARID;
   }
 
 #if YMSAT_USE_DVAR
@@ -132,7 +132,7 @@ YmSat::new_variable(
 
   // ここではカウンタを増やすだけ
   // 実際の処理は alloc_var() でまとめて行う．
-  int n = mVarNum;
+  SatVarId n = mVarNum;
   ++ mVarNum;
   return n;
 }
@@ -141,7 +141,9 @@ YmSat::new_variable(
 //
 // lingeling 以外は無効
 void
-YmSat::freeze_literal(SatLiteral lit)
+YmSat::freeze_literal(
+  SatLiteral lit
+)
 {
 }
 

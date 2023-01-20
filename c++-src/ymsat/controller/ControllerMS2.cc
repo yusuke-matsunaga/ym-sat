@@ -3,7 +3,7 @@
 /// @brief ControllerMS2 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2015, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ControllerMS2.h"
@@ -28,22 +28,24 @@ ControllerMS2::Params kDefaultParams(0.95, 0.999, YMSAT_VAR_FREQ, true, false, f
 
 
 // @brief MiniSat2 風のコントローラを作る．
-// @param[in] mgr コアマネージャ
 Controller*
-new_ControllerMS2(CoreMgr& mgr)
+new_ControllerMS2(
+  CoreMgr& mgr
+)
 {
-  return new ControllerMS2(mgr);
+  return new ControllerMS2{mgr};
 }
+
 
 //////////////////////////////////////////////////////////////////////
 // ControllerMS2
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] mgr Coreマネージャ
-ControllerMS2::ControllerMS2(CoreMgr& mgr) :
-  mMgr(mgr),
-  mParams(kDefaultParams)
+ControllerMS2::ControllerMS2(
+  CoreMgr& mgr
+) : mMgr{mgr},
+    mParams{kDefaultParams}
 {
 }
 
@@ -56,8 +58,10 @@ BEGIN_NONAMESPACE
 
 // Luby restart strategy
 double
-luby(double y,
-     int x)
+luby(
+  double y,
+  int x
+)
 {
   // なんのこっちゃわかんないコード
   int size;
@@ -94,9 +98,10 @@ ControllerMS2::_init()
 }
 
 // @brief リスタート時の処理
-// @param[in] restart リスタート回数
 void
-ControllerMS2::_update_on_restart(int restart)
+ControllerMS2::_update_on_restart(
+  SizeType restart
+)
 {
   double restart_inc = 2.0;
   mMgr.set_conflict_limit(static_cast<int>(luby(restart_inc, restart)) * 100);

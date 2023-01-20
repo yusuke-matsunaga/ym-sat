@@ -27,8 +27,8 @@ Selecter2::Selecter2(
 Literal
 Selecter2::next_decision()
 {
-  int dvar = mMgr.next_var();
-  if ( dvar >= 0 ) {
+  auto dvar = mMgr.next_var();
+  if ( dvar != BAD_SATVARID ) {
     auto dlit = Literal::conv_from_varid(dvar, false);
     if ( true ) {
       // 以前の割り当てを使う．

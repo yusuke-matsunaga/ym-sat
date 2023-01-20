@@ -53,7 +53,7 @@ SaBase::make_minimal(
   SizeType wpos = 0;
   for ( SizeType i = 0; i < nl; ++ i ) {
     auto p = lit_list[i];
-    int var = p.varid();
+    auto var = p.varid();
     SizeType top = mClearQueue.size();
     if ( check_recur(var, lmask) ) {
       if ( wpos != i ) {
@@ -74,7 +74,7 @@ SaBase::make_minimal(
 // make_minimal のサブルーティン
 bool
 SaBase::check_recur(
-  int varid,
+  SatVarId varid,
   ymuint64 lmask
 )
 {
@@ -148,7 +148,7 @@ SaBase::reorder(
 // var->mMark を設定してキューに積む
 void
 SaBase::set_mark_and_putq(
-  int var
+  SatVarId var
 )
 {
   set_mark(var, true);

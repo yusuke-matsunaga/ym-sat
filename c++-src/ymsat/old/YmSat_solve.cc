@@ -206,7 +206,7 @@ YmSat::stop()
 SatBool3
 YmSat::search()
 {
-  int cur_confl_num = 0;
+  SizeType cur_confl_num = 0;
   for ( ; ; ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
     auto conflict = implication();
@@ -532,9 +532,9 @@ YmSat::reduce_CNF()
   sweep_clause(mLearntClauseList);
 
   // 変数ヒープを再構成する．
-  vector<int> var_list;
+  vector<SatVarId> var_list;
   var_list.reserve(mVarNum);
-  for ( int var = 0; var < mVarNum; ++ var ) {
+  for ( SatVarId var = 0; var < mVarNum; ++ var ) {
     if ( eval(var) == SatBool3::X ) {
       var_list.push_back(var);
     }
@@ -600,7 +600,7 @@ YmSat::forget_learnt_clause()
   // 変数ヒープも再構成する．
   // 同時に変数の履歴もリセットする．
   mVarHeap.reset_activity();
-  vector<int> var_list;
+  vector<SatVarId> var_list;
   var_list.reserve(mVarSize);
   for ( SizeType i = 0; i < mVarSize; ++ i ) {
     var_list.push_back(i);
@@ -611,9 +611,10 @@ YmSat::forget_learnt_clause()
 
 #if YMSAT_USE_LBD
 // @brief LBD を計算する．
-// @param[in] clause 対象の節
 int
-YmSat::calc_lbd(const SatClause* clause)
+YmSat::calc_lbd(
+  const SatClause* clause
+)
 {
   // 割当レベルの最大値 + 1 だけ mLbdTmp を確保する．
   int max_level = decision_level() + 1;
@@ -626,22 +627,22 @@ YmSat::calc_lbd(const SatClause* clause)
     mLbdTmp = new bool[mLbdTmpSize];
   }
 
-  int n = clause->lit_num();
+  SizeType n = clause->lit_num();
 
   // mLbdTmp をクリア
   // ただし， clause に現れるリテラルのレベルだけでよい．
-  for ( int i = 0; i < n; ++ i ) {
-    auto l{clause->lit(i)};
-    auto v{l.varid()};
+  for ( SizeType i = 0; i < n; ++ i ) {
+    auto l = clause->lit(i);
+    auto v = l.varid();
     int level = decision_level(v);
     mLbdTmp[level] = false;
   }
 
   // 異なる決定レベルの個数を数える．
   int c = 0;
-  for ( int i = 0; i < n; ++ i ) {
-    auto l{clause->lit(i)};
-    auto v{l.varid()};
+  for ( SizeType i = 0; i < n; ++ i ) {
+    auto l = clause->lit(i);
+    auto v = l.varid();
     int level = decision_level(v);
     if ( !mLbdTmp[level] ) {
       // はじめてこのレベルの変数が現れた．

@@ -3,7 +3,7 @@
 /// @brief SatSolverLingeling の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2014, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "SatSolverLingeling.h"
@@ -55,15 +55,15 @@ SatSolverLingeling::sane() const
 }
 
 // @brief 変数を追加する．
-int
+SatVarId
 SatSolverLingeling::new_variable(
   bool decision
 )
 {
-  int var = mNumVars;
+  SatVarId var = mNumVars;
   ++ mNumVars;
   if ( decision ) {
-    int lindex = var + 1;
+    int lindex = static_cast<int>(var + 1);
     lglfreeze(mSolver, lindex);
   }
   return var;

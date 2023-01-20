@@ -151,7 +151,7 @@ public:
   ///
   /// 実際には変数番号を割り当てるだけで alloc_var()
   /// を呼ばれてはじめて実際の領域を確保する．
-  int
+  SatVarId
   new_variable(
     bool decision ///< [in] 決定変数の時に true とする．
   );
@@ -256,7 +256,7 @@ public:
   /// @brief バックトラック前の値を得る．
   SatBool3
   prev_val(
-    int var ///< [in] 変数番号
+    SatVarId var ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( var >= 0 && var < mVarNum );
@@ -328,7 +328,7 @@ public:
   /// @brief 変数の decision level を返す．
   int
   decision_level(
-    int var ///< [in] 変数番号
+    SatVarId var ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( var >= 0 && var < mVarNum );
@@ -357,7 +357,7 @@ public:
   /// @brief 変数の割り当て理由を返す．
   Reason
   reason(
-    int var ///< [in] 変数番号
+    SatVarId var ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( var >= 0 && var < mVarNum );
@@ -367,7 +367,7 @@ public:
   /// @brief 次に割り当てる変数を取り出す．
   ///
   /// アクティビティが最大で未割り当ての変数を返す．
-  int
+  SatVarId
   next_var();
 
   /// @brief 停止する．
@@ -447,7 +447,7 @@ public:
   /// @brief 与えられた変数のリストからヒープ木を構成する．
   void
   build(
-    const vector<int>& var_list ///< [in] 変数番号のリスト
+    const vector<SatVarId>& var_list ///< [in] 変数番号のリスト
   )
   {
     mVarHeap.build(var_list);
@@ -658,7 +658,7 @@ private:
   /// @brief 変数を再びヒープに追加する．
   void
   push(
-    int var ///< [in] 追加する変数
+    SatVarId var ///< [in] 追加する変数
   )
   {
     mVarHeap.push(var);
@@ -674,7 +674,7 @@ private:
   /// @brief アクティビティ最大の変数番号を取り出す．
   ///
   /// 該当の変数はヒープから取り除かれる．
-  int
+  SatVarId
   pop_top()
   {
     return mVarHeap.pop_top();

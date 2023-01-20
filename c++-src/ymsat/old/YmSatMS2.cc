@@ -3,9 +3,8 @@
 /// @brief YmSatMS2 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2015, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "YmSatMS2.h"
 
@@ -32,9 +31,10 @@ YmSatMS2::Params kDefaultParams(0.95, 0.999, YMSAT_VAR_FREQ, true, false, false)
 
 // @brief コンストラクタ
 // @param[in] option オプション文字列
-YmSatMS2::YmSatMS2(const string& option) :
-  YmSat(option),
-  mParams(kDefaultParams)
+YmSatMS2::YmSatMS2(
+  const string& option
+) : YmSat{option},
+    mParams{kDefaultParams}
 {
   if ( option == "no_phase_cache" ) {
     mParams.mPhaseCache = false;
@@ -50,8 +50,10 @@ BEGIN_NONAMESPACE
 
 // Luby restart strategy
 double
-luby(double y,
-     int x)
+luby(
+  double y,
+  int x
+)
 {
   // なんのこっちゃわかんないコード
   int size;
@@ -113,7 +115,7 @@ YmSatMS2::next_decision()
 {
   // 一定確率でランダムな変数を選ぶ．
   std::uniform_real_distribution<double> rd_freq(0, 1.0);
-  std::uniform_int_distribution<int> rd_var(0, variable_num() - 1);
+  std::uniform_int_distribution<SizeType> rd_var(0, variable_num() - 1);
   if ( rd_freq(mRandGen) < mParams.mVarFreq && !var_heap().empty() ) {
     auto vid = rd_var(mRandGen);
     if ( eval(vid) == SatBool3::X ) {
@@ -124,7 +126,7 @@ YmSatMS2::next_decision()
 
   while ( !var_heap().empty() ) {
     // activity の高い変数を取り出す．
-    auto vid{var_heap().pop_top()};
+    auto vid = var_heap().pop_top();
     if ( eval(vid) != SatBool3::X ) {
       // すでに確定していたらスキップする．
       // もちろん，ヒープからも取り除く．
@@ -133,7 +135,7 @@ YmSatMS2::next_decision()
 
     bool inv = false;
     if ( mParams.mPhaseCache ) {
-      auto val{old_val(vid)};
+      auto val = old_val(vid);
       if ( val != SatBool3::X ) {
 	// 以前割り当てた極性を選ぶ
 	if ( val == SatBool3::False ) {

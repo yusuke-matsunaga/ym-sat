@@ -88,7 +88,7 @@ YmSat::~YmSat()
   for ( auto c: mLearntClause ) {
     delete_clause(c);
   }
-  for ( int i = 0; i < mVarSize * 2; ++ i ) {
+  for ( SizeType i = 0; i < mVarSize * 2; ++ i ) {
     mWatcherList[i].finish();
   }
 
@@ -114,7 +114,7 @@ YmSat::sane() const
 }
 
 // @brief 変数を追加する．
-int
+SatVarId
 YmSat::new_variable(
   bool decision
 )
@@ -131,7 +131,7 @@ YmSat::new_variable(
 
   // ここではカウンタを増やすだけ
   // 実際の処理は alloc_var() でまとめて行う．
-  int n = mVarNum;
+  SatVarId n = mVarNum;
   ++ mVarNum;
   return n;
 }
@@ -140,7 +140,9 @@ YmSat::new_variable(
 //
 // lingeling 以外は無効
 void
-YmSat::freeze_literal(SatLiteral lit)
+YmSat::freeze_literal(
+  SatLiteral lit
+)
 {
 }
 
@@ -164,7 +166,7 @@ YmSat::add_clause(
 
   SizeType lit_num = lits.size();
   alloc_lits(lit_num);
-  for ( int i = 0; i < lit_num; ++ i ) {
+  for ( SizeType i = 0; i < lit_num; ++ i ) {
     auto l = lits[i];
     mTmpLits[i] = Literal{l};
   }
@@ -282,7 +284,7 @@ YmSat::add_learnt_clause()
   }
 
   Reason reason;
-  auto l1{mLearntLits[1]};
+  auto l1 = mLearntLits[1];
   if ( n == 2 ) {
     reason = Reason{l1};
 
@@ -457,7 +459,7 @@ YmSat::solve(
   if ( stat == SatBool3::True ) {
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
     model.resize(mVarNum);
-    for ( int var = 0; var < mVarNum; ++ var ) {
+    for ( SatVarId var = 0; var < mVarNum; ++ var ) {
       auto val = eval(var);
       ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
       model.set(var, val);
@@ -584,7 +586,7 @@ YmSat::search()
 	     << "analyze for " << conflict << endl
 	     << "learnt clause is ";
 	const char* plus = "";
-	for ( int i = 0; i < mLearntLits.size(); ++ i ) {
+	for ( SizeType i = 0; i < mLearntLits.size(); ++ i ) {
 	  auto l = mLearntLits[i];
 	  cout << plus << l << " @" << decision_level(l.varid());
 	  plus = " + ";
@@ -799,7 +801,7 @@ YmSat::backtrack(
     mAssignList.backtrack(level);
     while ( mAssignList.has_elem() ) {
       auto p = mAssignList.get_prev();
-      int varid = p.varid();
+      auto varid = p.varid();
       mVal[varid] = conv_from_Bool3(SatBool3::X);
       mVarHeap.push(varid);
       if ( debug & debug_assign ) {
@@ -820,7 +822,7 @@ YmSat::next_decision()
 #if 0
   // 一定確率でランダムな変数を選ぶ．
   if ( mRandGen.real1() < mParams.mVarFreq && !heap_empty() ) {
-    int vid = mRandGen.int32() % mVarNum;
+    SatVarId vid = mRandGen.int32() % mVarNum;
     bool inv = false;
     if ( eval(vid) == SatBool3::X ) {
       return Literal::conv_from_varid(vid, inv);
@@ -828,10 +830,10 @@ YmSat::next_decision()
   }
 #endif
   while ( !mVarHeap.empty() ) {
-    int vindex = mVarHeap.pop_top();
+    auto vindex = mVarHeap.pop_top();
     if ( mVal[vindex] == conv_from_Bool3(SatBool3::X) ) {
       // Watcher の多い方の極性を(わざと)選ぶ
-      int v2 = vindex * 2;
+      auto v2 = vindex * 2;
       auto dlit = Literal::conv_from_varid(vindex, false);
       if ( mWatcherList[v2 + 0].num() >= mWatcherList[v2 + 1].num() ) {
 	return dlit;
@@ -841,7 +843,7 @@ YmSat::next_decision()
       }
     }
   }
-  return SatLiteral::X;
+  return Literal::X;
 }
 
 // CNF を簡単化する．

@@ -23,8 +23,9 @@ class SaUIP2 :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr コアマネージャ
-  SaUIP2(CoreMgr& mgr);
+  SaUIP2(
+    CoreMgr& mgr ///< [in] コアマネージャ
+  );
 
   /// @brief デストラクタ
   ~SaUIP2();
@@ -36,10 +37,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 解析を行う．
-  /// @param[in] creason 矛盾を起こした原因
   /// @return バックトラックレベルと学習された節を表すリテラルのベクタを返す．
   tuple<int, vector<Literal>>
-  analyze(Reason creason) override;
+  analyze(
+    Reason creason ///< [in] 矛盾を起こした原因
+  ) override;
 
 
 protected:
@@ -48,7 +50,9 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   vector<Literal>
-  capture(Reason creason);
+  capture(
+    Reason creason
+  );
 
 };
 

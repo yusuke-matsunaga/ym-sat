@@ -3,7 +3,7 @@
 /// @brief SatSolverGlueMiniSat2 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2014, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "SatSolverGlueMiniSat2.h"
@@ -55,7 +55,7 @@ SatSolverGlueMiniSat2::sane() const
 }
 
 // @brief 変数を追加する．
-int
+SatVarId
 SatSolverGlueMiniSat2::new_variable(
   bool decision
 )

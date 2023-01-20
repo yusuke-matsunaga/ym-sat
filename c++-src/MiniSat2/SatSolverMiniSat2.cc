@@ -55,7 +55,7 @@ SatSolverMiniSat2::sane() const
 }
 
 // @brief 変数を追加する．
-int
+SatVarId
 SatSolverMiniSat2::new_variable(
   bool decision
 )

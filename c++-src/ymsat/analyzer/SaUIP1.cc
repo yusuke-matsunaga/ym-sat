@@ -64,7 +64,7 @@ SaUIP1::capture(
       int n = cclause->lit_num();
       // 最初の節は全てのリテラルを対象にするが，
       // 二番目以降の節の最初のリテラルは割り当て結果なので除外する．
-      for ( int i = 0; i < n; ++ i ) {
+      for ( SizeType i = 0; i < n; ++ i ) {
 	auto q = cclause->lit(i);
 	if ( !first && q == cclause->wl0() ) continue;
 	put_lit(q, learnt, count);

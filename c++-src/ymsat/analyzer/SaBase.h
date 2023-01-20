@@ -77,7 +77,7 @@ protected:
   /// @brief 変数のマークにアクセスする．
   bool
   get_mark(
-    int var ///< [in] 対象の変数
+    SatVarId var ///< [in] 対象の変数
   )
   {
     return mMark[var];
@@ -86,13 +86,13 @@ protected:
   /// @brief 変数にマークをつけてキューに積む
   void
   set_mark_and_putq(
-    int var ///< [in] 対象の変数
+    SatVarId var ///< [in] 対象の変数
   );
 
   /// @brief 変数のマークをセットする．
   void
   set_mark(
-    int var,  ///< [in] 対象の変数
+    SatVarId var,  ///< [in] 対象の変数
     bool mark ///< [in] 設定するマークの値
   )
   {
@@ -108,7 +108,7 @@ private:
   /// @brief make_minimal のサブルーティン
   bool
   check_recur(
-    int var,       ///< [in] 対象の変数
+    SatVarId var,  ///< [in] 対象の変数
     ymuint64 lmask ///< [in] lit_list に含まれる変数の決定レベルのハッシュ値
   );
 
@@ -120,7 +120,7 @@ private:
     Literal lit ///< [in] 対象のリテラル
   )
   {
-    int var = lit.varid();
+    auto var = lit.varid();
     if ( !get_mark(var) && decision_level(var) > 0 ) {
       set_mark_and_putq(var);
       mVarStack.push_back(var);
@@ -134,13 +134,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数のマークを消すためのキュー
-  vector<int> mClearQueue;
+  vector<SatVarId> mClearQueue;
 
   // 変数のマーク
   vector<bool> mMark;
 
   // check_recur() で用いられるスタック
-  vector<int> mVarStack;
+  vector<SatVarId> mVarStack;
 
 };
 

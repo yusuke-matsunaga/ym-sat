@@ -95,8 +95,9 @@ public:
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr Coreマネージャ
-  ControllerMS2(CoreMgr& mgr);
+  ControllerMS2(
+    CoreMgr& mgr ///< [in] Coreマネージャ
+  );
 
   /// @brief デストラクタ
   ~ControllerMS2();
@@ -112,19 +113,14 @@ private:
   _init() override;
 
   /// @brief リスタート時の処理
-  /// @param[in] restart リスタート回数
   void
-  _update_on_restart(int restart) override;
+  _update_on_restart(
+    SizeType restart ///< [in] リスタート回数
+  ) override;
 
   /// @brief 矛盾発生時の処理
   void
   _update_on_conflict() override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 実装用のプライベート関数
-  //////////////////////////////////////////////////////////////////////
 
 
 private:

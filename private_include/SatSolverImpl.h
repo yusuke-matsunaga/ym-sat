@@ -50,7 +50,7 @@ public:
   /// @return 新しい変数番号を返す．
   /// @note 変数番号は 0 から始まる．
   virtual
-  int
+  SatVarId
   new_variable(
     bool decition ///< [in] 決定変数の時に true とする．
   ) = 0;
@@ -121,7 +121,7 @@ public:
   /// @brief リテラルを登録する．
   void
   reg_lit(
-    SizeType varid, ///< [in] 変数番号
+    SatVarId varid, ///< [in] 変数番号
     SatLiteral lit  ///< [in] リテラル
   )
   {
@@ -137,7 +137,7 @@ protected:
   /// @brief リテラルを得る．
   SatLiteral
   get_lit(
-    SizeType varid, ///< [in] 変数番号
+    SatVarId varid, ///< [in] 変数番号
     bool inv        ///< [in] 反転フラグ
   ) const
   {
@@ -156,7 +156,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 変数番号と SatLiteral の対応表
-  unordered_map<SizeType, SatLiteral> mLitMap;
+  unordered_map<SatVarId, SatLiteral> mLitMap;
 
 };
 

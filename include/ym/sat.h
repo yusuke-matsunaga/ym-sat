@@ -5,7 +5,7 @@
 /// @brief SAT Solver 用の定義ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 /// @defgroup SatGroup SAT ソルバ
@@ -45,9 +45,6 @@ END_NAMESPACE_YM
 BEGIN_NAMESPACE_YM_SAT
 
 class SatBinaryNum;
-class SatBvEnc;
-class SatCountEnc;
-class SatTseitinEnc;
 class SatDimacs;
 class SatModel;
 class SatLiteral;
@@ -58,14 +55,17 @@ class SatStats;
 class SatMsgHandler;
 class SatMsgHandlerS;
 
+/// @brief SATの変数を表す型
+using SatVarId = SizeType;
+
+/// @brief 無効な SatVarId の値
+const SatVarId BAD_SATVARID = static_cast<SatVarId>(-1);
+
 END_NAMESPACE_YM_SAT
 
 BEGIN_NAMESPACE_YM
 
 using nsSat::SatBinaryNum;
-using nsSat::SatBvEnc;
-using nsSat::SatCountEnc;
-using nsSat::SatTseitinEnc;
 using nsSat::SatDimacs;
 using nsSat::SatModel;
 using nsSat::SatLiteral;

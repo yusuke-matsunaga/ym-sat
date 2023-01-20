@@ -13,9 +13,9 @@
 BEGIN_NAMESPACE_YM_SAT
 
 // @brief コンストラクタ
-// @param[in] mgr コアマネージャ
-SaUIP2::SaUIP2(CoreMgr& mgr) :
-  SaBase(mgr)
+SaUIP2::SaUIP2(
+  CoreMgr& mgr
+) : SaBase{mgr}
 {
 }
 
@@ -26,7 +26,9 @@ SaUIP2::~SaUIP2()
 
 // conflict を解析する．
 tuple<int, vector<Literal>>
-SaUIP2::analyze(Reason creason)
+SaUIP2::analyze(
+  Reason creason
+)
 {
   auto learnt = capture(creason);
   make_minimal(learnt);
@@ -40,17 +42,19 @@ SaUIP2::analyze(Reason creason)
 // - 現在のレベルよりも低いレベルの割り当て
 // からなるセパレータ集合を learnt に入れる．
 vector<Literal>
-SaUIP2::capture(Reason creason)
+SaUIP2::capture(
+  Reason creason
+)
 {
   vector<Literal> learnt;
   learnt.push_back(Literal::X); // place holder
 
   bool first = true;
   int count = 0;
-  int last = last_assign();
+  SizeType last = last_assign();
   for ( ; ; ) {
     if ( creason.is_clause() ) {
-      auto cclause{creason.clause()};
+      auto cclause = creason.clause();
 
       // cclause が学習節なら activity をあげる．
       if ( cclause->is_learnt() ) {
@@ -61,19 +65,19 @@ SaUIP2::capture(Reason creason)
       // で割り当てられていたら学習節に加える．
       // 現在の decision level なら count を増やすだけ．
       // あとで mAssignList をたどれば該当のリテラルは捜し出せる．
-      int n = cclause->lit_num();
+      SizeType n = cclause->lit_num();
       // 最初の節は全てのリテラルを対象にするが，
       // 二番目以降の節の最初のリテラルは割り当て結果なので除外する．
-      for ( int i = 0; i < n; ++ i ) {
-	auto q{cclause->lit(i)};
+      for ( SizeType i = 0; i < n; ++ i ) {
+	auto q = cclause->lit(i);
 	if ( !first && q == cclause->wl0() ) continue;
-	auto var{q.varid()};
+	auto var = q.varid();
 	int var_level = decision_level(var);
 	if ( !get_mark(var) && var_level > 0 ) {
 	  set_mark_and_putq(var);
 	  bump_var_activity(var);
 	  if ( var_level < decision_level() ) {
-	    auto cr1{reason(q.varid())};
+	    auto cr1 = reason(q.varid());
 	    if ( cr1.is_literal() ) {
 	      learnt.push_back(cr1.literal());
 	    }
@@ -89,14 +93,14 @@ SaUIP2::capture(Reason creason)
     }
     else {
       ASSERT_COND( !first );
-      auto q{creason.literal()};
-      auto var{q.varid()};
+      auto q = creason.literal();
+      auto var = q.varid();
       int var_level = decision_level(var);
       if ( !get_mark(var) && var_level > 0 ) {
 	set_mark_and_putq(var);
 	bump_var_activity(var);
 	if ( var_level < decision_level() ) {
-	  auto cr1{reason(q.varid())};
+	  auto cr1 = reason(q.varid());
 	  if ( cr1.is_literal() ) {
 	    learnt.push_back(cr1.literal());
 	  }
@@ -115,8 +119,8 @@ SaUIP2::capture(Reason creason)
     // mAssignList に入っている最近の変数で mark の付いたものを探す．
     // つまり conflict clause に含まれていた変数ということ．
     for ( ; ; -- last) {
-      auto q{get_assign(last)};
-      auto var{q.varid()};
+      auto q = get_assign(last);
+      auto var = q.varid();
       if ( get_mark(var) ) {
 	set_mark(var, false);
 	// それを最初のリテラルにする．

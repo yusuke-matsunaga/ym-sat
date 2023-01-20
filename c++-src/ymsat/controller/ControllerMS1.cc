@@ -3,7 +3,7 @@
 /// @brief ControllerMS1 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ControllerMS1.h"
@@ -21,21 +21,24 @@ ControllerMS1::Params kDefaultParams(0.95, 0.999);
 #endif
 
 // @brief MiniSat1 風のコントローラを作る．
-// @param[in] mgr コアマネージャ
 Controller*
-new_ControllerMS1(CoreMgr& mgr)
+new_ControllerMS1(
+  CoreMgr& mgr
+)
 {
   return new ControllerMS1(mgr);
 }
+
 
 //////////////////////////////////////////////////////////////////////
 // ControllerMS1
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-ControllerMS1::ControllerMS1(CoreMgr& mgr) :
-  mMgr(mgr),
-  mParams(kDefaultParams)
+ControllerMS1::ControllerMS1(
+  CoreMgr& mgr
+) : mMgr{mgr},
+    mParams{kDefaultParams}
 {
 }
 
@@ -57,9 +60,10 @@ ControllerMS1::_init()
 }
 
 // @brief リスタート時の処理
-// @param[in] restart リスタート回数
 void
-ControllerMS1::_update_on_restart(int restart)
+ControllerMS1::_update_on_restart(
+  SizeType restart
+)
 {
   // 判定できなかったのでパラメータを更新して次のラウンドへ
   mRealConflLimit = mRealConflLimit * 1.5;

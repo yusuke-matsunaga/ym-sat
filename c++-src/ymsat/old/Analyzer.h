@@ -103,7 +103,7 @@ protected:
   /// @brief 変数の decision level を得る．
   int
   decision_level(
-    SizeType varid ///< [in] 対象の変数
+    SatVarId varid ///< [in] 対象の変数
   ) const
   {
     return mSolver->decision_level(varid);
@@ -112,7 +112,7 @@ protected:
   /// @brief 変数の割り当て理由を得る．
   Reason
   reason(
-    SizeType varid ///< [in] 対象の変数
+    SatVarId varid ///< [in] 対象の変数
   ) const
   {
     return mSolver->reason(varid);
@@ -121,7 +121,7 @@ protected:
   /// @brief 変数のアクティビティを増加させる．
   void
   bump_var_activity(
-    SizeType varid ///< [in] 対象の変数
+    SatVarId varid ///< [in] 対象の変数
   )
   {
     mSolver->bump_var_activity(varid);

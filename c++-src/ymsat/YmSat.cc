@@ -39,7 +39,7 @@ YmSat::~YmSat()
 }
 
 // @brief 変数を追加する．
-int
+SatVarId
 YmSat::new_variable(
   bool decision
 )
@@ -51,12 +51,13 @@ YmSat::new_variable(
 //
 // lingeling 以外は無効
 void
-YmSat::freeze_literal(SatLiteral lit)
+YmSat::freeze_literal(
+  SatLiteral lit
+)
 {
 }
 
 // @brief 節を追加する．
-// @param[in] lits リテラルのベクタ
 void
 YmSat::add_clause(
   const vector<SatLiteral>& lits

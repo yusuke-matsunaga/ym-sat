@@ -46,7 +46,7 @@ Literal
 Selecter1::next_decision()
 {
   auto dvar = mMgr.next_var();
-  if ( dvar >= 0 ) {
+  if ( dvar != BAD_SATVARID ) {
     auto dlit = Literal::conv_from_varid(dvar, false);
     if ( mPhaseCache ) {
       // 以前の割り当てを使う．

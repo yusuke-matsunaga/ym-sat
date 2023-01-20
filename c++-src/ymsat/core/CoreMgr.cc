@@ -61,7 +61,7 @@ CoreMgr::~CoreMgr()
 }
 
 // @brief 変数を追加する．
-int
+SatVarId
 CoreMgr::new_variable(
   bool decision
 )
@@ -70,7 +70,7 @@ CoreMgr::new_variable(
     // エラー
     cout << "Error!: decision_level() != 0" << endl;
     ASSERT_NOT_REACHED;
-    return -1;
+    return BAD_SATVARID;
   }
 
 #if YMSAT_USE_DVAR
@@ -79,7 +79,7 @@ CoreMgr::new_variable(
 
   // ここではカウンタを増やすだけ
   // 実際の処理は alloc_var() でまとめて行う．
-  int n = mVarNum;
+  SatVarId n = mVarNum;
   ++ mVarNum;
   return n;
 }
@@ -92,7 +92,7 @@ CoreMgr::alloc_var()
     if ( mVarSize < mVarNum ) {
       expand_var();
     }
-    for ( int i: Range(mOldVarNum, mVarNum) ) {
+    for ( SizeType i: Range(mOldVarNum, mVarNum) ) {
       mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
       mVarHeap.add_var(i);
     }
@@ -146,7 +146,6 @@ CoreMgr::expand_var()
 }
 
 // @brief 節を追加する．
-// @param[in] lits リテラルのベクタ
 void
 CoreMgr::add_clause(
   const vector<SatLiteral>& lits
@@ -175,8 +174,8 @@ CoreMgr::add_clause(
   // - 重複したリテラルの除去
   // - false literal の除去
   // - true literal を持つかどうかのチェック
-  int wpos = 0;
-  for ( int rpos: Range(lit_num) ) {
+  SizeType wpos = 0;
+  for ( SizeType rpos: Range(lit_num) ) {
     auto l = mTmpLits[rpos];
     if ( wpos != 0 && mTmpLits[wpos - 1] == l ) {
       // 重複している．
@@ -261,7 +260,7 @@ CoreMgr::add_learnt_clause(
   const vector<Literal>& lits
 )
 {
-  int n = lits.size();
+  SizeType n = lits.size();
   mLearntLitNum += n;
 
   if ( n == 0 ) {
@@ -303,7 +302,7 @@ CoreMgr::add_learnt_clause(
   else {
     // 節の生成
     alloc_lits(n);
-    for ( int i: Range(n) ) {
+    for ( SizeType i: Range(n) ) {
       mTmpLits[i] = lits[i];
     }
     auto clause = new_clause(n, true);
@@ -366,9 +365,9 @@ CoreMgr::reduce_CNF()
   sweep_clause(mLearntClauseList);
 
   // 変数ヒープを再構成する．
-  vector<int> var_list;
+  vector<SatVarId> var_list;
   var_list.reserve(mVarNum);
-  for ( int var: Range(mVarNum) ) {
+  for ( SatVarId var: Range(mVarNum) ) {
     if ( eval(var) == SatBool3::X ) {
       var_list.push_back(var);
     }
@@ -634,8 +633,8 @@ CoreMgr::solve(
   if ( sat_stat == SatBool3::True ) {
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
     model.resize(mVarNum);
-    for ( int var: Range(mVarNum) ) {
-      auto val{eval(var)};
+    for ( SatVarId var: Range(mVarNum) ) {
+      auto val = eval(var);
       ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
       model.set(var, val);
     }
@@ -674,7 +673,7 @@ CoreMgr::search(
 
   ++ mRestartNum;
 
-  int cur_confl_num = 0;
+  SizeType cur_confl_num = 0;
   for ( ; ; ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
     auto conflict = implication();
@@ -773,7 +772,7 @@ CoreMgr::search(
 Reason
 CoreMgr::implication()
 {
-  int prop_num = 0;
+  SizeType prop_num = 0;
   auto conflict = Reason::None;
   while ( mAssignList.has_elem() ) {
     auto l = mAssignList.get_next();
@@ -786,9 +785,9 @@ CoreMgr::implication()
     auto nl = ~l;
 
     auto& wlist = watcher_list(l);
-    int n = wlist.num();
-    int rpos = 0;
-    int wpos = 0;
+    SizeType n = wlist.num();
+    SizeType rpos = 0;
+    SizeType wpos = 0;
     while ( rpos < n ) {
       auto w = wlist.elem(rpos);
       wlist.set_elem(wpos, w);
@@ -937,7 +936,7 @@ CoreMgr::backtrack(
     mAssignList.backtrack(level);
     while ( mAssignList.has_elem() ) {
       auto p = mAssignList.get_prev();
-      int varid = p.varid();
+      auto varid = p.varid();
       mVal[varid] = (mVal[varid] << 2) | conv_from_Bool3(SatBool3::X);
       push(varid);
       if ( debug & debug_assign ) {
@@ -1010,16 +1009,16 @@ CoreMgr::del_satisfied_watcher(
 // @brief 次に割り当てる変数を取り出す．
 //
 // アクティビティが最大で未割り当ての変数を返す．
-int
+SatVarId
 CoreMgr::next_var()
 {
   while ( !empty() ) {
-    int dvar = pop_top();
+    auto dvar = pop_top();
     if ( eval(dvar) == SatBool3::X ) {
       return dvar;
     }
   }
-  return -1;
+  return BAD_SATVARID;
 }
 
 // 学習節のアクティビティを増加させる．
