@@ -6,10 +6,10 @@
 /// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "../CoreMgr.h"
-#include "../Controller.h"
+#include "CoreMgr.h"
+#include "Controller.h"
 #include "../Analyzer.h"
-#include "../Selecter.h"
+#include "Selecter.h"
 #include "Clause.h"
 #include "ym/SatStats.h"
 #include "ym/SatModel.h"
@@ -57,9 +57,6 @@ CoreMgr::~CoreMgr()
 #if YMSAT_USE_WEIGHTARRAY
   delete [] mWeightArray;
 #endif
-  delete [] mHeapPos;
-  delete [] mActivity;
-  delete [] mHeap;
   delete [] mTmpLits;
 }
 
@@ -97,7 +94,7 @@ CoreMgr::alloc_var()
     }
     for ( int i: Range(mOldVarNum, mVarNum) ) {
       mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
-      add_var(i);
+      mVarHeap.add_var(i);
     }
     mOldVarNum = mVarNum;
   }
@@ -113,9 +110,6 @@ CoreMgr::expand_var()
   auto old_decision_level = mDecisionLevel;
   auto old_reason = mReason;
   auto old_watcher_list = mWatcherList;
-  auto old_heap_pos = mHeapPos;
-  auto old_activity = mActivity;
-  auto old_heap = mHeap;
 
   // 新しいサイズを計算する．
   if ( mVarSize == 0 ) {
@@ -130,35 +124,25 @@ CoreMgr::expand_var()
   mDecisionLevel = new int[mVarSize];
   mReason = new Reason[mVarSize];
   mWatcherList = new WatcherList[mVarSize * 2];
-  mHeapPos = new SizeType[mVarSize];
-  mActivity = new double[mVarSize];
-  mHeap = new int[mVarSize];
 
   // 古い配列から新しい配列へ内容をコピーする．
   for ( int i: Range(mOldVarNum) ) {
     mVal[i] = old_val[i];
     mDecisionLevel[i] = old_decision_level[i];
     mReason[i] = old_reason[i];
-    mHeapPos[i] = old_heap_pos[i];
-    mActivity[i] = old_activity[i];
   }
   int n2 = mOldVarNum * 2;
   for ( int i: Range(n2) ) {
     mWatcherList[i].move(old_watcher_list[i]);
-  }
-  for ( int i: Range(mHeapNum) ) {
-    mHeap[i] = old_heap[i];
   }
   if ( old_size > 0 ) {
     delete [] old_val;
     delete [] old_decision_level;
     delete [] old_reason;
     delete [] old_watcher_list;
-    delete [] old_heap_pos;
-    delete [] old_activity;
-    delete [] old_heap;
   }
   mAssignList.reserve(mVarNum);
+  mVarHeap.alloc_var(mVarSize);
 }
 
 // @brief 節を追加する．
@@ -771,7 +755,8 @@ CoreMgr::search(
     if ( debug & (debug_assign | debug_decision) ) {
       cout << endl
 	   << "choose " << lit << " :"
-	   << mActivity[lit.varid()] << endl;
+	   << mVarHeap.activity(lit.varid())
+	   << endl;
     }
 
     if ( debug & debug_assign ) {
@@ -966,26 +951,6 @@ CoreMgr::backtrack(
   }
 }
 
-// 変数のアクティビティを増加させる．
-void
-CoreMgr::bump_var_activity(
-  int varid
-)
-{
-  double& act = mActivity[varid];
-  act += mVarBump;
-  if ( act > 1e+100 ) {
-    for ( SizeType i: Range(mVarNum) ) {
-      mActivity[i] *= 1e-100;
-    }
-    mVarBump *= 1e-100;
-  }
-  int pos = mHeapPos[varid];
-  if ( pos > 0 ) {
-    move_up(pos);
-  }
-}
-
 // @brief watcher を削除する．
 void
 CoreMgr::del_watcher(
@@ -1082,107 +1047,6 @@ CoreMgr::reset_activity()
   }
 }
 #endif
-
-// @brief 与えられた変数のリストからヒープ木を構成する．
-void
-CoreMgr::build(
-  const vector<int>& var_list
-)
-{
-  for ( int i: Range(mVarSize) ) {
-    mHeapPos[i] = -1;
-  }
-  mHeapNum = 0;
-  ASSERT_COND( var_list.size() <= mVarSize );
-
-  for ( int i: Range(var_list.size()) ) {
-    auto var = var_list[i];
-    ++ mHeapNum;
-    set(var, i);
-  }
-  for ( int i = (mHeapNum / 2); i > 0; ) {
-    -- i;
-    move_down(i);
-  }
-}
-
-// 引数の位置にある要素を適当な位置まで沈めてゆく
-void
-CoreMgr::move_down(
-  SizeType pos
-)
-{
-  int vindex_p = mHeap[pos];
-  double val_p = mActivity[vindex_p];
-  for ( ; ; ) {
-    // ヒープ木の性質から親から子の位置がわかる
-    SizeType pos_l = left(pos);
-    SizeType pos_r = pos_l + 1;
-    if ( pos_r > mHeapNum ) {
-      // 左右の子どもを持たない場合
-      break;
-    }
-    // 左右の子供のうちアクティビティの大きい方を pos_c とする．
-    // 同点なら左を選ぶ．
-    SizeType pos_c = pos_l;
-    int vindex_c = mHeap[pos_c];
-    double val_c = mActivity[vindex_c];
-    if ( pos_r < mHeapNum ) {
-      int vindex_r = mHeap[pos_r];
-      double val_r = mActivity[vindex_r];
-      if ( val_c < val_r ) {
-	pos_c = pos_r;
-	vindex_c = vindex_r;
-	val_c = val_r;
-      }
-    }
-    // 子供のアクティビティが親を上回らなければ終わり
-    if ( val_c <= val_p ) {
-      break;
-    }
-    // 逆転
-    set(vindex_p, pos_c);
-    set(vindex_c, pos);
-    pos = pos_c;
-  }
-}
-
-// @brief 内容を出力する
-void
-CoreMgr::dump_heap(
-  ostream& s
-) const
-{
-  s << "heap num = " << mHeapNum << endl;
-  int j = 0;
-  int nc = 1;
-  const char* spc = "";
-  for ( int i: Range(mHeapNum) ) {
-    int vindex = mHeap[i];
-    ASSERT_COND( mHeapPos[vindex] == i );
-    if ( i > 0 ) {
-      int p = parent(i);
-      int pindex = mHeap[p];
-      ASSERT_COND( mActivity[pindex] >= mActivity[vindex] );
-    }
-    s << spc << vindex << "("
-      << mActivity[vindex]
-      << ")";
-    ++ j;
-    if ( j == nc ) {
-      j = 0;
-      nc <<= 1;
-      s << endl;
-      spc = "";
-    }
-    else {
-      spc = " ";
-    }
-  }
-  if ( j > 0 ) {
-    s << endl;
-  }
-}
 
 // @brief 現在の内部状態を得る．
 SatStats

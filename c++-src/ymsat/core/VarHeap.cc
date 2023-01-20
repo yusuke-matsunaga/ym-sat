@@ -9,7 +9,7 @@
 #include "VarHeap.h"
 
 
-BEGIN_NAMESPACE_YM_YMSATOLD
+BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
 // VarHeap
@@ -202,4 +202,4 @@ VarHeap::dump(
   }
 }
 
-END_NAMESPACE_YM_YMSATOLD
+END_NAMESPACE_YM_SAT

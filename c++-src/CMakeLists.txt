@@ -53,6 +53,7 @@ set (ym_sat_SOURCES
   ymsat/core/AssignList.cc
   ymsat/core/Clause.cc
   ymsat/core/CoreMgr.cc
+  ymsat/core/VarHeap.cc
   ymsat/controller/ControllerMS1.cc
   ymsat/controller/ControllerMS2.cc
   ymsat/analyzer/SaBase.cc
@@ -68,17 +69,15 @@ set (ym_sat_SOURCES
   ymsat1/SaFactory.cc
   ymsat1/SaUIP1.cc
   ymsat1/SaUIP2.cc
-  ymsat1/VarHeap.cc
   ymsat1/YmSat.cc
 
-  ymsat_old/SaBase.cc
-  ymsat_old/SaFactory.cc
-  ymsat_old/SaUIP1.cc
-  ymsat_old/SaUIP2.cc
-  ymsat_old/VarHeap.cc
-  ymsat_old/YmSat_base.cc
-  ymsat_old/YmSat_solve.cc
-  ymsat_old/YmSatMS2.cc
+  ymsat/old/SaBase.cc
+  ymsat/old/SaFactory.cc
+  ymsat/old/SaUIP1.cc
+  ymsat/old/SaUIP2.cc
+  ymsat/old/YmSat_base.cc
+  ymsat/old/YmSat_solve.cc
+  ymsat/old/YmSatMS2.cc
   )
 
 

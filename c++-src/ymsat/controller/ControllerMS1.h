@@ -8,7 +8,7 @@
 /// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "../Controller.h"
+#include "Controller.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

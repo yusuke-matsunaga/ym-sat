@@ -186,11 +186,10 @@ private:
   init_control_parameters() = 0;
 
   /// @brief リスタート時に制御パラメータの更新を行う．
-  /// @param[in] restart リスタート回数
   virtual
   void
   update_on_restart(
-    SizeType restart
+    SizeType restart ///< [in] リスタート回数
   ) = 0;
 
   /// @brief コンフリクト時に制御パラメータの更新を行う．
@@ -199,7 +198,8 @@ private:
   update_on_conflict() = 0;
 
   /// @brief 次の割り当てを選ぶ．
-  /// @note 割り当てられる変数がない場合には Literal::X を返す．
+  ///
+  /// 割り当てられる変数がない場合には Literal::X を返す．
   virtual
   Literal
   next_decision() = 0;
@@ -218,20 +218,18 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 矛盾回数の制限値を設定する．
-  /// @param[in] limit 設定する値
   void
   set_conflict_limit(
-    SizeType limit
+    SizeType limit ///< [in] 設定する値
   )
   {
     mConflictLimit = limit;
   }
 
   /// @brief 学習節の制限値を設定する．
-  /// @param[in] limit 設定する値
   void
   set_learnt_limit(
-    SizeType limit
+    SizeType limit ///< [in] 設定する値
   )
   {
     mLearntLimit = limit;
@@ -266,10 +264,9 @@ protected:
   }
 
   /// @brief 節を削除する．
-  /// @param[in] clause 削除する節
   void
   delete_clause(
-    Clause* clause
+    Clause* clause ///< [in] 削除する節
   );
 
   /// @brief 学習節のアクティビティ増加量を返す．
@@ -280,10 +277,9 @@ protected:
   }
 
   /// @brief watcher list を得る．
-  /// @param[in] lit リテラル
   WatcherList&
   watcher_list(
-    Literal lit
+    Literal lit ///< [in] リテラル
   )
   {
     auto index = lit.index();
@@ -291,11 +287,10 @@ protected:
     return mWatcherList[index];
   }
 
-  /// @brief 変数1の評価を行う．
-  /// @param[in] id 変数番号
+  /// @brief 変数の評価を行う．
   SatBool3
   eval(
-    int id
+    int id ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( id >= 0 && id < mVarNum );
@@ -304,10 +299,9 @@ protected:
   }
 
   /// @brief literal の評価を行う．
-  /// @param[in] l リテラル
   SatBool3
   eval(
-    Literal l
+    Literal l ///< [in] リテラル
   ) const
   {
     auto index = l.index();
@@ -321,7 +315,7 @@ protected:
   /// @brief 変数の直前の値を返す．
   SatBool3
   old_val(
-    int id
+    int id ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( id >= 0 && id < mVarNum );
@@ -337,10 +331,9 @@ protected:
   }
 
   /// @brief 変数の decision level を返す．
-  /// @param[in] varid 変数番号
   int
   decision_level(
-    int varid
+    int varid ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( varid >= 0 && varid < mVarNum );
@@ -350,18 +343,16 @@ protected:
 
 #if YMSAT_USE_LBD
   /// @brief LBD を計算する．
-  /// @param[in] clause 対象の節
   int
   calc_lbd(
-    const Clause* clause
+    const Clause* clause ///< [in] 対象の節
   );
 #endif
 
   /// @brief 変数の割り当て理由を返す．
-  /// @param[in] varid 変数番号
   Reason
   reason(
-    int varid
+    int varid ///< [in] 変数番号
   ) const
   {
     ASSERT_COND( varid >= 0 && varid < mVarNum );
@@ -370,10 +361,9 @@ protected:
   }
 
   /// @brief 学習節が使われているか調べる．
-  /// @param[in] clause 対象の節
   bool
   is_locked(
-    Clause* clause
+    Clause* clause ///< [in] 対象の節
   ) const
   {
     // 直感的には分かりにくいが，節の最初のリテラルは
@@ -401,21 +391,19 @@ private:
   implication();
 
   /// @brief バックトラックする
-  /// @param[in] level バックトラックするレベル
   void
   backtrack(
-    int level
+    int level ///< [in] バックトラックするレベル
   );
 
   /// @brief 値の割当てか可能かチェックする．
-  /// @param[in] lit 割り当てるリテラル
   /// @return 矛盾が起きたら false を返す．
   ///
   /// すでに同じ値が割り当てられていたらなにもしない．
   /// 割り当てには assign() を呼び出す．
   bool
   check_and_assign(
-    Literal lit
+    Literal lit ///< [in] 割り当てるリテラル
   )
   {
     auto old_val = eval(lit);
@@ -427,12 +415,10 @@ private:
   }
 
   /// @brief 値の割当てを行う．
-  /// @param[in] lit 割り当てるリテラル
-  /// @param[in] reason 割り当ての理由
   void
   assign(
-    Literal lit,
-    Reason reason = Reason::None
+    Literal lit,                 ///< [in] 割り当てるリテラル
+    Reason reason = Reason::None ///< [in] 割り当ての理由
   )
   {
     auto lindex = lit.index();
@@ -456,72 +442,61 @@ private:
   reduce_CNF();
 
   /// @brief 充足している節を取り除く
-  /// @param[in] clause_list 節のリスト
   ///
   /// reduce_CNF() の中で用いられる．
   void
   sweep_clause(
-    vector<Clause*>& clause_list
+    vector<Clause*>& clause_list ///< [in] 節のリスト
   );
 
   /// @brief 学習節を追加する．
-  /// @param[in] learnt_lits 追加する節のもととなるリテラルのリスト
   void
   add_learnt_clause(
-    const vector<Literal>& learnt_lits
+    const vector<Literal>& learnt_lits ///< [in] 追加する節のもととなるリテラルのリスト
   );
 
   /// @brief mTmpLits を確保する．
-  /// @param[in] lit_num リテラル数
   void
   alloc_lits(
-    SizeType lit_num
+    SizeType lit_num ///< [in] リテラル数
   );
 
   /// @brief 新しい節を生成する．
-  /// @param[in] lit_num リテラル数
-  /// @param[in] learnt 学習節のとき true とするフラグ
-  /// @param[in] lbd 学習節のときの literal block distance
-  /// @note リテラルは mTmpLits に格納されている．
+  ///
+  /// リテラルは mTmpLits に格納されている．
   Clause*
   new_clause(
-    SizeType lit_num,
-    bool learnt = false
+    SizeType lit_num,   ///< [in] リテラル数
+    bool learnt = false ///< [in] 学習節のとき true とするフラグ
   );
 
   /// @brief Watcher を追加する．
-  /// @param[in] watch_lit リテラル
-  /// @param[in] reason 理由
   void
   add_watcher(
-    Literal watch_lit,
-    Reason reason
+    Literal watch_lit, ///< [in] リテラル
+    Reason reason      ///< [in] 理由
   )
   {
     watcher_list(watch_lit).add(Watcher{reason});
   }
 
   /// @brief watcher を削除する．
-  /// @param[in] watch_lit リテラル
-  /// @param[in] reason 理由
   void
   del_watcher(
-    Literal watch_lit,
-    Reason reason
+    Literal watch_lit, ///< [in] リテラル
+    Reason reason      ///< [in] 理由
   );
 
   /// @brief 充足された watcher を削除する．
-  /// @param[in] watch_lit リテラル
   void
   del_satisfied_watcher(
-    Literal watch_lit
+    Literal watch_lit ///< [in] リテラル
   );
 
   /// @brief 変数のアクティビティを増加させる．
-  /// @param[in] var 変数番号
   void
   bump_var_activity(
-    int var
+    int var ///< [in] 変数番号
   )
   {
     mVarHeap.bump_var_activity(var);
@@ -535,10 +510,9 @@ private:
   }
 
   /// @brief 学習節のアクティビティを増加させる．
-  /// @param[in] clause 対象の学習節
   void
   bump_clause_activity(
-    Clause* clause
+    Clause* clause ///< [in] 対象の学習節
   );
 
   /// @brief 学習節のアクティビティを定率で減少させる．

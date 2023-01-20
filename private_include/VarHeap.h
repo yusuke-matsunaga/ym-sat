@@ -1,5 +1,5 @@
-﻿#ifndef YMSAT1OLD_VARHEAP_H
-#define YMSAT1OLD_VARHEAP_H
+﻿#ifndef VARHEAP_H
+#define VARHEAP_H
 
 /// @file VarHeap.h
 /// @brief VarHeap のヘッダファイル
@@ -8,10 +8,10 @@
 /// Copyright (C) 2005-2011, 2014, 2016, 2018, 203 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ymsat_old.h"
+#include "ym/sat.h"
 
 
-BEGIN_NAMESPACE_YM_YMSATOLD
+BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
 /// @class VarHeap VarHeap.h "VarHeap.h"
@@ -256,6 +256,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_YMSATOLD
+END_NAMESPACE_YM_SAT
 
-#endif // YMSAT1OLD_VARHEAP_H
+#endif // VARHEAP_H

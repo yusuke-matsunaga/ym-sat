@@ -14,12 +14,11 @@
 #include "Reason.h"
 #include "AssignList.h"
 #include "Watcher.h"
-
+#include "VarHeap.h"
 #include <chrono>
 
 BEGIN_NAMESPACE_YM_SAT
 
-class SatClause;
 class Controller;
 class Analyzer;
 class Selecter;
@@ -414,7 +413,10 @@ public:
   void
   bump_var_activity(
     int var ///< [in] 変数番号
-  );
+  )
+  {
+    mVarHeap.bump_var_activity(var);
+  }
 
   /// @brief 変数のアクティビティを定率で減少させる．
   void
@@ -446,7 +448,10 @@ public:
   void
   build(
     const vector<int>& var_list ///< [in] 変数番号のリスト
-  );
+  )
+  {
+    mVarHeap.build(var_list);
+  }
 
   /// @brief リスタート回数を返す．
   SizeType
@@ -539,7 +544,10 @@ public:
   void
   dump_heap(
     ostream& s
-  ) const;
+  ) const
+  {
+    mVarHeap.dump(s);
+  }
 
 
 private:
@@ -642,17 +650,9 @@ private:
 
   /// @brief ヒープを空にする．
   void
-  clear();
-
-  /// @brief 変数をヒープに追加する．
-  void
-  add_var(
-    int var ///< [in] 追加する変数
-  )
+  clear()
   {
-    set(var, mHeapNum);
-    mActivity[var] = 0.0;
-    ++ mHeapNum;
+    mVarHeap.clear();
   }
 
   /// @brief 変数を再びヒープに追加する．
@@ -661,19 +661,14 @@ private:
     int var ///< [in] 追加する変数
   )
   {
-    if ( mHeapPos[var] == -1 ) {
-      auto pos = mHeapNum;
-      ++ mHeapNum;
-      set(var, pos);
-      move_up(pos);
-    }
+    mVarHeap.push(var);
   }
 
   /// @brief 要素が空の時 true を返す．
   bool
   empty() const
   {
-    return mHeapNum == 0;
+    return mVarHeap.empty();
   }
 
   /// @brief アクティビティ最大の変数番号を取り出す．
@@ -682,89 +677,7 @@ private:
   int
   pop_top()
   {
-    ASSERT_COND( mHeapNum > 0 );
-
-    int ans = mHeap[0];
-    mHeapPos[ans] = -1;
-    -- mHeapNum;
-    if ( mHeapNum > 0 ) {
-      int vindex = mHeap[mHeapNum];
-      set(vindex, 0);
-      move_down(0);
-    }
-    return ans;
-  }
-
-  /// @brief 引数の位置にある要素を適当な位置まで沈めてゆく
-  void
-  move_down(
-    SizeType pos ///< [in] 対象の要素の位置
-  );
-
-  /// @brief 引数の位置にある要素を適当な位置まで上げてゆく
-  void
-  move_up(
-    SizeType pos ///< [in] 対象の要素の位置
-  )
-  {
-    int vindex = mHeap[pos];
-    double val = mActivity[vindex];
-    while ( pos > 0 ) {
-      SizeType pos_p = parent(pos);
-      int vindex_p = mHeap[pos_p];
-      double val_p = mActivity[vindex_p];
-      if ( val_p >= val ) {
-	break;
-      }
-      set(vindex, pos_p);
-      set(vindex_p, pos);
-      pos = pos_p;
-    }
-  }
-
-  /// @brief 変数を配列にセットする．
-  ///
-  /// mHeap と mHeapPos の一貫性を保つためにはこの関数を使うこと．
-  void
-  set(
-    int vindex,   ///< [in] 対象の変数番号
-    SizeType pos  ///< [in] 位置
-  )
-  {
-    mHeap[pos] = vindex;
-    mHeapPos[vindex] = pos;
-  }
-
-  /// @brief 左の子供の位置を計算する
-  static
-  SizeType
-  left(
-    SizeType pos ///< [in] 親の位置
-  )
-  {
-    return pos + pos + 1;
-  }
-
-  /// @brief 右の子供の位置を計算する．
-  static
-  SizeType
-  right(
-    SizeType pos ///< [in] 親の位置
-  )
-  {
-    return pos + pos + 2;
-  }
-
-  /// @brief 親の位置を計算する．
-  ///
-  /// 左の子供でも右の子供でも同じ
-  static
-  SizeType
-  parent(
-    SizeType pos ///< [in] 子供の位置
-  )
-  {
-    return (pos - 1) >> 1;
+    return mVarHeap.pop_top();
   }
 
   /// @brief mVal[] で用いているエンコーディングを SatBool3 に変換する．
@@ -948,20 +861,8 @@ private:
   // 矛盾の解析時にテンポラリに使用される節
   Clause* mTmpBinClause{nullptr};
 
-  // ヒープ上の位置の配列
-  // サイズは mVarSize
-  SizeType* mHeapPos{nullptr};
-
-  // アクティビティの配列
-  // サイズは mVarSize
-  double* mActivity{nullptr};
-
-  // ヒープ用の配列
-  // サイズは mVarSize
-  int* mHeap{nullptr};
-
-  // ヒープの要素数
-  SizeType mHeapNum{0};
+  // 変数のヒープ木
+  VarHeap mVarHeap;
 
   // 動作フラグ
   bool mGoOn{false};

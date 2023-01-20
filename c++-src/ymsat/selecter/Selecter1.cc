@@ -6,9 +6,8 @@
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "Selecter1.h"
-#include "../CoreMgr.h"
+#include "CoreMgr.h"
 
 
 BEGIN_NAMESPACE_YM_SAT

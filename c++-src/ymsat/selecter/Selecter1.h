@@ -8,7 +8,7 @@
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "../Selecter.h"
+#include "Selecter.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
