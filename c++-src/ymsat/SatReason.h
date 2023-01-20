@@ -1,6 +1,8 @@
 ﻿#ifndef SATREASON_H
 #define SATREASON_H
 
+#error "obsolete"
+
 /// @file SatReason.h
 /// @brief SatReason のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)

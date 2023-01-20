@@ -6,7 +6,6 @@
 /// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ControllerMS1.h"
 #include "../CoreMgr.h"
 

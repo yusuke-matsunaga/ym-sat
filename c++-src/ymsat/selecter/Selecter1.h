@@ -8,7 +8,6 @@
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "../Selecter.h"
 
 
@@ -24,10 +23,10 @@ class Selecter1 :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr Coreマネージャ
-  /// @param[in] phase_cache 以前の極性を使うヒューリスティック
-  Selecter1(CoreMgr& mgr,
-	    bool phase_cache);
+  Selecter1(
+    CoreMgr& mgr,    ///< [in] Coreマネージャ
+    bool phase_cache ///< [in] 以前の極性を使うヒューリスティック
+  );
 
   /// @brief デストラクタ
   ~Selecter1();
@@ -39,14 +38,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の割り当てを選ぶ．
-  SatLiteral
+  Literal
   next_decision() override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
 
 
 private:

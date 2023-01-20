@@ -5,9 +5,8 @@
 /// @brief YmSat のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "SatSolverImpl.h"
 #include "CoreMgr.h"

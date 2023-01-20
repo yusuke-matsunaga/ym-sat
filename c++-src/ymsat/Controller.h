@@ -5,9 +5,8 @@
 /// @brief Controller のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/sat.h"
 
@@ -32,7 +31,7 @@ public:
 
   /// @brief デストラクタ
   virtual
-  ~Controller() { }
+  ~Controller() = default;
 
   //////////////////////////////////////////////////////////////////////
   /// @}
@@ -50,10 +49,11 @@ public:
   _init() = 0;
 
   /// @brief リスタート時の処理
-  /// @param[in] restart リスタート回数
   virtual
   void
-  _update_on_restart(int restart) = 0;
+  _update_on_restart(
+    int restart ///< [in] リスタート回数
+  ) = 0;
 
   /// @brief 矛盾発生時の処理
   virtual
@@ -63,14 +63,16 @@ public:
 };
 
 /// @brief MiniSat1 風のコントローラを作る．
-/// @param[in] mgr コアマネージャ
 Controller*
-new_ControllerMS1(CoreMgr& mgr);
+new_ControllerMS1(
+  CoreMgr& mgr ///< [in] コアマネージャ
+);
 
 /// @brief MiniSat2 風のコントローラを作る．
-/// @param[in] mgr コアマネージャ
 Controller*
-new_ControllerMS2(CoreMgr& mgr);
+new_ControllerMS2(
+  CoreMgr& mgr ///< [in] コアマネージャ
+);
 
 
 END_NAMESPACE_YM_SAT

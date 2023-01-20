@@ -5,9 +5,8 @@
 /// @brief YmSat1 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "YmSat.h"
 

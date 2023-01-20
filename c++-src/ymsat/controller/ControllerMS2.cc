@@ -6,7 +6,6 @@
 /// Copyright (C) 2005-2011, 2014, 2015, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ControllerMS2.h"
 #include "../CoreMgr.h"
 

@@ -5,12 +5,11 @@
 /// @brief Selecter のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/sat.h"
-#include "ym/SatLiteral.h"
+#include "Literal.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -27,7 +26,7 @@ public:
 
   /// @brief デストラクタ
   virtual
-  ~Selecter() { }
+  ~Selecter() = default;
 
 
 public:
@@ -37,30 +36,17 @@ public:
 
   /// @brief 次の割り当てを選ぶ．
   virtual
-  SatLiteral
+  Literal
   next_decision() = 0;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
 
 };
 
 /// @brief Selecter1 を生成する．
-/// @param[in] mgr Coreマネージャ
-/// @param[in] phase_cache phase キャッシュフラグ
 Selecter*
-new_Selecter1(CoreMgr& mgr,
-	      bool phase_cache);
+new_Selecter1(
+  CoreMgr& mgr,    ///< [in] Coreマネージャ
+  bool phase_cache ///< [in] phase キャッシュフラグ
+);
 
 END_NAMESPACE_YM_SAT
 

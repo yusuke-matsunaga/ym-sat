@@ -8,7 +8,6 @@
 /// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "../Controller.h"
 
 
@@ -124,11 +123,6 @@ private:
   double mRealLearntLimit;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
 
 END_NAMESPACE_YM_SAT
 

@@ -1,16 +1,15 @@
-﻿#ifndef ASSIGNLIST_H
-#define ASSIGNLIST_H
+﻿#ifndef YMSAT_ASSIGNLIST_H
+#define YMSAT_ASSIGNLIST_H
 
 /// @file AssignList.h
 /// @brief AssignList のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/sat.h"
-#include "ym/SatLiteral.h"
+#include "Literal.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -67,7 +66,9 @@ public:
 
   /// @brief 必要なサイズを指定する．
   void
-  reserve(int req_size);
+  reserve(
+    SizeType req_size
+  );
 
 
 public:
@@ -76,39 +77,70 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 割り当てを追加する．
-  /// @note ここでは領域の拡張を行わない．それ以前に reserve() で適切な
+  ///
+  /// ここでは領域の拡張を行わない．それ以前に reserve() で適切な
   /// サイズが指定されている必要がある．
   void
-  put(SatLiteral lit);
+  put(
+    Literal lit ///< [in] リテラル
+  )
+  {
+    ASSERT_COND( mTail < mSize );
+    mList[mTail ++] = lit;
+  }
 
   /// @brief 記録されている割り当ての要素数を得る．
-  int
-  size() const;
+  SizeType
+  size() const
+  {
+    return mTail;
+  }
 
   /// @brief 読み出す要素があるとき true を返す．
   bool
-  has_elem() const;
+  has_elem() const
+  {
+    return mHead < mTail;
+  }
 
   /// @brief 次の要素を返す．
   /// @return 今の読み出し位置の要素を返す．
-  /// @note 読み出し位置は一つ進む
-  SatLiteral
-  get_next();
+  ///
+  /// 読み出し位置は一つ進む
+  Literal
+  get_next()
+  {
+    return get(mHead ++);
+  }
 
   /// @brief 前の要素を返す．
   /// @return 書き込み位置の一つ手前の要素を返す．
-  /// @note 書き込み位置は一つもどる．
-  SatLiteral
-  get_prev();
+  ///
+  /// 書き込み位置は一つもどる．
+  Literal
+  get_prev()
+  {
+    return get(-- mTail);
+  }
 
   /// @brief 全てを読み出したことにする．
-  /// @note 読み出し位置を書き込み位置にする．
+  ///
+  /// 読み出し位置を書き込み位置にする．
   void
-  skip_all();
+  skip_all()
+  {
+    mHead = mTail;
+  }
 
   /// @brief pos 番目の要素を得る．
-  SatLiteral
-  get(int pos) const;
+  Literal
+  get(
+    SizeType pos ///< [in] 読み出す位置
+  ) const
+  {
+    ASSERT_COND( pos < mSize );
+    return mList[pos];
+  }
 
 
 public:
@@ -118,18 +150,32 @@ public:
 
   /// @brief 現在のレベルを返す．
   int
-  cur_level() const;
+  cur_level() const
+  {
+    return mCurLevel;
+  }
 
   /// @brief 現在の位置をマーカーに登録する．
   void
-  set_marker();
+  set_marker()
+  {
+    ASSERT_COND( mCurLevel < mSize );
+    mMarker[mCurLevel ++] = mTail;
+  }
 
   /// @brief level の割り当てを行う直前の状態にもどす．
-  /// @param[in] level 対象のレベル
-  /// @note 具体的には読み出し位置が level のマーカとなり，現在のレベルが
+  ///
+  /// 具体的には読み出し位置が level のマーカとなり，現在のレベルが
   /// level となる．
   void
-  backtrack(int level);
+  backtrack(
+    int level ///< [in] 対象のレベル
+  )
+  {
+    ASSERT_COND( level < static_cast<int>(mSize) );
+    mHead = mMarker[level];
+    mCurLevel = level;
+  }
 
 
 private:
@@ -138,115 +184,25 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // リストの実際の容量
-  int mSize;
+  SizeType mSize{0};
 
   // 値割り当てを保持するリスト(配列)
-  SatLiteral* mList;
+  Literal* mList{nullptr};
 
   // 書き込み位置
-  int mTail;
+  SizeType mTail{0};
 
   // 読み出し位置
-  int mHead;
+  SizeType mHead{0};
 
   // 各 decision-level ごとの marker の配列
-  int* mMarker;
+  SizeType* mMarker{nullptr};
 
   // 現在の decision_level
-  int mCurLevel;
+  int mCurLevel{0};
 
 };
 
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief 割り当てを追加する．
-inline
-void
-AssignList::put(SatLiteral lit)
-{
-  ASSERT_COND( mTail < mSize );
-  mList[mTail ++] = lit;
-}
-
-// @brief 記録されている割り当ての要素数を得る．
-inline
-int
-AssignList::size() const
-{
-  return mTail;
-}
-
-// @brief 読み出す要素があるとき true を返す．
-inline
-bool
-AssignList::has_elem() const
-{
-  return mHead < mTail;
-}
-
-// @brief 次の要素を返す．
-inline
-SatLiteral
-AssignList::get_next()
-{
-  return get(mHead ++);
-}
-
-// @brief 前の要素を返す．
-inline
-SatLiteral
-AssignList::get_prev()
-{
-  return get(-- mTail);
-}
-
-// @brief 全てを読み出したことにする．
-inline
-void
-AssignList::skip_all()
-{
-  mHead = mTail;
-}
-
-// @brief pos 番目の要素を得る．
-inline
-SatLiteral
-AssignList::get(int pos) const
-{
-  ASSERT_COND( pos < mSize );
-  return mList[pos];
-}
-
-// @brief 現在のレベルを返す．
-inline
-int
-AssignList::cur_level() const
-{
-  return mCurLevel;
-}
-
-// @brief 現在の位置をマーカーに登録する．
-inline
-void
-AssignList::set_marker()
-{
-  ASSERT_COND( mCurLevel < mSize );
-  mMarker[mCurLevel ++] = mTail;
-}
-
-// @brief level の割り当てを行う直前の状態にもどす．
-inline
-void
-AssignList::backtrack(int level)
-{
-  ASSERT_COND( level < static_cast<int>(mSize) );
-  mHead = mMarker[level];
-  mCurLevel = level;
-}
-
 END_NAMESPACE_YM_SAT
 
-#endif // LIBYM_YMYMLOGIC_SAT_YMSAT_ASSIGNLIST_H
+#endif // YMSAT_ASSIGNLIST_H

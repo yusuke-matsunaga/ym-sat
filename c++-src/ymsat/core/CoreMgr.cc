@@ -3,15 +3,14 @@
 /// @brief CoreMgr の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "../CoreMgr.h"
 #include "../Controller.h"
 #include "../Analyzer.h"
-#include "../SatClause.h"
 #include "../Selecter.h"
+#include "Clause.h"
 #include "ym/SatStats.h"
 #include "ym/SatModel.h"
 #include "ym/SatMsgHandler.h"
@@ -59,7 +58,7 @@ CoreMgr::CoreMgr() :
   mSweep_props = 0;
 
   mTmpLitsSize = 1024;
-  mTmpLits = new SatLiteral[mTmpLitsSize];
+  mTmpLits = new Literal[mTmpLitsSize];
 
   mTmpBinClause = new_clause(2);
 }
@@ -91,11 +90,10 @@ CoreMgr::~CoreMgr()
 }
 
 // @brief 変数を追加する．
-// @param[in] decision 決定変数の時に true とする．
-// @return 新しい変数番号を返す．
-// @note 変数番号は 0 から始まる．
 int
-CoreMgr::new_variable(bool decision)
+CoreMgr::new_variable(
+  bool decision
+)
 {
   if ( decision_level() != 0 ) {
     // エラー
@@ -136,14 +134,14 @@ void
 CoreMgr::expand_var()
 {
   // 古い配列を保存しておく．
-  int old_size = mVarSize;
-  ymuint8* old_val = mVal;
-  int* old_decision_level = mDecisionLevel;
-  SatReason* old_reason = mReason;
-  WatcherList* old_watcher_list = mWatcherList;
-  int* old_heap_pos = mHeapPos;
-  double* old_activity = mActivity;
-  int* old_heap = mHeap;
+  auto old_size = mVarSize;
+  auto old_val = mVal;
+  auto old_decision_level = mDecisionLevel;
+  auto old_reason = mReason;
+  auto old_watcher_list = mWatcherList;
+  auto old_heap_pos = mHeapPos;
+  auto old_activity = mActivity;
+  auto old_heap = mHeap;
 
   // 新しいサイズを計算する．
   if ( mVarSize == 0 ) {
@@ -156,9 +154,9 @@ CoreMgr::expand_var()
   // 新しい配列を確保する．
   mVal = new ymuint8[mVarSize];
   mDecisionLevel = new int[mVarSize];
-  mReason = new SatReason[mVarSize];
+  mReason = new Reason[mVarSize];
   mWatcherList = new WatcherList[mVarSize * 2];
-  mHeapPos = new int[mVarSize];
+  mHeapPos = new SizeType[mVarSize];
   mActivity = new double[mVarSize];
   mHeap = new int[mVarSize];
 
@@ -192,7 +190,9 @@ CoreMgr::expand_var()
 // @brief 節を追加する．
 // @param[in] lits リテラルのベクタ
 void
-CoreMgr::add_clause(const vector<SatLiteral>& lits)
+CoreMgr::add_clause(
+  const vector<SatLiteral>& lits
+)
 {
   if ( decision_level() != 0 ) {
     // エラー
@@ -205,10 +205,11 @@ CoreMgr::add_clause(const vector<SatLiteral>& lits)
     return;
   }
 
-  int lit_num = lits.size();
+  SizeType lit_num = lits.size();
   alloc_lits(lit_num);
-  for ( int i: Range(lit_num) ) {
-    mTmpLits[i] = lits[i];
+  for ( SizeType i: Range(lit_num) ) {
+    auto l = lits[i];
+    mTmpLits[i] = Literal{l};
   }
 
   alloc_var();
@@ -279,8 +280,8 @@ CoreMgr::add_clause(const vector<SatLiteral>& lits)
 
   if ( lit_num == 2 ) {
     // watcher-list の設定
-    add_watcher(~l0, SatReason(l1));
-    add_watcher(~l1, SatReason(l0));
+    add_watcher(~l0, Reason{l1});
+    add_watcher(~l1, Reason{l0});
 
     mConstrBinList.push_back(BinClause(l0, l1));
   }
@@ -290,15 +291,17 @@ CoreMgr::add_clause(const vector<SatLiteral>& lits)
     mConstrClauseList.push_back(clause);
 
     // watcher-list の設定
-    add_watcher(~l0, SatReason(clause));
-    add_watcher(~l1, SatReason(clause));
+    add_watcher(~l0, Reason{clause});
+    add_watcher(~l1, Reason{clause});
   }
 }
 
 // @brief 学習節を追加する．
 // @param[in] lits 追加するリテラルのリスト
 void
-CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
+CoreMgr::add_learnt_clause(
+  const vector<Literal>& lits
+)
 {
   int n = lits.size();
   mLearntLitNum += n;
@@ -328,14 +331,14 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
     return;
   }
 
-  SatReason reason;
+  Reason reason;
   auto l1 = lits[1];
   if ( n == 2 ) {
-    reason = SatReason(l1);
+    reason = Reason(l1);
 
     // watcher-list の設定
-    add_watcher(~l0, SatReason(l1));
-    add_watcher(~l1, SatReason(l0));
+    add_watcher(~l0, Reason(l1));
+    add_watcher(~l1, Reason(l0));
 
     ++ mLearntBinNum;
   }
@@ -348,7 +351,7 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
     auto clause = new_clause(n, true);
     mLearntClauseList.push_back(clause);
 
-    reason = SatReason(clause);
+    reason = Reason(clause);
 
     // watcher-list の設定
     add_watcher(~l0, reason);
@@ -366,16 +369,15 @@ CoreMgr::add_learnt_clause(const vector<SatLiteral>& lits)
 }
 
 // @brief 新しい節を生成する．
-// @param[in] lit_num リテラル数
-// @param[in] learnt 学習節のとき true とするフラグ
-// @note リテラルは mTmpLits に格納されている．
-SatClause*
-CoreMgr::new_clause(int lit_num,
-		    bool learnt)
+Clause*
+CoreMgr::new_clause(
+  SizeType lit_num,
+  bool learnt
+)
 {
-  int size = sizeof(SatClause) + sizeof(SatLiteral) * (lit_num - 1);
+  SizeType size = sizeof(Clause) + sizeof(Literal) * (lit_num - 1);
   auto p = new char[size];
-  auto clause = new (p) SatClause(lit_num, mTmpLits, learnt);
+  auto clause = new (p) Clause{lit_num, mTmpLits, learnt};
 
   return clause;
 }
@@ -389,7 +391,7 @@ CoreMgr::reduce_CNF()
   }
   ASSERT_COND( decision_level() == 0 );
 
-  if ( implication() != kNullSatReason ) {
+  if ( implication() != Reason::None ) {
     mSane = false;
     return;
   }
@@ -413,8 +415,8 @@ CoreMgr::reduce_CNF()
       var_list.push_back(var);
     }
     else {
-      del_satisfied_watcher(SatLiteral::conv_from_varid(var, false));
-      del_satisfied_watcher(SatLiteral::conv_from_varid(var, true));
+      del_satisfied_watcher(Literal::conv_from_varid(var, false));
+      del_satisfied_watcher(Literal::conv_from_varid(var, true));
     }
   }
   build(var_list);
@@ -425,17 +427,18 @@ CoreMgr::reduce_CNF()
 }
 
 // @brief 充足している節を取り除く
-// @param[in] clause_list 節のリスト
 void
-CoreMgr::sweep_clause(vector<SatClause*>& clause_list)
+CoreMgr::sweep_clause(
+  vector<Clause*>& clause_list
+)
 {
-  int n = clause_list.size();
-  int wpos = 0;
-  for ( int rpos: Range(n) ) {
-    auto c{clause_list[rpos]};
-    int nl = c->lit_num();
+  SizeType n = clause_list.size();
+  SizeType wpos = 0;
+  for ( SizeType rpos: Range(n) ) {
+    auto c = clause_list[rpos];
+    SizeType nl = c->lit_num();
     bool satisfied = false;
-    for ( int i: Range(nl) ) {
+    for ( SizeType i: Range(nl) ) {
       if ( eval(c->lit(i)) == SatBool3::True ) {
 	satisfied = true;
 	break;
@@ -457,47 +460,35 @@ CoreMgr::sweep_clause(vector<SatClause*>& clause_list)
   }
 }
 
-BEGIN_NONAMESPACE
-// reduceDB で用いる SatClause の比較関数
-class SatClauseLess
-{
-public:
-  bool
-  operator()(SatClause* a,
-	     SatClause* b)
-  {
-    return a->lit_num() > 2 && (b->lit_num() == 2 || a->activity() < b->activity() );
-  }
-};
-END_NONAMESPACE
-
 // @brief clase が含意の理由になっているか調べる．
 bool
-CoreMgr::is_locked(SatClause* clause) const
+CoreMgr::is_locked(
+  Clause* clause
+) const
 {
   // 直感的には分かりにくいが，節の最初のリテラルは
   // 残りのリテラルによって含意されていることになっている．
   // そこで最初のリテラルの変数の割り当て理由が自分自身か
   // どうかを調べれば clause が割り当て理由として用いられて
   // いるかわかる．
-  return reason(clause->wl0().varid()) == SatReason(clause);
+  return reason(clause->wl0().varid()) == Reason{clause};
 }
 
 // 使われていない学習節を削除する．
 void
 CoreMgr::reduce_learnt_clause()
 {
-  int n = mLearntClauseList.size();
-  int n2 = n / 2;
+  SizeType n = mLearntClauseList.size();
+  SizeType n2 = n / 2;
 
   // 足切りのための制限値
   double abs_limit = mClauseBump / n;
 
-  sort(mLearntClauseList.begin(), mLearntClauseList.end(), SatClauseLess());
+  sort(mLearntClauseList.begin(), mLearntClauseList.end(), ClauseLess());
 
-  auto wpos{mLearntClauseList.begin()};
-  for ( int i: Range(n2) ) {
-    auto clause{mLearntClauseList[i]};
+  auto wpos = mLearntClauseList.begin();
+  for ( SizeType i: Range(n2) ) {
+    auto clause = mLearntClauseList[i];
     if ( clause->lit_num() > 2 && !is_locked(clause) ) {
       delete_clause(clause);
     }
@@ -506,8 +497,8 @@ CoreMgr::reduce_learnt_clause()
       ++ wpos;
     }
   }
-  for ( int i: Range(n2, n) ) {
-    auto clause{mLearntClauseList[i]};
+  for ( SizeType i: Range(n2, n) ) {
+    auto clause = mLearntClauseList[i];
     if ( clause->lit_num() > 2 && !is_locked(clause) &&
 	 clause->activity() < abs_limit ) {
       delete_clause(clause);
@@ -524,28 +515,31 @@ CoreMgr::reduce_learnt_clause()
 
 // @brief mTmpLits を確保する．
 void
-CoreMgr::alloc_lits(int lit_num)
+CoreMgr::alloc_lits(
+  SizeType lit_num
+)
 {
-  int old_size = mTmpLitsSize;
+  auto old_size = mTmpLitsSize;
   while ( mTmpLitsSize <= lit_num ) {
     mTmpLitsSize <<= 1;
   }
   if ( old_size < mTmpLitsSize ) {
     delete [] mTmpLits;
-    mTmpLits = new SatLiteral[mTmpLitsSize];
+    mTmpLits = new Literal[mTmpLitsSize];
   }
 }
 
 // @brief 節を削除する．
-// @param[in] clause 削除する節
 void
-CoreMgr::delete_clause(SatClause* clause)
+CoreMgr::delete_clause(
+  Clause* clause
+)
 {
   ASSERT_COND( clause->is_learnt() );
 
   // watch list を更新
-  del_watcher(~clause->wl0(), SatReason{clause});
-  del_watcher(~clause->wl1(), SatReason{clause});
+  del_watcher(~clause->wl0(), Reason{clause});
+  del_watcher(~clause->wl1(), Reason{clause});
 
   mLearntLitNum -= clause->lit_num();
 
@@ -554,21 +548,14 @@ CoreMgr::delete_clause(SatClause* clause)
 }
 
 // @brief SAT 問題を解く．
-// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-// @param[out] model 充足するときの値の割り当てを格納する配列．
-// @param[in] controller コントローラー
-// @param[in] analyzer 解析器
-// @param[in] selecter リテラル選択器
-// @retval SatBool3::True 充足した．
-// @retval SatBool3::False 充足不能が判明した．
-// @retval SatBool3::X わからなかった．
-// @note i 番めの変数の割り当て結果は model[i] に入る．
 SatBool3
-CoreMgr::solve(const vector<SatLiteral>& assumptions,
-	       SatModel& model,
-	       Controller& controller,
-	       Analyzer& analyzer,
-	       Selecter& selecter)
+CoreMgr::solve(
+  const vector<SatLiteral>& assumptions,
+  SatModel& model,
+  Controller& controller,
+  Analyzer& analyzer,
+  Selecter& selecter
+)
 {
   alloc_var();
 
@@ -620,8 +607,9 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
   }
 
   // assumption の割り当てを行う．
-  for ( auto lit: assumptions ) {
+  for ( auto l: assumptions ) {
     set_marker();
+    auto lit = Literal{l};
     bool stat = check_and_assign(lit);
 
     if ( debug & (debug_assign | debug_decision) ) {
@@ -638,7 +626,7 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
     if ( stat ) {
       // 今の割当に基づく含意を行う．
       auto reason = implication();
-      if ( reason != kNullSatReason ) {
+      if ( reason != Reason::None ) {
 	// 矛盾が起こった．
 	stat = false;
       }
@@ -717,20 +705,12 @@ CoreMgr::solve(const vector<SatLiteral>& assumptions,
 }
 
 // @brief 探索を行う本体の関数
-// @param[in] controller Controller オブジェクト
-// @param[in] analyzer Analyzer オブジェクト
-// @param[in] selecter Selecter オブジェクト
-// @retval SatBool3::True 充足した．
-// @retval SatBool3::False 充足できないことがわかった．
-// @retval SatBool3::X 矛盾の生起回数が mConflictLimit を超えた．
-//
-// 矛盾の結果新たな学習節が追加される場合もあるし，
-// 内部で reduce_learnt_clause() を呼んでいるので学習節が
-// 削減される場合もある．
 SatBool3
-CoreMgr::search(Controller& controller,
-		Analyzer& analyzer,
-		Selecter& selecter)
+CoreMgr::search(
+  Controller& controller,
+  Analyzer& analyzer,
+  Selecter& selecter
+)
 {
   int root_level = decision_level();
 
@@ -740,7 +720,7 @@ CoreMgr::search(Controller& controller,
   for ( ; ; ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
     auto conflict = implication();
-    if ( conflict != kNullSatReason ) {
+    if ( conflict != Reason::None ) {
       // 矛盾が生じた．
       ++ mConflictNum;
       ++ cur_confl_num;
@@ -750,7 +730,7 @@ CoreMgr::search(Controller& controller,
       }
 
       // 今の矛盾の解消に必要な条件を「学習」する．
-      vector<SatLiteral> learnt_lits;
+      vector<Literal> learnt_lits;
       int bt_level;
       tie(bt_level, learnt_lits) = analyzer.analyze(conflict);
 
@@ -831,15 +811,11 @@ CoreMgr::search(Controller& controller,
 }
 
 // @brief 割当てキューに基づいて implication を行う．
-// @return 矛盾が生じたら矛盾の原因を返す．
-//
-// 矛盾が生じていなかったら kNullSatReason を返す．
-// 矛盾の原因とは実際には充足していない節である．
-SatReason
+Reason
 CoreMgr::implication()
 {
   int prop_num = 0;
-  auto conflict = kNullSatReason;
+  auto conflict = Reason::None;
   while ( mAssignList.has_elem() ) {
     auto l = mAssignList.get_next();
     ++ prop_num;
@@ -861,14 +837,14 @@ CoreMgr::implication()
       ++ wpos;
       if ( w.is_literal() ) {
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
-	auto l0{w.literal()};
-	auto val0{eval(l0)};
+	auto l0 = w.literal();
+	auto val0 = eval(l0);
 	if ( val0 == SatBool3::X ) {
 	  if ( debug & debug_assign ) {
 	    cout << "\tassign " << l0 << " @" << decision_level()
 		 << " from " << l << endl;
 	  }
-	  assign(l0, SatReason{nl});
+	  assign(l0, Reason{nl});
 	}
 	else if ( val0 == SatBool3::False ) {
 	  // 矛盾がおこった．
@@ -883,7 +859,7 @@ CoreMgr::implication()
 
 	  // 矛盾の理由を表す節を作る．
 	  mTmpBinClause->set(l0, nl);
-	  conflict = SatReason(mTmpBinClause);
+	  conflict = Reason(mTmpBinClause);
 	  break;
 	}
       }
@@ -894,8 +870,8 @@ CoreMgr::implication()
 	// - wl0() が不定，もしくは偽なら，nl の代わりの watch literal を探す．
 	// - 代わりが見つかったらそのリテラルを wl1() にする．
 	// - なければ wl0() に基づいた割り当てを行う．場合によっては矛盾が起こる．
-	auto c{w.clause()};
-	auto l0{c->wl0()};
+	auto c = w.clause();
+	auto l0 = c->wl0();
 	if ( l0 == nl ) {
 	  // nl を 1番めのリテラルにする．
 	  c->xchange_wl();
@@ -906,7 +882,7 @@ CoreMgr::implication()
 	  ASSERT_COND( c->wl1() == nl );
 	}
 
-	auto val0{eval(l0)};
+	auto val0 = eval(l0);
 	if ( val0 == SatBool3::True ) {
 	  // すでに充足していた．
 	  continue;
@@ -920,9 +896,9 @@ CoreMgr::implication()
 	// この時，替わりのリテラルが未定かすでに充足しているかどうか
 	// は問題でない．
 	bool found = false;
-	int n = c->lit_num();
-	for ( int i: Range(2, n) ) {
-	  auto l2{c->lit(i)};
+	SizeType n = c->lit_num();
+	for ( SizeType i: Range(2, n) ) {
+	  auto l2 = c->lit(i);
 	  if ( eval(l2) != SatBool3::False ) {
 	    // l2 を 1番めの watch literal にする．
 	    c->xchange_wl1(i);
@@ -988,9 +964,10 @@ CoreMgr::implication()
 }
 
 // @brief level までバックトラックする
-// @param[in] level バックトラックするレベル
 void
-CoreMgr::backtrack(int level)
+CoreMgr::backtrack(
+  int level
+)
 {
   if ( debug & (debug_assign | debug_decision) ) {
     cout << endl
@@ -1000,7 +977,7 @@ CoreMgr::backtrack(int level)
   if ( level < decision_level() ) {
     mAssignList.backtrack(level);
     while ( mAssignList.has_elem() ) {
-      auto p{mAssignList.get_prev()};
+      auto p = mAssignList.get_prev();
       int varid = p.varid();
       mVal[varid] = (mVal[varid] << 2) | conv_from_Bool3(SatBool3::X);
       push(varid);
@@ -1017,12 +994,14 @@ CoreMgr::backtrack(int level)
 
 // 変数のアクティビティを増加させる．
 void
-CoreMgr::bump_var_activity(int varid)
+CoreMgr::bump_var_activity(
+  int varid
+)
 {
   double& act = mActivity[varid];
   act += mVarBump;
   if ( act > 1e+100 ) {
-    for ( int i: Range(mVarNum) ) {
+    for ( SizeType i: Range(mVarNum) ) {
       mActivity[i] *= 1e-100;
     }
     mVarBump *= 1e-100;
@@ -1034,18 +1013,17 @@ CoreMgr::bump_var_activity(int varid)
 }
 
 // @brief watcher を削除する．
-// @param[in] watch_lit リテラル
-// @param[in] reason 理由
 void
-CoreMgr::del_watcher(SatLiteral watch_lit,
-		     SatReason reason)
+CoreMgr::del_watcher(
+  Literal watch_lit,
+  Reason reason)
 {
-  auto w0{reason};
-  auto& wlist{watcher_list(watch_lit)};
-  int n = wlist.num();
-  int wpos = 0;
+  auto w0 = reason;
+  auto& wlist = watcher_list(watch_lit);
+  SizeType n = wlist.num();
+  SizeType wpos = 0;
   for ( ; wpos < n; ++ wpos) {
-    Watcher w = wlist.elem(wpos);
+    auto w = wlist.elem(wpos);
     if ( w == w0 ) {
       break;
     }
@@ -1053,29 +1031,30 @@ CoreMgr::del_watcher(SatLiteral watch_lit,
   ASSERT_COND( wpos < n );
   -- n;
   for ( ; wpos < n; ++ wpos) {
-    auto w{wlist.elem(wpos + 1)};
+    auto w = wlist.elem(wpos + 1);
     wlist.set_elem(wpos, w);
   }
   wlist.erase(n);
 }
 
 // @brief 充足された watcher を削除する．
-// @param[in] watch_lit リテラル
 void
-CoreMgr::del_satisfied_watcher(SatLiteral watch_lit)
+CoreMgr::del_satisfied_watcher(
+  Literal watch_lit
+)
 {
   // watch_lit に関係する watcher リストをスキャンして
   // literal watcher が充足していたらその watcher を削除する．
   // watcher リストを配列で実装しているので
   // あたまからスキャンして該当の要素以降を
   // 1つづつ前に詰める．
-  auto& wlist{watcher_list(watch_lit)};
-  int n = wlist.num();
-  int wpos = 0;
-  for ( int rpos: Range(n) ) {
-    auto w{wlist.elem(rpos)};
+  auto& wlist = watcher_list(watch_lit);
+  SizeType n = wlist.num();
+  SizeType wpos = 0;
+  for ( SizeType rpos: Range(n) ) {
+    auto w = wlist.elem(rpos);
     if ( w.is_literal() ) {
-      auto val{ eval(w.literal()) };
+      auto val = eval(w.literal());
       if ( val == SatBool3::True ) {
 	// この watcher は削除する．
 	continue;
@@ -1106,7 +1085,9 @@ CoreMgr::next_var()
 
 // 学習節のアクティビティを増加させる．
 void
-CoreMgr::bump_clause_activity(SatClause* clause)
+CoreMgr::bump_clause_activity(
+  Clause* clause
+)
 {
   clause->increase_activity(mClauseBump);
   if ( clause->activity() > 1e+100 ) {
@@ -1130,7 +1111,9 @@ CoreMgr::reset_activity()
 
 // @brief 与えられた変数のリストからヒープ木を構成する．
 void
-CoreMgr::build(const vector<int>& var_list)
+CoreMgr::build(
+  const vector<int>& var_list
+)
 {
   for ( int i: Range(mVarSize) ) {
     mHeapPos[i] = -1;
@@ -1151,21 +1134,23 @@ CoreMgr::build(const vector<int>& var_list)
 
 // 引数の位置にある要素を適当な位置まで沈めてゆく
 void
-CoreMgr::move_down(int pos)
+CoreMgr::move_down(
+  SizeType pos
+)
 {
   int vindex_p = mHeap[pos];
   double val_p = mActivity[vindex_p];
   for ( ; ; ) {
     // ヒープ木の性質から親から子の位置がわかる
-    int pos_l = left(pos);
-    int pos_r = pos_l + 1;
+    SizeType pos_l = left(pos);
+    SizeType pos_r = pos_l + 1;
     if ( pos_r > mHeapNum ) {
       // 左右の子どもを持たない場合
       break;
     }
     // 左右の子供のうちアクティビティの大きい方を pos_c とする．
     // 同点なら左を選ぶ．
-    int pos_c = pos_l;
+    SizeType pos_c = pos_l;
     int vindex_c = mHeap[pos_c];
     double val_c = mActivity[vindex_c];
     if ( pos_r < mHeapNum ) {
@@ -1190,7 +1175,9 @@ CoreMgr::move_down(int pos)
 
 // @brief 内容を出力する
 void
-CoreMgr::dump_heap(ostream& s) const
+CoreMgr::dump_heap(
+  ostream& s
+) const
 {
   s << "heap num = " << mHeapNum << endl;
   int j = 0;
@@ -1246,7 +1233,9 @@ CoreMgr::get_stats() const
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
 // @param[in] msg_handler 登録するメッセージハンドラ
 void
-CoreMgr::reg_msg_handler(SatMsgHandler* msg_handler)
+CoreMgr::reg_msg_handler(
+  SatMsgHandler* msg_handler
+)
 {
   mMsgHandlerList.push_back(msg_handler);
 }

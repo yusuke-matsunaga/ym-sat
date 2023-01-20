@@ -8,7 +8,6 @@
 /// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "SaBase.h"
 
 
@@ -24,8 +23,9 @@ class SaUIP1 :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr コアマネージャ
-  SaUIP1(CoreMgr& mgr);
+  SaUIP1(
+    CoreMgr& mgr ///< [in] コアマネージャ
+  );
 
   /// @brief デストラクタ
   ~SaUIP1();
@@ -37,10 +37,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 解析を行う．
-  /// @param[in] creason 矛盾を起こした原因
   /// @return バックトラックレベルと学習された節を表すリテラルのベクタを返す．
-  tuple<int, vector<SatLiteral>>
-  analyze(SatReason creason) override;
+  tuple<int, vector<Literal>>
+  analyze(
+    Reason creason ///< [in] 矛盾を起こした原因
+  ) override;
 
 
 protected:
@@ -52,17 +53,18 @@ protected:
   /// - もっとも近い unique identification point
   /// - 現在のレベルよりも低いレベルの割り当て
   /// からなるセパレータ集合を返す．
-  vector<SatLiteral>
-  capture(SatReason creason);
+  vector<Literal>
+  capture(
+    Reason creason ///< [in] 矛盾を起こした原因
+  );
 
   /// @brief conflict 節のリテラルに対する処理を行う．
-  /// @param[in] lit リテラル
-  /// @param[in] learnt 学習節の要素リスト
-  /// @param[inout] count ペンディング状態のリテラル数
   void
-  put_lit(SatLiteral lit,
-	  vector<SatLiteral>& learnt,
-	  int& count);
+  put_lit(
+    Literal lit,             ///< [in] リテラル
+    vector<Literal>& learnt, ///< [in] 学習節の要素リスト
+    int& count               ///< [inout] ペンディング状態のリテラル数
+  );
 
 };
 

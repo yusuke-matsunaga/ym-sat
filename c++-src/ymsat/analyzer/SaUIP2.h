@@ -8,7 +8,6 @@
 /// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "SaBase.h"
 
 
@@ -39,8 +38,8 @@ public:
   /// @brief 解析を行う．
   /// @param[in] creason 矛盾を起こした原因
   /// @return バックトラックレベルと学習された節を表すリテラルのベクタを返す．
-  tuple<int, vector<SatLiteral>>
-  analyze(SatReason creason) override;
+  tuple<int, vector<Literal>>
+  analyze(Reason creason) override;
 
 
 protected:
@@ -48,8 +47,8 @@ protected:
   // 内部もしくは継承クラスで用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  vector<SatLiteral>
-  capture(SatReason creason);
+  vector<Literal>
+  capture(Reason creason);
 
 };
 

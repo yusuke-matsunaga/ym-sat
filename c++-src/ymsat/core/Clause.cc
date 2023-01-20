@@ -1,44 +1,45 @@
 ﻿
-/// @file SatClause.cc
-/// @brief SatClause の実装ファイル
+/// @file Clause.cc
+/// @brief Clause の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-
-#include "../SatClause.h"
-#include "../SatReason.h"
-#include "../Watcher.h"
+#include "Clause.h"
+#include "Reason.h"
+#include "Watcher.h"
 #include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-// クラス SatClause
+// クラス Clause
 //////////////////////////////////////////////////////////////////////
 
-// @brief SatClause の内容を出力する
+// @brief Clause の内容を出力する
 ostream&
-operator<<(ostream& s,
-	   const SatClause& c)
+operator<<(
+  ostream& s,
+  const Clause& c
+)
 {
-  int n = c.lit_num();
+  SizeType n = c.lit_num();
   if ( n == 2 ) {
     s << "(" << c.lit(0) << " + " << c.lit(1) << ")";
   }
   else {
     // 一旦 vector に入れてソートする．
-    vector<SatLiteral> tmp(n);
-    for ( int i: Range(n) ) {
+    vector<Literal> tmp(n);
+    for ( SizeType i: Range(n) ) {
       tmp[i] = c.lit(i);
     }
     //sort(tmp.begin() + 1, tmp.end());
 
     s << "(";
     const char* plus = "";
-    for ( int i: Range(n) ) {
+    for ( SizeType i: Range(n) ) {
       s << plus << tmp[i];
       plus = " + ";
     }
@@ -49,19 +50,25 @@ operator<<(ostream& s,
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス SatReason
+// クラス Reason
+// Clause の定義が必要なのでここに置いている
 //////////////////////////////////////////////////////////////////////
 
-// @brief SatReason の内容を出力する
+const Reason Reason::None;
+
+// @relates Reason
 ostream&
-operator<<(ostream& s,
-	   const SatReason& r)
+operator<<(
+  ostream& s,
+  const Reason& c
+)
 {
-  if ( r.is_literal() ) {
-    s << r.literal();
+  if ( c.is_literal() ) {
+    auto lit = c.literal();
+    s << lit;
   }
   else {
-    s << *(r.clause());
+    s << *(c.clause());
   }
   return s;
 }

@@ -8,7 +8,6 @@
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "../Selecter.h"
 
 
@@ -24,8 +23,9 @@ class Selecter2 :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr コアマネージャ
-  Selecter2(CoreMgr& mgr);
+  Selecter2(
+    CoreMgr& mgr ///< [in] コアマネージャ
+  );
 
   /// @brief デストラクタ
   ~Selecter2();
@@ -37,14 +37,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 次の割り当てを選ぶ．
-  SatLiteral
+  Literal
   next_decision() override;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
 
 
 private:

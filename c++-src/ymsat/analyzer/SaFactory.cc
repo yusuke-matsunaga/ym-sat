@@ -6,7 +6,6 @@
 /// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "SaUIP1.h"
 #include "SaUIP2.h"
 

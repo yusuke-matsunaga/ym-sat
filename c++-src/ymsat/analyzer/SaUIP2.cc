@@ -6,9 +6,8 @@
 /// Copyright (C) 2005-2011, 2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "SaUIP2.h"
-#include "../SatClause.h"
+#include "Clause.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -26,8 +25,8 @@ SaUIP2::~SaUIP2()
 }
 
 // conflict を解析する．
-tuple<int, vector<SatLiteral>>
-SaUIP2::analyze(SatReason creason)
+tuple<int, vector<Literal>>
+SaUIP2::analyze(Reason creason)
 {
   auto learnt = capture(creason);
   make_minimal(learnt);
@@ -40,11 +39,11 @@ SaUIP2::analyze(SatReason creason)
 // - もっとも近い unique identification point
 // - 現在のレベルよりも低いレベルの割り当て
 // からなるセパレータ集合を learnt に入れる．
-vector<SatLiteral>
-SaUIP2::capture(SatReason creason)
+vector<Literal>
+SaUIP2::capture(Reason creason)
 {
-  vector<SatLiteral> learnt;
-  learnt.push_back(SatLiteral()); // place holder
+  vector<Literal> learnt;
+  learnt.push_back(Literal::X); // place holder
 
   bool first = true;
   int count = 0;

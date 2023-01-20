@@ -5,18 +5,17 @@
 /// @brief Analyzer のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
-
 
 #include "ym/sat.h"
 #include "CoreMgr.h"
-#include "SatReason.h"
+#include "Reason.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
-class SatClause;
+class Clause;
 
 //////////////////////////////////////////////////////////////////////
 /// @class Analyzer Analyzer.h "Analyzer.h"
@@ -36,12 +35,15 @@ class Analyzer
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] mgr コアマネージャ
-  Analyzer(CoreMgr& mgr);
+  Analyzer(
+    CoreMgr& mgr ///< [in] コアマネージャ
+  ) : mMgr{mgr}
+  {
+  }
 
   /// @brief デストラクタ
   virtual
-  ~Analyzer() { }
+  ~Analyzer() = default;
 
 
 public:
@@ -50,16 +52,19 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 解析を行う．
-  /// @param[in] creason 矛盾の原因
   /// @return バックトラックレベルと学習された節を表すリテラルのベクタを返す．
   virtual
-  tuple<int, vector<SatLiteral>>
-  analyze(SatReason creason) = 0;
+  tuple<int, vector<Literal>>
+  analyze(
+    Reason creason ///< [in] 矛盾の原因
+  ) = 0;
 
   /// @brief 新しい変数が追加されたときに呼ばれる仮想関数
   virtual
   void
-  alloc_var(int size) = 0;
+  alloc_var(
+    SizeType size ///< [in] 要求するサイズ
+  ) = 0;
 
 
 protected:
@@ -69,36 +74,62 @@ protected:
 
   /// @brief 現在の decision level を取り出す．
   int
-  decision_level() const;
+  decision_level() const
+  {
+    return mMgr.decision_level();
+  }
 
   /// @brief 割り当てリストの末尾の位置を得る．
   int
-  last_assign();
+  last_assign()
+  {
+    return mMgr.last_assign();
+  }
 
   /// @brief 割り当てリストの pos 番めの要素を得る．
-  /// @param[in] pos 位置番号
-  SatLiteral
-  get_assign(int pos);
+  Literal
+  get_assign(
+    int pos ///< [in] 位置番号
+  )
+  {
+    return mMgr.get_assign(pos);
+  }
 
   /// @brief 変数の decision level を得る．
-  /// @param[in] varid 対象の変数
   int
-  decision_level(int varid) const;
+  decision_level(
+    int varid ///< [in] 対象の変数
+  ) const
+  {
+    return mMgr.decision_level(varid);
+  }
 
   /// @brief 変数の割り当て理由を得る．
-  /// @param[in] varid 対象の変数
-  SatReason
-  reason(int varid) const;
+  Reason
+  reason(
+    int varid ///< [in] 対象の変数
+  ) const
+  {
+    return mMgr.reason(varid);
+  }
 
   /// @brief 変数のアクティビティを増加させる．
-  /// @param[in] varid 対象の変数
   void
-  bump_var_activity(int varid);
+  bump_var_activity(
+    int varid ///< [in] 対象の変数
+  )
+  {
+    mMgr.bump_var_activity(varid);
+  }
 
   /// @brief 節のアクティビティを上げる．
-  /// @param[in] clause 対象の節
   void
-  bump_clause_activity(SatClause* clause);
+  bump_clause_activity(
+    Clause* clause ///< [in] 対象の節
+  )
+  {
+    mMgr.bump_clause_activity(clause);
+  }
 
 
 private:
@@ -121,83 +152,14 @@ class SaFactory
 public:
 
   /// @brief Analyzerの派生クラスを生成する．
-  /// @param[in] mgr コアマネージャ
-  /// @param[in] option どのクラスを生成するかを決めるオプション文字列
   static
   Analyzer*
-  gen_analyzer(CoreMgr& mgr,
-	       const string& option = string());
+  gen_analyzer(
+    CoreMgr& mgr,                   ///< [in] コアマネージャ
+    const string& option = string{} ///< [in] どのクラスを生成するかを決めるオプション文字列
+  );
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] mgr コアマネージャ
-inline
-Analyzer::Analyzer(CoreMgr& mgr) :
-  mMgr{mgr}
-{
-}
-
-// 現在の decision level を取り出す．
-inline
-int
-Analyzer::decision_level() const
-{
-  return mMgr.decision_level();
-}
-
-// 割り当てリストの末尾を得る．
-inline
-int
-Analyzer::last_assign()
-{
-  return mMgr.last_assign();
-}
-
-// 割り当てリストの pos 番めの要素を得る．
-inline
-SatLiteral
-Analyzer::get_assign(int pos)
-{
-  return mMgr.get_assign(pos);
-}
-
-// 変数の decision level を得る．
-inline
-int
-Analyzer::decision_level(int varid) const
-{
-  return mMgr.decision_level(varid);
-}
-
-// 変数の割り当て理由を得る．
-inline
-SatReason
-Analyzer::reason(int varid) const
-{
-  return mMgr.reason(varid);
-}
-
-// 変数のアクティビティを増加させる．
-inline
-void
-Analyzer::bump_var_activity(int var)
-{
-  mMgr.bump_var_activity(var);
-}
-
-// 学習節のアクティビティを増加させる．
-inline
-void
-Analyzer::bump_clause_activity(SatClause* clause)
-{
-  mMgr.bump_clause_activity(clause);
-}
 
 END_NAMESPACE_YM_SAT
 

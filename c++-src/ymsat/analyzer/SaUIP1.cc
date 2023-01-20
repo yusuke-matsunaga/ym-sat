@@ -6,17 +6,16 @@
 /// Copyright (C) 2005-2011, 2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "SaUIP1.h"
-#include "../SatClause.h"
+#include "Clause.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 // @brief コンストラクタ
-// @param[in] mgr コアマネージャ
-SaUIP1::SaUIP1(CoreMgr& mgr) :
-  SaBase(mgr)
+SaUIP1::SaUIP1(
+  CoreMgr& mgr
+) : SaBase{mgr}
 {
 }
 
@@ -26,8 +25,10 @@ SaUIP1::~SaUIP1()
 }
 
 // conflict を解析する．
-tuple<int, vector<SatLiteral>>
-SaUIP1::analyze(SatReason creason)
+tuple<int, vector<Literal>>
+SaUIP1::analyze(
+  Reason creason
+)
 {
   auto learnt = capture(creason);
   make_minimal(learnt);
@@ -36,22 +37,20 @@ SaUIP1::analyze(SatReason creason)
   return make_tuple(lv, learnt);
 }
 
-// creason の矛盾の原因になっている割り当てのうち，
-// - もっとも近い unique identification point
-// - 現在のレベルよりも低いレベルの割り当て
-// からなるセパレータ集合を learnt に入れる．
-vector<SatLiteral>
-SaUIP1::capture(SatReason creason)
+vector<Literal>
+SaUIP1::capture(
+  Reason creason
+)
 {
-  vector<SatLiteral> learnt;
-  learnt.push_back(SatLiteral()); // place holder
+  vector<Literal> learnt;
+  learnt.push_back(Literal::X); // place holder
 
   bool first = true;
   int count = 0;
   int last = last_assign();
   for ( ; ; ) {
     if ( creason.is_clause() ) {
-      auto cclause{creason.clause()};
+      auto cclause = creason.clause();
 
       // cclause が学習節なら activity をあげる．
       if ( cclause->is_learnt() ) {
@@ -66,14 +65,14 @@ SaUIP1::capture(SatReason creason)
       // 最初の節は全てのリテラルを対象にするが，
       // 二番目以降の節の最初のリテラルは割り当て結果なので除外する．
       for ( int i = 0; i < n; ++ i ) {
-	auto q{cclause->lit(i)};
+	auto q = cclause->lit(i);
 	if ( !first && q == cclause->wl0() ) continue;
 	put_lit(q, learnt, count);
       }
     }
     else {
       ASSERT_COND( !first );
-      auto q{creason.literal()};
+      auto q = creason.literal();
       put_lit(q, learnt, count);
     }
 
@@ -82,8 +81,8 @@ SaUIP1::capture(SatReason creason)
     // mAssignList に入っている最近の変数で mark の付いたものを探す．
     // つまり conflict clause に含まれていた変数ということ．
     for ( ; ; -- last) {
-      auto q{get_assign(last)};
-      auto var{q.varid()};
+      auto q = get_assign(last);
+      auto var = q.varid();
       if ( get_mark(var) ) {
 	set_mark(var, false);
 	// それを最初のリテラルにする．
@@ -105,15 +104,14 @@ SaUIP1::capture(SatReason creason)
 }
 
 // @brief conflict 節のリテラルに対する処理を行う．
-// @param[in] lit リテラル
-// @param[in] learnt 学習節の要素リスト
-// @param[inout] count ペンディング状態のリテラル数
 void
-SaUIP1::put_lit(SatLiteral lit,
-		vector<SatLiteral>& learnt,
-		int& count)
+SaUIP1::put_lit(
+  Literal lit,
+  vector<Literal>& learnt,
+  int& count
+)
 {
-  auto var{lit.varid()};
+  auto var = lit.varid();
   int var_level = decision_level(var);
   if ( !get_mark(var) && var_level > 0 ) {
     set_mark_and_putq(var);

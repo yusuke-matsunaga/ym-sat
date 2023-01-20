@@ -50,7 +50,7 @@ set (ym_sat_SOURCES
   lingeling/lglib.c
 
   ymsat/core/AssignList.cc
-  ymsat/core/SatClause.cc
+  ymsat/core/Clause.cc
   ymsat/core/CoreMgr.cc
   ymsat/controller/ControllerMS1.cc
   ymsat/controller/ControllerMS2.cc
