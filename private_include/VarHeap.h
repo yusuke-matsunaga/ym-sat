@@ -5,7 +5,7 @@
 /// @brief VarHeap のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2018, 203 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2016, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/sat.h"
@@ -80,10 +80,9 @@ public:
     SatVarId var ///< [in] 追加する変数
   )
   {
-    set(var, mHeapNum);
+    _add_var(var);
     mActivity[var] = 0.0;
-    ++ mHeapNum;
-}
+  }
 
   /// @brief 変数を再びヒープに追加する．
   void
@@ -92,9 +91,7 @@ public:
   )
   {
     if ( mHeapPos[var] == -1 ) {
-      auto pos = mHeapNum;
-      ++ mHeapNum;
-      set(var, pos);
+      auto pos = _add_var(var);
       move_up(pos);
     }
   }
@@ -149,6 +146,19 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 変数をヒープの末尾に追加する．
+  /// @return 追加した位置を返す．
+  SizeType
+  _add_var(
+    SatVarId var ///< [in] 追加する変数
+  )
+  {
+    auto pos = mHeapNum;
+    ++ mHeapNum;
+    set(var, pos);
+    return pos;
+  }
+
   /// @brief 引数の位置にある要素を適当な位置まで沈めてゆく
   void
   move_down(
@@ -159,22 +169,7 @@ private:
   void
   move_up(
     SizeType pos ///< [in] 対象の要素の位置
-  )
-  {
-    auto vindex = mHeap[pos];
-    double val = mActivity[vindex];
-    while ( pos > 0 ) {
-      auto pos_p = parent(pos);
-      auto vindex_p = mHeap[pos_p];
-      double val_p = mActivity[vindex_p];
-      if ( val_p >= val ) {
-	break;
-      }
-      set(vindex, pos_p);
-      set(vindex_p, pos);
-      pos = pos_p;
-    }
-  }
+  );
 
   /// @brief 変数を配列にセットする．
   ///

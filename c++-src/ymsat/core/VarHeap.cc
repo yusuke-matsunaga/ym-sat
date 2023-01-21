@@ -79,7 +79,8 @@ VarHeap::bump_var_activity(
     }
     mVarBump *= 1e-100;
   }
-  SizeType pos = mHeapPos[varid];
+  // pos != -1 と pos != 0 を同時に行うための hack
+  int pos = mHeapPos[varid];
   if ( pos > 0 ) {
     move_up(pos);
   }
@@ -131,7 +132,7 @@ VarHeap::move_down(
 )
 {
   auto vindex_p = mHeap[pos];
-  double val_p = mActivity[vindex_p];
+  auto val_p = mActivity[vindex_p];
   for ( ; ; ) {
     // ヒープ木の性質から親から子の位置がわかる
     auto pos_l = left(pos);
@@ -144,10 +145,10 @@ VarHeap::move_down(
     // 同点なら左を選ぶ．
     auto pos_c = pos_l;
     auto vindex_c = mHeap[pos_c];
-    double val_c = mActivity[vindex_c];
+    auto val_c = mActivity[vindex_c];
     if ( pos_r < mHeapNum ) {
       auto vindex_r = mHeap[pos_r];
-      double val_r = mActivity[vindex_r];
+      auto val_r = mActivity[vindex_r];
       if ( val_c < val_r ) {
 	pos_c = pos_r;
 	vindex_c = vindex_r;
@@ -165,6 +166,27 @@ VarHeap::move_down(
   }
 }
 
+// @brief 引数の位置にある要素を適当な位置まで上げてゆく
+void
+VarHeap::move_up(
+  SizeType pos
+)
+{
+  auto vindex = mHeap[pos];
+  auto val = mActivity[vindex];
+  while ( pos > 0 ) {
+    auto pos_p = parent(pos);
+    auto vindex_p = mHeap[pos_p];
+    auto val_p = mActivity[vindex_p];
+    if ( val_p >= val ) {
+      break;
+    }
+    set(vindex, pos_p);
+    set(vindex_p, pos);
+    pos = pos_p;
+  }
+}
+
 // @brief 内容を出力する
 void
 VarHeap::dump(
@@ -179,7 +201,7 @@ VarHeap::dump(
     auto vindex = mHeap[i];
     ASSERT_COND( mHeapPos[vindex] == i );
     if ( i > 0 ) {
-      SizeType p = parent(i);
+      auto p = parent(i);
       auto pindex = mHeap[p];
       ASSERT_COND( mActivity[pindex] >= mActivity[vindex] );
     }
