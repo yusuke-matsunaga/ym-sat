@@ -405,7 +405,7 @@ public:
     double clause_decay ///< [in] 節の低減率
   )
   {
-    mVarDecay = var_decay;
+    mVarHeap.set_decay(var_decay);
     mClauseDecay = clause_decay;
   }
 
@@ -422,7 +422,7 @@ public:
   void
   decay_var_activity()
   {
-    mVarBump *= (1.0 / mVarDecay);
+    mVarHeap.decay_var_activity();
   }
 
   /// @brief 学習節のアクティビティを増加させる．
@@ -770,12 +770,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // 変数のアクティビティの増加量
-  double mVarBump{1.0};
-
-  // 変数のアクティビティの減衰量
-  double mVarDecay{0.95};
 
   // 学習節のアクティビティの増加量
   double mClauseBump;
