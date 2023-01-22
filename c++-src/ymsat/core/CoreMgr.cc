@@ -688,8 +688,7 @@ CoreMgr::search(
 
       // 今の矛盾の解消に必要な条件を「学習」する．
       vector<Literal> learnt_lits;
-      int bt_level;
-      tie(bt_level, learnt_lits) = analyzer.analyze(conflict);
+      int bt_level = analyzer.analyze(conflict, learnt_lits);
 
       if ( debug & debug_analyze ) {
 	cout << endl

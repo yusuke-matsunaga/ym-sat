@@ -52,11 +52,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 解析を行う．
-  /// @return バックトラックレベルと学習された節を表すリテラルのベクタを返す．
+  /// @return バックトラックレベルを返す．
   virtual
-  tuple<int, vector<Literal>>
+  int
   analyze(
-    Reason creason ///< [in] 矛盾の原因
+    Reason creason,              ///< [in] 矛盾の原因
+    vector<Literal>& learnt_lits ///< [out] 学習された節を表すリテラルのベクタ
   ) = 0;
 
   /// @brief 新しい変数が追加されたときに呼ばれる仮想関数

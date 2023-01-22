@@ -13,20 +13,20 @@
 BEGIN_NAMESPACE_YM_SAT
 
 // @brief Analyzerの派生クラスを生成する．
-// @param[in] mgr コアマネージャ
-// @param[in] option どのクラスを生成するかを決めるオプション文字列
 Analyzer*
-SaFactory::gen_analyzer(CoreMgr& mgr,
-			const string& option)
+SaFactory::gen_analyzer(
+  CoreMgr& mgr,
+  const string& option
+)
 {
   if ( option == "uip1" ) {
-    return new SaUIP1(mgr);
+    return new SaUIP1{mgr};
   }
   if ( option == "uip2" ) {
-    return new SaUIP2(mgr);
+    return new SaUIP2{mgr};
   }
   // default fall-back
-  return new SaUIP1(mgr);
+  return new SaUIP2{mgr};
 }
 
 END_NAMESPACE_YM_SAT

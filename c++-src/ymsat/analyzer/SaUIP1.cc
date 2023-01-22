@@ -24,30 +24,31 @@ SaUIP1::~SaUIP1()
 {
 }
 
-// conflict を解析する．
-tuple<int, vector<Literal>>
+// @brief 解析を行う．
+int
 SaUIP1::analyze(
-  Reason creason
+  Reason creason,
+  vector<Literal>& learnt_lits
 )
 {
-  auto learnt = capture(creason);
-  make_minimal(learnt);
+  capture(creason, learnt_lits);
+  make_minimal(learnt_lits);
   clear_marks();
-  int lv = reorder(learnt);
-  return make_tuple(lv, learnt);
+  return reorder(learnt_lits);
 }
 
-vector<Literal>
+void
 SaUIP1::capture(
-  Reason creason
+  Reason creason,
+  vector<Literal>& learnt
 )
 {
-  vector<Literal> learnt;
+  learnt.clear();
   learnt.push_back(Literal::X); // place holder
 
   bool first = true;
   int count = 0;
-  int last = last_assign();
+  SizeType last = last_assign();
   for ( ; ; ) {
     if ( creason.is_clause() ) {
       auto cclause = creason.clause();
@@ -61,7 +62,7 @@ SaUIP1::capture(
       // で割り当てられていたら学習節に加える．
       // 現在の decision level なら count を増やすだけ．
       // あとで mAssignList をたどれば該当のリテラルは捜し出せる．
-      int n = cclause->lit_num();
+      SizeType n = cclause->lit_num();
       // 最初の節は全てのリテラルを対象にするが，
       // 二番目以降の節の最初のリテラルは割り当て結果なので除外する．
       for ( SizeType i = 0; i < n; ++ i ) {
@@ -80,15 +81,15 @@ SaUIP1::capture(
 
     // mAssignList に入っている最近の変数で mark の付いたものを探す．
     // つまり conflict clause に含まれていた変数ということ．
-    for ( ; ; -- last) {
+    while ( true ) {
       auto q = get_assign(last);
+      -- last;
       auto var = q.varid();
       if ( get_mark(var) ) {
 	set_mark(var, false);
 	// それを最初のリテラルにする．
 	learnt[0] = ~q;
-	creason = reason(q.varid());
-	-- last;
+	creason = reason(var);
 	-- count;
 	break;
       }
@@ -97,30 +98,6 @@ SaUIP1::capture(
     if ( count == 0 ) {
       // q は first UIP だった．
       break;
-    }
-  }
-
-  return learnt;
-}
-
-// @brief conflict 節のリテラルに対する処理を行う．
-void
-SaUIP1::put_lit(
-  Literal lit,
-  vector<Literal>& learnt,
-  int& count
-)
-{
-  auto var = lit.varid();
-  int var_level = decision_level(var);
-  if ( !get_mark(var) && var_level > 0 ) {
-    set_mark_and_putq(var);
-    bump_var_activity(var);
-    if ( var_level < decision_level() ) {
-      learnt.push_back(lit);
-    }
-    else {
-      ++ count;
     }
   }
 }

@@ -25,28 +25,29 @@ SaUIP2::~SaUIP2()
 }
 
 // conflict を解析する．
-tuple<int, vector<Literal>>
+int
 SaUIP2::analyze(
-  Reason creason
+  Reason creason,
+  vector<Literal>& learnt_lits
 )
 {
-  auto learnt = capture(creason);
-  make_minimal(learnt);
+  capture(creason, learnt_lits);
+  make_minimal(learnt_lits);
   clear_marks();
-  int lv = reorder(learnt);
-  return make_tuple(lv, learnt);
+  return reorder(learnt_lits);
 }
 
 // creason の矛盾の原因になっている割り当てのうち，
 // - もっとも近い unique identification point
 // - 現在のレベルよりも低いレベルの割り当て
 // からなるセパレータ集合を learnt に入れる．
-vector<Literal>
+void
 SaUIP2::capture(
-  Reason creason
+  Reason creason,
+  vector<Literal>& learnt
 )
 {
-  vector<Literal> learnt;
+  learnt.clear();
   learnt.push_back(Literal::X); // place holder
 
   bool first = true;
@@ -71,62 +72,28 @@ SaUIP2::capture(
       for ( SizeType i = 0; i < n; ++ i ) {
 	auto q = cclause->lit(i);
 	if ( !first && q == cclause->wl0() ) continue;
-	auto var = q.varid();
-	int var_level = decision_level(var);
-	if ( !get_mark(var) && var_level > 0 ) {
-	  set_mark_and_putq(var);
-	  bump_var_activity(var);
-	  if ( var_level < decision_level() ) {
-	    auto cr1 = reason(q.varid());
-	    if ( cr1.is_literal() ) {
-	      learnt.push_back(cr1.literal());
-	    }
-	    else {
-	      learnt.push_back(q);
-	    }
-	  }
-	  else {
-	    ++ count;
-	  }
-	}
+	put_lit(q, learnt, count);
       }
     }
     else {
       ASSERT_COND( !first );
       auto q = creason.literal();
-      auto var = q.varid();
-      int var_level = decision_level(var);
-      if ( !get_mark(var) && var_level > 0 ) {
-	set_mark_and_putq(var);
-	bump_var_activity(var);
-	if ( var_level < decision_level() ) {
-	  auto cr1 = reason(q.varid());
-	  if ( cr1.is_literal() ) {
-	    learnt.push_back(cr1.literal());
-	  }
-	  else {
-	    learnt.push_back(q);
-	  }
-	}
-	else {
-	  ++ count;
-	}
-      }
+      put_lit(q, learnt, count);
     }
 
     first = false;
 
     // mAssignList に入っている最近の変数で mark の付いたものを探す．
     // つまり conflict clause に含まれていた変数ということ．
-    for ( ; ; -- last) {
+    while ( true ) {
       auto q = get_assign(last);
+      -- last;
       auto var = q.varid();
       if ( get_mark(var) ) {
 	set_mark(var, false);
 	// それを最初のリテラルにする．
 	learnt[0] = ~q;
-	creason = reason(q.varid());
-	-- last;
+	creason = reason(var);
 	-- count;
 	break;
       }
@@ -137,8 +104,6 @@ SaUIP2::capture(
       break;
     }
   }
-
-  return learnt;
 }
 
 END_NAMESPACE_YM_SAT

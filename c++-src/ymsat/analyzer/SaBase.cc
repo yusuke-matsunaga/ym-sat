@@ -44,8 +44,7 @@ SaBase::make_minimal(
   // lit_list に含まれているリテラルのレベルのビットマップ
   // ただし 64 のモジュロをとっている．
   ymuint64 lmask = 0ULL;
-  for ( SizeType i = 0; i < nl; ++ i ) {
-    auto p = lit_list[i];
+  for ( auto p: lit_list ) {
     int level = decision_level(p.varid());
     lmask |= (1ULL << (level & 63));
   }
