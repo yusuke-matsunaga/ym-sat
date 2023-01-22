@@ -63,14 +63,6 @@ SatSolverGlueMiniSat2::new_variable(
   return mSolver.newVar(true, decision);
 }
 
-// @brief リテラルを 'フリーズ' する．
-void
-SatSolverGlueMiniSat2::freeze_literal(
-  SatLiteral lit
-)
-{
-}
-
 // @brief 節を追加する．
 void
 SatSolverGlueMiniSat2::add_clause(

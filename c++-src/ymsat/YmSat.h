@@ -72,14 +72,6 @@ public:
     bool decision ///< [in] 決定変数の時に true とする．
   ) override;
 
-  /// @brief リテラルを 'フリーズ' する．
-  ///
-  /// lingeling 以外は無効
-  void
-  freeze_literal(
-    SatLiteral lit ///< [in] リテラル
-  ) override;
-
   /// @brief 節を追加する．
   void
   add_clause(

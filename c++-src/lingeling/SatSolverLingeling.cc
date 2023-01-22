@@ -69,15 +69,6 @@ SatSolverLingeling::new_variable(
   return var;
 }
 
-// @brief リテラルを 'フリーズ' する．
-void
-SatSolverLingeling::freeze_literal(
-  SatLiteral lit
-)
-{
-  lglfreeze(mSolver, translate(lit));
-}
-
 // @brief 節を追加する．
 void
 SatSolverLingeling::add_clause(

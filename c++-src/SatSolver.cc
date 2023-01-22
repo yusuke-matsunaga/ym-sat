@@ -106,26 +106,6 @@ SatSolver::new_variable(
   return lit;
 }
 
-// @brief リテラルを 'フリーズ' する．
-void
-SatSolver::freeze_literal(
-  SatLiteral lit
-)
-{
-  mImpl->freeze_literal(lit);
-}
-
-// @brief リテラルを 'フリーズ' する．
-void
-SatSolver::freeze_literal(
-  const vector<SatLiteral>& lits
-)
-{
-  for ( auto lit: lits ) {
-    mImpl->freeze_literal(lit);
-  }
-}
-
 BEGIN_NONAMESPACE
 
 SatSolver* the_solver;

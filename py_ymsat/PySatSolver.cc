@@ -146,23 +146,6 @@ SatSolver_clear_conditional_literals(
 }
 
 PyObject*
-SatSolver_freeze_literal(
-  PyObject* self,
-  PyObject* args
-)
-{
-  // おおまかには SatLiteral のリストを引数に取る．
-  // ただし，複数の SatLiteral の引数の場合もある．
-  vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
-    return nullptr;
-  }
-  auto& solver = PySatSolver::_get(self);
-  solver.freeze_literal(lit_list);
-  Py_RETURN_NONE;
-}
-
-PyObject*
 SatSolver_add_clause(
   PyObject* self,
   PyObject* args
@@ -923,8 +906,6 @@ PyMethodDef SatSolver_methods[] = {
    PyDoc_STR("set conditional literals")},
   {"clear_conditional_literals", SatSolver_clear_conditional_literals, METH_NOARGS,
    PyDoc_STR("set conditional literals")},
-  {"freeze_literal", SatSolver_freeze_literal, METH_VARARGS,
-   PyDoc_STR("make the literal 'frozen'")},
   {"add_clause", SatSolver_add_clause, METH_VARARGS,
    PyDoc_STR("add clause")},
   {"add_buffgate", SatSolver_add_buffgate, METH_VARARGS,

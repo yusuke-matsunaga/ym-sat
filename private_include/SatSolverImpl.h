@@ -55,15 +55,6 @@ public:
     bool decition ///< [in] 決定変数の時に true とする．
   ) = 0;
 
-  /// @brief リテラルを 'フリーズ' する．
-  ///
-  /// lingeling 以外は無効
-  virtual
-  void
-  freeze_literal(
-    SatLiteral lit ///< [in] 対象のリテラル
-  ) = 0;
-
   /// @brief 節を追加する．
   virtual
   void

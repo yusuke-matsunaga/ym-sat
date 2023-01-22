@@ -61,14 +61,6 @@ SatSolverMiniSat::new_variable(
   return mSolver.newVar();
 }
 
-// @brief リテラルを 'フリーズ' する．
-void
-SatSolverMiniSat::freeze_literal(
-  SatLiteral lit
-)
-{
-}
-
 // @brief 節を追加する．
 void
 SatSolverMiniSat::add_clause(

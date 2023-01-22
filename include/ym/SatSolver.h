@@ -146,22 +146,6 @@ public:
     mConditionalLits.clear();
   }
 
-  /// @brief リテラルを 'フリーズ' する．
-  ///
-  /// lingeling 以外は無効
-  void
-  freeze_literal(
-    SatLiteral lit ///< [in] 対象のリテラル
-  );
-
-  /// @brief リテラルを 'フリーズ' する．
-  ///
-  /// lingeling 以外は無効
-  void
-  freeze_literal(
-    const vector<SatLiteral>& lits ///< [in] 対象のリテラルのリスト
-  );
-
   /// @brief 節を追加する．
   void
   add_clause(

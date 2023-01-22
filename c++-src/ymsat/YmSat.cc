@@ -47,16 +47,6 @@ YmSat::new_variable(
   return mMgr.new_variable(decision);
 }
 
-// @brief リテラルを 'フリーズ' する．
-//
-// lingeling 以外は無効
-void
-YmSat::freeze_literal(
-  SatLiteral lit
-)
-{
-}
-
 // @brief 節を追加する．
 void
 YmSat::add_clause(
