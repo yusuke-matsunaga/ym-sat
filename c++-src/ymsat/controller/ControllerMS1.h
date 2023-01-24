@@ -13,8 +13,6 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-class CoreMgr;
-
 //////////////////////////////////////////////////////////////////////
 /// @class ControllerMS1 ControllerMS1.h "ControllerMS1.h"
 /// @brief MiniSat-1 風のControllerの実装クラス
@@ -80,7 +78,7 @@ public:
 
   /// @brief コンストラクタ
   ControllerMS1(
-    CoreMgr& mgr ///< [in] Coreマネージャ
+    SatCore& core ///< [in] Coreマネージャ
   );
 
   /// @brief デストラクタ
@@ -113,7 +111,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // Coreマネージャ
-  CoreMgr& mMgr;
+  SatCore& mCore;
 
   // 制御用パラメータ
   Params mParams;

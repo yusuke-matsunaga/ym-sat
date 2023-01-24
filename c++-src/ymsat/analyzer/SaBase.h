@@ -8,7 +8,7 @@
 /// Copyright (C) 2016, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "../Analyzer.h"
+#include "Analyzer.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -26,7 +26,7 @@ public:
 
   /// @brief コンストラクタ
   SaBase(
-    CoreMgr& mgr ///< [in] コアマネージャ
+    SatCore& core ///< [in] コアマネージャ
   );
 
   /// @brief デストラクタ

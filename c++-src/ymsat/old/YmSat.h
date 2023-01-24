@@ -754,13 +754,14 @@ private:
 
   static
   //const ymuint debug = debug_decision | debug_analyze | debug_assign;
-  //const ymuint debug = debug_assign;
+  const ymuint debug = debug_assign;
   //const ymuint debug = debug_assign | debug_implication;
   //const ymuint debug = debug_assign | debug_analyze;
+  //const ymuint debug = debug_solve | debug_decision | debug_implication;
   //const ymuint debug = debug_solve | debug_decision;
   //const ymuint debug = debug_solve | debug_assign;
   //const ymuint debug = debug_all;
-  const ymuint debug = debug_none;
+  //const ymuint debug = debug_none;
 
 };
 

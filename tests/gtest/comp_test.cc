@@ -513,6 +513,6 @@ TEST_P(CompTest, add_ge_5_10)
 INSTANTIATE_TEST_SUITE_P(SatSolverTest,
 			 CompTest,
 			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+					   "ymsat1", "ymsat2", "ymsat2old", "ymsat2old2", "ymsat1_old"));
 
 END_NAMESPACE_YM

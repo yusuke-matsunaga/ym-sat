@@ -14,8 +14,8 @@ BEGIN_NAMESPACE_YM_SAT
 
 // @brief コンストラクタ
 SaUIP1::SaUIP1(
-  CoreMgr& mgr
-) : SaBase{mgr}
+  SatCore& core
+) : SaBase{core}
 {
 }
 

@@ -26,7 +26,7 @@ public:
 
   /// @brief コンストラクタ
   SaUIP2(
-    CoreMgr& mgr ///< [in] コアマネージャ
+    SatCore& core ///< [in] コアマネージャ
   );
 
   /// @brief デストラクタ

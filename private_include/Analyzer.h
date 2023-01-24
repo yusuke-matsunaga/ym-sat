@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "ym/sat.h"
-#include "CoreMgr.h"
+#include "SatCore.h"
 #include "Reason.h"
 
 
@@ -34,10 +34,18 @@ class Analyzer
 {
 public:
 
+  /// @brief Analyzerの派生クラスを生成する．
+  static
+  Analyzer*
+  new_obj(
+    SatCore& core,                  ///< [in] コアマネージャ
+    const string& option = string{} ///< [in] どのクラスを生成するかを決めるオプション文字列
+  );
+
   /// @brief コンストラクタ
   Analyzer(
-    CoreMgr& mgr ///< [in] コアマネージャ
-  ) : mMgr{mgr}
+    SatCore& core ///< [in] コアマネージャ
+  ) : mCore{core}
   {
   }
 
@@ -70,21 +78,21 @@ public:
 
 protected:
   //////////////////////////////////////////////////////////////////////
-  // 派生クラスに直接 YmSat をアクセスさせないための代理関数
+  // 派生クラスに直接 SatCore をアクセスさせないための代理関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 現在の decision level を取り出す．
   int
   decision_level() const
   {
-    return mMgr.decision_level();
+    return mCore.decision_level();
   }
 
   /// @brief 割り当てリストの末尾の位置を得る．
   SizeType
   last_assign()
   {
-    return mMgr.last_assign();
+    return mCore.last_assign();
   }
 
   /// @brief 割り当てリストの pos 番めの要素を得る．
@@ -93,7 +101,7 @@ protected:
     SizeType pos ///< [in] 位置番号
   )
   {
-    return mMgr.get_assign(pos);
+    return mCore.get_assign(pos);
   }
 
   /// @brief 変数の decision level を得る．
@@ -102,7 +110,7 @@ protected:
     SatVarId varid ///< [in] 対象の変数
   ) const
   {
-    return mMgr.decision_level(varid);
+    return mCore.decision_level(varid);
   }
 
   /// @brief 変数の割り当て理由を得る．
@@ -111,7 +119,7 @@ protected:
     SatVarId varid ///< [in] 対象の変数
   ) const
   {
-    return mMgr.reason(varid);
+    return mCore.reason(varid);
   }
 
   /// @brief 変数のアクティビティを増加させる．
@@ -120,7 +128,7 @@ protected:
     SatVarId varid ///< [in] 対象の変数
   )
   {
-    mMgr.bump_var_activity(varid);
+    mCore.bump_var_activity(varid);
   }
 
   /// @brief 節のアクティビティを上げる．
@@ -129,7 +137,7 @@ protected:
     Clause* clause ///< [in] 対象の節
   )
   {
-    mMgr.bump_clause_activity(clause);
+    mCore.bump_clause_activity(clause);
   }
 
 
@@ -139,26 +147,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // コアマネージャ
-  CoreMgr& mMgr;
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class SaFactory Analyzer.h "Analyzer.h"
-/// @brief Analyzer(の派生クラス)を生成するファクトリ
-//////////////////////////////////////////////////////////////////////
-class SaFactory
-{
-public:
-
-  /// @brief Analyzerの派生クラスを生成する．
-  static
-  Analyzer*
-  gen_analyzer(
-    CoreMgr& mgr,                   ///< [in] コアマネージャ
-    const string& option = string{} ///< [in] どのクラスを生成するかを決めるオプション文字列
-  );
+  SatCore& mCore;
 
 };
 

@@ -3,14 +3,10 @@
 /// @brief YmSatMS2 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2015, 2018 Yusuke Matsunaga
+/// Copyright (C) 2005-2011, 2014, 2015, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "YmSatMS2.h"
-#include "Controller.h"
-#include "Analyzer.h"
-#include "Selecter.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -20,17 +16,13 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] option オプション文字列
-YmSatMS2::YmSatMS2(const string& option)
+YmSatMS2::YmSatMS2(
+  const string& option
+)
 {
-  bool phase_cache = true;
-  if ( option == "no_phase_cache" ) {
-    phase_cache = false;
-  }
-
-  set_controller(new_ControllerMS2(mgr()));
-  set_analyzer(SaFactory::gen_analyzer(mgr(), option));
-  set_selecter(new_Selecter1(mgr(), phase_cache));
+  set_controller("minisat2");
+  set_analyzer("uip1");
+  set_selecter("type:nega, phase_cache:");
 }
 
 // @brief デストラクタ

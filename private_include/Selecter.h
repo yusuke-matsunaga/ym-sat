@@ -14,7 +14,7 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-class CoreMgr;
+class SatCore;
 
 //////////////////////////////////////////////////////////////////////
 /// @class Selecter Selecter.h "Selecter.h"
@@ -23,6 +23,14 @@ class CoreMgr;
 class Selecter
 {
 public:
+
+  /// @brief インスタンスを作るクラスメソッド
+  static
+  Selecter*
+  new_obj(
+    SatCore& mgr,        ///< [in] Coreマネージャ
+    const string& option ///< [in] オプション文字列
+  );
 
   /// @brief デストラクタ
   virtual
@@ -40,13 +48,6 @@ public:
   next_decision() = 0;
 
 };
-
-/// @brief Selecter1 を生成する．
-Selecter*
-new_Selecter1(
-  CoreMgr& mgr,    ///< [in] Coreマネージャ
-  bool phase_cache ///< [in] phase キャッシュフラグ
-);
 
 END_NAMESPACE_YM_SAT
 

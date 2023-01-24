@@ -13,7 +13,7 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-class CoreMgr;
+class SatCore;
 
 //////////////////////////////////////////////////////////////////////
 /// @class Controller Controller.h "Controller.h"
@@ -28,6 +28,14 @@ public:
   /// @name コンストラクタ/デストラクタ
   /// @{
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief インスタンスを作るクラスメソッド
+  static
+  Controller*
+  new_obj(
+    SatCore& mgr,        ///< [in] Coreマネージャ
+    const string& option ///< [in] オプション文字列
+  );
 
   /// @brief デストラクタ
   virtual
@@ -61,19 +69,6 @@ public:
   _update_on_conflict() = 0;
 
 };
-
-/// @brief MiniSat1 風のコントローラを作る．
-Controller*
-new_ControllerMS1(
-  CoreMgr& mgr ///< [in] コアマネージャ
-);
-
-/// @brief MiniSat2 風のコントローラを作る．
-Controller*
-new_ControllerMS2(
-  CoreMgr& mgr ///< [in] コアマネージャ
-);
-
 
 END_NAMESPACE_YM_SAT
 

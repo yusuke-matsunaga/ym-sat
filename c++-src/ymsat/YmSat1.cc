@@ -19,11 +19,13 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-YmSat1::YmSat1(const string& option)
+YmSat1::YmSat1(
+  const string& option
+)
 {
-  set_controller(new_ControllerMS1(mgr()));
-  set_analyzer(SaFactory::gen_analyzer(mgr(), option));
-  set_selecter(new_Selecter1(mgr(), true));
+  set_controller("minisat1");
+  set_analyzer(option);
+  set_selecter("type:nega, phase_cache:");
 }
 
 // @brief デストラクタ

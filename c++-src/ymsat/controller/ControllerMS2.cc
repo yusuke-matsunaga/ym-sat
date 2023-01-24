@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 #include "ControllerMS2.h"
-#include "CoreMgr.h"
+#include "SatCore.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -20,21 +20,11 @@ BEGIN_NAMESPACE_YM_SAT
 
 #if YMSAT_USE_LBD
 const
-ControllerMS2::Params kDefaultParams(0.95, 0.999, false, YMSAT_VAR_FREQ, true, false, false);
+ControllerMS2::Params kDefaultParams{ 0.95, 0.999, false, YMSAT_VAR_FREQ, true };
 #else
 const
-ControllerMS2::Params kDefaultParams(0.95, 0.999, YMSAT_VAR_FREQ, true, false, false);
+ControllerMS2::Params kDefaultParams{ 0.95, 0.999, YMSAT_VAR_FREQ, true };
 #endif
-
-
-// @brief MiniSat2 風のコントローラを作る．
-Controller*
-new_ControllerMS2(
-  CoreMgr& mgr
-)
-{
-  return new ControllerMS2{mgr};
-}
 
 
 //////////////////////////////////////////////////////////////////////
@@ -43,8 +33,8 @@ new_ControllerMS2(
 
 // @brief コンストラクタ
 ControllerMS2::ControllerMS2(
-  CoreMgr& mgr
-) : mMgr{mgr},
+  SatCore& core
+) : mCore{core},
     mParams{kDefaultParams}
 {
 }
@@ -85,16 +75,16 @@ void
 ControllerMS2::_init()
 {
   double restart_inc = 2.0;
-  mMgr.set_conflict_limit(static_cast<int>(luby(restart_inc, 0)) * 100);
+  mCore.set_conflict_limit(static_cast<int>(luby(restart_inc, 0)) * 100);
 
-  mLearntLimitD = mMgr.clause_num() / 3.0;
+  mLearntLimitD = mCore.clause_num() / 3.0;
   mLearntSizeAdjustConfl = 100.0;
   mLearntSizeAdjustInc = 1.5;
   mLearntSizeAdjustCount = static_cast<int>(mLearntSizeAdjustConfl);
 
-  mMgr.set_learnt_limit(static_cast<int>(mLearntLimitD));
+  mCore.set_learnt_limit(static_cast<int>(mLearntLimitD));
 
-  mMgr.set_decay(mParams.mVarDecay, mParams.mClauseDecay);
+  mCore.set_decay(mParams.mVarDecay, mParams.mClauseDecay);
 }
 
 // @brief リスタート時の処理
@@ -104,7 +94,7 @@ ControllerMS2::_update_on_restart(
 )
 {
   double restart_inc = 2.0;
-  mMgr.set_conflict_limit(static_cast<int>(luby(restart_inc, restart)) * 100);
+  mCore.set_conflict_limit(static_cast<int>(luby(restart_inc, restart)) * 100);
 }
 
 // @brief 矛盾発生時の処理
@@ -116,7 +106,7 @@ ControllerMS2::_update_on_conflict()
     mLearntSizeAdjustConfl *= mLearntSizeAdjustInc;
     mLearntSizeAdjustCount = static_cast<int>(mLearntSizeAdjustConfl);
     mLearntLimitD *= 1.1;
-    mMgr.set_learnt_limit(static_cast<int>(mLearntLimitD));
+    mCore.set_learnt_limit(static_cast<int>(mLearntLimitD));
   }
 }
 

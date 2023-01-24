@@ -251,6 +251,6 @@ TEST_P(CounterTest, add_counter_100_7)
 INSTANTIATE_TEST_SUITE_P(SatSolverTest,
 			 CounterTest,
 			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+					   "ymsat1", "ymsat2", "ymsat2old", "ymsat2old2", "ymsat1_old"));
 
 END_NAMESPACE_YM

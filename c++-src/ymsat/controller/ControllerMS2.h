@@ -13,8 +13,6 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-class CoreMgr;
-
 //////////////////////////////////////////////////////////////////////
 /// @class ControllerMS2 ControllerMS2.h "ControllerMS2.h"
 /// @brief MiniSat2 風の Controller
@@ -41,51 +39,39 @@ public:
     /// @brief phase-cache ヒューリスティックを使うとき true
     bool mPhaseCache;
 
-    /// @brief watcher list の多い極性を選ぶヒューリスティックを使うとき true
-    bool mWlPosi;
-
-    /// @brief watcher list の少ない極性を選ぶヒューリスティックを使うとき true
-    bool mWlNega;
-
     /// @brief コンストラクタ
     Params() :
       mVarFreq(0.0),
-      mPhaseCache(true),
-      mWlPosi(false),
-      mWlNega(false)
+      mPhaseCache(true)
     {
     }
 
 #if YMSAT_USE_LBD
     /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay,
-	   bool use_lbd,
-	   double var_freq,
-	   bool phase_cache,
-	   bool wl_posi,
-	   bool wl_nega) :
-      YmSat::Params(var_decay, clause_decay, use_lbd),
-      mVarFreq(var_freq),
-      mPhaseCache(phase_cache),
-      mWlPosi(wl_posi),
-      mWlNega(!wl_posi && wl_nega)
+    Params(
+      double var_decay,
+      double clause_decay,
+      bool use_lbd,
+      double var_freq,
+      bool phase_cache
+    ) : mVarDecay{var_decay},
+	mClauseDecay{clause_decay},
+	mUseLbd{use_lbd},
+	mVarFreq(var_freq),
+	mPhaseCache(phase_cache)
     {
     }
 #else
     /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay,
-	   double var_freq,
-	   bool phase_cache,
-	   bool wl_posi,
-	   bool wl_nega) :
-      mVarDecay(var_decay),
-      mClauseDecay(clause_decay),
-      mVarFreq(var_freq),
-      mPhaseCache(phase_cache),
-      mWlPosi(wl_posi),
-      mWlNega(!wl_posi && wl_nega)
+    Params(
+      double var_decay,
+      double clause_decay,
+      double var_freq,
+      bool phase_cache
+    ) : mVarDecay{var_decay},
+	mClauseDecay{clause_decay},
+	mVarFreq(var_freq),
+	mPhaseCache(phase_cache)
     {
     }
 #endif
@@ -96,7 +82,7 @@ public:
 
   /// @brief コンストラクタ
   ControllerMS2(
-    CoreMgr& mgr ///< [in] Coreマネージャ
+    SatCore& core ///< [in] Coreマネージャ
   );
 
   /// @brief デストラクタ
@@ -105,7 +91,7 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // YmSat の仮想関数
+  // Controller の仮想関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief solve() の初期化
@@ -129,7 +115,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // Coreマネージャ
-  CoreMgr& mMgr;
+  SatCore& mCore;
 
   // 制御用のパラメータ
   Params mParams;

@@ -1,14 +1,14 @@
 #ifndef YMSAT1_H
 #define YMSAT1_H
 
-/// @file libym_logic/sat/ymsat/YmSat1.h
+/// @file YmSat1.h
 /// @brief YmSat1 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2011, 2018, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "YmSat.h"
+#include "SatCore.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -18,7 +18,7 @@ BEGIN_NAMESPACE_YM_SAT
 /// @brief SatSolver の実装クラス
 //////////////////////////////////////////////////////////////////////
 class YmSat1 :
-  public YmSat
+  public SatCore
 {
 public:
   //////////////////////////////////////////////////////////////////////
@@ -28,57 +28,42 @@ public:
   struct Params
   {
     /// @brief 変数の decay 値
-    double mVarDecay;
+    double mVarDecay{1.0};
 
     /// @brief 学習節の decay 値
-    double mClauseDecay;
+    double mClauseDecay{1.0};
 
 #if YMSAT_USE_LBD
     /// @brief LBD ヒューリスティックを使うとき true
-    bool mUseLbd;
-
-    /// @brief コンストラクタ
-    Params() :
-      mVarDecay(1.0),
-      mClauseDecay(1.0),
-      mUseLbd(false)
-    {
-    }
-
-    /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay,
-	   bool use_lbd) :
-      mVarDecay(var_decay),
-      mClauseDecay(clause_decay),
-      mUseLbd(use_lbd)
-    {
-    }
-#else
-
-    /// @brief コンストラクタ
-    Params() :
-      mVarDecay(1.0),
-      mClauseDecay(1.0)
-    {
-    }
-
-    /// @brief 値を指定したコンストラクタ
-    Params(double var_decay,
-	   double clause_decay) :
-      mVarDecay(var_decay),
-      mClauseDecay(clause_decay)
-    {
-    }
+    bool mUseLbd{false};
 #endif
+
+    /// @brief コンストラクタ
+    Params() = default;
+
+    /// @brief 値を指定したコンストラクタ
+    Params(
+      double var_decay,
+      double clause_decay
+#if YMSAT_USE_LBD
+      , bool use_lbd
+#endif
+    ) : mVarDecay{var_decay},
+	mClauseDecay{clause_decay}
+#if YMSAT_USE_LBD
+      , mUseLbd{use_lbd}
+#endif
+    {
+    }
   };
 
 
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] option オプション文字列
-  YmSat1(const string& option = string());
+  YmSat1(
+    const string& option = string{} ///< [in] オプション文字列
+  );
 
   /// @brief デストラクタ
   ~YmSat1();
@@ -93,11 +78,6 @@ private:
   Params mParams;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// インライン関数の定義
-//////////////////////////////////////////////////////////////////////
 
 END_NAMESPACE_YM_SAT
 
