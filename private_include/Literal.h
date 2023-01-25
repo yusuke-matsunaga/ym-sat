@@ -328,7 +328,7 @@ operator<<(
 )
 {
   if ( lit.is_valid() ) {
-    s << lit.varid();
+    s << "v_" << lit.varid();
     if ( lit.is_negative() ) {
       s << "'";
     }

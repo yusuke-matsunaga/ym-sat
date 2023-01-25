@@ -21,10 +21,10 @@ SatTestFixture::SatTestFixture() :
   mCondVarList(2)
 {
   for ( int i: Range(mVarNum) ) {
-    mVarList[i] = mSolver.new_variable();
+    mVarList[i] = mSolver.new_variable(true);
   }
-  mCondVarList[0] = mSolver.new_variable();
-  mCondVarList[1] = mSolver.new_variable();
+  mCondVarList[0] = mSolver.new_variable(true);
+  mCondVarList[1] = mSolver.new_variable(true);
 }
 
 // @brief 設定されたCNFが vals[] で示された真理値表と等しいか調べる．

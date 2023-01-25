@@ -122,9 +122,17 @@ SatSolverMiniSat::stop()
   // 未実装
 }
 
-// @brief conflict_limit の最大値
 SizeType
-SatSolverMiniSat::set_max_conflict(
+SatSolverMiniSat::set_conflict_budget(
+  SizeType val
+)
+{
+  // 無効
+  return 0;
+}
+
+SizeType
+SatSolverMiniSat::set_propagation_budget(
   SizeType val
 )
 {

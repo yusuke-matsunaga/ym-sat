@@ -35,7 +35,8 @@ SatCore::SatCore(
     mAnalyzer{Analyzer::new_obj(*this, analyzer_type)},
     mSelecter{Selecter::new_obj(*this, selecter_type, selopt_dic)}
 {
-  mMaxConflict = 1024 * 100;
+  mConflictBudget = 0;
+  mPropagationBudget = 0;
 
   mSweep_assigns = -1;
   mSweep_props = 0;
@@ -82,9 +83,12 @@ SatCore::new_variable(
     return BAD_SATVARID;
   }
 
-#if YMSAT_USE_DVAR
+  //decision = true;
+
   mDvarArray.push_back(decision);
-#endif
+  if ( decision ) {
+    ++ mDvarNum;
+  }
 
   // ここではカウンタを増やすだけ
   // 実際の処理は alloc_var() でまとめて行う．
@@ -101,9 +105,11 @@ SatCore::alloc_var()
     if ( mVarSize < mVarNum ) {
       expand_var();
     }
-    for ( SizeType i: Range(mOldVarNum, mVarNum) ) {
-      mVal[i] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
-      mVarHeap.add_var(i);
+    for ( SizeType var: Range(mOldVarNum, mVarNum) ) {
+      mVal[var] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
+      if ( is_decision_variable(var) ) {
+	mVarHeap.add_var(var);
+      }
     }
     mOldVarNum = mVarNum;
   }
@@ -140,7 +146,7 @@ SatCore::expand_var()
     mDecisionLevel[i] = old_decision_level[i];
     mReason[i] = old_reason[i];
   }
-  int n2 = mOldVarNum * 2;
+  SizeType n2 = mOldVarNum * 2;
   for ( int i: Range(n2) ) {
     mWatcherList[i].move(old_watcher_list[i]);
   }
@@ -445,7 +451,9 @@ SatCore::reduce_CNF()
   var_list.reserve(mVarNum);
   for ( SatVarId var: Range(mVarNum) ) {
     if ( eval(var) == SatBool3::X ) {
-      var_list.push_back(var);
+      if ( is_decision_variable(var) ) {
+	var_list.push_back(var);
+      }
     }
     else {
       del_satisfied_watcher(Literal::conv_from_varid(var, false));
@@ -607,7 +615,8 @@ SatCore::solve(
     for ( auto clause_p: mConstrClauseList ) {
       cout << "  " << *clause_p << endl;
     }
-    cout << " VarNum: " << variable_num() << endl;
+    cout << " VarNum: " << variable_num() << endl
+	 << " DVarNum: " << mDvarNum << endl;
   }
 
   // メッセージハンドラにヘッダの出力を行わせる．
@@ -696,7 +705,7 @@ SatCore::solve(
       break;
     }
 
-    if ( !go_on() || conflict_num() == max_conflict() ) {
+    if ( !go_on() || !check_budget() ) {
       // 制限値に達した．(アボート)
       break;
     }
@@ -714,9 +723,11 @@ SatCore::solve(
     // SAT ならモデル(充足させる変数割り当てのリスト)を作る．
     model.resize(mVarNum);
     for ( SatVarId var: Range(mVarNum) ) {
-      auto val = eval(var);
-      ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
-      model.set(var, val);
+      if ( is_decision_variable(var) ) {
+	auto val = eval(var);
+	ASSERT_COND( val == SatBool3::True || val == SatBool3::False );
+	model.set(var, val);
+      }
     }
   }
   // 最初の状態に戻す．
@@ -743,7 +754,8 @@ SatCore::solve(
 
 // @brief 探索を行う本体の関数
 SatBool3
-SatCore::search()
+SatCore::search(
+)
 {
   int root_level = decision_level();
 
@@ -795,7 +807,7 @@ SatCore::search()
       continue;
     }
 
-    if ( !mGoOn || (cur_confl_num >= mConflictLimit) ) {
+    if ( !mGoOn || cur_confl_num >= conflict_limit() || !check_budget() ) {
       // 矛盾の回数が制限値を越えた．
       backtrack(root_level);
       return SatBool3::X;

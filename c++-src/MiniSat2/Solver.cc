@@ -46,6 +46,7 @@ const int debug_all         = 0xffffffff;
 //int debug = debug_assign | debug_implication;
 //int debug = debug_assign | debug_analyze | debug_decision;
 int debug = debug_none;
+//int debug = debug_all;
 
 
 //=================================================================================================
@@ -832,7 +833,8 @@ lbool Solver::search(int nof_conflicts)
         }else{
             // NO CONFLICT
 	  if ( (nof_conflicts >= 0 && conflictC >= nof_conflicts) || !withinBudget()){
-                // Reached bound on number of conflicts:
+	    // Reached bound on number of conflicts:
+
 	      progress_estimate = progressEstimate();
                 cancelUntil(0);
                 return l_Undef; }

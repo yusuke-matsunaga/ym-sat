@@ -9,7 +9,6 @@
 /// All rights reserved.
 
 #define YMSAT_USE_WEIGHTARRAY 0
-#define YMSAT_USE_DVAR 0
 #define YMSAT_USE_LBD 0
 
 #endif // CONF_H

@@ -506,22 +506,41 @@ public:
     return mLearntLimit;
   }
 
-  /// @brief conflict_limit の最大値を返す．
+  /// @brief トータルの矛盾回数の制限値を得る．
   SizeType
-  max_conflict() const
+  conflict_budget() const
   {
-    return mMaxConflict;
+    return mConflictBudget;
   }
 
-  /// @brief conflict_limit の最大値を設定する．
+  /// @brief conflict_budget を設定する．
   /// @return 以前の設定値を返す．
   SizeType
-  set_max_conflict(
+  set_conflict_budget(
     SizeType val ///< [in] 設定する値
   ) override
   {
-    auto old_val = mMaxConflict;
-    mMaxConflict = val;
+    auto old_val = mConflictBudget;
+    mConflictBudget = val;
+    return old_val;
+  }
+
+  /// @brief トータルの implication 数の制限値を得る．
+  SizeType
+  propagation_budget() const
+  {
+    return mPropagationBudget;
+  }
+
+  /// @brief propagation_budget を設定する．
+  /// @return 以前の設定値を返す．
+  SizeType
+  set_propagation_budget(
+    SizeType val ///< [in] 設定する値
+  ) override
+  {
+    auto old_val = mPropagationBudget;
+    mPropagationBudget = val;
     return old_val;
   }
 
@@ -531,10 +550,10 @@ public:
     SizeType limit ///< [in] 設定する値
   )
   {
-    mConflictLimit = limit;
-    if ( mConflictLimit > mMaxConflict ) {
-      mConflictLimit = mMaxConflict;
+    if ( mConflictBudget > 0 ) {
+      limit = std::min(limit, mConflictBudget);
     }
+    mConflictLimit = limit;
   }
 
   /// @brief 学習節の制限値を設定する．
@@ -575,7 +594,8 @@ private:
   /// 内部で reduce_learnt_clause() を呼んでいるので学習節が
   /// 削減される場合もある．
   SatBool3
-  search();
+  search(
+  );
 
   /// @brief バックトラック用のマーカーをセットする．
   void
@@ -685,6 +705,25 @@ private:
   pop_top()
   {
     return mVarHeap.pop_top();
+  }
+
+  /// @brief decision variable の時 true を返す．
+  bool
+  is_decision_variable(
+    SatVarId var ///< [in] 変数番号
+  ) const
+  {
+    return mDvarArray[var];
+  }
+
+  /// @brief 制限値のチェックを行う．
+  /// @retval true 制限を満たしている．
+  /// @retval false 制限を違反している．
+  bool
+  check_budget()
+  {
+    return (mConflictBudget == 0 || mConflictNum < mConflictBudget)
+      && (mPropagationBudget == 0 || mPropagationNum < mPropagationBudget);
   }
 
   /// @brief mVal[] で用いているエンコーディングを SatBool3 に変換する．
@@ -820,10 +859,11 @@ private:
   // 学習節の総リテラル数 (二項制約節も含む)
   SizeType mLearntLitNum{0};
 
-#if YMSAT_USE_DVAR
-  // dvar 配列
+  // decision variable の時 true となる配列
   vector<bool> mDvarArray;
-#endif
+
+  // decision variable の数
+  SizeType mDvarNum{0};
 
   // 変数の数
   SizeType mVarNum{0};
@@ -899,7 +939,10 @@ private:
   SizeType mLearntLimit{0};
 
   // トータルのコンフリクト数の制限
-  SizeType mMaxConflict{0};
+  SizeType mConflictBudget{0};
+
+  // トータルの implication 数の制限
+  SizeType mPropagationBudget{0};
 
   // mTimer を使うとき true にするフラグ
   bool mTimerOn{false};

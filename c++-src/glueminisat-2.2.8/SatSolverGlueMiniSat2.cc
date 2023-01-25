@@ -135,13 +135,23 @@ SatSolverGlueMiniSat2::stop()
   mSolver.interrupt();
 }
 
-// @brief conflict_limit の最大値
+// @brief トータルの矛盾回数の制限を設定する．
 SizeType
-SatSolverGlueMiniSat2::set_max_conflict(
+SatSolverGlueMiniSat2::set_conflict_budget(
   SizeType val
 )
 {
-  // 無効
+  mSolver.setConfBudget(val);
+  return 0;
+}
+
+// @brief トータルの implication 回数の制限を設定する．
+SizeType
+SatSolverGlueMiniSat2::set_propagation_budget(
+  SizeType val
+)
+{
+  mSolver.setPropBudget(val);
   return 0;
 }
 

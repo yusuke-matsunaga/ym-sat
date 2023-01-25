@@ -704,6 +704,6 @@ TEST_P(SatTestFixture, add_clause_with_cond5n_1)
 INSTANTIATE_TEST_SUITE_P(SatSolverTest,
 			 SatTestFixture,
 			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+					   "ymsat1", "ymsat2", "ymsat1_old"));
 
 END_NAMESPACE_YM

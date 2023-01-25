@@ -818,6 +818,6 @@ TEST_P(AtMostTest, add_not_oneN)
 INSTANTIATE_TEST_SUITE_P(SatSolverTest,
 			 AtMostTest,
 			 ::testing::Values("lingeling", "glueminisat2", "minisat2", "minisat",
-					   "ymsat1", "ymsat2", "ymsat2old", "ymsat1_old"));
+					   "ymsat1", "ymsat2", "ymsat1_old"));
 
 END_NAMESPACE_YM

@@ -87,11 +87,19 @@ public:
   SatStats
   get_stats() const = 0;
 
-  /// @brief conflict_limit の最大値
+  /// @brief トータルの矛盾回数の制限を設定する．
   /// @return 以前の設定値を返す．
   virtual
   SizeType
-  set_max_conflict(
+  set_conflict_budget(
+    SizeType val ///< [in] 設定する値
+  ) = 0;
+
+  /// @brief トータルの implication 回数の制限を設定する．
+  /// @return 以前の設定値を返す．
+  virtual
+  SizeType
+  set_propagation_budget(
     SizeType val ///< [in] 設定する値
   ) = 0;
 

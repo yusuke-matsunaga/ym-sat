@@ -212,7 +212,8 @@ END_NONAMESPACE
 // @brief 1's counter の入出力の関係を表す条件を追加する．
 vector<SatLiteral>
 SatSolver::add_counter(
-  const vector<SatLiteral>& ilits
+  const vector<SatLiteral>& ilits,
+  bool decision
 )
 {
   SizeType ni{ilits.size()};
@@ -221,26 +222,26 @@ SatSolver::add_counter(
     return {olit};
   }
   else if ( ni == 2 ) {
-    auto olit0 = new_variable(false);
-    auto olit1 = new_variable(false);
+    auto olit0 = new_variable(decision);
+    auto olit1 = new_variable(decision);
     add_half_adder(ilits[0], ilits[1], olit0, olit1);
     return {olit0, olit1};
   }
   else if ( ni == 3 ) {
-    auto olit0 = new_variable(false);
-    auto olit1 = new_variable(false);
+    auto olit0 = new_variable(decision);
+    auto olit1 = new_variable(decision);
     add_full_adder(ilits[0], ilits[1], ilits[2], olit0, olit1);
     return {olit0, olit1};
   }
   else if ( ni == 4 ) {
-    auto olit0 = new_variable(false);
-    auto olit1 = new_variable(false);
-    auto olit2 = new_variable(false);
-    auto c0 = new_variable(false);
-    auto c1 = new_variable(false);
-    auto d0 = new_variable(false);
-    auto d1 = new_variable(false);
-    auto e1 = new_variable(false);
+    auto olit0 = new_variable(decision);
+    auto olit1 = new_variable(decision);
+    auto olit2 = new_variable(decision);
+    auto c0 = new_variable(decision);
+    auto c1 = new_variable(decision);
+    auto d0 = new_variable(decision);
+    auto d1 = new_variable(decision);
+    auto e1 = new_variable(decision);
     add_half_adder(ilits[0], ilits[1], c0, c1);
     add_half_adder(ilits[2], ilits[3], d0, d1);
     add_half_adder(c0, d0, olit0, e1);
@@ -248,14 +249,14 @@ SatSolver::add_counter(
     return {olit0, olit1, olit2};
   }
   else if ( ni == 5 ) {
-    auto olit0 = new_variable(false);
-    auto olit1 = new_variable(false);
-    auto olit2 = new_variable(false);
-    auto c0 = new_variable(false);
-    auto c1 = new_variable(false);
-    auto d0 = new_variable(false);
-    auto d1 = new_variable(false);
-    auto e1 = new_variable(false);
+    auto olit0 = new_variable(decision);
+    auto olit1 = new_variable(decision);
+    auto olit2 = new_variable(decision);
+    auto c0 = new_variable(decision);
+    auto c1 = new_variable(decision);
+    auto d0 = new_variable(decision);
+    auto d1 = new_variable(decision);
+    auto e1 = new_variable(decision);
     add_half_adder(ilits[0], ilits[1], c0, c1);
     add_half_adder(ilits[2], ilits[3], d0, d1);
     vector<SatLiteral> clits{c0, c1};
@@ -282,7 +283,7 @@ SatSolver::add_counter(
     SizeType no{get_ln(ni)};
     vector<SatLiteral> olits(no);
     for ( SizeType i = 0; i < no; ++ i ) {
-      olits[i] = new_variable(false);
+      olits[i] = new_variable(decision);
     }
     vector<SatLiteral> tmp_olits3(no - 1);
     for ( SizeType i = 0; i < (no - 1); ++ i ) {

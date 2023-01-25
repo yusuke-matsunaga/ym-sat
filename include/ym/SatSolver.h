@@ -64,7 +64,7 @@ public:
   /// * lingeling においては decision = true のリテラルは freeze される．
   SatLiteral
   new_variable(
-    bool decision = true ///< [in] 決定変数の時に true とする．
+    bool decision = false ///< [in] 決定変数の時に true とする．
   );
 
   /// @brief 条件リテラルを設定する．
@@ -605,7 +605,8 @@ public:
   /// @return 個数を表す2進数を表すリテラルのリストを返す．
   vector<SatLiteral>
   add_counter(
-    const vector<SatLiteral>& ilits ///< [in] 入力のリテラルのリスト
+    const vector<SatLiteral>& ilits, ///< [in] 入力のリテラルのリスト
+    bool decision = false            ///< [in] 生成する変数を decision variable にする時 true にする．
   );
 
   /// @brief 与えられたリテラルのうち1つしか true にならない条件を追加する．
@@ -1394,10 +1395,17 @@ public:
     bool enable
   );
 
-  /// @brief conflict_limit の最大値
+  /// @brief トータルの矛盾回数の制限値を設定する．
   /// @return 以前の設定値を返す．
   SizeType
-  set_max_conflict(
+  set_conflict_budget(
+    SizeType val ///< [in] 設定する値
+  );
+
+  /// @brief トータルの implication 回数の制限値を設定する．
+  /// @return 以前の設定値を返す．
+  SizeType
+  set_propagation_budget(
     SizeType val ///< [in] 設定する値
   );
 

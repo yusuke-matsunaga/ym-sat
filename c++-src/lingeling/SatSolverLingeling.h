@@ -78,10 +78,17 @@ public:
   SatStats
   get_stats() const override;
 
-  /// @brief conflict_limit の最大値
+  /// @brief トータルの矛盾回数の制限を設定する．
   /// @return 以前の設定値を返す．
   SizeType
-  set_max_conflict(
+  set_conflict_budget(
+    SizeType val ///< [in] 設定する値
+  ) override;
+
+  /// @brief トータルの implication 回数の制限を設定する．
+  /// @return 以前の設定値を返す．
+  SizeType
+  set_propagation_budget(
     SizeType val ///< [in] 設定する値
   ) override;
 

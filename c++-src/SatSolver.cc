@@ -150,13 +150,22 @@ SatSolver::write_DIMACS(
   }
 }
 
-// @brief conflict_limit の最大値
+// @brief トータルの矛盾回数の制限を設定する．
 SizeType
-SatSolver::set_max_conflict(
+SatSolver::set_conflict_budget(
   SizeType val
 )
 {
-  return mImpl->set_max_conflict(val);
+  return mImpl->set_conflict_budget(val);
+}
+
+// @brief トータルの implication 回数の制限を設定する．
+SizeType
+SatSolver::set_propagation_budget(
+  SizeType val
+)
+{
+  return mImpl->set_propagation_budget(val);
 }
 
 // @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録

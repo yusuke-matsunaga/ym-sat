@@ -553,15 +553,24 @@ YmSat::reduce_learnt_clause()
   reduceDB();
 }
 
-// @brief conflict_limit の最大値
+// @brief トータルの矛盾回数の制限を設定する．
 SizeType
-YmSat::set_max_conflict(
+YmSat::set_conflict_budget(
   SizeType val
 )
 {
   auto old_val = mMaxConflict;
   mMaxConflict = val;
   return old_val;
+}
+
+// @brief トータルの implication 回数の制限を設定する．
+SizeType
+YmSat::set_propagation_budget(
+  SizeType val
+)
+{
+  return 0;
 }
 
 // @brief 現在の内部状態を得る．
