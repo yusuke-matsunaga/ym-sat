@@ -10,7 +10,6 @@
 #include "ymsat/YmSatMS2.h"
 #include "ymsat/YmSat1.h"
 #include "ymsat1/YmSat.h"
-#include "ymsat/old/YmSatMS2.h"
 #include "MiniSat/SatSolverMiniSat.h"
 #include "MiniSat2/SatSolverMiniSat2.h"
 #include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
@@ -18,6 +17,54 @@
 
 
 BEGIN_NAMESPACE_YM_SAT
+
+//////////////////////////////////////////////////////////////////////
+// SatSolverType
+//////////////////////////////////////////////////////////////////////
+
+SatSolverType::SatSolverType(
+  const string& type,
+  const string& option,
+  ostream* log_out
+) : mType{type},
+    mOption{option},
+    mLogOut{log_out}
+{
+  if ( mType == "minisat" ) {
+    // minisat-1.4
+    ;
+  }
+  else if ( mType == "minisat2" ) {
+    // minisat-2.2
+    ;
+  }
+  else if ( mType == "glueminisat2" ) {
+    // glueminisat-2.2.8
+    ;
+  }
+  else if ( mType == "lingeling" ) {
+    ;
+  }
+  else if ( mType == "ymsat1" ) {
+    ;
+  }
+  else if ( mType == "ymsat2" ) {
+    ;
+  }
+  else if ( mType == "ymsat1_old" ) {
+    ;
+  }
+  else if ( mType == "" ) {
+    // lingeling 今はデフォルトにしている．
+    mType = "lingeling";
+  }
+  else {
+    mType = "lingeling";
+    cerr << "SatSolver: unknown type '" << type << "', '"
+	 << mType << "' is used, instead." << endl;
+  }
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // SatSolverImpl
@@ -49,13 +96,14 @@ SatSolverImpl::new_impl(
     return unique_ptr<SatSolverImpl>(new SatSolverLingeling(option));
   }
   else if ( type == "ymsat1" ) {
-    return unique_ptr<SatSolverImpl>(new YmSat1(option));
+    unordered_map<string, string> opt_dic;
+    return unique_ptr<SatSolverImpl>{new SatCore{"minisat1", "uip1", "wlposi", opt_dic}};
   }
   else if ( type == "ymsat2" ) {
-    return unique_ptr<SatSolverImpl>(new YmSatMS2(option));
-  }
-  else if ( type == "ymsat2old" ) {
-    return unique_ptr<SatSolverImpl>(new nsSatold::YmSatMS2(option));
+    unordered_map<string, string> opt_dic = {
+      {"phase_cache", "on"}
+    };
+    return unique_ptr<SatSolverImpl>{new SatCore{"minisat2", "uip1", "nega", opt_dic}};
   }
   else if ( type == "ymsat1_old" ) {
     return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(option));

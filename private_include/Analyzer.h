@@ -26,8 +26,8 @@ class Clause;
 /// ただし，学習節の生成法は唯一ではないので，Analyzer を純粋仮想
 /// 基底クラスにして派生クラスでさまざまな手法を実装できるようにしてい
 /// る．
-/// そのため，Analyzer の大きな役割は YmSat とのインターフェイスを
-/// 提供することである．もう一つの仕事は，派生クラスが YmSat の
+/// そのため，Analyzer の大きな役割は SatCore とのインターフェイスを
+/// 提供することである．もう一つの仕事は，派生クラスが SatCore の
 /// private メンバ関数にアクセスするための代理関数を提供することである．
 //////////////////////////////////////////////////////////////////////
 class Analyzer
@@ -38,8 +38,8 @@ public:
   static
   Analyzer*
   new_obj(
-    SatCore& core,                  ///< [in] コアマネージャ
-    const string& option = string{} ///< [in] どのクラスを生成するかを決めるオプション文字列
+    SatCore& core,                ///< [in] コアマネージャ
+    const string& type = string{} ///< [in] タイプを表す文字列
   );
 
   /// @brief コンストラクタ

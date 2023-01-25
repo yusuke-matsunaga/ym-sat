@@ -28,8 +28,9 @@ public:
   static
   Selecter*
   new_obj(
-    SatCore& mgr,        ///< [in] Coreマネージャ
-    const string& option ///< [in] オプション文字列
+    SatCore& core,      ///< [in] Coreマネージャ
+    const string& type, ///< [in] タイプを表す文字列
+    const unordered_map<string, string>& opt_dic = {} ///< [in] オプション文字列を格納した辞書
   );
 
   /// @brief デストラクタ

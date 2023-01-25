@@ -54,13 +54,16 @@ set (ym_sat_SOURCES
   ymsat/core/Clause.cc
   ymsat/core/SatCore.cc
   ymsat/core/VarHeap.cc
+
   ymsat/controller/Controller.cc
   ymsat/controller/ControllerMS1.cc
   ymsat/controller/ControllerMS2.cc
+
   ymsat/analyzer/Analyzer.cc
   ymsat/analyzer/SaBase.cc
   ymsat/analyzer/SaUIP1.cc
   ymsat/analyzer/SaUIP2.cc
+
   ymsat/selecter/Selecter.cc
   ymsat/selecter/SelBase.cc
   ymsat/selecter/SelWlPosi.cc
@@ -68,22 +71,12 @@ set (ym_sat_SOURCES
   ymsat/selecter/SelPosi.cc
   ymsat/selecter/SelNega.cc
   ymsat/selecter/SelRandom.cc
-  ymsat/YmSat1.cc
-  ymsat/YmSatMS2.cc
 
   ymsat1/SaBase.cc
   ymsat1/SaFactory.cc
   ymsat1/SaUIP1.cc
   ymsat1/SaUIP2.cc
   ymsat1/YmSat.cc
-
-  ymsat/old/SaBase.cc
-  ymsat/old/SaFactory.cc
-  ymsat/old/SaUIP1.cc
-  ymsat/old/SaUIP2.cc
-  ymsat/old/YmSat_base.cc
-  ymsat/old/YmSat_solve.cc
-  ymsat/old/YmSatMS2.cc
   )
 
 

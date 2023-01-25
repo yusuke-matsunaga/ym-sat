@@ -474,6 +474,9 @@ private:
   // 制約節の配列
   vector<Clause*> mConstrClauseList;
 
+  // 制約節の数
+  SizeType mConstrClauseNum;
+
   // 二項制約節の数
   SizeType mConstrBinNum;
 

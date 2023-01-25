@@ -17,58 +17,6 @@ BEGIN_NAMESPACE_YM_SAT
 
 const SatLiteral SatLiteral::X;
 
-
-//////////////////////////////////////////////////////////////////////
-// SatSolverType
-//////////////////////////////////////////////////////////////////////
-
-SatSolverType::SatSolverType(
-  const string& type,
-  const string& option,
-  ostream* log_out
-) : mType{type},
-    mOption{option},
-    mLogOut{log_out}
-{
-  if ( mType == "minisat" ) {
-    // minisat-1.4
-    ;
-  }
-  else if ( mType == "minisat2" ) {
-    // minisat-2.2
-    ;
-  }
-  else if ( mType == "glueminisat2" ) {
-    // glueminisat-2.2.8
-    ;
-  }
-  else if ( mType == "lingeling" ) {
-    ;
-  }
-  else if ( mType == "ymsat1" ) {
-    ;
-  }
-  else if ( mType == "ymsat2" ) {
-    ;
-  }
-  else if ( mType == "ymsat2old" ) {
-    ;
-  }
-  else if ( mType == "ymsat1_old" ) {
-    ;
-  }
-  else if ( mType == "" ) {
-    // lingeling 今はデフォルトにしている．
-    mType = "lingeling";
-  }
-  else {
-    mType = "lingeling";
-    cerr << "SatSolver: unknown type '" << type << "', '"
-	 << mType << "' is used, instead." << endl;
-  }
-}
-
-
 //////////////////////////////////////////////////////////////////////
 // SatSolver
 //////////////////////////////////////////////////////////////////////

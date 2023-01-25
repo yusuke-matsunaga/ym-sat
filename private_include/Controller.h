@@ -33,8 +33,8 @@ public:
   static
   Controller*
   new_obj(
-    SatCore& mgr,        ///< [in] Coreマネージャ
-    const string& option ///< [in] オプション文字列
+    SatCore& mgr,      ///< [in] Coreマネージャ
+    const string& type ///< [in] タイプを表す文字列
   );
 
   /// @brief デストラクタ

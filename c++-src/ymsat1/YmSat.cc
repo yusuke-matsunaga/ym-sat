@@ -163,6 +163,29 @@ YmSat::add_clause(
 
   alloc_var();
 
+  // mTmpLits をソートする．
+  // たぶん要素数が少ないので挿入ソートが速いはず．
+  for ( SizeType i = 1; i < lit_num; ++ i ) {
+    // この時点で [0 : i - 1] までは整列している．
+    auto l = mTmpLits[i];
+    if ( mTmpLits[i - 1].index() <= l.index() ) {
+      // このままで [0 : i] まで整列していることになる．
+      continue;
+    }
+
+    // l の挿入位置を探す．
+    SizeType j = i;
+    for ( ; ; ) {
+      mTmpLits[j] = mTmpLits[j - 1];
+      -- j;
+      if ( j == 0 || mTmpLits[j - 1].index() <= l.index() ) {
+	// 先頭に達するか，l よりも小さい要素があった．
+	break;
+      }
+    }
+    mTmpLits[j] = l;
+  }
+
   // - 重複したリテラルの除去
   // - false literal の除去
   // - true literal を持つかどうかのチェック
@@ -207,12 +230,22 @@ YmSat::add_clause(
     // unit clause があったら値の割り当てを行う．
     bool stat = check_and_assign(l0);
     if ( debug & debug_assign ) {
-      cout << "\tassign " << l0 << " @" << decision_level()
+      cout << "add_clause: (" << l0 << ")" << endl
+	   << "\tassign " << l0 << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
 	     << "\t    " << ~l0 << " was assigned at level "
 	     << decision_level(l0.varid()) << endl;
+      }
+    }
+
+    if ( stat ) {
+      // 今の割当に基づく含意を行う．
+      auto conflict = implication();
+      if ( conflict != Reason::None ) {
+	// 矛盾が起こった．
+	stat = false;
       }
     }
     if ( !stat ) {
@@ -221,9 +254,15 @@ YmSat::add_clause(
     return;
   }
 
+  ++ mConstrClauseNum;
+
   auto l1 = mTmpLits[1];
 
   if ( lit_num == 2 ) {
+    if ( debug & debug_assign ) {
+      cout << "add_clause: (" << l0 << " + " << l1 << ")" << endl;
+    }
+
     // watcher-list の設定
     add_watcher(~l0, Reason{l1});
     add_watcher(~l1, Reason{l0});
@@ -233,6 +272,11 @@ YmSat::add_clause(
   else {
     // 節の生成
     auto clause = new_clause(lit_num, mTmpLits);
+
+    if ( debug & debug_assign ) {
+      cout << "add_clause: " << (*clause) << endl;
+    }
+
     mConstrClauseList.push_back(clause);
 
     // watcher-list の設定
@@ -262,7 +306,7 @@ YmSat::add_learnt_clause()
       cout << "\tassign " << l0 << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
 	     << "\t    " << ~l0 << " was assigned at level "
 	     << decision_level(l0.varid()) << endl;
       }
@@ -276,11 +320,18 @@ YmSat::add_learnt_clause()
   Reason reason;
   auto l1 = mLearntLits[1];
   if ( n == 2 ) {
-    reason = Reason{l1};
+    if ( debug & debug_assign ) {
+      cout << "add_learnt_clause: "
+	   << "(" << l0 << " + " << l1 << ")" << endl
+	   << "\tassign " << l0 << " @" << decision_level()
+	   << " from (" << l0 << " + " << l1 << ")" << endl;
+    }
 
     // watcher-list の設定
     add_watcher(~l0, Reason{l1});
     add_watcher(~l1, Reason{l0});
+
+    reason = Reason{l1};
 
     ++ mLearntBinNum;
   }
@@ -291,6 +342,13 @@ YmSat::add_learnt_clause()
       mTmpLits[i] = mLearntLits[i];
     }
     auto clause = new_clause(n, true);
+
+    if ( debug & debug_assign ) {
+      cout << "add_learnt_clause: " << *clause << endl
+	   << "\tassign " << l0 << " @" << decision_level()
+	   << " from " << *clause << endl;
+    }
+
     mLearntClause.push_back(clause);
 
     reason = Reason{clause};
@@ -302,10 +360,6 @@ YmSat::add_learnt_clause()
 
   // learnt clause の場合には必ず unit clause になっているはず．
   ASSERT_COND( eval(l0) != SatBool3::False );
-  if ( debug & debug_assign ) {
-    cout << "\tassign " << l0 << " @" << decision_level()
-	 << " from " << reason << endl;
-  }
 
   assign(l0, reason);
 }
@@ -357,6 +411,7 @@ YmSat::solve(
     for ( auto clause: mConstrClauseList ) {
       cout << "  " << *(clause) << endl;
     }
+    cout << " VarNum: " << mVarNum << endl;
   }
 
   if ( mTimerOn ) {
@@ -377,7 +432,7 @@ YmSat::solve(
 
   // パラメータの初期化
   double confl_limit = 100;
-  double learnt_limit = mConstrClauseList.size() / 3;
+  double learnt_limit = mConstrClauseNum / 3.0;
   mVarHeap.set_decay(mParams.mVarDecay);
   mClauseDecay = mParams.mClauseDecay;
 
@@ -394,7 +449,7 @@ YmSat::solve(
 	   << "assume " << lit << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
 	     << "\t    " << ~lit << " was assigned at level "
 	     << decision_level(lit.varid()) << endl;
       }
@@ -431,7 +486,7 @@ YmSat::solve(
     for ( auto handler: mMsgHandlerList ) {
       handler->print_message(stats);
     }
-    ++ mRestart;
+
     stat = search();
     if ( stat != SatBool3::X ) {
       // 結果が求められた．
@@ -441,6 +496,8 @@ YmSat::solve(
       // 制限値に達した．(アボート)
       break;
     }
+
+    ++ mRestart;
 
     // 判定できなかったのでパラメータを更新して次のラウンドへ
     confl_limit = confl_limit * 1.5;
@@ -514,7 +571,7 @@ YmSat::get_stats() const
   SatStats stats;
   stats.mRestart = mRestart;
   stats.mVarNum = mVarNum;
-  stats.mConstrClauseNum = mConstrClauseList.size() + mConstrBinNum;
+  stats.mConstrClauseNum = mConstrClauseNum;
   stats.mConstrLitNum = mConstrLitNum;
   stats.mLearntClauseNum = mLearntClause.size() + mLearntBinNum;
   stats.mLearntLitNum = mLearntLitNum;
@@ -574,6 +631,7 @@ YmSat::search()
       if ( debug & debug_analyze ) {
 	cout << endl
 	     << "analyze for " << conflict << endl
+	     << endl
 	     << "learnt clause is ";
 	const char* plus = "";
 	for ( SizeType i = 0; i < mLearntLits.size(); ++ i ) {
@@ -619,8 +677,15 @@ YmSat::search()
       // 未割り当ての変数を選んでいるのでエラーになるはずはない．
       if ( debug & (debug_assign | debug_decision) ) {
 	cout << endl
-	     << "choose " << lit << " @" << decision_level() << endl;
+	     << "choose " << lit << " :"
+	     << mVarHeap.activity(lit.varid())
+	     << endl;
       }
+
+      if ( debug & debug_assign ) {
+	cout << "\tassign " << lit << " @" << decision_level() << endl;
+      }
+
       assign(lit);
     }
   }
@@ -654,17 +719,22 @@ YmSat::implication()
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
 	auto l0 = w.literal();
 	auto val0 = eval(l0);
+	if ( val0 == SatBool3::True ) {
+	  // すでに充足していた．
+	  continue;
+	}
+	if ( debug & debug_assign ) {
+	  cout << "\tassign " << l0 << " @" << decision_level()
+	       << " from (" << l0
+	       << " + " << ~l << "): " << l << endl;
+	}
 	if ( val0 == SatBool3::X ) {
-	  if ( debug & debug_assign ) {
-	    cout << "\tassign " << l0 << " @" << decision_level()
-		 << " from " << l << endl;
-	  }
 	  assign(l0, Reason{nl});
 	}
-	else if ( val0 == SatBool3::False ) {
+	else { // val0 == SatBool3::False
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
-	    cout << "\t--> conflict with previous assignment" << endl
+	    cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
 		 << "\t    " << ~l0 << " was assigned at level "
 		 << decision_level(l0.varid()) << endl;
 	  }
@@ -704,7 +774,7 @@ YmSat::implication()
 	}
 
 	if ( debug & debug_implication ) {
-	  cout << "\t\texamining watcher clause " << c << endl;
+	  cout << "\t\texamining watcher clause " << (*c) << endl;
 	}
 
 	// nl の替わりのリテラルを見つける．
@@ -739,17 +809,17 @@ YmSat::implication()
 	}
 
 	// 見付からなかったので l0 に従った割り当てを行う．
+	if ( debug & debug_assign ) {
+	  cout << "\tassign " << l0 << " @" << decision_level()
+	       << " from " << w << ": " << l << endl;
+	}
 	if ( val0 == SatBool3::X ) {
-	  if ( debug & debug_assign ) {
-	    cout << "\tassign " << l0 << " @" << decision_level()
-		 << " from " << w << endl;
-	  }
 	  assign(l0, w);
 	}
 	else {
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
-	    cout << "\t--> conflict with previous assignment" << endl
+	    cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
 		 << "\t    " << ~l0 << " was assigned at level "
 		 << decision_level(l0.varid()) << endl;
 	  }
@@ -824,13 +894,11 @@ YmSat::next_decision()
     if ( mVal[vindex] == conv_from_Bool3(SatBool3::X) ) {
       // Watcher の多い方の極性を(わざと)選ぶ
       auto v2 = vindex * 2;
-      auto dlit = Literal::conv_from_varid(vindex, false);
-      if ( mWatcherList[v2 + 0].num() >= mWatcherList[v2 + 1].num() ) {
-	return dlit;
+      bool inv = false;
+      if ( mWatcherList[v2 + 1].num() > mWatcherList[v2 + 0].num() ) {
+	inv = true;
       }
-      else {
-	return ~dlit;
-      }
+      return Literal::conv_from_varid(vindex, inv);
     }
   }
   return Literal::X;
@@ -928,6 +996,10 @@ YmSat::delete_clause(
 )
 {
   ASSERT_COND( clause->is_learnt() );
+
+  if ( debug & debug_assign ) {
+    cout << " delete_clause: " << (*clause) << endl;
+  }
 
   // watch list を更新
   del_watcher(~clause->wl0(), Reason{clause});

@@ -26,7 +26,14 @@ const Literal Literal::X;
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SatCore::SatCore()
+SatCore::SatCore(
+  const string& controller_type,
+  const string& analyzer_type,
+  const string& selecter_type,
+  const unordered_map<string, string>& selopt_dic
+) : mController{Controller::new_obj(*this, controller_type)},
+    mAnalyzer{Analyzer::new_obj(*this, analyzer_type)},
+    mSelecter{Selecter::new_obj(*this, selecter_type, selopt_dic)}
 {
   mMaxConflict = 1024 * 100;
 
@@ -60,33 +67,6 @@ SatCore::~SatCore()
   delete [] mWeightArray;
 #endif
   delete [] mTmpLits;
-}
-
-// @brief Controler をセットする．
-void
-SatCore::set_controller(
-  const string& option
-)
-{
-  mController = unique_ptr<Controller>{Controller::new_obj(*this, option)};
-}
-
-// @brief Analyzer をセットする．
-void
-SatCore::set_analyzer(
-  const string& option
-)
-{
-  mAnalyzer = unique_ptr<Analyzer>{Analyzer::new_obj(*this, option)};
-}
-
-// @brief Selecter をセットする．
-void
-SatCore::set_selecter(
-  const string& option
-)
-{
-  mSelecter = unique_ptr<Selecter>{Selecter::new_obj(*this, option)};
 }
 
 // @brief 変数を追加する．
@@ -279,10 +259,11 @@ SatCore::add_clause(
     bool stat = check_and_assign(l0);
 
     if ( debug & debug_assign ) {
-      cout << "\tassign " << l0 << " @" << decision_level()
+      cout << "add_clause: (" << l0 << ")" << endl
+	   << "\tassign " << l0 << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
 	     << "\t    " << ~l0 << " was assigned at level "
 	     << decision_level(l0.varid()) << endl;
       }
@@ -311,7 +292,7 @@ SatCore::add_clause(
 
   if ( lit_num == 2 ) {
     if ( debug & debug_assign ) {
-      cout << "add_clause: " << l0 << " + " << l1 << endl;
+      cout << "add_clause: (" << l0 << " + " << l1 << ")" << endl;
     }
 
     mConstrBinList.push_back(BinClause{l0, l1});
@@ -360,7 +341,7 @@ SatCore::add_learnt_clause(
       cout << "\tassign " << l0 << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum << " with previous assignment" << endl
 	     << "\t    " << ~l0 << " was assigned at level "
 	     << decision_level(l0.varid()) << endl;
       }
@@ -671,7 +652,7 @@ SatCore::solve(
 	   << "assume " << lit << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum << " with previous assignment" << endl
 	     << "\t    " << ~lit << " was assigned at level "
 	     << decision_level(lit.varid()) << endl;
       }
@@ -889,15 +870,19 @@ SatCore::implication()
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
 	auto l0 = w.literal();
 	auto val0 = eval(l0);
+	if ( val0 == SatBool3::True ) {
+	  // すでに充足していた．
+	  continue;
+	}
+	if ( debug & debug_assign ) {
+	  cout << "\tassign " << l0 << " @" << decision_level()
+	       << " from (" << l0
+	       << " + " << ~l << "): " << l << endl;
+	}
 	if ( val0 == SatBool3::X ) {
-	  if ( debug & debug_assign ) {
-	    cout << "\tassign " << l0 << " @" << decision_level()
-		 << " from (" << l0
-		 << " + " << ~l << "): " << l << endl;
-	  }
 	  assign(l0, Reason{nl});
 	}
-	else if ( val0 == SatBool3::False ) {
+	else { // val0 == SatBool3::False ) {
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
 	    cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
@@ -924,13 +909,21 @@ SatCore::implication()
 	auto c = w.clause();
 	auto l0 = c->wl0();
 	if ( l0 == nl ) {
+	  if ( eval(c->wl1()) == SatBool3::True ) {
+	    continue;
+	  }
 	  // nl を 1番めのリテラルにする．
 	  c->xchange_wl();
 	  // 新しい wl0 を得る．
 	  l0 = c->wl0();
 	}
 	else { // l1 == nl
-	  ASSERT_COND( c->wl1() == nl );
+	  if ( debug & debug_implication ) {
+	    // この assert は重いのでデバッグ時にしかオンにしない．
+	    // ※ debug と debug_implication が const なので結果が0の
+	    // ときにはコンパイル時に消されることに注意
+	    ASSERT_COND(c->wl1() == nl );
+	  }
 	}
 
 	auto val0 = eval(l0);
@@ -950,7 +943,8 @@ SatCore::implication()
 	SizeType n = c->lit_num();
 	for ( SizeType i: Range(2, n) ) {
 	  auto l2 = c->lit(i);
-	  if ( eval(l2) != SatBool3::False ) {
+	  auto v = eval(l2);
+	  if ( v != SatBool3::False ) {
 	    // l2 を 1番めの watch literal にする．
 	    c->xchange_wl1(i);
 	    if ( debug & debug_implication ) {
@@ -960,7 +954,7 @@ SatCore::implication()
 	    // l の watcher list から取り除く
 	    -- wpos;
 	    // ~l2 の watcher list に追加する．
-	    watcher_list(~l2).add(Watcher(w));
+	    add_watcher(~l2, w);
 
 	    found = true;
 	    break;
@@ -975,11 +969,11 @@ SatCore::implication()
 	}
 
 	// 見付からなかったので l0 に従った割り当てを行う．
+	if ( debug & debug_assign ) {
+	  cout << "\tassign " << l0 << " @" << decision_level()
+	       << " from " << w << ": " << l << endl;
+	}
 	if ( val0 == SatBool3::X ) {
-	  if ( debug & debug_assign ) {
-	    cout << "\tassign " << l0 << " @" << decision_level()
-		 << " from " << w << ": " << l << endl;
-	  }
 	  assign(l0, w);
 	}
 	else {

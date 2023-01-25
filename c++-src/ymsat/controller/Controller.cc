@@ -17,16 +17,16 @@ BEGIN_NAMESPACE_YM_SAT
 Controller*
 Controller::new_obj(
   SatCore& core,
-  const string& option
+  const string& type
 )
 {
-  if ( option == "minisat1" ) {
+  if ( type == "minisat1" ) {
     return new ControllerMS1{core};
   }
-  if ( option == "minisat2" ) {
+  if ( type == "minisat2" ) {
     return new ControllerMS2{core};
   }
-  cerr << option << ": Unknown type, ignored." << endl;
+  cerr << type << ": Unknown type, ignored." << endl;
   return new ControllerMS2{core};
 }
 

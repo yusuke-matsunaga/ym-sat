@@ -33,34 +33,15 @@ class SatCore :
 public:
 
   /// @brief コンストラクタ
-  SatCore();
+  SatCore(
+    const string& controller_type, ///< [in] Controller のタイプを表す文字列
+    const string& analyzer_type, ///< [in] Analyzer のタイプを表す文字列
+    const string& selecter_type, ///< [in] Selecter のタイプを表す文字列
+    const unordered_map<string, string>& selopt_dic ///< [in] オプション文字列を格納した辞書
+  );
 
   /// @brief デストラクタ
   ~SatCore();
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // パーツの設定
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief Controler をセットする．
-  void
-  set_controller(
-    const string& option ///< [in] オプション文字列
-  );
-
-  /// @brief Analyzer をセットする．
-  void
-  set_analyzer(
-    const string& option ///< [in] オプション文字列
-  );
-
-  /// @brief Selecter をセットする．
-  void
-  set_selecter(
-    const string& option ///< [in] オプション文字列
-  );
 
 
 public:
@@ -879,10 +860,10 @@ private:
   AssignList mAssignList;
 
   // 前回の sweep 時の割り当て数
-  SizeType mSweep_assigns;
+  int mSweep_assigns;
 
   // 前回の sweep 時のリテラル数
-  SizeType mSweep_props;
+  int mSweep_props;
 
   // add_clause で一時的に利用するリテラル配列
   Literal* mTmpLits{nullptr};
@@ -965,14 +946,14 @@ private:
 
   static
   //const ymuint debug = debug_decision | debug_analyze | debug_assign;
-  const ymuint debug = debug_assign;
+  //const ymuint debug = debug_assign;
   //const ymuint debug = debug_assign | debug_implication;
   //const ymuint debug = debug_assign | debug_analyze;
   //const ymuint debug = debug_solve | debug_decision | debug_implication;
   //const ymuint debug = debug_solve | debug_decision;
   //const ymuint debug = debug_solve | debug_assign;
   //const ymuint debug = debug_all;
-  //const ymuint debug = debug_none;
+  const ymuint debug = debug_none;
 
 };
 

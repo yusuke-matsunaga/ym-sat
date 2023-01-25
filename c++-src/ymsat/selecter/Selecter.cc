@@ -107,13 +107,14 @@ END_NONAMESPACE
 Selecter*
 Selecter::new_obj(
   SatCore& core,
-  const string& option
+  const string& type,
+  const unordered_map<string, string>& opt_dic
 )
 {
-  auto opt_dict = parse_option(option);
+  //auto opt_dict = parse_option(option);
   double var_freq = 0.0;
-  if ( opt_dict.count("var_freq") > 0 ) {
-    auto val_str = opt_dict.at("var_freq");
+  if ( opt_dic.count("var_freq") > 0 ) {
+    auto val_str = opt_dic.at("var_freq");
     try {
       var_freq = std::stod(val_str);
     }
@@ -123,12 +124,8 @@ Selecter::new_obj(
     }
   }
   bool phase_cache = false;
-  if ( opt_dict.count("phase_cache") > 0 ) {
+  if ( opt_dic.count("phase_cache") > 0 ) {
     phase_cache = true;
-  }
-  string type;
-  if ( opt_dict.count("type") > 0 ) {
-    type = opt_dict.at("type");
   }
   if ( type == "wlposi" ) {
     return new SelWlPosi{core, var_freq, phase_cache};

@@ -11,6 +11,12 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
+BEGIN_NONAMESPACE
+
+static bool debug = false;
+
+END_NONAMESPACE
+
 //////////////////////////////////////////////////////////////////////
 // VarHeap
 //////////////////////////////////////////////////////////////////////
@@ -71,6 +77,9 @@ VarHeap::bump_var_activity(
   SatVarId varid
 )
 {
+  if ( debug ) {
+    cout << "VarHeap::bump_var_activity(" << varid << ")" << endl;
+  }
   double& act = mActivity[varid];
   act += mVarBump;
   if ( act > 1e+100 ) {
@@ -90,6 +99,9 @@ VarHeap::bump_var_activity(
 void
 VarHeap::decay_var_activity()
 {
+  if ( debug ) {
+    cout << "VarHeap::decay_var_activity()" << endl;
+  }
   mVarBump *= (1 / mVarDecay);
 }
 
@@ -97,6 +109,9 @@ VarHeap::decay_var_activity()
 void
 VarHeap::reset_activity()
 {
+  if ( debug ) {
+    cout << "VarHeap::reset_activity()" << endl;
+  }
   for ( SizeType i = 0; i < mVarSize; ++ i ) {
     mActivity[i] = 0.0;
   }
@@ -108,6 +123,13 @@ VarHeap::build(
   const vector<SatVarId>& var_list
 )
 {
+  if ( debug ) {
+    cout << "VarHeap::build(";
+    for ( auto var: var_list ) {
+      cout << " " << var;
+    }
+    cout << ")" << endl;
+  }
   for ( SizeType i = 0; i < mVarSize; ++ i ) {
     mHeapPos[i] = -1;
   }

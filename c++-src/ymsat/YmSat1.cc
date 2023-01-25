@@ -7,9 +7,6 @@
 /// All rights reserved.
 
 #include "YmSat1.h"
-#include "Controller.h"
-#include "Analyzer.h"
-#include "Selecter.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
