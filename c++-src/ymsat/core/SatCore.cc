@@ -407,20 +407,6 @@ SatCore::add_learnt_clause(
   assign(l0, reason);
 }
 
-// @brief 新しい節を生成する．
-Clause*
-SatCore::new_clause(
-  SizeType lit_num,
-  bool learnt
-)
-{
-  SizeType size = sizeof(Clause) + sizeof(Literal) * (lit_num - 1);
-  auto p = new char[size];
-  auto clause = new (p) Clause{lit_num, mTmpLits, learnt};
-
-  return clause;
-}
-
 // CNF を簡単化する．
 void
 SatCore::reduce_CNF()
@@ -499,20 +485,6 @@ SatCore::sweep_clause(
   if ( wpos != n ) {
     clause_list.erase(clause_list.begin() + wpos, clause_list.end());
   }
-}
-
-// @brief clase が含意の理由になっているか調べる．
-bool
-SatCore::is_locked(
-  Clause* clause
-) const
-{
-  // 直感的には分かりにくいが，節の最初のリテラルは
-  // 残りのリテラルによって含意されていることになっている．
-  // そこで最初のリテラルの変数の割り当て理由が自分自身か
-  // どうかを調べれば clause が割り当て理由として用いられて
-  // いるかわかる．
-  return reason(clause->wl0().varid()) == Reason{clause};
 }
 
 // 使われていない学習節を削除する．
@@ -650,46 +622,12 @@ SatCore::solve(
     goto end;
   }
 
-  // assumption の割り当てを行う．
+  // assumption を Literal に変換する．
+  mAssumptions.clear();
+  mAssumptions.reserve(assumptions.size());
   for ( auto l: assumptions ) {
-    set_marker();
     auto lit = Literal{l};
-    bool stat = check_and_assign(lit);
-
-    if ( debug & (debug_assign | debug_decision) ) {
-      cout << endl
-	   << "assume " << lit << " @" << decision_level()
-	   << endl;
-      if ( !stat )  {
-	cout << "\t--> conflict(#" << mConflictNum << " with previous assignment" << endl
-	     << "\t    " << ~lit << " was assigned at level "
-	     << decision_level(lit.varid()) << endl;
-      }
-    }
-
-    if ( stat ) {
-      // 今の割当に基づく含意を行う．
-      auto reason = implication();
-      if ( reason != Reason::None ) {
-	// 矛盾が起こった．
-	stat = false;
-      }
-    }
-
-    if ( !stat ) {
-      // 矛盾が起こった．
-      backtrack(0);
-      sat_stat = SatBool3::False;
-      goto end;
-    }
-  }
-
-  // 以降，現在のレベルが基底レベルとなる．
-  {
-    int root_level = decision_level();
-    if ( debug & (debug_assign | debug_decision) ) {
-      cout << "RootLevel = " << root_level << endl;
-    }
+    mAssumptions.push_back(lit);
   }
 
   // 探索の本体
@@ -700,21 +638,21 @@ SatCore::solve(
     // メッセージ出力を行う．
     print_stats();
 
-    if ( sat_stat != SatBool3::X ) {
-      // 結果が求められた．
-      break;
-    }
-
-    if ( !go_on() || !check_budget() ) {
-      // 制限値に達した．(アボート)
-      break;
-    }
-
     if ( debug & debug_assign ) {
       cout << "restart" << endl;
     }
 
+    if ( !check_budget() ) {
+      // 制限値に達した．(アボート)
+      break;
+    }
+
     ++ mRestartNum;
+
+    if ( sat_stat != SatBool3::X ) {
+      // 結果が求められた．
+      break;
+    }
 
     mController->_update_on_restart(restart_num());
   }
@@ -757,8 +695,6 @@ SatBool3
 SatCore::search(
 )
 {
-  int root_level = decision_level();
-
   SizeType cur_confl_num = 0;
   for ( ; ; ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
@@ -767,7 +703,7 @@ SatCore::search(
       // 矛盾が生じた．
       ++ mConflictNum;
       ++ cur_confl_num;
-      if ( decision_level() == root_level ) {
+      if ( decision_level() == 0 ) {
 	// トップレベルで矛盾が起きたら充足不可能
 	return SatBool3::False;
       }
@@ -790,9 +726,6 @@ SatCore::search(
       }
 
       // バックトラック
-      if ( bt_level < root_level ) {
-	bt_level = root_level;
-      }
       backtrack(bt_level);
 
       // 学習節の生成
@@ -807,9 +740,9 @@ SatCore::search(
       continue;
     }
 
-    if ( !mGoOn || cur_confl_num >= conflict_limit() || !check_budget() ) {
+    if ( cur_confl_num >= conflict_limit() || !check_budget() ) {
       // 矛盾の回数が制限値を越えた．
-      backtrack(root_level);
+      backtrack(0);
       return SatBool3::X;
     }
 
@@ -825,31 +758,52 @@ SatCore::search(
     }
 
     // 次の割り当てを選ぶ．
-    auto lit = mSelecter->next_decision();
-    if ( !lit.is_valid() ) {
-      // すべての変数を割り当てた．
-      // ということは充足しているはず．
-      return SatBool3::True;
+    auto next_lit = Literal::X;
+    while ( decision_level() < mAssumptions.size() ) {
+      // assumption の割当を行う．
+      auto p = mAssumptions[decision_level()];
+      auto val = eval(p);
+      if ( val == SatBool3::True ) {
+	// すでに値が決まっていた．
+	set_marker();
+      }
+      else if ( val == SatBool3::False ) {
+	// 矛盾が生じた
+	return SatBool3::False;
+      }
+      else { // val == SatBool3::X
+	next_lit = p;
+	break;
+      }
     }
-    ++ mDecisionNum;
+    if ( next_lit == Literal::X ) {
+      next_lit = mSelecter->next_decision();
+      if ( !next_lit.is_valid() ) {
+	// すべての変数を割り当てた．
+	// ということは充足しているはず．
+	return SatBool3::True;
+      }
+
+      ++ mDecisionNum;
+
+      if ( debug & (debug_assign | debug_decision) ) {
+	cout << endl
+	     << "choose " << next_lit << " :"
+	     << mVarHeap.activity(next_lit.varid())
+	     << endl;
+      }
+    }
 
     // バックトラックポイントを記録
     set_marker();
 
-    if ( debug & (debug_assign | debug_decision) ) {
-      cout << endl
-	   << "choose " << lit << " :"
-	   << mVarHeap.activity(lit.varid())
-	   << endl;
-    }
-
     if ( debug & debug_assign ) {
-      cout << "\tassign " << lit << " @" << decision_level() << endl;
+      cout << "\tassign " << next_lit << " @" << decision_level() << endl;
     }
 
     // 選ばれたリテラルに基づいた割当を行う．
     // 未割り当ての変数を選んでいるのでエラーになるはずはない．
-    assign(lit);
+    assign(next_lit);
   }
 }
 
@@ -907,7 +861,7 @@ SatCore::implication()
 
 	  // 矛盾の理由を表す節を作る．
 	  mTmpBinClause->set(l0, nl);
-	  conflict = Reason(mTmpBinClause);
+	  conflict = Reason{mTmpBinClause};
 	  break;
 	}
       }
@@ -930,12 +884,14 @@ SatCore::implication()
 	  l0 = c->wl0();
 	}
 	else { // l1 == nl
+#if 0
 	  if ( debug & debug_implication ) {
 	    // この assert は重いのでデバッグ時にしかオンにしない．
 	    // ※ debug と debug_implication が const なので結果が0の
 	    // ときにはコンパイル時に消されることに注意
 	    ASSERT_COND(c->wl1() == nl );
 	  }
+#endif
 	}
 
 	auto val0 = eval(l0);
@@ -953,7 +909,7 @@ SatCore::implication()
 	// は問題でない．
 	bool found = false;
 	SizeType n = c->lit_num();
-	for ( SizeType i: Range(2, n) ) {
+	for ( SizeType i = 2; i < n; ++ i ) {
 	  auto l2 = c->lit(i);
 	  auto v = eval(l2);
 	  if ( v != SatBool3::False ) {
@@ -1103,21 +1059,6 @@ SatCore::del_satisfied_watcher(
     ++ wpos;
   }
   wlist.erase(wpos);
-}
-
-// @brief 次に割り当てる変数を取り出す．
-//
-// アクティビティが最大で未割り当ての変数を返す．
-SatVarId
-SatCore::next_var()
-{
-  while ( !empty() ) {
-    auto dvar = pop_top();
-    if ( eval(dvar) == SatBool3::X ) {
-      return dvar;
-    }
-  }
-  return BAD_SATVARID;
 }
 
 // 学習節のアクティビティを増加させる．

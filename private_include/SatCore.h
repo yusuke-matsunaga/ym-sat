@@ -11,6 +11,7 @@
 #include "ym/sat.h"
 #include "SatSolverImpl.h"
 #include "ym/SatBool3.h"
+#include "Clause.h"
 #include "Reason.h"
 #include "AssignList.h"
 #include "Watcher.h"
@@ -368,12 +369,6 @@ public:
     return mReason[var];
   }
 
-  /// @brief 次に割り当てる変数を取り出す．
-  ///
-  /// アクティビティが最大で未割り当ての変数を返す．
-  SatVarId
-  next_var();
-
   /// @brief 停止する．
   void
   stop() override
@@ -618,13 +613,6 @@ private:
     int level ///< [in] バックトラックするレベル
   );
 
-  /// @brief 動作フラグを得る．
-  bool
-  go_on() const
-  {
-    return mGoOn;
-  }
-
   /// @brief mTmpLits を確保する．
   void
   alloc_lits(
@@ -638,7 +626,14 @@ private:
   new_clause(
     SizeType lit_num,   ///< [in] リテラル数
     bool learnt = false ///< [in] 学習節のとき true とするフラグ
-  );
+  )
+  {
+    SizeType size = sizeof(Clause) + sizeof(Literal) * (lit_num - 1);
+    auto p = new char[size];
+    auto clause = new (p) Clause{lit_num, mTmpLits, learnt};
+
+    return clause;
+  }
 
   /// @brief 節を削除する．
   void
@@ -669,7 +664,15 @@ private:
   bool
   is_locked(
     Clause* clause ///< [in] 対象の節
-  ) const;
+  ) const
+  {
+    // 直感的には分かりにくいが，節の最初のリテラルは
+    // 残りのリテラルによって含意されていることになっている．
+    // そこで最初のリテラルの変数の割り当て理由が自分自身か
+    // どうかを調べれば clause が割り当て理由として用いられて
+    // いるかわかる．
+    return reason(clause->wl0().varid()) == Reason{clause};
+  }
 
   /// @brief 変数に関する配列を拡張する．
   void
@@ -722,8 +725,9 @@ private:
   bool
   check_budget()
   {
-    return (mConflictBudget == 0 || mConflictNum < mConflictBudget)
-      && (mPropagationBudget == 0 || mPropagationNum < mPropagationBudget);
+    return mGoOn &&
+      (mConflictBudget == 0 || mConflictNum < mConflictBudget) &&
+      (mPropagationBudget == 0 || mPropagationNum < mPropagationBudget);
   }
 
   /// @brief mVal[] で用いているエンコーディングを SatBool3 に変換する．
@@ -834,6 +838,9 @@ private:
 
   // 正常の時に true となっているフラグ
   bool mSane{true};
+
+  // assumption の配列
+  vector<Literal> mAssumptions;
 
   // 制約節の配列
   vector<Clause*> mConstrClauseList;
