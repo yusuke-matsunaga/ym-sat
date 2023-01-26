@@ -7,8 +7,7 @@
 /// All rights reserved.
 
 #include "ym/SatSolverType.h"
-#include "ymsat/YmSatMS2.h"
-#include "ymsat/YmSat1.h"
+#include "SatCore.h"
 #include "ymsat1/YmSat.h"
 #include "MiniSat/SatSolverMiniSat.h"
 #include "MiniSat2/SatSolverMiniSat2.h"
