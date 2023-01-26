@@ -1005,31 +1005,6 @@ SatCore::backtrack(
   }
 }
 
-// @brief watcher を削除する．
-void
-SatCore::del_watcher(
-  Literal watch_lit,
-  Reason reason)
-{
-  auto w0 = reason;
-  auto& wlist = watcher_list(watch_lit);
-  SizeType n = wlist.num();
-  SizeType wpos = 0;
-  for ( ; wpos < n; ++ wpos) {
-    auto w = wlist.elem(wpos);
-    if ( w == w0 ) {
-      break;
-    }
-  }
-  ASSERT_COND( wpos < n );
-  -- n;
-  for ( ; wpos < n; ++ wpos) {
-    auto w = wlist.elem(wpos + 1);
-    wlist.set_elem(wpos, w);
-  }
-  wlist.erase(n);
-}
-
 // @brief 充足された watcher を削除する．
 void
 SatCore::del_satisfied_watcher(

@@ -90,13 +90,33 @@ public:
     ++ mNum;
   }
 
+  /// @brief 要素を削除する．
+  ///
+  /// 線形走査を行っている．
+  void
+  del(
+    Watcher elem
+  )
+  {
+    SizeType pos = 0;
+    for ( ; pos < mNum; ++ pos ) {
+      auto w = mArray[pos];
+      if ( w == elem ) {
+	break;
+      }
+    }
+    -- mNum;
+    for ( ; pos < mNum; ++ pos ) {
+      mArray[pos] = mArray[pos + 1];
+    }
+  }
+
   /// @brief pos 番目の要素を返す．
   Watcher
   elem(
     SizeType pos ///< [in] 位置
   ) const
   {
-    ASSERT_COND( pos < mNum );
     return mArray[pos];
   }
 
@@ -107,7 +127,6 @@ public:
     Watcher elem  ///< [in] 要素
   )
   {
-    ASSERT_COND( pos < mSize );
     mArray[pos] = elem;
   }
 

@@ -132,8 +132,6 @@ public:
   SatVarId
   pop_top()
   {
-    ASSERT_COND(mHeapNum > 0 );
-
     auto ans = mHeap[0];
     mHeapPos[ans] = -1;
     -- mHeapNum;

@@ -85,7 +85,6 @@ public:
     Literal lit ///< [in] リテラル
   )
   {
-    ASSERT_COND( mTail < mSize );
     mList[mTail ++] = lit;
   }
 
@@ -138,7 +137,6 @@ public:
     SizeType pos ///< [in] 読み出す位置
   ) const
   {
-    ASSERT_COND( pos < mSize );
     return mList[pos];
   }
 
@@ -159,7 +157,6 @@ public:
   void
   set_marker()
   {
-    ASSERT_COND( mCurLevel < mSize );
     mMarker[mCurLevel ++] = mTail;
   }
 
@@ -172,7 +169,6 @@ public:
     int level ///< [in] 対象のレベル
   )
   {
-    ASSERT_COND( level < static_cast<int>(mSize) );
     mHead = mMarker[level];
     mCurLevel = level;
   }

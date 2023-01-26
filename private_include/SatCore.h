@@ -120,7 +120,6 @@ public:
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < clause_num() )
   ) const
   {
-    ASSERT_COND( pos >= 0 && pos < clause_num() );
     return mConstrClauseList[pos];
   }
 
@@ -132,7 +131,6 @@ public:
     Literal& lit1  ///< [out] リテラル1
   ) const
   {
-    ASSERT_COND( pos >= 0 && pos < bin_clause_num() );
     lit0 = mConstrBinList[pos].mLit0;
     lit1 = mConstrBinList[pos].mLit1;
   }
@@ -143,7 +141,6 @@ public:
     SizeType pos ///< [in] 位置番号 ( 0 <= pos < unit_clause_num() )
   ) const
   {
-    ASSERT_COND( pos >= 0 && pos < unit_clause_num() );
     return mConstrUnitList[pos];
   }
 
@@ -198,7 +195,6 @@ public:
   )
   {
     auto index = lit.index();
-    ASSERT_COND( index >= 0 && index < mVarNum * 2 );
     return mWatcherList[index];
   }
 
@@ -209,7 +205,9 @@ public:
     Reason reason ///< [in] 理由
   )
   {
-    watcher_list(lit).add(Watcher{reason});
+    auto w0 = Watcher{reason};
+    auto& wlist = watcher_list(lit);
+    wlist.add(w0);
   }
 
   /// @brief watcher を削除する．
@@ -217,7 +215,12 @@ public:
   del_watcher(
     Literal lit,  ///< [in] リテラル
     Reason reason ///< [in] 理由
-  );
+  )
+  {
+    auto w0 = Watcher{reason};
+    auto& wlist = watcher_list(lit);
+    wlist.del(w0);
+  }
 
   /// @brief 充足された watcher を削除する．
   void
@@ -237,7 +240,6 @@ public:
     int var ///< [in] 変数番号
   ) const
   {
-    ASSERT_COND( var >= 0 && var < mVarNum );
     ymuint8 x = mVal[var] & 3U;
     return conv_to_Bool3(x);
   }
@@ -253,7 +255,6 @@ public:
   {
     auto index = lit.index();
     int vindex = index >> 1;
-    ASSERT_COND( vindex >= 0 && vindex < mVarNum );
     int x = mVal[vindex] & 3U;
     int inv = index & 1U;
     int d = 1 - (inv * 2);
@@ -266,7 +267,6 @@ public:
     SatVarId var ///< [in] 変数番号
   ) const
   {
-    ASSERT_COND( var >= 0 && var < mVarNum );
     ymuint8 x = ((mVal[var] >> 2)) & 3U;
     return conv_to_Bool3(x);
   }
@@ -282,7 +282,6 @@ public:
     int vindex = lindex / 2;
     int inv = lindex & 1U;
     ymuint8 x = 2 - inv * 2;
-    ASSERT_COND( vindex >= 0 && vindex < mVarNum );
     mVal[vindex] = x | (conv_from_Bool3(SatBool3::X) << 2);
     mDecisionLevel[vindex] = decision_level();
     mReason[vindex] = reason;
@@ -338,7 +337,6 @@ public:
     SatVarId var ///< [in] 変数番号
   ) const
   {
-    ASSERT_COND( var >= 0 && var < mVarNum );
     return mDecisionLevel[var];
   }
 
@@ -365,7 +363,6 @@ public:
     SatVarId var ///< [in] 変数番号
   ) const
   {
-    ASSERT_COND( var >= 0 && var < mVarNum );
     return mReason[var];
   }
 
