@@ -668,6 +668,18 @@ SatCore::solve(
       }
     }
   }
+  else if ( sat_stat == SatBool3::False ) {
+    // UNSAt なら矛盾の原因を作る．
+    conflicts.clear();
+    SizeType n = mConflicts.size();
+    conflicts.reserve(n);
+    for ( auto l: mConflicts ) {
+      SatVarId vid = l.varid();
+      bool inv = l.is_negative();
+      conflicts.push_back(get_lit(vid, inv));
+    }
+  }
+
   // 最初の状態に戻す．
   backtrack(0);
 
@@ -692,8 +704,7 @@ SatCore::solve(
 
 // @brief 探索を行う本体の関数
 SatBool3
-SatCore::search(
-)
+SatCore::search()
 {
   SizeType cur_confl_num = 0;
   for ( ; ; ) {
@@ -769,6 +780,7 @@ SatCore::search(
       }
       else if ( val == SatBool3::False ) {
 	// 矛盾が生じた
+	analyze_final(~p);
 	return SatBool3::False;
       }
       else { // val == SatBool3::X
@@ -804,6 +816,53 @@ SatCore::search(
     // 選ばれたリテラルに基づいた割当を行う．
     // 未割り当ての変数を選んでいるのでエラーになるはずはない．
     assign(next_lit);
+  }
+}
+
+// @brief 矛盾の原因を求める．
+void
+SatCore::analyze_final(
+  Literal p
+)
+{
+  mConflicts.clear();
+  mConflicts.push_back(p);
+
+  if ( decision_level() == 0 ) {
+    return;
+  }
+
+  unordered_set<SatVarId> mark;
+  mark.emplace(p.varid());
+
+  for ( SizeType pos = mAssignList.size(); pos > 0; ) {
+    -- pos;
+    auto l = mAssignList.get(pos);
+    auto v = l.varid();
+    if ( mark.count(v) > 0 ) {
+      auto r = reason(v);
+      if ( r == Reason::None ) {
+	mConflicts.push_back(~l);
+      }
+      else if ( r.is_literal() ) {
+	auto l1 = r.literal();
+	auto v1 = l1.varid();
+	if ( decision_level(v1) > 0 ) {
+	  mark.emplace(v1);
+	}
+      }
+      else {
+	auto c = r.clause();
+	SizeType n = c->lit_num();
+	for ( SizeType i = 0; i < n; ++ i ) {
+	  auto v1 = c->lit(i).varid();
+	  if ( decision_level(v1) > 0 ) {
+	    mark.emplace(v1);
+	  }
+	}
+      }
+      mark.erase(v);
+    }
   }
 }
 

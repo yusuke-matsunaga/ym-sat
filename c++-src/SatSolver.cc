@@ -103,6 +103,10 @@ SatSolver::solve(
     signal(SIGALRM, old_func);
   }
 
+  if ( stat == SatBool3::False ) {
+    sort(mConflictLiterals.begin(), mConflictLiterals.end());
+  }
+
   return stat;
 }
 

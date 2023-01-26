@@ -586,7 +586,14 @@ private:
   /// 内部で reduce_learnt_clause() を呼んでいるので学習節が
   /// 削減される場合もある．
   SatBool3
-  search(
+  search();
+
+  /// @brief 矛盾の原因を求める．
+  ///
+  /// 結果は mConflicts に格納する．
+  void
+  analyze_final(
+    Literal p ///< [in] 直接の原因となっているリテラル
   );
 
   /// @brief バックトラック用のマーカーをセットする．
@@ -924,6 +931,9 @@ private:
   // 動作フラグ
   bool mGoOn{false};
 
+  // 矛盾の原因となっているリテラルのリスト
+  vector<Literal> mConflicts;
+
   // リスタート回数
   SizeType mRestartNum{0};
 
@@ -962,7 +972,7 @@ private:
   Duration mAccTime;
 
   // メッセージハンドラのリスト
-  list<SatMsgHandler*> mMsgHandlerList;
+  vector<SatMsgHandler*> mMsgHandlerList;
 
 
 private:
