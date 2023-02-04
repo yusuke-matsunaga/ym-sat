@@ -6,11 +6,11 @@
 /// Copyright (C) 2022 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/PySatSolver.h"
-#include "ym/PySatBool3.h"
-#include "ym/PySatLiteral.h"
+#include "pym/PySatSolver.h"
+#include "pym/PySatBool3.h"
+#include "pym/PySatLiteral.h"
+#include "pym/PyModule.h"
 #include "ym/SatSolverType.h"
-#include "ym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM

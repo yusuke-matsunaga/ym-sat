@@ -1,8 +1,8 @@
-#ifndef PY_YMSAT_H
-#define PY_YMSAT_H
+#ifndef PYM_YMSAT_H
+#define PYM_YMSAT_H
 
-/// @file py_ymsat.h
-/// @brief py_ymsat のヘッダファイル
+/// @file ymsat.h
+/// @brief ymsat の初期化関数のエクスポート
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2023 Yusuke Matsunaga
@@ -18,4 +18,4 @@ extern "C" PyObject* PyInit_ymsat();
 
 END_NAMESPACE_YM
 
-#endif // PY_YMSAT_H
+#endif // PYM_YMSAT_H

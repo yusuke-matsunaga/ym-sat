@@ -6,8 +6,8 @@
 /// Copyright (C) 2022, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "ym/PySatBool3.h"
-#include "ym/PyModule.h"
+#include "pym/PySatBool3.h"
+#include "pym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM

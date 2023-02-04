@@ -9,11 +9,10 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include "ym/sat.h"
-#include "ym/PySatBool3.h"
-#include "ym/PySatLiteral.h"
-#include "ym/PySatSolver.h"
-#include "ym/PyModule.h"
+#include "pym/PySatBool3.h"
+#include "pym/PySatLiteral.h"
+#include "pym/PySatSolver.h"
+#include "pym/PyModule.h"
 
 
 BEGIN_NAMESPACE_YM
