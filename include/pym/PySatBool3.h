@@ -37,17 +37,6 @@ public:
     PyObject* m ///< [in] 親のモジュールを表す PyObject
   );
 
-  /// @brief SatBool3 を表す PyObject から SatBool3 を取り出す．
-  /// @return 変換が成功したら true を返す．
-  ///
-  /// エラーの場合にはPython例外がセットされる．
-  static
-  bool
-  FromPyObject(
-    PyObject* obj, ///< [in] SatBool3 を表す PyObject
-    SatBool3& val  ///< [out] 変換された SatBool3 を格納する変数
-  );
-
   /// @brief SatBool3 を表す PyObject を作る．
   /// @return 生成した PyObject を返す．
   ///
@@ -61,17 +50,17 @@ public:
   /// @brief PyObject が SatBool3 タイプか調べる．
   static
   bool
-  _check(
+  Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
   /// @brief SatBool3 を表す PyObject から SatBool3 を取り出す．
   /// @return SatBool3 を返す．
   ///
-  /// _check(obj) == true であると仮定している．
+  /// Check(obj) == true であると仮定している．
   static
   SatBool3
-  _get(
+  Get(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 

@@ -57,7 +57,7 @@ SatLiteral_is_valid(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto lit = PySatLiteral::_get(self);
+  auto lit = PySatLiteral::Get(self);
   auto v = lit.is_valid();
   return PyBool_FromLong(v);
 }
@@ -69,7 +69,7 @@ SatLiteral_is_positive(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto lit = PySatLiteral::_get(self);
+  auto lit = PySatLiteral::Get(self);
   auto v = lit.is_positive();
   return PyBool_FromLong(v);
 }
@@ -81,7 +81,7 @@ SatLiteral_is_negative(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto lit = PySatLiteral::_get(self);
+  auto lit = PySatLiteral::Get(self);
   auto v = lit.is_negative();
   return PyBool_FromLong(v);
 }
@@ -93,7 +93,7 @@ SatLiteral_make_positive(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto lit = PySatLiteral::_get(self);
+  auto lit = PySatLiteral::Get(self);
   auto ans = lit.make_positive();
   return PySatLiteral::ToPyObject(ans);
 }
@@ -105,7 +105,7 @@ SatLiteral_make_negative(
   PyObject* Py_UNUSED(args)
 )
 {
-  auto lit = PySatLiteral::_get(self);
+  auto lit = PySatLiteral::Get(self);
   auto ans = lit.make_negative();
   return PySatLiteral::ToPyObject(ans);
 }
@@ -133,10 +133,10 @@ SatLiteral_richcmpfunc(
   int op
 )
 {
-  if ( PySatLiteral::_check(self) &&
-       PySatLiteral::_check(other) ) {
-    auto val1 = PySatLiteral::_get(self);
-    auto val2 = PySatLiteral::_get(other);
+  if ( PySatLiteral::Check(self) &&
+       PySatLiteral::Check(other) ) {
+    auto val1 = PySatLiteral::Get(self);
+    auto val2 = PySatLiteral::Get(other);
     if ( op == Py_EQ ) {
       return PyBool_FromLong(val1 == val2);
     }
@@ -154,8 +154,8 @@ SatLiteral_invert(
   PyObject* self
 )
 {
-  if ( PySatLiteral::_check(self) ) {
-    auto val = PySatLiteral::_get(self);
+  if ( PySatLiteral::Check(self) ) {
+    auto val = PySatLiteral::Get(self);
     return PySatLiteral::ToPyObject(~val);
   }
   Py_RETURN_NOTIMPLEMENTED;
@@ -168,9 +168,9 @@ SatLiteral_mul(
   PyObject* other
 )
 {
-  if ( PySatLiteral::_check(self) &&
+  if ( PySatLiteral::Check(self) &&
        PyBool_Check(other) ) {
-    auto val1 = PySatLiteral::_get(self);
+    auto val1 = PySatLiteral::Get(self);
     auto val2 = PyObject_IsTrue(other);
     return PySatLiteral::ToPyObject(val1 * val2);
   }
@@ -190,7 +190,7 @@ SatLiteral_hash(
   PyObject* self
 )
 {
-  auto lit = PySatLiteral::_get(self);
+  auto lit = PySatLiteral::Get(self);
   return lit.hash();
 }
 
@@ -201,7 +201,7 @@ SatLiteral_varid(
   void* Py_UNUSED(closure)
 )
 {
-  auto lit = PySatLiteral::_get(self);
+  auto lit = PySatLiteral::Get(self);
   int v = lit.varid();
   return PyLong_FromLong(v);
 }
@@ -213,7 +213,7 @@ SatLiteral_index(
   void* Py_UNUSED(closure)
 )
 {
-  auto lit = PySatLiteral::_get(self);
+  auto lit = PySatLiteral::Get(self);
   int v = lit.index();
   return PyLong_FromLong(v);
 }
@@ -259,21 +259,6 @@ PySatLiteral::init(
   return false;
 }
 
-// @brief PyObject から SatLiteral を取り出す．
-bool
-PySatLiteral::FromPyObject(
-  PyObject* obj,
-  SatLiteral& val
-)
-{
-  if ( !_check(obj) ) {
-    PyErr_SetString(PyExc_TypeError, "object is not a SatLiteral type");
-    return false;
-  }
-  val = _get(obj);
-  return true;
-}
-
 // @brief SatLiteral を PyObject に変換する．
 PyObject*
 PySatLiteral::ToPyObject(
@@ -288,7 +273,7 @@ PySatLiteral::ToPyObject(
 
 // @brief PyObject が SatLiteral タイプか調べる．
 bool
-PySatLiteral::_check(
+PySatLiteral::Check(
   PyObject* obj
 )
 {
@@ -297,7 +282,7 @@ PySatLiteral::_check(
 
 // @brief SatLiteral を表す PyObject から SatLiteral を取り出す．
 SatLiteral
-PySatLiteral::_get(
+PySatLiteral::Get(
   PyObject* obj
 )
 {
