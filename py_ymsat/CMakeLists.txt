@@ -52,6 +52,7 @@ set_target_properties( py_ymsatlib
 
 target_link_libraries( py_ymsatlib
   ${YM_LIB_DEPENDS}
+  ${Python3_LIBRARIES}
   )
 
 # ===================================================================
