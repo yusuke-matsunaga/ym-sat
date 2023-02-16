@@ -63,7 +63,10 @@ operator<<(
   const Reason& c
 )
 {
-  if ( c.is_literal() ) {
+  if ( c == Reason::None ) {
+    s << "None";
+  }
+  else if ( c.is_literal() ) {
     auto lit = c.literal();
     s << lit;
   }
