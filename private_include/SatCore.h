@@ -274,8 +274,8 @@ public:
   /// @brief 値の割当てを行う．
   void
   assign(
-    Literal lit,             ///< [in] 割り当てるリテラル
-    Reason reason = Reason{} ///< [in] 割り当ての理由
+    Literal lit,                 ///< [in] 割り当てるリテラル
+    Reason reason = Reason::None ///< [in] 割り当ての理由
   )
   {
     auto lindex = lit.index();

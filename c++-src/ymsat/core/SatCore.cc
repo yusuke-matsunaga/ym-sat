@@ -138,6 +138,9 @@ SatCore::expand_var()
   mVal = new ymuint8[mVarSize];
   mDecisionLevel = new int[mVarSize];
   mReason = new Reason[mVarSize];
+  for ( SizeType i: Range(mVarSize) ) {
+    mReason[i] = Reason::None;
+  }
   mWatcherList = new WatcherList[mVarSize * 2];
 
   // 古い配列から新しい配列へ内容をコピーする．
