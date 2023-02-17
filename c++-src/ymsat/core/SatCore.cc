@@ -474,7 +474,7 @@ SatCore::sweep_clause(
 	break;
       }
     }
-    if ( satisfied ) {
+    if ( satisfied && !is_locked(c) ) {
       // c を削除する．
       delete_clause(c);
     }
