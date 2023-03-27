@@ -101,3 +101,9 @@ ym_add_gtest ( sat_Dimacs_test
   DEFINITIONS
   "-DDATA_DIR=\"${DATA_DIR}\""
   )
+
+ym_add_gtest ( sat_test
+  sat_test.cc
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  )

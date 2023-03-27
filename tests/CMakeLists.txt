@@ -38,6 +38,7 @@
 # ===================================================================
 
 add_subdirectory( gtest )
+add_subdirectory( programs )
 if ( Python3_FOUND )
   add_subdirectory( py_ymsat )
 endif ( Python3_FOUND )

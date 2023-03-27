@@ -102,7 +102,7 @@ SatSolverImpl::new_impl(
     unordered_map<string, string> opt_dic = {
       {"phase_cache", "on"}
     };
-    return unique_ptr<SatSolverImpl>{new SatCore{"minisat2", "uip1", "nega", opt_dic}};
+    return unique_ptr<SatSolverImpl>{new SatCore{"minisat2", "uip2", "nega", opt_dic}};
   }
   else if ( type == "ymsat1_old" ) {
     return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(option));

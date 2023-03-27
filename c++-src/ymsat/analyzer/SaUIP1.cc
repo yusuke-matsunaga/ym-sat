@@ -83,7 +83,6 @@ SaUIP1::capture(
     // つまり conflict clause に含まれていた変数ということ．
     while ( true ) {
       auto q = get_assign(last);
-      -- last;
       auto var = q.varid();
       if ( get_mark(var) ) {
 	set_mark(var, false);
@@ -93,7 +92,8 @@ SaUIP1::capture(
 	-- count;
 	break;
       }
-      ASSERT_COND(last > 0 );
+      ASSERT_COND( last > 0 );
+      -- last;
     }
     if ( count == 0 ) {
       // q は first UIP だった．
