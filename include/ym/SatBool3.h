@@ -15,7 +15,7 @@ BEGIN_NAMESPACE_YM
 
 /// @brief 不定値を含む論理値
 /// @ingroup SatGroup
-enum class SatBool3 : ymint8 {
+enum class SatBool3 : std::int8_t {
   False = -1, ///< false
   True  = 1,  ///< true
   X     = 0   ///< unknown

@@ -42,7 +42,7 @@ public:
     bool learnt       ///< [in] 学習節の場合 true
   )
   {
-    mSizeLearnt = (lit_num << 1) | static_cast<ymuint>(learnt);
+    mSizeLearnt = (lit_num << 1) | static_cast<std::uint32_t>(learnt);
 #if YMSAT_USE_LBD
     mLBD = lit_num;
 #endif
@@ -186,7 +186,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // サイズと learnt フラグをパックしたもの
-  ymuint32 mSizeLearnt;
+  std::uint32_t mSizeLearnt;
 
 #if YMSAT_USE_LBD
   // リテラルブロック距離

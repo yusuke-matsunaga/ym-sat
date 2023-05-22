@@ -109,7 +109,7 @@ private:
   bool
   check_recur(
     SatVarId var,  ///< [in] 対象の変数
-    ymuint64 lmask ///< [in] lit_list に含まれる変数の決定レベルのハッシュ値
+    std::uint64_t lmask ///< [in] lit_list に含まれる変数の決定レベルのハッシュ値
   );
 
   /// @brief check_recur のサブルーティン

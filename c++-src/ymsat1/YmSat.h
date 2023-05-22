@@ -238,7 +238,7 @@ private:
     int vindex = lindex / 2;
     ASSERT_COND( vindex < mVarNum );
     int inv = lindex & 1U;
-    ymuint8 x = 2 - inv * 2;
+    std::uint8_t x = 2 - inv * 2;
     mVal[vindex] = x | ((conv_from_Bool3(SatBool3::X)) << 2);
     mDecisionLevel[vindex] = decision_level();
     mReason[vindex] = reason;
@@ -440,7 +440,7 @@ private:
   static
   SatBool3
   conv_to_Bool3(
-    ymuint8 x
+    std::uint8_t x
   )
   {
     int tmp = static_cast<int>(x) - 1;
@@ -448,19 +448,19 @@ private:
   }
 
   static
-  ymuint8
+  std::uint8_t
   conv_from_Bool3(
     SatBool3 b
   )
   {
     int tmp = static_cast<int>(b) + 1;
-    return static_cast<ymuint8>(tmp);
+    return static_cast<std::uint8_t>(tmp);
   }
 
   static
   SatBool3
   cur_val(
-    ymuint8 x
+    std::uint8_t x
   )
   {
     return conv_to_Bool3(x & 3U);
@@ -515,7 +515,7 @@ private:
 
   // 値の配列
   // サイズは mVarSize
-  ymuint8* mVal;
+  std::uint8_t* mVal;
 
   // 値が割り当てられたときのレベルの配列
   // サイズは mVarSize
@@ -624,35 +624,35 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   static
-  const ymuint debug_none        = 0x00;
+  const int debug_none        = 0x00;
 
   static
-  const ymuint debug_implication = 0x01;
+  const int debug_implication = 0x01;
 
   static
-  const ymuint debug_analyze     = 0x02;
+  const int debug_analyze     = 0x02;
 
   static
-  const ymuint debug_assign      = 0x04;
+  const int debug_assign      = 0x04;
 
   static
-  const ymuint debug_decision    = 0x08;
+  const int debug_decision    = 0x08;
 
   static
-  const ymuint debug_solve       = 0x10;
+  const int debug_solve       = 0x10;
 
   static
-  const ymuint debug_all         = 0xffffffff;
+  const int debug_all         = 0xffffffff;
 
   static
-  //const ymuint debug = debug_decision | debug_analyze | debug_assign;
-  //const ymuint debug = debug_assign;
-  //const ymuint debug = debug_assign | debug_implication;
-  //const ymuint debug = debug_assign | debug_analyze;
-  //const ymuint debug = debug_solve | debug_decision;
-  //const ymuint debug = debug_solve | debug_assign;
-  //const ymuint debug = debug_all;
-  const ymuint debug = debug_none;
+  //const int debug = debug_decision | debug_analyze | debug_assign;
+  //const int debug = debug_assign;
+  //const int debug = debug_assign | debug_implication;
+  //const int debug = debug_assign | debug_analyze;
+  //const int debug = debug_solve | debug_decision;
+  //const int debug = debug_solve | debug_assign;
+  //const int debug = debug_all;
+  const int debug = debug_none;
 
 };
 

@@ -135,7 +135,7 @@ SatCore::expand_var()
   }
 
   // 新しい配列を確保する．
-  mVal = new ymuint8[mVarSize];
+  mVal = new std::uint8_t[mVarSize];
   mDecisionLevel = new int[mVarSize];
   mReason = new Reason[mVarSize];
   for ( SizeType i: Range(mVarSize) ) {

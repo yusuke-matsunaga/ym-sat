@@ -41,7 +41,7 @@ public:
   explicit
   Reason(
     Clause* clause = nullptr ///< [in] 節へのポインタ
-  ) : mBody{reinterpret_cast<ympuint>(clause)}
+  ) : mBody{reinterpret_cast<PtrIntType>(clause)}
   {
   }
 
@@ -109,7 +109,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // Clause か Literal を保持する
-  ympuint mBody;
+  PtrIntType mBody;
 
 
 public:

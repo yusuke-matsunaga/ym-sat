@@ -1050,7 +1050,7 @@ YmSat::expand_var()
   while ( mVarSize < mVarNum ) {
     mVarSize <<= 1;
   }
-  mVal = new ymuint8[mVarSize];
+  mVal = new std::uint8_t[mVarSize];
   mDecisionLevel = new int[mVarSize];
   mReason = new Reason[mVarSize];
   mWatcherList = new WatcherList[mVarSize * 2];

@@ -43,7 +43,7 @@ SaBase::make_minimal(
 
   // lit_list に含まれているリテラルのレベルのビットマップ
   // ただし 64 のモジュロをとっている．
-  ymuint64 lmask = 0ULL;
+  std::uint64_t lmask = 0ULL;
   for ( auto p: lit_list ) {
     int level = decision_level(p.varid());
     lmask |= (1ULL << (level & 63));
@@ -74,7 +74,7 @@ SaBase::make_minimal(
 bool
 SaBase::check_recur(
   SatVarId varid,
-  ymuint64 lmask
+  std::uint64_t lmask
 )
 {
   mVarStack.clear();

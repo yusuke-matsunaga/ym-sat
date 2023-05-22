@@ -33,10 +33,10 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 // Basic Types & Minor Things:
 
 
-typedef ymint64 int64;
-typedef ymuint64 uint64;
+typedef std::int64_t int64;
+typedef std::uint64_t uint64;
 typedef int* intp;
-typedef ymuint* uintp;
+typedef unsigned int* uintp;
 #if defined(WIN32)
 #define I64_fmt "I64d"
 #else
