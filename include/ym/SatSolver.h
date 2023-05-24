@@ -12,7 +12,7 @@
 #include "ym/SatBool3.h"
 #include "ym/SatLiteral.h"
 #include "ym/SatModel.h"
-#include "ym/SatSolverType.h"
+#include "ym/SatInitParam.h"
 #include "ym/SatStats.h"
 
 
@@ -38,9 +38,9 @@ public:
 
   /// @brief コンストラクタ
   ///
-  /// @sa SatSolverType
+  /// @sa SatInitParam
   SatSolver(
-    const SatSolverType& solver_type = SatSolverType{} ///< [in] 実装タイプ
+    const SatInitParam& init_param = SatInitParam{} ///< [in] 初期化パラメータ
   );
 
   /// @brief デストラクタ
@@ -1426,13 +1426,6 @@ public:
   /// @{
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief SolverType を取り出す．
-  SatSolverType
-  type() const
-  {
-    return mType;
-  }
-
   /// @brief 正しい状態のときに true を返す．
   bool
   sane() const;
@@ -1542,7 +1535,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ソルバの型
-  SatSolverType mType;
+  SatInitParam mType;
 
   // 実際の機能を実装しているクラス
   unique_ptr<SatSolverImpl> mImpl;

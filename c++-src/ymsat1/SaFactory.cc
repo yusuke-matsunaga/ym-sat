@@ -16,14 +16,20 @@ BEGIN_NAMESPACE_YM_SAT1
 Analyzer*
 SaFactory::gen_analyzer(
   YmSat* solver,
-  const string& option
+  const Json::Value& js_obj
 )
 {
-  if ( option == "uip1" ) {
-    return new SaUIP1{solver};
-  }
-  if ( option == "uip2" ) {
-    return new SaUIP2{solver};
+  if ( js_obj.isMember("analyzer") ) {
+    auto atype = js_obj["analyzer"].asString();
+    if ( atype == "uip1" ) {
+      return new SaUIP1{solver};
+    }
+    if ( atype == "uip2" ) {
+      return new SaUIP2{solver};
+    }
+    ostringstream buf;
+    buf << "SaFactory::gen_analyzer(): Unknown type: '" << atype << "'";
+    throw std::invalid_argument{buf.str()};
   }
   // default fall-back
   return new SaUIP1{solver};

@@ -28,7 +28,7 @@ public:
   static
   unique_ptr<SatSolverImpl>
   new_impl(
-    const SatSolverType& solver_type ///< [in] SATソルバのタイプ
+    const SatInitParam& init_param ///< [in] 初期化パラメータ
   );
 
   /// @brief デストラクタ

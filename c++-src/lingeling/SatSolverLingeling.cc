@@ -34,7 +34,7 @@ END_NONAMESPACE
 
 // @brief コンストラクタ
 SatSolverLingeling::SatSolverLingeling(
-  const string& option
+  const Json::Value& js_obj
 ) : mSolver{lglinit()},
     mNumVars{0}
 {

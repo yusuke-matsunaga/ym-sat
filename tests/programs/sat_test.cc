@@ -14,7 +14,7 @@ BEGIN_NAMESPACE_YM
 void
 sat_test()
 {
-  SatSolver solver{SatSolverType{"ymsat2"}};
+  SatSolver solver{SatInitParam{"ymsat2"}};
 
   auto var0 = solver.new_variable(true);
   auto var1 = solver.new_variable(true);

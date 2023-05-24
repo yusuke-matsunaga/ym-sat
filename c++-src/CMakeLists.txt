@@ -27,6 +27,7 @@ set (ym_sat_SOURCES
   SatSolver_count.cc
   SatSolver_tseitin.cc
   SatSolverImpl.cc
+  SatInitParam.cc
   SatLogger.cc
   SatLoggerS.cc
   SatOrderedSet.cc

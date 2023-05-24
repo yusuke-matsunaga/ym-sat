@@ -154,8 +154,8 @@ public:
   static
   Analyzer*
   gen_analyzer(
-    YmSat* solver,                  ///< [in] SATソルバ
-    const string& option = string{} ///< [in] どのクラスを生成するかを決めるオプション文字列
+    YmSat* solver,            ///< [in] SATソルバ
+    const Json::Value& js_obj ///< [in] 初期化パラメータ
   );
 
 };

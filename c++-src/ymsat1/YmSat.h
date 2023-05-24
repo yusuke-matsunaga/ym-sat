@@ -18,6 +18,7 @@
 #include "conf.h"
 #include <chrono>
 #include <random>
+#include <json/json.h>
 
 
 BEGIN_NAMESPACE_YM_SAT1
@@ -91,7 +92,7 @@ public:
 
   /// @brief コンストラクタ
   YmSat(
-    const string& option = string{} ///< [in] オプション文字列
+    const Json::Value& js_obj ///< [in] 初期化パラメータ
   );
 
   /// @brief デストラクタ

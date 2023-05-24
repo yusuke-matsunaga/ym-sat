@@ -34,11 +34,11 @@ END_NONAMESPACE
 
 // @brief コンストラクタ
 SatSolverMiniSat2::SatSolverMiniSat2(
-  const string& option
+  const Json::Value& js_obj
 )
 {
-  if ( option == "verbose" ) {
-    mSolver.verbosity = 1;
+  if ( js_obj.isMember("verbose") ) {
+    mSolver.verbosity = js_obj["verbose"].asBool();
   }
 }
 

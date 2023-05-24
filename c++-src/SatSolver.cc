@@ -23,10 +23,9 @@ const SatLiteral SatLiteral::X;
 
 // @brief コンストラクタ
 SatSolver::SatSolver(
-  const SatSolverType& solver_type
-) : mType{solver_type},
-    mImpl{SatSolverImpl::new_impl(mType)},
-    mLogger{SatLogger::new_impl(mType)}
+  const SatInitParam& init_param
+) : mImpl{SatSolverImpl::new_impl(init_param)},
+    mLogger{SatLogger::new_impl(init_param.js_obj())}
 {
 }
 

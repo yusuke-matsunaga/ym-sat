@@ -24,8 +24,9 @@ class SatLoggerS :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] s 出力先のストリーム
-  SatLoggerS(ostream* s);
+  SatLoggerS(
+    ostream* s ///< [in] 出力先のストリーム
+  );
 
   /// @brief デストラクタ
   ~SatLoggerS();
@@ -37,25 +38,22 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 変数を追加する．
-  /// @param[in] lit 変数を表すリテラル
   void
-  new_variable(SatLiteral lit) override;
+  new_variable(
+    SatLiteral lit
+  ) override;
 
   /// @brief 節を追加する．
-  /// @param[in] lits リテラルのベクタ
   void
-  add_clause(const vector<SatLiteral>& lits) override;
+  add_clause(
+    const vector<SatLiteral>& lits
+  ) override;
 
   /// @brief assumption 付きの SAT 問題を解く．
-  /// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-  /// @param[out] model 充足するときの値の割り当てを格納する配列．
-  /// @retval kSat 充足した．
-  /// @retval kUnsat 充足不能が判明した．
-  /// @retval kUndet わからなかった．
-  ///
-  /// i 番めの変数の割り当て結果は model[i] に入る．
   void
-  solve(const vector<SatLiteral>& assumptions) override;
+  solve(
+    const vector<SatLiteral>& assumptions
+  ) override;
 
 
 private:
@@ -64,9 +62,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief リテラルをログに出力する．
-  /// @param[in] lit リテラル
   void
-  put_lit(SatLiteral lit) const;
+  put_lit(
+    SatLiteral lit
+  ) const;
 
 
 private:

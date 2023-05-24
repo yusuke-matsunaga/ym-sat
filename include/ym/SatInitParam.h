@@ -1,8 +1,8 @@
-#ifndef YM_SATSOLVERTYPE_H
-#define YM_SATSOLVERTYPE_H
+#ifndef YM_SATINITPARAM_H
+#define YM_SATINITPARAM_H
 
-/// @file ym/SatSolverType.h
-/// @brief SatSolverType のヘッダファイル
+/// @file ym/SatInitParam.h
+/// @brief SatInitParam のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018, 2022 Yusuke Matsunaga
@@ -15,28 +15,33 @@
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-/// @class SatSolverType SatSolverType.h "ym/SatSolverType.h"
+/// @class SatInitParam SatInitParam.h "ym/SatInitParam.h"
 /// @brief SATソルバの種類を表すクラス
 ///
 /// 単純な場合はタイプを表す文字列のみを引数にとる．
 /// 詳細な設定を行う場合は Json オブジェクトを引数にとる．
 //////////////////////////////////////////////////////////////////////
-class SatSolverType
+class SatInitParam
 {
 public:
 
   /// @brief コンストラクタ(タイプを表す文字列)
-  SatSolverType(
+  SatInitParam(
     const string& type = string{} ///< [in] 実装タイプを表す文字列
   );
 
+  /// @brief コンストラクタ(タイプを表す文字列)
+  SatInitParam(
+    const char* type ///< [in] 実装タイプを表す文字列
+  );
+
   /// @brief コンストラクタ(Jsonオブジェクト)
-  SatSolverType(
+  SatInitParam(
     const Json::Value& js_obj ///< [in] オプションを表す Json オブジェクト
   );
 
   /// @brief デストラクタ
-  ~SatSolverType() = default;
+  ~SatInitParam() = default;
 
 
 public:
@@ -45,7 +50,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 実装タイプを返す．
-  const string&
+  string
   type() const;
 
   /// @brief オプションを表す Json オブジェクトを返す．
@@ -80,4 +85,4 @@ private:
 
 END_NAMESPACE_YM_SAT
 
-#endif // YM_SATSOLVERTYPE_H
+#endif // YM_SATINITPARAM_H

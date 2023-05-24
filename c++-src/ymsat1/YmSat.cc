@@ -31,7 +31,7 @@ YmSat::Params kDefaultParams{0.95, 0.999};
 
 // @brief コンストラクタ
 YmSat::YmSat(
-  const string& option
+  const Json::Value& js_obj
 ) : mSane(true),
     mConstrBinNum(0),
     mConstrLitNum(0),
@@ -62,7 +62,7 @@ YmSat::YmSat(
     mLearntLimit(0),
     mMaxConflict(1024 * 10)
 {
-  mAnalyzer = SaFactory::gen_analyzer(this, option);
+  mAnalyzer = SaFactory::gen_analyzer(this, js_obj);
 
 #if YMSAT_USE_LBD
   mLbdTmpSize = 1024;

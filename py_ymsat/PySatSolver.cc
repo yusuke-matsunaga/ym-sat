@@ -10,7 +10,7 @@
 #include "pym/PySatBool3.h"
 #include "pym/PySatLiteral.h"
 #include "pym/PyModule.h"
-#include "ym/SatSolverType.h"
+#include "ym/SatInitParam.h"
 
 
 BEGIN_NAMESPACE_YM
@@ -47,13 +47,14 @@ SatSolver_new(
 				    &type_str) ) {
     return nullptr;
   }
-  SatSolverType solver_type;
+  SatInitParam init_param;
   if ( type_str != nullptr ) {
-    solver_type = SatSolverType{type_str};
+    init_param = SatInitParam{string{type_str}};
   }
+  // TODO: json オブジェクトから初期化パラメータを作る．
   auto self = type->tp_alloc(type, 0);
   auto satsolver_obj = reinterpret_cast<SatSolverObject*>(self);
-  satsolver_obj->mPtr = new SatSolver{solver_type};
+  satsolver_obj->mPtr = new SatSolver{init_param};
   return self;
 }
 
