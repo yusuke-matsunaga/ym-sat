@@ -11,11 +11,75 @@
 #include "pym/PySatLiteral.h"
 #include "pym/PyModule.h"
 #include "ym/SatInitParam.h"
+#include <json/json.h>
 
 
 BEGIN_NAMESPACE_YM
 
 BEGIN_NONAMESPACE
+
+// PyObject を json に変換する．
+Json::Value
+obj_to_json(
+  PyObject* py_obj
+)
+{
+  if ( PyBool_Check(py_obj) ) {
+    // ブール型
+    if ( py_obj == Py_True ) {
+      return Json::Value{true};
+    }
+    if ( py_obj == Py_False ) {
+      return Json::Value{false};
+    }
+    ASSERT_NOT_REACHED;
+  }
+  if ( PyLong_Check(py_obj) ) {
+    // int 型の数値
+    auto val = PyLong_AsLong(py_obj);
+    return Json::Value{val};
+  }
+  if ( PyFloat_Check(py_obj) ) {
+    // float 型の数値
+    auto val = PyFloat_AsDouble(py_obj);
+    return Json::Value{val};
+  }
+  if ( PyUnicode_Check(py_obj) ) {
+    // 文字列型
+    auto val = PyUnicode_AsUTF8(py_obj);
+    return Json::Value{val};
+  }
+  if ( PyList_Check(py_obj) ) {
+    // アレイ型
+    auto size = PyList_Size(py_obj);
+    auto js_array = Json::Value{};
+    for ( SizeType i = 0; i < size; ++ i ) {
+      auto py_obj1 = PyList_GetItem(py_obj, i);
+      auto js_obj1 = obj_to_json(py_obj1);
+      js_array.append(js_obj1);
+    }
+    return js_array;
+  }
+  if ( PyDict_Check(py_obj) ) {
+    // オブジェクト
+    PyObject* key_obj;
+    PyObject* val_obj;
+    Py_ssize_t pos = 0;
+    auto js_obj = Json::Value{};
+    while ( PyDict_Next(py_obj, &pos, &key_obj, &val_obj) ) {
+      auto key = PyUnicode_AsUTF8(key_obj);
+      auto js_obj1 = obj_to_json(val_obj);
+      js_obj[key] = js_obj1;
+    }
+    return js_obj;
+  }
+  if ( py_obj == Py_None ) {
+    // null
+    return Json::Value::nullSingleton();
+  }
+  throw std::invalid_argument{"not a json object"};
+  return Json::Value::nullSingleton();
+}
 
 // Python 用のオブジェクト定義
 struct SatSolverObject
@@ -29,6 +93,7 @@ PyTypeObject PySatSolverType = {
   PyVarObject_HEAD_INIT(nullptr, 0)
 };
 
+
 // 生成関数
 PyObject*
 SatSolver_new(
@@ -37,21 +102,24 @@ SatSolver_new(
   PyObject* kwds
 )
 {
-  static const char* kwlist[] = {
-    "type",
-    nullptr
-  };
-  const char* type_str = nullptr;
-  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "|s",
-				    const_cast<char**>(kwlist),
-				    &type_str) ) {
+  PyObject* init_param_obj = nullptr;
+  if ( !PyArg_ParseTuple(args, "|O", &init_param_obj) ) {
     return nullptr;
   }
+
   SatInitParam init_param;
-  if ( type_str != nullptr ) {
-    init_param = SatInitParam{string{type_str}};
+  if ( init_param_obj != nullptr ) {
+    if ( PyUnicode_Check(init_param_obj) ) {
+      // 文字列の場合 type 属性とみなす．
+      auto type_str = PyUnicode_AsUTF8(init_param_obj);
+      init_param = SatInitParam{string{type_str}};
+    }
+    else {
+      auto js_obj = obj_to_json(init_param_obj);
+      init_param = SatInitParam{js_obj};
+    }
   }
-  // TODO: json オブジェクトから初期化パラメータを作る．
+
   auto self = type->tp_alloc(type, 0);
   auto satsolver_obj = reinterpret_cast<SatSolverObject*>(self);
   satsolver_obj->mPtr = new SatSolver{init_param};

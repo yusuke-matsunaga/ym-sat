@@ -49,7 +49,10 @@ SatInitParam::SatInitParam(
 string
 SatInitParam::type() const
 {
-  if ( mJsObj.isMember("type") ) {
+  if ( mJsObj.isString() ) {
+    return mJsObj.asString();
+  }
+  if ( mJsObj.isObject() && mJsObj.isMember("type") ) {
     return mJsObj["type"].asString();
   }
   // 未定義
@@ -76,6 +79,9 @@ SatInitParam::check_type()
   else if ( t == "lingeling" ) {
     ;
   }
+  else if ( t == "ymsat" ) {
+    ;
+  }
   else if ( t == "ymsat1" ) {
     ;
   }
@@ -87,6 +93,9 @@ SatInitParam::check_type()
   }
   else if ( t == string{} ) {
     // lingeling 今はデフォルトにしている．
+    if ( !mJsObj.isObject() ) {
+      mJsObj = Json::Value{};
+    }
     mJsObj["type"] = Json::Value{"lingeling"};
   }
   else {
