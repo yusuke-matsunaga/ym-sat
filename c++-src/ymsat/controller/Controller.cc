@@ -17,16 +17,20 @@ BEGIN_NAMESPACE_YM_SAT
 Controller*
 Controller::new_obj(
   SatCore& core,
-  const string& type
+  const Json::Value& js_obj
 )
 {
-  if ( type == "minisat1" ) {
-    return new ControllerMS1{core};
+  if ( js_obj.isMember("controller") ) {
+    auto type = js_obj["controller"].asString();
+    if ( type == "minisat1" ) {
+      return new ControllerMS1{core};
+    }
+    if ( type == "minisat2" ) {
+      return new ControllerMS2{core};
+    }
+    cerr << type << ": Unknown type, ignored." << endl;
   }
-  if ( type == "minisat2" ) {
-    return new ControllerMS2{core};
-  }
-  cerr << type << ": Unknown type, ignored." << endl;
+  // デフォルトフォールバック
   return new ControllerMS2{core};
 }
 

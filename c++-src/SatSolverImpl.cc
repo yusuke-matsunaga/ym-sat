@@ -45,15 +45,27 @@ SatSolverImpl::new_impl(
     // lingeling
     return unique_ptr<SatSolverImpl>(new SatSolverLingeling(js_obj));
   }
+  else if ( type == "ymsat" ) {
+    return unique_ptr<SatSolverImpl>{new SatCore{js_obj}};
+  }
   else if ( type == "ymsat1" ) {
-    unordered_map<string, string> opt_dic;
-    return unique_ptr<SatSolverImpl>{new SatCore{"minisat1", "uip1", "wlposi", opt_dic}};
+    Json::Value js_obj1{js_obj};
+    js_obj1["controller"] = Json::Value{"minisat1"};
+    js_obj1["analyzer"] = Json::Value{"uip1"};
+    Json::Value js_obj2;
+    js_obj2["type"] = Json::Value{"wlposi"};
+    js_obj1["selector"] = js_obj2;
+    return unique_ptr<SatSolverImpl>{new SatCore{js_obj1}};
   }
   else if ( type == "ymsat2" ) {
-    unordered_map<string, string> opt_dic = {
-      {"phase_cache", "on"}
-    };
-    return unique_ptr<SatSolverImpl>{new SatCore{"minisat2", "uip2", "nega", opt_dic}};
+    Json::Value js_obj1{js_obj};
+    js_obj1["controller"] = Json::Value{"minisat2"};
+    js_obj1["analyzer"] = Json::Value{"uip2"};
+    Json::Value js_obj2;
+    js_obj2["type"] = Json::Value{"nega"};
+    js_obj2["phase_cache"] = Json::Value{true};
+    js_obj1["selector"] = js_obj2;
+    return unique_ptr<SatSolverImpl>{new SatCore{js_obj2}};
   }
   else if ( type == "ymsat1_old" ) {
     return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(js_obj));

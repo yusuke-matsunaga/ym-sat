@@ -27,13 +27,10 @@ const Literal Literal::X;
 
 // @brief コンストラクタ
 SatCore::SatCore(
-  const string& controller_type,
-  const string& analyzer_type,
-  const string& selecter_type,
-  const unordered_map<string, string>& selopt_dic
-) : mController{Controller::new_obj(*this, controller_type)},
-    mAnalyzer{Analyzer::new_obj(*this, analyzer_type)},
-    mSelecter{Selecter::new_obj(*this, selecter_type, selopt_dic)}
+  const Json::Value& js_obj
+) : mController{Controller::new_obj(*this, js_obj)},
+    mAnalyzer{Analyzer::new_obj(*this, js_obj)},
+    mSelecter{Selecter::new_obj(*this, js_obj)}
 {
   mConflictBudget = 0;
   mPropagationBudget = 0;

@@ -20,7 +20,9 @@ SatInitParam::SatInitParam(
   const string& type
 )
 {
-  mJsObj["type"] = Json::Value{type};
+  if ( type != string{} ) {
+    mJsObj["type"] = Json::Value{type};
+  }
   check_type();
 }
 
@@ -29,7 +31,9 @@ SatInitParam::SatInitParam(
   const char* type
 )
 {
-  mJsObj["type"] = Json::Value{type};
+  if ( type != nullptr ) {
+    mJsObj["type"] = Json::Value{type};
+  }
   check_type();
 }
 
@@ -83,7 +87,7 @@ SatInitParam::check_type()
   }
   else if ( t == string{} ) {
     // lingeling 今はデフォルトにしている．
-    mJsObj["type"] = Json::Value{"lingelinge"};
+    mJsObj["type"] = Json::Value{"lingeling"};
   }
   else {
     ostringstream buf;

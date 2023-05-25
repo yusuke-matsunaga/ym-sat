@@ -11,6 +11,7 @@
 #include "ym/sat.h"
 #include "SatCore.h"
 #include "Reason.h"
+#include <json/json.h>
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -38,8 +39,8 @@ public:
   static
   Analyzer*
   new_obj(
-    SatCore& core,                ///< [in] コアマネージャ
-    const string& type = string{} ///< [in] タイプを表す文字列
+    SatCore& core,            ///< [in] コアマネージャ
+    const Json::Value& js_obj ///< [in] 初期化パラメータ
   );
 
   /// @brief コンストラクタ

@@ -10,6 +10,7 @@
 
 #include "ym/sat.h"
 #include "Literal.h"
+#include <json/json.h>
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -28,9 +29,8 @@ public:
   static
   Selecter*
   new_obj(
-    SatCore& core,      ///< [in] Coreマネージャ
-    const string& type, ///< [in] タイプを表す文字列
-    const unordered_map<string, string>& opt_dic = {} ///< [in] オプション文字列を格納した辞書
+    SatCore& core,            ///< [in] Coreマネージャ
+    const Json::Value& js_obj ///< [in] 初期化パラメータ
   );
 
   /// @brief デストラクタ

@@ -17,17 +17,20 @@ BEGIN_NAMESPACE_YM_SAT
 Analyzer*
 Analyzer::new_obj(
   SatCore& core,
-  const string& type
+  const Json::Value& js_obj
 )
 {
-  if ( type == "uip1" ) {
-    return new SaUIP1{core};
-  }
-  if ( type == "uip2" ) {
-    return new SaUIP2{core};
+  if ( js_obj.isMember("analyzer") ) {
+    auto type = js_obj["analyzer"].asString();
+    if ( type == "uip1" ) {
+      return new SaUIP1{core};
+    }
+    if ( type == "uip2" ) {
+      return new SaUIP2{core};
+    }
+    cerr << type << ": Unknown type, ignored." << endl;
   }
   // default fall-back
-  cerr << type << ": Unknown type, ignored." << endl;
   return new SaUIP1{core};
 }
 

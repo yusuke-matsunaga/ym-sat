@@ -17,6 +17,7 @@
 #include "Watcher.h"
 #include "VarHeap.h"
 #include <chrono>
+#include <json/json.h>
 
 BEGIN_NAMESPACE_YM_SAT
 
@@ -35,10 +36,7 @@ public:
 
   /// @brief コンストラクタ
   SatCore(
-    const string& controller_type, ///< [in] Controller のタイプを表す文字列
-    const string& analyzer_type, ///< [in] Analyzer のタイプを表す文字列
-    const string& selecter_type, ///< [in] Selecter のタイプを表す文字列
-    const unordered_map<string, string>& selopt_dic ///< [in] オプション文字列を格納した辞書
+    const Json::Value& js_obj ///< [in] 初期化パラメータ
   );
 
   /// @brief デストラクタ

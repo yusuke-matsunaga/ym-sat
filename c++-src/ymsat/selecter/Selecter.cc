@@ -107,45 +107,48 @@ END_NONAMESPACE
 Selecter*
 Selecter::new_obj(
   SatCore& core,
-  const string& type,
-  const unordered_map<string, string>& opt_dic
+  const Json::Value& js_obj
 )
 {
-  //auto opt_dict = parse_option(option);
+  string type;
   double var_freq = 0.0;
-  if ( opt_dic.count("var_freq") > 0 ) {
-    auto val_str = opt_dic.at("var_freq");
-    try {
-      var_freq = std::stod(val_str);
-    }
-    catch ( std::invalid_argument ) {
-      cerr << "warning: 'var_freq' expects double argument" << endl;
-      // 無視
-    }
-  }
   bool phase_cache = false;
-  if ( opt_dic.count("phase_cache") > 0 ) {
-    phase_cache = true;
+  if ( js_obj.isMember("selector") ) {
+    auto sel_obj = js_obj["selector"];
+    if ( sel_obj.isString() ) {
+      type = sel_obj.asString();
+    }
+    else if ( sel_obj.isObject() ) {
+      if ( sel_obj.isMember("type") ) {
+	type = sel_obj["type"].asString();
+      }
+      if ( sel_obj.isMember("var_freq") ) {
+	var_freq = sel_obj["var_freq"].asDouble();
+      }
+      if ( sel_obj.isMember("phase_cache") ) {
+	phase_cache = sel_obj["phase_cache"].asBool();
+      }
+    }
+    if ( type == "wlposi" ) {
+      return new SelWlPosi{core, var_freq, phase_cache};
+    }
+    if ( type == "wlnega" ) {
+      return new SelWlNega{core, var_freq, phase_cache};
+    }
+    if ( type == "posi" ) {
+      return new SelPosi{core, var_freq, phase_cache};
+    }
+    if ( type == "nega" ) {
+      return new SelNega{core, var_freq, phase_cache};
+    }
+    if ( type == "random" ) {
+      return new SelRandom{core, var_freq, phase_cache};
+    }
+    else {
+      cerr << type << ": unknown type, ignored. 'random' is used instead." << endl;
+    }
   }
-  if ( type == "wlposi" ) {
-    return new SelWlPosi{core, var_freq, phase_cache};
-  }
-  if ( type == "wlnega" ) {
-    return new SelWlNega{core, var_freq, phase_cache};
-  }
-  if ( type == "posi" ) {
-    return new SelPosi{core, var_freq, phase_cache};
-  }
-  if ( type == "nega" ) {
-    return new SelNega{core, var_freq, phase_cache};
-  }
-  if ( type == "random" ) {
-    return new SelRandom{core, var_freq, phase_cache};
-  }
-  else {
-    cerr << type << ": unknown type, ignored. 'random' is used instead." << endl;
-    return new SelRandom{core, var_freq, phase_cache};
-  }
+  return new SelRandom{core, var_freq, phase_cache};
 }
 
 END_NAMESPACE_YM_SAT
