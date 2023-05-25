@@ -36,7 +36,7 @@ obj_to_json(
   }
   if ( PyLong_Check(py_obj) ) {
     // int 型の数値
-    auto val = PyLong_AsLong(py_obj);
+    int val = PyLong_AsLong(py_obj);
     return Json::Value{val};
   }
   if ( PyFloat_Check(py_obj) ) {
