@@ -49,7 +49,7 @@ SatSolverImpl::new_impl(
     return unique_ptr<SatSolverImpl>{new SatCore{js_obj}};
   }
   else if ( type == "ymsat1" ) {
-    Json::Value js_obj1{js_obj};
+    Json::Value js_obj1;
     js_obj1["controller"] = Json::Value{"minisat1"};
     js_obj1["analyzer"] = Json::Value{"uip1"};
     Json::Value js_obj2;
@@ -58,7 +58,7 @@ SatSolverImpl::new_impl(
     return unique_ptr<SatSolverImpl>{new SatCore{js_obj1}};
   }
   else if ( type == "ymsat2" ) {
-    Json::Value js_obj1{js_obj};
+    Json::Value js_obj1;
     js_obj1["controller"] = Json::Value{"minisat2"};
     js_obj1["analyzer"] = Json::Value{"uip2"};
     Json::Value js_obj2;
