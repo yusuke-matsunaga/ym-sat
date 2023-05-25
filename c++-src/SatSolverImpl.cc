@@ -65,7 +65,7 @@ SatSolverImpl::new_impl(
     js_obj2["type"] = Json::Value{"nega"};
     js_obj2["phase_cache"] = Json::Value{true};
     js_obj1["selector"] = js_obj2;
-    return unique_ptr<SatSolverImpl>{new SatCore{js_obj2}};
+    return unique_ptr<SatSolverImpl>{new SatCore{js_obj1}};
   }
   else if ( type == "ymsat1_old" ) {
     return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(js_obj));
