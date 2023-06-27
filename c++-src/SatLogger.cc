@@ -24,8 +24,8 @@ SatLogger::new_impl(
   const Json::Value& js_obj
 )
 {
-  if ( js_obj.isMember("log") && js_obj.isObject("log") ) {
-    auto& log_obj = js_obj["log"].asObject();
+  if ( js_obj.isMember("log") && js_obj["log"].isObject() ) {
+    const auto& log_obj = js_obj["log"];
     if ( log_obj.isMember("file") ) {
       auto log_file = log_obj["file"].asString();
       auto fs = new ofstream{log_file};
