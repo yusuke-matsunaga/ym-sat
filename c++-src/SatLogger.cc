@@ -24,11 +24,21 @@ SatLogger::new_impl(
   const Json::Value& js_obj
 )
 {
-  if ( js_obj.isMember("log_file") ) {
-    auto log_file = js_obj["log_file"].asString();
-    auto fs = new ofstream{log_file};
-    return unique_ptr<SatLogger>{new SatLoggerS{fs}};
+  if ( js_obj.isMember("log") && js_obj["log"].isObject() ) {
+    const auto& log_obj = js_obj["log"];
+    if ( log_obj.isMember("file") ) {
+      auto log_file = log_obj["file"].asString();
+      auto fs = new ofstream{log_file};
+      return unique_ptr<SatLogger>{new SatLoggerS{fs}};
+    }
+    if ( log_obj.isMember("stdout") && log_obj["stdout"].asBool() ) {
+      return unique_ptr<SatLogger>{new SatLoggerS{&cout}};
+    }
+    if ( log_obj.isMember("stderr") && log_obj["stderr"].asBool() ) {
+      return unique_ptr<SatLogger>{new SatLoggerS{&cerr}};
+    }
   }
+  // デフォルトフォールバック
   return unique_ptr<SatLogger>{new SatLogger};
 }
 
