@@ -14,11 +14,37 @@
 # ===================================================================
 
 
-set ( DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../testdata )
-
 # ===================================================================
 #  テスト用のターゲットの設定
 # ===================================================================
+
+ym_add_gtest ( sat_SatInitParam_test
+  SatInitParamTest.cc
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  DEFINITIONS
+  "-DDATA_DIR=\"${DATA_DIR}\""
+  )
+
+ym_add_gtest ( sat_SatInitParam2_test
+  SatInitParamEnvTest.cc
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  )
+
+set_property ( TEST sat_SatInitParam2_test
+  PROPERTY ENVIRONMENT YMSAT_CONF=${DATA_DIR}/ymsat.json
+  )
+
+ym_add_gtest ( sat_SatInitParam3_test
+  SatInitParamEnvTest.cc
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  )
+
+set_property ( TEST sat_SatInitParam3_test
+  PROPERTY ENVIRONMENT YMSAT_CONFDIR=${DATA_DIR}
+  )
 
 ym_add_gtest ( sat_SatBool3_test
   SatBool3Test.cc

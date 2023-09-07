@@ -15,6 +15,48 @@ BEGIN_NAMESPACE_YM_SAT
 // SatInitParam
 //////////////////////////////////////////////////////////////////////
 
+// @brief 空のコンストラクタ
+SatInitParam::SatInitParam()
+{
+  //  1. 環境変数 YMSAT_CONF が設定されている場合，${YMSAT_CONF} の値
+  //     を設定用の json ファイルとみなして読み込む．
+  //     ファイルの読み込みに失敗した場合スキップする．
+  {
+    auto filename = getenv("YMSAT_CONF");
+    if ( filename != nullptr ) {
+      if ( read(filename) ) {
+	// 成功
+	return;
+      }
+    }
+  }
+  //  2. 環境変数 YMSAT_CONFDIR が設定されている場合，
+  //     ${YMSAT_CONFDIR}/ymsat.json を設定用の json ファイルとみなして
+  //     読み込む．
+  //     ファイルの読み込みに失敗した場合スキップする．
+  {
+    auto dirname = getenv("YMSAT_CONFDIR");
+    if ( dirname != nullptr ) {
+      auto filename = string{dirname} + "/" + "ymsat.json";
+      if ( read(filename) ) {
+	// 成功
+	return;
+      }
+    }
+  }
+  //  3. カレントディレクトリに ymsat.json ファイルがあれば読み込む
+  //     ファイルの読み込みに失敗した場合スキップする．
+  {
+    auto filename = "./ymsat.json";
+    if ( read(filename) ) {
+      // 成功
+      return;
+    }
+  }
+  //  4. ハードコードされたデフォルト値を用いる．
+  mJsObj["type"] = Json::Value{"ymsat2"};
+}
+
 // @brief コンストラクタ(タイプを表す文字列)
 SatInitParam::SatInitParam(
   const string& type
@@ -45,18 +87,44 @@ SatInitParam::SatInitParam(
   check_type();
 }
 
+// @brief json ファイルを読み込む．
+SatInitParam
+SatInitParam::from_json(
+  const string& filename
+)
+{
+  SatInitParam param;
+  if ( !param.read(filename) ) {
+    ostringstream buf;
+    buf << "SatInitParam::from_json: Could not open file: " << filename;
+    throw std::invalid_argument{buf.str()};
+  }
+  return param;
+}
+
 // @brief 実装タイプを返す．
 string
 SatInitParam::type() const
 {
-  if ( mJsObj.isString() ) {
-    return mJsObj.asString();
-  }
   if ( mJsObj.isObject() && mJsObj.isMember("type") ) {
     return mJsObj["type"].asString();
   }
   // 未定義
   return string{};
+}
+
+// @brief json ファイルを読み込む．
+bool
+SatInitParam::read(
+  const string& filename
+)
+{
+  ifstream s{filename};
+  if ( s.good() ) {
+    s >> mJsObj;
+    return true;
+  }
+  return false;
 }
 
 // @brief type のチェックを行う．
@@ -90,13 +158,6 @@ SatInitParam::check_type()
   }
   else if ( t == "ymsat1_old" ) {
     ;
-  }
-  else if ( t == string{} ) {
-    // lingeling 今はデフォルトにしている．
-    if ( !mJsObj.isObject() ) {
-      mJsObj = Json::Value{};
-    }
-    mJsObj["type"] = Json::Value{"lingeling"};
   }
   else {
     ostringstream buf;

@@ -37,6 +37,8 @@
 # サブディレクトリの設定
 # ===================================================================
 
+set ( DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/testdata )
+
 add_subdirectory( gtest )
 add_subdirectory( programs )
 if ( Python3_FOUND )
