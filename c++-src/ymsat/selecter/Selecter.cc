@@ -12,10 +12,12 @@
 #include "SelPosi.h"
 #include "SelNega.h"
 #include "SelRandom.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
+#if 0
 BEGIN_NONAMESPACE
 
 // string::find_first_of() のバリエーション
@@ -67,66 +69,33 @@ strip_wspace(
   return input.substr(p1, p2);
 }
 
-// @brief パースする．
-unordered_map<string, string>
-parse_option(
-  const string& input
-)
-{
-  unordered_map<string, string> ans_dict;
-  // mDelim で区切る
-  string tmp_str{input};
-  for ( ; ; ) {
-    string::size_type p = find_first_of(tmp_str, ',');
-    auto tmp = strip_wspace(tmp_str.substr(0, p));
-    // tmp を mOptDelim で区切る．
-    string::size_type q = find_first_of(tmp, ':');
-    if ( q == string::npos ) {
-      // mOptDelim がなかった
-      ans_dict.emplace(tmp, string{});
-    }
-    else {
-      auto l_str = strip_wspace(tmp.substr(0, q));
-      auto r_str = strip_wspace(tmp.substr(q + 1, string::npos));
-      ans_dict.emplace(l_str, r_str);
-    }
-    if ( p == string::npos ) {
-      // 末尾だったので終わる．
-      break;
-    }
-    // tmp_str を切り詰める．
-    tmp_str = tmp_str.substr(p + 1, string::npos);
-  }
-
-  return ans_dict;
-}
-
 END_NONAMESPACE
+#endif
 
 // @brief インスタンスを作るクラスメソッド
 Selecter*
 Selecter::new_obj(
   SatCore& core,
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 )
 {
   string type;
   double var_freq = 0.0;
   bool phase_cache = false;
-  if ( js_obj.isMember("selector") ) {
+  if ( js_obj.has_key("selector") ) {
     auto sel_obj = js_obj["selector"];
-    if ( sel_obj.isString() ) {
-      type = sel_obj.asString();
+    if ( sel_obj.is_string() ) {
+      type = sel_obj.get_string();
     }
-    else if ( sel_obj.isObject() ) {
-      if ( sel_obj.isMember("type") ) {
-	type = sel_obj["type"].asString();
+    else if ( sel_obj.is_object() ) {
+      if ( sel_obj.has_key("type") ) {
+	type = sel_obj["type"].get_string();
       }
-      if ( sel_obj.isMember("var_freq") ) {
-	var_freq = sel_obj["var_freq"].asDouble();
+      if ( sel_obj.has_key("var_freq") ) {
+	var_freq = sel_obj["var_freq"].get_float();
       }
-      if ( sel_obj.isMember("phase_cache") ) {
-	phase_cache = sel_obj["phase_cache"].asBool();
+      if ( sel_obj.has_key("phase_cache") ) {
+	phase_cache = sel_obj["phase_cache"].get_bool();
       }
     }
     if ( type == "wlposi" ) {

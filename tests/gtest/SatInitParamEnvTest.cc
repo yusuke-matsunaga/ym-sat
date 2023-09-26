@@ -19,7 +19,7 @@ TEST(SatInitParamTest, empty_const1)
   EXPECT_EQ( "glueminisat2", param.type() );
 
   auto js_obj = param.js_obj();
-  EXPECT_EQ( "bar", js_obj["foo"].asString() );
+  EXPECT_EQ( "bar", js_obj["foo"].get_string() );
 }
 
 END_NAMESPACE_YM

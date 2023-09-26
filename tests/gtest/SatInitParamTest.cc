@@ -31,8 +31,8 @@ TEST(SatInitParamTest, const2)
 TEST(SatInitParamTest, const3)
 {
   string type{"ymsat2"};
-  Json::Value js_obj;
-  js_obj["type"] = type;
+  auto js_obj = JsonValue::Object();
+  js_obj.emplace("type", JsonValue{type});
   SatInitParam param{js_obj};
 
   EXPECT_EQ( string{type}, param.type() );
@@ -41,9 +41,8 @@ TEST(SatInitParamTest, const3)
 TEST(SatInitParamTest, const4)
 {
   string type{"ymsat2"};
-  Json::Value js_obj;
-  js_obj["type"] = type;
-  js_obj["foo"] = "foo";
+  JsonValue js_obj{unordered_map<string, JsonValue>{{"type", JsonValue{type}},
+						    {"foo", JsonValue{"foo"}}}};
   SatInitParam param{js_obj};
 
   EXPECT_EQ( string{type}, param.type() );
@@ -71,8 +70,7 @@ TEST(SatInitParamTest, bad_const2)
 TEST(SatInitParamTest, bad_const3)
 {
   string type{"badsat"};
-  Json::Value js_obj;
-  js_obj["type"] = type;
+  JsonValue js_obj{unordered_map<string, JsonValue>{{"type", type}}};
   ASSERT_THROW({
       SatInitParam param{js_obj};
     }, std::invalid_argument);
@@ -89,7 +87,7 @@ TEST(SatInitParamTest, from_json1)
   EXPECT_EQ( "glueminisat2", param.type() );
 
   auto js_obj = param.js_obj();
-  EXPECT_EQ( "bar", js_obj["foo"].asString() );
+  EXPECT_EQ( "bar", js_obj["foo"].get_string() );
 }
 
 TEST(SatInitParamTest, from_json2)

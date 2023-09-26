@@ -33,41 +33,41 @@ SatSolverImpl::new_impl(
     // minisat-1.4
     return unique_ptr<SatSolverImpl>(new SatSolverMiniSat(js_obj));
   }
-  else if ( type == "minisat2" ) {
+  if ( type == "minisat2" ) {
     // minisat-2.2
     return unique_ptr<SatSolverImpl>(new SatSolverMiniSat2(js_obj));
   }
-  else if ( type == "glueminisat2" ) {
+  if ( type == "glueminisat2" ) {
     // glueminisat-2.2.8
     return unique_ptr<SatSolverImpl>(new SatSolverGlueMiniSat2(js_obj));
   }
-  else if ( type == "lingeling" ) {
+  if ( type == "lingeling" ) {
     // lingeling
     return unique_ptr<SatSolverImpl>(new SatSolverLingeling(js_obj));
   }
-  else if ( type == "ymsat" ) {
+  if ( type == "ymsat" ) {
     return unique_ptr<SatSolverImpl>{new SatCore{js_obj}};
   }
-  else if ( type == "ymsat1" ) {
-    Json::Value js_obj1;
-    js_obj1["controller"] = Json::Value{"minisat1"};
-    js_obj1["analyzer"] = Json::Value{"uip1"};
-    Json::Value js_obj2;
-    js_obj2["type"] = Json::Value{"wlposi"};
-    js_obj1["selector"] = js_obj2;
+  if ( type == "ymsat1" ) {
+    auto js_obj1 = JsonValue::Object();
+    js_obj1.emplace("controller", JsonValue{"minisat1"});
+    js_obj1.emplace("analyzer", JsonValue{"uip1"});
+    auto js_obj2 = JsonValue::Object();
+    js_obj2.emplace("type", JsonValue{"wlposi"});
+    js_obj1.emplace("selector", js_obj2);
     return unique_ptr<SatSolverImpl>{new SatCore{js_obj1}};
   }
-  else if ( type == "ymsat2" ) {
-    Json::Value js_obj1;
-    js_obj1["controller"] = Json::Value{"minisat2"};
-    js_obj1["analyzer"] = Json::Value{"uip2"};
-    Json::Value js_obj2;
-    js_obj2["type"] = Json::Value{"nega"};
-    js_obj2["phase_cache"] = Json::Value{true};
-    js_obj1["selector"] = js_obj2;
+  if ( type == "ymsat2" ) {
+    auto js_obj1 = JsonValue::Object();
+    js_obj1.emplace("controller", JsonValue{"minisat2"});
+    js_obj1.emplace("analyzer", JsonValue{"uip2"});
+    auto js_obj2 = JsonValue::Object();
+    js_obj2.emplace("type", JsonValue{"nega"});
+    js_obj2.emplace("phase_cache", JsonValue{true});
+    js_obj1.emplace("selector", js_obj2);
     return unique_ptr<SatSolverImpl>{new SatCore{js_obj1}};
   }
-  else if ( type == "ymsat1_old" ) {
+  if ( type == "ymsat1_old" ) {
     return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(js_obj));
   }
   ASSERT_NOT_REACHED;

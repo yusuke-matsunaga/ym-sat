@@ -27,7 +27,7 @@ const Literal Literal::X;
 
 // @brief コンストラクタ
 SatCore::SatCore(
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 ) : mController{Controller::new_obj(*this, js_obj)},
     mAnalyzer{Analyzer::new_obj(*this, js_obj)},
     mSelecter{Selecter::new_obj(*this, js_obj)}

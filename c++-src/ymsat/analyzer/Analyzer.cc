@@ -9,6 +9,7 @@
 #include "Analyzer.h"
 #include "SaUIP1.h"
 #include "SaUIP2.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -17,11 +18,11 @@ BEGIN_NAMESPACE_YM_SAT
 Analyzer*
 Analyzer::new_obj(
   SatCore& core,
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 )
 {
-  if ( js_obj.isMember("analyzer") ) {
-    auto type = js_obj["analyzer"].asString();
+  if ( js_obj.has_key("analyzer") ) {
+    auto type = js_obj["analyzer"].get_string();
     if ( type == "uip1" ) {
       return new SaUIP1{core};
     }

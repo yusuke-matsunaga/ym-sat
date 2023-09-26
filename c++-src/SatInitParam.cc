@@ -54,34 +54,31 @@ SatInitParam::SatInitParam()
     }
   }
   //  4. ハードコードされたデフォルト値を用いる．
-  mJsObj["type"] = Json::Value{"ymsat2"};
+  mJsObj = JsonValue::Object();
+  mJsObj.emplace("type", JsonValue{"ymsat2"});
 }
 
 // @brief コンストラクタ(タイプを表す文字列)
 SatInitParam::SatInitParam(
   const string& type
-)
+) : mJsObj{JsonValue::Object()}
 {
-  if ( type != string{} ) {
-    mJsObj["type"] = Json::Value{type};
-  }
+  mJsObj.emplace("type", JsonValue{type});
   check_type();
 }
 
 // @brief コンストラクタ(タイプを表す文字列)
 SatInitParam::SatInitParam(
   const char* type
-)
+) : mJsObj{JsonValue::Object()}
 {
-  if ( type != nullptr ) {
-    mJsObj["type"] = Json::Value{type};
-  }
+  mJsObj.emplace("type", JsonValue{type});
   check_type();
 }
 
 // @brief コンストラクタ(Jsonオブジェクト)
 SatInitParam::SatInitParam(
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 ) : mJsObj{js_obj}
 {
   check_type();
@@ -106,8 +103,8 @@ SatInitParam::from_json(
 string
 SatInitParam::type() const
 {
-  if ( mJsObj.isObject() && mJsObj.isMember("type") ) {
-    return mJsObj["type"].asString();
+  if ( mJsObj.is_object() && mJsObj.has_key("type") ) {
+    return mJsObj["type"].get_string();
   }
   // 未定義
   return string{};
@@ -119,12 +116,13 @@ SatInitParam::read(
   const string& filename
 )
 {
-  ifstream s{filename};
-  if ( s.good() ) {
-    s >> mJsObj;
+  try {
+    mJsObj = JsonValue::read(filename);
     return true;
   }
-  return false;
+  catch ( std::invalid_argument err ) {
+    return false;
+  }
 }
 
 // @brief type のチェックを行う．

@@ -9,6 +9,7 @@
 #include "Controller.h"
 #include "ControllerMS1.h"
 #include "ControllerMS2.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -17,11 +18,11 @@ BEGIN_NAMESPACE_YM_SAT
 Controller*
 Controller::new_obj(
   SatCore& core,
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 )
 {
-  if ( js_obj.isMember("controller") ) {
-    auto type = js_obj["controller"].asString();
+  if ( js_obj.has_key("controller") ) {
+    auto type = js_obj["controller"].get_string();
     if ( type == "minisat1" ) {
       return new ControllerMS1{core};
     }

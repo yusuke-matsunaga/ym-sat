@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "ym/sat.h"
-#include <json/json.h>
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -56,7 +56,7 @@ public:
 
   /// @brief コンストラクタ(Jsonオブジェクト)
   SatInitParam(
-    const Json::Value& js_obj ///< [in] オプションを表す Json オブジェクト
+    const JsonValue& js_obj ///< [in] オプションを表す Json オブジェクト
   );
 
   /// @brief JSON ファイルからの生成関数
@@ -80,7 +80,7 @@ public:
   type() const;
 
   /// @brief オプションを表す Json オブジェクトを返す．
-  const Json::Value&
+  const JsonValue&
   js_obj() const
   {
     return mJsObj;
@@ -111,7 +111,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 本体
-  Json::Value mJsObj;
+  JsonValue mJsObj;
 
 };
 

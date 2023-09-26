@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "ym/sat.h"
-#include <json/json.h>
+#include "ym/json.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -34,8 +34,8 @@ public:
   static
   Controller*
   new_obj(
-    SatCore& mgr,             ///< [in] Coreマネージャ
-    const Json::Value& js_obj ///< [in] 初期化パラメータ
+    SatCore& mgr,           ///< [in] Coreマネージャ
+    const JsonValue& js_obj ///< [in] 初期化パラメータ
   );
 
   /// @brief デストラクタ

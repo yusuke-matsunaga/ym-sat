@@ -10,6 +10,7 @@
 #include "ym/SatStats.h"
 #include "ym/SatModel.h"
 #include "ym/Range.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -34,7 +35,7 @@ END_NONAMESPACE
 
 // @brief コンストラクタ
 SatSolverLingeling::SatSolverLingeling(
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 ) : mSolver{lglinit()},
     mNumVars{0}
 {

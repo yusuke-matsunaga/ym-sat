@@ -6,10 +6,10 @@
 /// Copyright (C) 2016 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "SatLogger.h"
 #include "SatLoggerS.h"
 #include "ym/SatLiteral.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -21,20 +21,20 @@ BEGIN_NAMESPACE_YM_SAT
 // @brief 新しいインスタンスを生成するクラスメソッド
 unique_ptr<SatLogger>
 SatLogger::new_impl(
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 )
 {
-  if ( js_obj.isMember("log") && js_obj["log"].isObject() ) {
+  if ( js_obj.has_key("log") && js_obj["log"].is_object() ) {
     const auto& log_obj = js_obj["log"];
-    if ( log_obj.isMember("file") ) {
-      auto log_file = log_obj["file"].asString();
+    if ( log_obj.has_key("file") ) {
+      auto log_file = log_obj["file"].get_string();
       auto fs = new ofstream{log_file};
       return unique_ptr<SatLogger>{new SatLoggerS{fs}};
     }
-    if ( log_obj.isMember("stdout") && log_obj["stdout"].asBool() ) {
+    if ( log_obj.has_key("stdout") && log_obj["stdout"].get_bool() ) {
       return unique_ptr<SatLogger>{new SatLoggerS{&cout}};
     }
-    if ( log_obj.isMember("stderr") && log_obj["stderr"].asBool() ) {
+    if ( log_obj.has_key("stderr") && log_obj["stderr"].get_bool() ) {
       return unique_ptr<SatLogger>{new SatLoggerS{&cerr}};
     }
   }

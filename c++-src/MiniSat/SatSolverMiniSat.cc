@@ -9,6 +9,7 @@
 #include "SatSolverMiniSat.h"
 #include "ym/SatStats.h"
 #include "ym/SatModel.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -32,11 +33,11 @@ END_NONAMESPACE
 
 // @brief コンストラクタ
 SatSolverMiniSat::SatSolverMiniSat(
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 )
 {
-  if ( js_obj.isMember("verbose") ) {
-    mSolver.verbosity = js_obj["verbose"].asBool();
+  if ( js_obj.has_key("verbose") ) {
+    mSolver.verbosity = js_obj["verbose"].get_bool();
   }
 }
 

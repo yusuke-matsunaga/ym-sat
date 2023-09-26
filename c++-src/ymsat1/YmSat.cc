@@ -12,6 +12,7 @@
 #include "ym/SatMsgHandler.h"
 #include "Analyzer.h"
 #include "Clause.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT1
@@ -31,7 +32,7 @@ YmSat::Params kDefaultParams{0.95, 0.999};
 
 // @brief コンストラクタ
 YmSat::YmSat(
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 ) : mSane(true),
     mConstrBinNum(0),
     mConstrLitNum(0),

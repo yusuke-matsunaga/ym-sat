@@ -11,6 +11,7 @@
 #include "YmSat.h"
 #include "Clause.h"
 #include "Reason.h"
+#include "ym/json.h"
 
 
 BEGIN_NAMESPACE_YM_SAT1
@@ -154,8 +155,8 @@ public:
   static
   Analyzer*
   gen_analyzer(
-    YmSat* solver,            ///< [in] SATソルバ
-    const Json::Value& js_obj ///< [in] 初期化パラメータ
+    YmSat* solver,          ///< [in] SATソルバ
+    const JsonValue& js_obj ///< [in] 初期化パラメータ
   );
 
 };

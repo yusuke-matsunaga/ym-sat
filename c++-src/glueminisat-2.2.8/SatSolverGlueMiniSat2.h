@@ -10,7 +10,7 @@
 
 #include "SatSolverImpl.h"
 #include "Solver.h"
-#include <json/json.h>
+#include "ym/json.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -26,7 +26,7 @@ public:
 
   /// @brief コンストラクタ
   SatSolverGlueMiniSat2(
-    const Json::Value& js_obj ///< [in] 初期化パラメータ
+    const JsonValue& js_obj ///< [in] 初期化パラメータ
   );
 
   /// @brief デストラクタ

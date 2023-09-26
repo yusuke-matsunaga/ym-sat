@@ -8,6 +8,7 @@
 
 #include "SaUIP1.h"
 #include "SaUIP2.h"
+#include "ym/JsonValue.h"
 
 
 BEGIN_NAMESPACE_YM_SAT1
@@ -16,11 +17,11 @@ BEGIN_NAMESPACE_YM_SAT1
 Analyzer*
 SaFactory::gen_analyzer(
   YmSat* solver,
-  const Json::Value& js_obj
+  const JsonValue& js_obj
 )
 {
-  if ( js_obj.isMember("analyzer") ) {
-    auto atype = js_obj["analyzer"].asString();
+  if ( js_obj.has_key("analyzer") ) {
+    auto atype = js_obj["analyzer"].get_string();
     if ( atype == "uip1" ) {
       return new SaUIP1{solver};
     }
