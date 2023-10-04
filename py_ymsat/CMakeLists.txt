@@ -56,6 +56,11 @@ target_link_libraries( py_ymsatlib
   ${Python3_LIBRARIES}
   )
 
+
 # ===================================================================
-# テストターゲット
+# インストールターゲット
 # ===================================================================
+
+install( TARGETS py_ymsatlib
+  LIBRARY DESTINATION lib/${YM_PYTHON_STRING}/site-packages
+  )
