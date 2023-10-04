@@ -7,7 +7,6 @@
 /// All rights reserved.
 
 #include "ym/SatSolver.h"
-#include "ym/CombiGen.h"
 #include "ym/Range.h"
 
 

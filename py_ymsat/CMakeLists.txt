@@ -41,7 +41,8 @@ add_library( py_ymsatlib
   SHARED
   $<TARGET_OBJECTS:py_ymsat_obj>
   $<TARGET_OBJECTS:ym_sat_obj>
-  $<TARGET_OBJECTS:ym_base_obj>
+  #$<TARGET_OBJECTS:ym_base_obj>
+  $<TARGET_OBJECTS:ym_json_obj>
   )
 
 set_target_properties( py_ymsatlib

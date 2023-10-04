@@ -20,7 +20,8 @@
 
 add_executable ( sat_test1
   sat_test.cc
-  $<TARGET_OBJECTS:ym_base_obj_d>
+  #$<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_sat_obj_d>
   )
 
