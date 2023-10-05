@@ -26,8 +26,8 @@ def test_add_clause1(solver):
 
     r = solver.solve()
 
-    assert r == SatBool3._True
+    assert r == SatBool3.true
 
-    assert solver.read_model(v1) == SatBool3._False
-    assert solver.read_model(v2) == SatBool3._False
-    assert solver.read_model(v3) == SatBool3._False
+    assert solver.read_model(v1) == SatBool3.false
+    assert solver.read_model(v2) == SatBool3.false
+    assert solver.read_model(v3) == SatBool3.false

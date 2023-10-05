@@ -89,7 +89,7 @@ class CompTest(SolverTest):
                         lit = ~lit
                     assumptions.append(lit)
                 ans = self.solver.solve(assumptions)
-                exp_ans = SatBool3._True if comp(a, b) else SatBool3._False
+                exp_ans = SatBool3.true if comp(a, b) else SatBool3.false
                 if ans != exp_ans:
                     print(f'a = {a}, b = {b}')
                 assert ans == exp_ans

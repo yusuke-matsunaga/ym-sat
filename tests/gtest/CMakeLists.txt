@@ -128,8 +128,8 @@ ym_add_gtest ( sat_Dimacs_test
   "-DDATA_DIR=\"${DATA_DIR}\""
   )
 
-ym_add_gtest ( sat_test
-  sat_test.cc
+ym_add_gtest ( sat_SatSolver_test
+  SatSolver_test.cc
   $<TARGET_OBJECTS:ym_json_obj_d>
   $<TARGET_OBJECTS:ym_sat_obj_d>
   )

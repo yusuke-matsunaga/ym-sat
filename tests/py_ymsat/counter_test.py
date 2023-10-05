@@ -89,12 +89,12 @@ class CounterTest(SolverTest):
                     lit *= True
                 assumptions.append(lit)
             ans = self.solver.solve(assumptions)
-            assert ans == SatBool3._True
+            assert ans == SatBool3.true
             ng = False
             for i in range(no):
                 olit = self.var_list[i + ni]
                 v = self.solver.read_model(olit)
-                exp_v = SatBool3._True if c_exp & (1 << i) else SatBool3._False
+                exp_v = SatBool3.true if c_exp & (1 << i) else SatBool3.false
                 assert v == exp_v
                   
 @pytest.fixture

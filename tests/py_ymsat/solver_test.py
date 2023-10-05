@@ -32,7 +32,7 @@ class SolverTest:
                     lit *= True
                 assumptions.append(lit)
             ans = self.solver.solve(assumptions)
-            exp_ans = SatBool3._True if vals[p] else SatBool3._False
+            exp_ans = SatBool3.true if vals[p] else SatBool3.false
             assert ans == exp_ans
 
     def check_with_cond(self, ni, vals):
@@ -47,7 +47,7 @@ class SolverTest:
                     lit *= True
                 assumptions.append(lit)
             ans = self.solver.solve(assumptions)
-            exp_ans = SatBool3._True
+            exp_ans = SatBool3.true
             assert ans == exp_ans
         for p in range(np):
             assumptions = []
@@ -58,7 +58,7 @@ class SolverTest:
                     lit *= True
                 assumptions.append(lit)
             ans = self.solver.solve(assumptions)
-            exp_ans = SatBool3._True if vals[p] else SatBool3._False
+            exp_ans = SatBool3.true if vals[p] else SatBool3.false
             assert ans == exp_ans
 
     staticmethod

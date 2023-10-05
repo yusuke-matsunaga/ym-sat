@@ -41,7 +41,7 @@ class AtMostTest(SolverTest):
                 else:
                     lit *= True
                 assumptions.append(lit)
-            exp_ans = SatBool3._True if comp(c) else SatBool3._False
+            exp_ans = SatBool3.true if comp(c) else SatBool3.false
             ans = self.solver.solve(assumptions)
             assert ans == exp_ans
 
