@@ -37,30 +37,7 @@ ym_add_object_library( py_ymsat
   ${py_ymsat_SOURCES}
   )
 
-add_library( py_ymsatlib
-  SHARED
-  $<TARGET_OBJECTS:py_ymsat_obj>
-  $<TARGET_OBJECTS:ym_sat_obj>
-  #$<TARGET_OBJECTS:ym_base_obj>
-  $<TARGET_OBJECTS:ym_json_obj>
-  )
-
-set_target_properties( py_ymsatlib
-  PROPERTIES
-  PREFIX ""
-  OUTPUT_NAME "ymsat"
-  )
-
-target_link_libraries( py_ymsatlib
-  ${YM_LIB_DEPENDS}
-  ${Python3_LIBRARIES}
-  )
-
 
 # ===================================================================
 # インストールターゲット
 # ===================================================================
-
-install( TARGETS py_ymsatlib
-  LIBRARY DESTINATION lib/${YM_PYTHON_STRING}/site-packages
-  )
