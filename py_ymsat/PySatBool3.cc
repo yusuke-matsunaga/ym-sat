@@ -235,13 +235,13 @@ PySatBool3::init(
   SatBool3_X = new_const(SatBool3::X);
 
   // 定数オブジェクトの登録
-  if ( !reg_obj("_True", SatBool3_True) ) {
+  if ( !reg_obj("true", SatBool3_True) ) {
     goto error;
   }
-  if ( !reg_obj("_False", SatBool3_False) ) {
+  if ( !reg_obj("false", SatBool3_False) ) {
     goto error;
   }
-  if ( !reg_obj("_X", SatBool3_X) ) {
+  if ( !reg_obj("x", SatBool3_X) ) {
     goto error;
   }
 
