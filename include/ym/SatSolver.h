@@ -1354,29 +1354,21 @@ public:
   );
 
   /// @brief 直前に解いた問題のモデルを返す．
+  ///
+  /// 返される値は内部のデータへの参照なので solve()
+  /// が呼ばれる度に内容が変わるので必要ならばコピー
+  /// を作る必要がある．
   const SatModel&
   model()
   {
     return mModel;
   }
 
-  /// @brief 直前に解いた問題のサイズを返す．
-  SizeType
-  model_size()
-  {
-    return mModel.size();
-  }
-
-  /// @brief 直前に解いた問題の値を返す．
-  SatBool3
-  read_model(
-    SatLiteral lit ///< [in] リテラル
-  )
-  {
-    return mModel.get(lit);
-  }
-
   /// @brief 直前の問題の矛盾の原因のリテラルを返す．
+  ///
+  /// 返される値は内部のデータへの参照なので solve()
+  /// が呼ばれる度に内容が変わるので必要ならばコピー
+  /// を作る必要がある．
   const vector<SatLiteral>&
   conflict_literals()
   {
