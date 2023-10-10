@@ -28,6 +28,11 @@ def test_add_clause1(solver):
 
     assert r == SatBool3.true
 
-    assert solver.read_model(v1) == SatBool3.false
-    assert solver.read_model(v2) == SatBool3.false
-    assert solver.read_model(v3) == SatBool3.false
+    model = solver.model()
+    assert model[v1] == SatBool3.false
+    assert model[v2] == SatBool3.false
+    assert model[v3] == SatBool3.false
+
+    assert model[v1] == solver.read_model(v1)
+    assert model[v2] == solver.read_model(v2)
+    assert model[v3] == solver.read_model(v3)

@@ -3,7 +3,7 @@
 /// @brief Python 用の ymsat モジュールの実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2022, 2023 Yusuke Matsunaga
 /// All rights reserved.
 
 #define PY_SSIZE_T_CLEAN
@@ -11,6 +11,7 @@
 
 #include "pym/PySatBool3.h"
 #include "pym/PySatLiteral.h"
+#include "pym/PySatModel.h"
 #include "pym/PySatSolver.h"
 #include "pym/PyModule.h"
 
@@ -49,6 +50,10 @@ PyInit_ymsat()
   }
 
   if ( !PySatLiteral::init(m) ) {
+    goto error;
+  }
+
+  if ( !PySatModel::init(m) ) {
     goto error;
   }
 

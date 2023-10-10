@@ -25,6 +25,7 @@ set ( py_ymsat_SOURCES
   ymsat_module.cc
   PySatBool3.cc
   PySatLiteral.cc
+  PySatModel.cc
   PySatSolver.cc
   )
 

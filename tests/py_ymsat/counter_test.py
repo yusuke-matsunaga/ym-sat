@@ -90,10 +90,12 @@ class CounterTest(SolverTest):
                 assumptions.append(lit)
             ans = self.solver.solve(assumptions)
             assert ans == SatBool3.true
+            model = self.solver.model()
             ng = False
             for i in range(no):
                 olit = self.var_list[i + ni]
-                v = self.solver.read_model(olit)
+                v = model[olit]
+                assert v == self.solver.read_model(olit)
                 exp_v = SatBool3.true if c_exp & (1 << i) else SatBool3.false
                 assert v == exp_v
                   

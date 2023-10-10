@@ -120,9 +120,10 @@ CounterTest::check(
       SatBool3 stat = mSolver.solve(assumptions);
       EXPECT_EQ( SatBool3::True, stat );
       bool ng = false;
+      auto& model = mSolver.model();
       for ( SizeType i = 0; i < no; ++ i ) {
 	auto olit = mVarList[i + ni];
-	auto v = mSolver.read_model(olit);
+	auto v = model.get(olit);
 	SatBool3 exp_val;
 	if ( c_exp & (1 << i) ) {
 	  exp_val = SatBool3::True;
@@ -139,7 +140,7 @@ CounterTest::check(
 	vector<int> ovals(no, 0);
 	for ( SizeType i = 0; i < no; ++ i ) {
 	  auto olit = mVarList[i + ni];
-	  auto v = mSolver.read_model(olit);
+	  auto v = model.get(olit);
 	  if ( v == SatBool3::True ) {
 	    c |= (1 << i);
 	    ovals[i] = 1;

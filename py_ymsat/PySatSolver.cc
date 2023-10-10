@@ -9,6 +9,7 @@
 #include "pym/PySatSolver.h"
 #include "pym/PySatBool3.h"
 #include "pym/PySatLiteral.h"
+#include "pym/PySatModel.h"
 #include "pym/PyModule.h"
 #include "ym/SatInitParam.h"
 #include "ym/JsonValue.h"
@@ -940,14 +941,14 @@ SatSolver_solve(
 }
 
 PyObject*
-SatSolver_model_size(
+SatSolver_model(
   PyObject* self,
   PyObject* Py_UNUSED(args)
 )
 {
   auto& solver = PySatSolver::Get(self);
-  auto n = solver.model_size();
-  return PyLong_FromLong(n);
+  auto& model = solver.model();
+  return PySatModel::ToPyObject(model);
 }
 
 PyObject*
@@ -962,7 +963,8 @@ SatSolver_read_model(
   }
   auto lit = PySatLiteral::Get(lit_obj);
   auto& solver = PySatSolver::Get(self);
-  auto val = solver.read_model(lit);
+  auto& model = solver.model();
+  auto val = model[lit];
   return PySatBool3::ToPyObject(val);
 }
 
@@ -1036,10 +1038,10 @@ PyMethodDef SatSolver_methods[] = {
   {"solve", reinterpret_cast<PyCFunction>(SatSolver_solve),
    METH_VARARGS | METH_KEYWORDS,
    PyDoc_STR("solve the SAT problem")},
-  {"model_size", SatSolver_model_size, METH_NOARGS,
-   PyDoc_STR("return the size of the model")},
+  {"model", SatSolver_model, METH_NOARGS,
+   PyDoc_STR("returns the model")},
   {"read_model", SatSolver_read_model, METH_VARARGS,
-   PyDoc_STR("return the value of the model")},
+   PyDoc_STR("returns the value of the model at the specified literal")},
   {nullptr, nullptr, 0, nullptr}
 };
 
