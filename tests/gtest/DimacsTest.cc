@@ -70,4 +70,73 @@ TEST(DimacsTest, read_dimacs)
   EXPECT_TRUE( stat );
 }
 
+TEST(DimacsTest, read_dimacs_err1)
+{
+  SatDimacs dimacs;
+
+  const char* data_str =
+    "1 2 3 0\n"
+    "%\n"
+    "0";
+  istringstream buf{data_str};
+  bool stat = dimacs.read_dimacs(buf);
+  EXPECT_FALSE( stat );
+  auto& msg_list = dimacs.message_list();
+  auto& msg = msg_list.front();
+  EXPECT_EQ( "Error at line 2: unexpected end-of-file", msg );
+}
+
+TEST(DimacsTest, read_dimacs_err2)
+{
+  SatDimacs dimacs;
+
+  const char* data_str =
+    "p cnf 10 20\n"
+    "p cnf 20 30\n"
+    "%\n"
+    "0";
+  istringstream buf{data_str};
+  bool stat = dimacs.read_dimacs(buf);
+  EXPECT_FALSE( stat );
+  auto& msg_list = dimacs.message_list();
+  auto& msg = msg_list.front();
+  EXPECT_EQ( "Error at line 2: duplicated 'p' block", msg );
+}
+
+TEST(DimacsTest, read_dimacs_err3)
+{
+  SatDimacs dimacs;
+
+  const char* data_str =
+    "p cnf 10 20\n"
+    "1 2 0\n"
+    "abc 0\n"
+    "%\n"
+    "0";
+  istringstream buf{data_str};
+  bool stat = dimacs.read_dimacs(buf);
+  EXPECT_FALSE( stat );
+  auto& msg_list = dimacs.message_list();
+  auto& msg = msg_list.front();
+  EXPECT_EQ( "Error at line 3: syntax error", msg );
+}
+
+TEST(DimacsTest, read_dimacs_err4)
+{
+  SatDimacs dimacs;
+
+  const char* data_str =
+    "p cnf 10 20\n"
+    "1 2 0\n"
+    "-2 abc 0\n"
+    "%\n"
+    "0";
+  istringstream buf{data_str};
+  bool stat = dimacs.read_dimacs(buf);
+  EXPECT_FALSE( stat );
+  auto& msg_list = dimacs.message_list();
+  auto& msg = msg_list.front();
+  EXPECT_EQ( "Error at line 3: syntax error", msg );
+}
+
 END_NAMESPACE_YM

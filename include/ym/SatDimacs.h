@@ -17,6 +17,15 @@ BEGIN_NAMESPACE_YM_SAT
 /// @class SatDimacs SatDimacs.h "ym/SatDimacs.h"
 /// @brief DIMCAS 形式のファイルの内容を表すクラス
 ///
+/// 具体的には以下の内容を持つ．
+/// - 変数の数
+///   正確には使われている変数番号の最大値 + 1
+/// - 節のリスト
+///   節は整数のリスト
+///   正の整数は正のリテラルを表し，負の整数は負のリテラルを表す．
+///   変数番号を x, 極性(1 or -1)を b とすると (x + 1) * b
+///   となる．
+///
 /// SatSolver とは直接関係はない．
 //////////////////////////////////////////////////////////////////////
 class SatDimacs
@@ -92,23 +101,31 @@ public:
   {
     mVarNum = 0;
     mClauseList.clear();
+    mMessageList.clear();
   }
 
   /// @brief 節を追加する．
   ///
   /// 正の整数が正のリテラル，負の整数が負のリテラルを表す．
-  /// 変数番号は 0 から始まる．
+  /// 変数番号に 1 を足したものに符号を掛ける．
   /// 例えば
   /// * 0 の正のリテラル -> 1
   /// * 1 の負のリテラル -> -2
   /// となる．
+  ///
+  /// 値が 0 は不正値なので std::invalid_argument 例外を送出する．
   void
   add_clause(
     const vector<int>& lit_list ///< [in] 節を表す int のリスト
   )
   {
+    // 基本的には lit_list を mClauseList に追加するだけだが
+    // lit_list の内容のチェックを行う．
     // 変数番号が mVarNum よりも大きければ更新する．
     for ( auto lit: lit_list ) {
+      if ( lit == 0 ) {
+	throw std::invalid_argument{"invalid value (0) appears"};
+      }
       int var;
       int pol;
       tie(var, pol) = decode_lit(lit);
@@ -138,7 +155,7 @@ public:
     const char* filename ///< [in] ファイル名
   )
   {
-    ifstream s(filename);
+    ifstream s{filename};
     if ( !s ) {
       return false;
     }
@@ -154,12 +171,19 @@ public:
     const string& filename ///< [in] ファイル名
   )
   {
-    ifstream s(filename);
+    ifstream s{filename};
     if ( !s ) {
       return false;
     }
 
     return read_dimacs(s);
+  }
+
+  /// @brief 直前の read_dimacs() のメッセージを返す．
+  const vector<string>&
+  message_list() const
+  {
+    return mMessageList;
   }
 
 
@@ -169,8 +193,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief int から変数番号と極性(0 or 1)を取り出す．
-  /// @param[in] var 変数番号 ( 0 から始まる )
-  /// @param[in] pol 極性 ( 0 or 1 )
+  /// return var, pol のタプルを返す．
+  ///
+  /// var は変数番号 ( 0 から始まる )
+  /// pol は極性 ( 0 or 1 ) で 1 が反転
   static
   tuple<int, int>
   decode_lit(
@@ -204,6 +230,9 @@ private:
 
   // 節のリスト
   vector<vector<int>> mClauseList;
+
+  // メッセージリスト
+  vector<string> mMessageList;
 
 };
 

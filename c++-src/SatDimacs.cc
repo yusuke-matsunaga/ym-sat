@@ -6,20 +6,16 @@
 /// Copyright (C) 2018, 2019 Yusuke Matsunaga
 /// All rights reserved.
 
-
 #include "ym/SatDimacs.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 // @brief 評価する．
-// @param[in] model モデル
-// @retval true 充足した．
-// @retval false 充足しなかった．
-//
-// model[i] に i 番目の変数の値 ( 0 or 1 ) を入れる．
 bool
-SatDimacs::eval(const vector<int>& model) const
+SatDimacs::eval(
+  const vector<int>& model
+) const
 {
   for ( auto lit_list: mClauseList ) {
     bool sat = false;
@@ -41,9 +37,10 @@ SatDimacs::eval(const vector<int>& model) const
 }
 
 // @brief 内容を DIMACS 形式で出力する．
-// @param[in] s 出力先のストリーム
 void
-SatDimacs::write_dimacs(ostream& s) const
+SatDimacs::write_dimacs(
+  ostream& s
+) const
 {
   s << "p cnf " << variable_num() << " " << clause_num() << endl;
   for ( auto lit_list: mClauseList ) {
@@ -57,11 +54,10 @@ SatDimacs::write_dimacs(ostream& s) const
 }
 
 // @brief DIMACS 形式のファイルを読んで SatDimacs に設定する．
-// @param[in] s 入力元のストリーム
-// @retval true 読み込みが成功した．
-// @retval false 読み込みが失敗した．
 bool
-SatDimacs::read_dimacs(istream& s)
+SatDimacs::read_dimacs(
+  istream& s
+)
 {
   // 読込用の内部状態
   enum {
@@ -96,7 +92,7 @@ SatDimacs::read_dimacs(istream& s)
   regex pat_E{R"(^%)"};
 
   // リテラルのパタン
-  regex pat_L{R"(\s*(-?\d+))"};
+  regex pat_L{R"(^\s*(-?\d+))"};
 
   // 行バッファ
   string buff;
@@ -112,7 +108,10 @@ SatDimacs::read_dimacs(istream& s)
     if ( regex_match(buff, match, pat_P) ) {
       if ( dec_nv > 0 ) {
 	// p 行が重複していた．
-#warning "TODO: エラーメッセージを出力する．"
+	ostringstream buf;
+	buf << "Error at line " << lineno << ": duplicated 'p' block";
+	mMessageList.push_back(buf.str());
+	return false;
       }
       dec_nv = stoi(match[1]);
       dec_nc = stoi(match[2]);
@@ -129,7 +128,10 @@ SatDimacs::read_dimacs(istream& s)
     while ( true ) {
       if ( !regex_search(start, end, match, pat_L) ) {
 	// シンタックスエラー
-#warning "TODO: エラーメッセージを出力する．"
+	ostringstream buf;
+	buf << "Error at line " << lineno << ": syntax error";
+	mMessageList.push_back(buf.str());
+	return false;
       }
       int lit = stoi(match[1]);
       if ( lit == 0 ) {
@@ -146,78 +148,27 @@ SatDimacs::read_dimacs(istream& s)
       start = match[0].second;
     }
   }
-  normal_end:
+
   if ( dec_nv == 0 ) {
-#if 0
-    add_msg(__FILE__, __LINE__,
-	    loc,
-	    kMsgError,
-	    "ERR02",
-	    "unexpected end-of-file");
-#endif
-    cout << "ERR02: unexpected end-of-file" << endl;
-    goto error;
+    ostringstream buf;
+    buf << "Error at line " << lineno << ": unexpected end-of-file";
+    mMessageList.push_back(buf.str());
+    return false;
   }
   if ( dec_nv < max_v ) {
-#if 0
-    add_msg(__FILE__, __LINE__,
-	    loc,
-	    kMsgWarning,
-	    "WRN01",
-	    "actual number of variables is more than the declared");
-#endif
+    auto msg = "Warning: actual number of variables is more than the declared";
+    mMessageList.push_back(msg);
   }
   if ( dec_nc > act_nc ) {
-#if 0
-    add_msg(__FILE__, __LINE__,
-	    loc,
-	    kMsgWarning,
-	    "WRN02",
-	    "actual number of clauses is less than the declared");
-#endif
+    auto msg = "Warning: actual number of clauses is less than the declared";
+    mMessageList.push_back(msg);
   }
   else if ( dec_nc < act_nc ) {
-#if 0
-    add_msg(__FILE__, __LINE__,
-	    loc,
-	    kMsgWarning,
-	    "WRN03",
-	    "actual number of clauses is more than the declared");
-#endif
+    auto msg = "Warning: actual number of clauses is more than the declared";
+    mMessageList.push_back(msg);
   }
 
   return true;
-
- p_error:
-#if 0
-  add_msg(__FILE__, __LINE__,
-	  loc,
-	  kMsgError,
-	  "ERR03",
-	  "syntax error \"p cnf <num of vars> <num of clauses>\" expected");
-#endif
-  cout << "ERR03 : "
-       << "syntax error \"p cnf <num of vars> <num of clauses>\" expected"
-       << endl;
-
-  goto error;
-
- n_error:
-#if 0
-  add_msg(__FILE__, __LINE__,
-	  loc,
-	  kMsgError,
-	  "ERR04",
-	  "syntax error \"<lit_1> <lit_2> ... <lit_n> 0\" expected");
-#endif
-  cout << "ERR04 : "
-       << "syntax error \"<lit_1> <lit_2> ... <lit_n> 0\" expected"
-       << endl;
-  goto error;
-
- error:
-
-  return false;
 }
 
 END_NAMESPACE_YM_SAT
