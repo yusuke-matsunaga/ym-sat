@@ -103,8 +103,14 @@ SatSolver_new(
   PyObject* kwds
 )
 {
+  // キーワード引数がないことをチェックするために必要
+  static const char* kwlist[] = {
+    nullptr
+  };
   PyObject* init_param_obj = nullptr;
-  if ( !PyArg_ParseTuple(args, "|O", &init_param_obj) ) {
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "|O",
+				    const_cast<char**>(kwlist),
+				    &init_param_obj) ) {
     return nullptr;
   }
 
@@ -968,6 +974,24 @@ SatSolver_read_model(
   return PySatBool3::ToPyObject(val);
 }
 
+PyObject*
+SatSolver_conflict_literals(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto& solver = PySatSolver::Get(self);
+  auto& conf_lits = solver.conflict_literals();
+  SizeType n = conf_lits.size();
+  auto ans_obj = PyList_New(n);
+  for ( SizeType i = 0; i < n; ++ i ) {
+    auto lit = conf_lits[i];
+    auto lit_obj = PySatLiteral::ToPyObject(lit);
+    PyList_SetItem(ans_obj, i, lit_obj);
+  }
+  return ans_obj;
+}
+
 // メソッド定義
 PyMethodDef SatSolver_methods[] = {
   {"new_variable", reinterpret_cast<PyCFunction>(SatSolver_new_variable),
@@ -1042,6 +1066,8 @@ PyMethodDef SatSolver_methods[] = {
    PyDoc_STR("returns the model")},
   {"read_model", SatSolver_read_model, METH_VARARGS,
    PyDoc_STR("returns the value of the model at the specified literal")},
+  {"conflict_literals", SatSolver_conflict_literals, METH_NOARGS,
+   PyDoc_STR("returns the list of literals which cause the conflict")},
   {nullptr, nullptr, 0, nullptr}
 };
 
