@@ -166,8 +166,9 @@ SatSolver_new_variable(
   return PySatLiteral::ToPyObject(lit);
 }
 
+// SatLiteral のリストをパースする．
 bool
-parse_args(
+parse_lits(
   PyObject* args,
   vector<SatLiteral>& lit_list
 )
@@ -181,7 +182,7 @@ parse_args(
     auto n = PySequence_Size(args);
     for ( int i = 0; i < n; ++ i ) {
       auto arg = PySequence_GetItem(args, i);
-      bool stat = parse_args(arg, lit_list);
+      bool stat = parse_lits(arg, lit_list);
       Py_DECREF(arg);
       if ( !stat ) {
 	return false;
@@ -202,7 +203,7 @@ SatSolver_set_conditional_literals(
   // おおまかには SatLiteral のリストを引数に取る．
   // ただし，複数の SatLiteral の引数の場合もある．
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -230,7 +231,7 @@ SatSolver_add_clause(
   // おおまかには SatLiteral のリストを引数に取る．
   // ただし，複数の SatLiteral の引数の場合もある．
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -279,7 +280,7 @@ SatSolver_add_notgate(
 }
 
 bool
-parse_args2(
+parse_lit_lits(
   PyObject* args,
   SatLiteral& olit,
   vector<SatLiteral>& lit_list
@@ -303,7 +304,7 @@ parse_args2(
     }
     for ( int i = 1; i < n; ++ i ) {
       auto arg = PySequence_GetItem(args, i);
-      bool stat = parse_args(arg, lit_list);
+      bool stat = parse_lits(arg, lit_list);
       Py_DECREF(arg);
       if ( !stat ) {
 	return false;
@@ -323,7 +324,7 @@ SatSolver_add_andgate(
 {
   SatLiteral olit;
   vector<SatLiteral> lit_list;
-  if ( !parse_args2(args, olit, lit_list) ) {
+  if ( !parse_lit_lits(args, olit, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -339,7 +340,7 @@ SatSolver_add_nandgate(
 {
   SatLiteral olit;
   vector<SatLiteral> lit_list;
-  if ( !parse_args2(args, olit, lit_list) ) {
+  if ( !parse_lit_lits(args, olit, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -355,7 +356,7 @@ SatSolver_add_orgate(
 {
   SatLiteral olit;
   vector<SatLiteral> lit_list;
-  if ( !parse_args2(args, olit, lit_list) ) {
+  if ( !parse_lit_lits(args, olit, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -371,7 +372,7 @@ SatSolver_add_norgate(
 {
   SatLiteral olit;
   vector<SatLiteral> lit_list;
-  if ( !parse_args2(args, olit, lit_list) ) {
+  if ( !parse_lit_lits(args, olit, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -387,7 +388,7 @@ SatSolver_add_xorgate(
 {
   SatLiteral olit;
   vector<SatLiteral> lit_list;
-  if ( !parse_args2(args, olit, lit_list) ) {
+  if ( !parse_lit_lits(args, olit, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -403,7 +404,7 @@ SatSolver_add_xnorgate(
 {
   SatLiteral olit;
   vector<SatLiteral> lit_list;
-  if ( !parse_args2(args, olit, lit_list) ) {
+  if ( !parse_lit_lits(args, olit, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -563,7 +564,7 @@ SatSolver_add_at_most_one(
 )
 {
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -578,12 +579,49 @@ SatSolver_add_at_most_two(
 )
 {
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
   solver.add_at_most_two(lit_list);
   Py_RETURN_NONE;
+}
+
+bool
+parse_int_lits(
+  PyObject* args,
+  int& k,
+  vector<SatLiteral>& lit_list
+)
+{
+  if ( PySequence_Check(args) ) {
+    auto n = PySequence_Size(args);
+    if ( n <= 1 ) {
+      PyErr_SetString(PyExc_TypeError, "an integer and sequence of SatLiterals are expected.");
+      return false;
+    }
+    {
+      auto arg0 = PySequence_GetItem(args, 0);
+      if ( !PyLong_Check(arg0) ) {
+	Py_DECREF(arg0);
+	PyErr_SetString(PyExc_TypeError, "1st argument should be an integer.");
+	return false;
+      }
+      k = PyLong_AsLong(arg0);
+      Py_DECREF(arg0);
+    }
+    for ( int i = 1; i < n; ++ i ) {
+      auto arg = PySequence_GetItem(args, i);
+      bool stat = parse_lits(arg, lit_list);
+      Py_DECREF(arg);
+      if ( !stat ) {
+	return false;
+      }
+    }
+    return true;
+  }
+  PyErr_SetString(PyExc_TypeError, "an integer and sequence of SatLiterals are expected.");
+  return false;
 }
 
 PyObject*
@@ -592,14 +630,9 @@ SatSolver_add_at_most_k(
   PyObject* args
 )
 {
-  PyObject* ilits_obj = nullptr;
   int k;
-  if ( !PyArg_ParseTuple(args, "Oi", &ilits_obj, &k) ) {
-    return nullptr;
-  }
   vector<SatLiteral> lit_list;
-  if ( !conv_to_lit_list(ilits_obj, lit_list) ) {
-    PyErr_SetString(PyExc_TypeError, "1st argument should be a list of SatLiteral");
+  if ( !parse_int_lits(args, k, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -614,7 +647,7 @@ SatSolver_add_at_least_one(
 )
 {
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -629,7 +662,7 @@ SatSolver_add_at_least_two(
 )
 {
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -643,14 +676,9 @@ SatSolver_add_at_least_k(
   PyObject* args
 )
 {
-  PyObject* ilits_obj = nullptr;
   int k;
-  if ( !PyArg_ParseTuple(args, "Oi", &ilits_obj, &k) ) {
-    return nullptr;
-  }
   vector<SatLiteral> lit_list;
-  if ( !conv_to_lit_list(ilits_obj, lit_list) ) {
-    PyErr_SetString(PyExc_TypeError, "1st argument should be a list of SatLiteral");
+  if ( !parse_int_lits(args, k, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -665,7 +693,7 @@ SatSolver_add_exact_one(
 )
 {
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -680,7 +708,7 @@ SatSolver_add_exact_two(
 )
 {
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -694,14 +722,9 @@ SatSolver_add_exact_k(
   PyObject* args
 )
 {
-  PyObject* ilits_obj = nullptr;
   int k;
-  if ( !PyArg_ParseTuple(args, "Oi", &ilits_obj, &k) ) {
-    return nullptr;
-  }
   vector<SatLiteral> lit_list;
-  if ( !conv_to_lit_list(ilits_obj, lit_list) ) {
-    PyErr_SetString(PyExc_TypeError, "1st argument should be a list of SatLiteral");
+  if ( !parse_int_lits(args, k, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -716,7 +739,7 @@ SatSolver_add_not_one(
 )
 {
   vector<SatLiteral> lit_list;
-  if ( !parse_args(args, lit_list) ) {
+  if ( !parse_lits(args, lit_list) ) {
     return nullptr;
   }
   auto& solver = PySatSolver::Get(self);
@@ -937,7 +960,7 @@ SatSolver_solve(
   }
   vector<SatLiteral> assumptions;
   if ( obj1 != nullptr ) {
-    if ( !parse_args(obj1, assumptions) ) {
+    if ( !parse_lits(obj1, assumptions) ) {
       return nullptr;
     }
   }

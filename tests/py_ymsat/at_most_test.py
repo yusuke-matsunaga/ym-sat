@@ -87,27 +87,27 @@ def test_at_most_two_5l(sat_test_fixture):
 
 def test_at_most_3_10(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(10) ]
-    sat_test_fixture.solver.add_at_most_k(lit_list, 3)
+    sat_test_fixture.solver.add_at_most_k(3, lit_list)
     sat_test_fixture.check_at_most(10, 3)
 
 def test_at_most_5_10(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(10) ]
-    sat_test_fixture.solver.add_at_most_k(lit_list, 5)
+    sat_test_fixture.solver.add_at_most_k(5, lit_list)
     sat_test_fixture.check_at_most(10, 5)
 
 def test_at_most_3_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_at_most_k(lit_list, 3)
+    sat_test_fixture.solver.add_at_most_k(3, lit_list)
     sat_test_fixture.check_at_most(15, 3)
 
 def test_at_most_5_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_at_most_k(lit_list, 5)
+    sat_test_fixture.solver.add_at_most_k(5, lit_list)
     sat_test_fixture.check_at_most(15, 5)
 
 def test_at_most_10_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_at_most_k(lit_list, 10)
+    sat_test_fixture.solver.add_at_most_k(10, lit_list)
     sat_test_fixture.check_at_most(15, 10)
 
 def test_at_least_one_2(sat_test_fixture):
@@ -148,27 +148,27 @@ def test_at_least_two_5l(sat_test_fixture):
 
 def test_at_least_3_10(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(10) ]
-    sat_test_fixture.solver.add_at_least_k(lit_list, 3)
+    sat_test_fixture.solver.add_at_least_k(3, lit_list)
     sat_test_fixture.check_at_least(10, 3)
 
 def test_at_least_5_10(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(10) ]
-    sat_test_fixture.solver.add_at_least_k(lit_list, 5)
+    sat_test_fixture.solver.add_at_least_k(5, lit_list)
     sat_test_fixture.check_at_least(10, 5)
 
 def test_at_least_3_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_at_least_k(lit_list, 3)
+    sat_test_fixture.solver.add_at_least_k(3, lit_list)
     sat_test_fixture.check_at_least(15, 3)
 
 def test_at_least_5_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_at_least_k(lit_list, 5)
+    sat_test_fixture.solver.add_at_least_k(5, lit_list)
     sat_test_fixture.check_at_least(15, 5)
 
 def test_at_least_10_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_at_least_k(lit_list, 10)
+    sat_test_fixture.solver.add_at_least_k(10, lit_list)
     sat_test_fixture.check_at_least(15, 10)
 
 def test_exact_one_2(sat_test_fixture):
@@ -209,27 +209,27 @@ def test_exact_two_5l(sat_test_fixture):
 
 def test_exact_3_10(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(10) ]
-    sat_test_fixture.solver.add_exact_k(lit_list, 3)
+    sat_test_fixture.solver.add_exact_k(3, lit_list)
     sat_test_fixture.check_exact(10, 3)
 
 def test_exact_5_10(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(10) ]
-    sat_test_fixture.solver.add_exact_k(lit_list, 5)
+    sat_test_fixture.solver.add_exact_k(5, lit_list)
     sat_test_fixture.check_exact(10, 5)
 
 def test_exact_3_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_exact_k(lit_list, 3)
+    sat_test_fixture.solver.add_exact_k(3, lit_list)
     sat_test_fixture.check_exact(15, 3)
 
 def test_exact_5_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_exact_k(lit_list, 5)
+    sat_test_fixture.solver.add_exact_k(5, lit_list)
     sat_test_fixture.check_exact(15, 5)
 
 def test_exact_10_15(sat_test_fixture):
     lit_list = [ sat_test_fixture.var_list[i] for i in range(15) ]
-    sat_test_fixture.solver.add_exact_k(lit_list, 10)
+    sat_test_fixture.solver.add_exact_k(10, lit_list)
     sat_test_fixture.check_exact(15, 10)
 
 def test_not_one_2(sat_test_fixture):
