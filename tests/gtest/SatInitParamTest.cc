@@ -70,7 +70,7 @@ TEST(SatInitParamTest, bad_const2)
 TEST(SatInitParamTest, bad_const3)
 {
   string type{"badsat"};
-  JsonValue js_obj{unordered_map<string, JsonValue>{{"type", type}}};
+  JsonValue js_obj{unordered_map<string, JsonValue>{{"type", JsonValue{type}}}};
   ASSERT_THROW({
       SatInitParam param{js_obj};
     }, std::invalid_argument);
