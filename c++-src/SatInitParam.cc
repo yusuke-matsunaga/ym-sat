@@ -54,25 +54,31 @@ SatInitParam::SatInitParam()
     }
   }
   //  4. ハードコードされたデフォルト値を用いる．
-  mJsObj = JsonValue::Object();
-  mJsObj.emplace("type", JsonValue{"ymsat2"});
+  const char* conf_str = "{"
+    "  'type': 'ymsat2'"
+    "}";
+  mJsObj = JsonValue::parse(conf_str);
 }
 
 // @brief コンストラクタ(タイプを表す文字列)
 SatInitParam::SatInitParam(
   const string& type
-) : mJsObj{JsonValue::Object()}
+)
 {
-  mJsObj.emplace("type", JsonValue{type});
+  ostringstream buf;
+  buf << "{'type': '" << type << "'}";
+  mJsObj = JsonValue::parse(buf.str());
   check_type();
 }
 
 // @brief コンストラクタ(タイプを表す文字列)
 SatInitParam::SatInitParam(
   const char* type
-) : mJsObj{JsonValue::Object()}
+)
 {
-  mJsObj.emplace("type", JsonValue{type});
+  ostringstream buf;
+  buf << "{'type': '" << type << "'}";
+  mJsObj = JsonValue::parse(buf.str());
   check_type();
 }
 

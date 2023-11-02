@@ -49,23 +49,27 @@ SatSolverImpl::new_impl(
     return unique_ptr<SatSolverImpl>{new SatCore{js_obj}};
   }
   if ( type == "ymsat1" ) {
-    auto js_obj1 = JsonValue::Object();
-    js_obj1.emplace("controller", JsonValue{"minisat1"});
-    js_obj1.emplace("analyzer", JsonValue{"uip1"});
-    auto js_obj2 = JsonValue::Object();
-    js_obj2.emplace("type", JsonValue{"wlposi"});
-    js_obj1.emplace("selector", js_obj2);
-    return unique_ptr<SatSolverImpl>{new SatCore{js_obj1}};
+    const char* conf_str = "{"
+      "  'controller': 'minisat1',"
+      "  'analyzer': 'uip1',"
+      "  'selector': {"
+      "    'type': 'wlposi'"
+      "  }"
+      "}";
+    auto option = JsonValue::parse(conf_str);
+    return unique_ptr<SatSolverImpl>(new SatCore{option});
   }
   if ( type == "ymsat2" ) {
-    auto js_obj1 = JsonValue::Object();
-    js_obj1.emplace("controller", JsonValue{"minisat2"});
-    js_obj1.emplace("analyzer", JsonValue{"uip2"});
-    auto js_obj2 = JsonValue::Object();
-    js_obj2.emplace("type", JsonValue{"nega"});
-    js_obj2.emplace("phase_cache", JsonValue{true});
-    js_obj1.emplace("selector", js_obj2);
-    return unique_ptr<SatSolverImpl>{new SatCore{js_obj1}};
+    const char* conf_str = "{"
+      "  'controller': 'minisat2',"
+      "  'analyzer': 'uip2',"
+      "  'selector': {"
+      "    'type': 'nega',"
+      "    'phase_cache': true"
+      "  }"
+      "}";
+    auto option = JsonValue::parse(conf_str);
+    return unique_ptr<SatSolverImpl>{new SatCore{option}};
   }
   if ( type == "ymsat1_old" ) {
     return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(js_obj));

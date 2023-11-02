@@ -30,12 +30,11 @@ TEST(SatInitParamTest, const2)
 
 TEST(SatInitParamTest, const3)
 {
-  string type{"ymsat2"};
-  auto js_obj = JsonValue::Object();
-  js_obj.emplace("type", JsonValue{type});
+  const char* conf_str = "{'type': 'ymsat2'}";
+  auto js_obj = JsonValue::parse(conf_str);
   SatInitParam param{js_obj};
 
-  EXPECT_EQ( string{type}, param.type() );
+  EXPECT_EQ( "ymsat2", param.type() );
 }
 
 TEST(SatInitParamTest, const4)
