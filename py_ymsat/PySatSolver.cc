@@ -103,8 +103,8 @@ SatSolver_new(
   PyObject* kwds
 )
 {
-  // キーワード引数がないことをチェックするために必要
   static const char* kwlist[] = {
+    "init_param",
     nullptr
   };
   PyObject* init_param_obj = nullptr;
