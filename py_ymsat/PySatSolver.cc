@@ -116,14 +116,8 @@ SatSolver_new(
 
   SatInitParam init_param;
   if ( init_param_obj != nullptr ) {
-    if ( PyUnicode_Check(init_param_obj) ) {
-      // 文字列の場合 type 属性とみなす．
-      auto type_str = PyUnicode_AsUTF8(init_param_obj);
-      init_param = SatInitParam{string{type_str}};
-    }
-    else {
-      auto js_obj = obj_to_json(init_param_obj);
-      init_param = SatInitParam{js_obj};
+    if ( !PySatSolver::parse_init_param(init_param_obj, init_param) ) {
+      return nullptr;
     }
   }
 
@@ -1148,6 +1142,30 @@ PyTypeObject*
 PySatSolver::_typeobject()
 {
   return &PySatSolverType;
+}
+
+// @brief PyObject を SatInitParam に変換する．
+bool
+PySatSolver::parse_init_param(
+  PyObject* obj,
+  SatInitParam& init_param
+)
+{
+  if ( PyUnicode_Check(obj) ) {
+    // 文字列の場合 type 属性とみなす．
+    auto type_str = PyUnicode_AsUTF8(obj);
+    init_param = SatInitParam{string{type_str}};
+    return true;
+  }
+  try {
+    auto js_obj = obj_to_json(obj);
+    init_param = SatInitParam{js_obj};
+    return true;
+  }
+  catch ( std::invalid_argument err ) {
+    PyErr_SetString(PyExc_ValueError, err.what());
+    return false;
+  }
 }
 
 END_NAMESPACE_YM

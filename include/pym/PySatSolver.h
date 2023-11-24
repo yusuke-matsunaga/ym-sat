@@ -59,6 +59,15 @@ public:
   PyTypeObject*
   _typeobject();
 
+  /// @brief PyObject を SatInitParam に変換する．
+  /// @return 変更が成功したら true を返す．
+  static
+  bool
+  parse_init_param(
+    PyObject* obj,           ///< [in] 変換元の PyObject
+    SatInitParam& init_param ///< [out] 変換したパラメータを格納する変数
+  );
+
 };
 
 END_NAMESPACE_YM
