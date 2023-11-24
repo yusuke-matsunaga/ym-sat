@@ -85,8 +85,16 @@ SatInitParam::SatInitParam(
 // @brief コンストラクタ(Jsonオブジェクト)
 SatInitParam::SatInitParam(
   const JsonValue& js_obj
-) : mJsObj{js_obj}
+)
 {
+  if ( js_obj.is_string() ) {
+    ostringstream buf;
+    buf << "{'type': '" << js_obj.get_string() << "'}";
+    mJsObj = JsonValue::parse(buf.str());
+  }
+  else if ( js_obj.is_object() ) {
+    mJsObj = js_obj;
+  }
   check_type();
 }
 
