@@ -172,7 +172,7 @@ SatCore::add_clause(
     return;
   }
 
-  if ( !mSane ) {
+  if ( !sane() ) {
     cout << "Error![YmSat]: mSane == false" << endl;
     return;
   }
@@ -411,7 +411,7 @@ SatCore::add_learnt_clause(
 void
 SatCore::reduce_CNF()
 {
-  if ( !mSane ) {
+  if ( !sane() ) {
     return;
   }
   ASSERT_COND( decision_level() == 0 );
@@ -672,11 +672,18 @@ SatCore::solve(
     // UNSAt なら矛盾の原因を作る．
     conflicts.clear();
     SizeType n = mConflicts.size();
-    conflicts.reserve(n);
-    for ( auto l: mConflicts ) {
-      SatVarId vid = l.varid();
-      bool inv = l.is_negative();
-      conflicts.push_back(get_lit(vid, inv));
+    if ( n == 0 ) {
+      // 矛盾の原因がないということは
+      // 元々の式に矛盾があったということ．
+      mSane = false;
+    }
+    else {
+      conflicts.reserve(n);
+      for ( auto l: mConflicts ) {
+	SatVarId vid = l.varid();
+	bool inv = l.is_negative();
+	conflicts.push_back(get_lit(vid, inv));
+      }
     }
   }
 
@@ -1046,7 +1053,7 @@ SatCore::backtrack(
 	 << "backtrack until @" << level << endl;
   }
 
-  if ( level <= decision_level() ) {
+  if ( level < decision_level() ) {
     mAssignList.backtrack(level);
     while ( mAssignList.has_elem() ) {
       auto p = mAssignList.get_prev();
