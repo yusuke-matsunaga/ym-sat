@@ -1046,7 +1046,7 @@ SatCore::backtrack(
 	 << "backtrack until @" << level << endl;
   }
 
-  if ( level < decision_level() ) {
+  if ( level <= decision_level() ) {
     mAssignList.backtrack(level);
     while ( mAssignList.has_elem() ) {
       auto p = mAssignList.get_prev();
