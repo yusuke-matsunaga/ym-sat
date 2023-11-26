@@ -608,6 +608,7 @@ SatCore::solve(
   mConflictNum = 0;
   mDecisionNum = 0;
   mPropagationNum = 0;
+  mConflicts.clear();
 
   // 最終的な結果を納める変数
   auto sat_stat = SatBool3::X;
@@ -832,7 +833,6 @@ SatCore::analyze_final(
   Literal p
 )
 {
-  mConflicts.clear();
   mConflicts.push_back(p);
 
   if ( decision_level() == 0 ) {
