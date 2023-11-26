@@ -9,6 +9,8 @@
 #include "VarHeap.h"
 
 
+#define DOUT cout
+
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
@@ -70,7 +72,7 @@ void
 VarHeap::reset_activity()
 {
   if ( debug_varheap ) {
-    cout << "VarHeap::reset_activity()" << endl;
+    DOUT << "VarHeap::reset_activity()" << endl;
   }
   for ( SizeType i = 0; i < mVarSize; ++ i ) {
     mActivity[i] = 0.0;
@@ -84,11 +86,11 @@ VarHeap::build(
 )
 {
   if ( debug_varheap ) {
-    cout << "VarHeap::build(";
+    DOUT << "VarHeap::build(";
     for ( auto var: var_list ) {
-      cout << " " << var;
+      DOUT << " " << var;
     }
-    cout << ")" << endl;
+    DOUT << ")" << endl;
   }
   for ( SizeType i = 0; i < mVarSize; ++ i ) {
     mHeapPos[i] = -1;
