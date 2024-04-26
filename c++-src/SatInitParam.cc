@@ -11,12 +11,11 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-//////////////////////////////////////////////////////////////////////
-// SatInitParam
-//////////////////////////////////////////////////////////////////////
+BEGIN_NONAMESPACE
 
-// @brief 空のコンストラクタ
-SatInitParam::SatInitParam()
+// デフォルトのオプションを取り出す．
+JsonValue
+default_option()
 {
   //  1. 環境変数 YMSAT_CONF が設定されている場合，${YMSAT_CONF} の値
   //     を設定用の json ファイルとみなして読み込む．
@@ -24,9 +23,11 @@ SatInitParam::SatInitParam()
   {
     auto filename = getenv("YMSAT_CONF");
     if ( filename != nullptr ) {
-      if ( read(filename) ) {
-	// 成功
-	return;
+      try {
+	return JsonValue::read(filename);
+      }
+      catch ( std::invalid_argument err ) {
+	// 無視;
       }
     }
   }
@@ -38,9 +39,11 @@ SatInitParam::SatInitParam()
     auto dirname = getenv("YMSAT_CONFDIR");
     if ( dirname != nullptr ) {
       auto filename = string{dirname} + "/" + "ymsat.json";
-      if ( read(filename) ) {
-	// 成功
-	return;
+      try {
+	return JsonValue::read(filename);
+      }
+      catch ( std::invalid_argument err ) {
+	// 無視;
       }
     }
   }
@@ -48,16 +51,29 @@ SatInitParam::SatInitParam()
   //     ファイルの読み込みに失敗した場合スキップする．
   {
     auto filename = "./ymsat.json";
-    if ( read(filename) ) {
-      // 成功
-      return;
+    try {
+      return JsonValue::read(filename);
+    }
+    catch ( std::invalid_argument err ) {
+      // 無視;
     }
   }
   //  4. ハードコードされたデフォルト値を用いる．
   const char* conf_str = "{"
     "  'type': 'ymsat2'"
     "}";
-  mJsObj = JsonValue::parse(conf_str);
+  return JsonValue::parse(conf_str);
+}
+
+END_NONAMESPACE
+
+//////////////////////////////////////////////////////////////////////
+// SatInitParam
+//////////////////////////////////////////////////////////////////////
+
+// @brief 空のコンストラクタ
+SatInitParam::SatInitParam() : mJsObj{default_option()}
+{
 }
 
 // @brief コンストラクタ(タイプを表す文字列)
@@ -94,6 +110,9 @@ SatInitParam::SatInitParam(
   }
   else if ( js_obj.is_object() ) {
     mJsObj = js_obj;
+  }
+  else if ( js_obj.is_null() ) {
+    mJsObj = default_option();
   }
   check_type();
 }
