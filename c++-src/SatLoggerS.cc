@@ -51,13 +51,6 @@ SatLoggerS::add_clause(const vector<SatLiteral>& lits)
 }
 
 // @brief assumption 付きの SAT 問題を解く．
-// @param[in] assumptions あらかじめ仮定する変数の値割り当てリスト
-// @param[out] model 充足するときの値の割り当てを格納する配列．
-// @retval kSat 充足した．
-// @retval kUnsat 充足不能が判明した．
-// @retval kUndet わからなかった．
-//
-// i 番めの変数の割り当て結果は model[i] に入る．
 void
 SatLoggerS::solve(const vector<SatLiteral>& assumptions)
 {
@@ -66,6 +59,19 @@ SatLoggerS::solve(const vector<SatLiteral>& assumptions)
     put_lit(l);
   }
   *mS << endl;
+}
+
+// @brief solve() の結果を出力する．
+void
+SatLoggerS::solve_result(
+  SatBool3 res
+)
+{
+  switch ( res ) {
+  case SatBool3::False: *mS << "# -> UNSAT" << endl; break;
+  case SatBool3::True:  *mS << "# -> SAT" << endl; break;
+  case SatBool3::X:     *mS << "# -> ABORT" << endl; break;
+  }
 }
 
 // @brief リテラルを出力する．

@@ -10,6 +10,7 @@
 
 #include "ym/sat.h"
 #include "ym/json.h"
+#include "ym/SatBool3.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -61,6 +62,13 @@ public:
   void
   solve(
     const vector<SatLiteral>& assumptions ///< [in] あらかじめ仮定する変数の値割り当てリスト
+  );
+
+  /// @brief solve() の結果を出力する．
+  virtual
+  void
+  solve_result(
+    SatBool3 res ///< [in] 結果
   );
 
 };

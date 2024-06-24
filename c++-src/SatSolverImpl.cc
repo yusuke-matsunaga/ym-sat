@@ -59,7 +59,7 @@ SatSolverImpl::new_impl(
     auto option = JsonValue::parse(conf_str);
     return unique_ptr<SatSolverImpl>(new SatCore{option});
   }
-  if ( type == "ymsat2" ) {
+  if ( type == "ymsat2" || type == "" ) {
     const char* conf_str = "{"
       "  'controller': 'minisat2',"
       "  'analyzer': 'uip2',"

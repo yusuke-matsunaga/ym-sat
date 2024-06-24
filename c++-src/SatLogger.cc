@@ -66,4 +66,12 @@ SatLogger::solve(
 {
 }
 
+// @brief solve() の結果を出力する．
+void
+SatLogger::solve_result(
+  SatBool3 res
+)
+{
+}
+
 END_NAMESPACE_YM_SAT

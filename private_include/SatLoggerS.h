@@ -56,6 +56,13 @@ public:
   ) override;
 
 
+  /// @brief solve() の結果を出力する．
+  void
+  solve_result(
+    SatBool3 res ///< [in] 結果
+  ) override;
+
+
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数

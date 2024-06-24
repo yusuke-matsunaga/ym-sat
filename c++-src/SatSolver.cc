@@ -106,6 +106,8 @@ SatSolver::solve(
     sort(mConflictLiterals.begin(), mConflictLiterals.end());
   }
 
+  mLogger->solve_result(stat);
+
   return stat;
 }
 

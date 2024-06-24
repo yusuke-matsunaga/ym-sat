@@ -163,7 +163,11 @@ void
 SatInitParam::check_type()
 {
   auto t = type();
-  if ( t == "minisat" ) {
+  if ( t == "" ) {
+    // default fall-back
+    ;
+  }
+  else if ( t == "minisat" ) {
     // minisat-1.4
     ;
   }
