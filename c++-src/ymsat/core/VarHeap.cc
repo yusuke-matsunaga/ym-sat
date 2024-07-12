@@ -44,7 +44,7 @@ VarHeap::alloc_var(
   if ( mVarSize == 0 ) {
     mVarSize = 1024;
   }
-  while ( mVarSize < size ) {
+  while ( mVarSize <= size ) {
     mVarSize <<= 1;
   }
   if ( mVarSize != old_size ) {
