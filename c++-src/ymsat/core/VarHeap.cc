@@ -9,8 +9,6 @@
 #include "VarHeap.h"
 
 
-#define DOUT cout
-
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
@@ -48,7 +46,7 @@ VarHeap::alloc_var(
     mVarSize <<= 1;
   }
   if ( mVarSize != old_size ) {
-    mHeapPos = new SizeType[mVarSize];
+    mHeapPos = new int[mVarSize];
     mActivity = new double[mVarSize];
     mHeap = new SatVarId[mVarSize];
     for ( SizeType i = 0; i < old_var_num; ++ i ) {

@@ -11,6 +11,8 @@
 #include "ym/sat.h"
 
 
+#define DOUT cout
+
 BEGIN_NAMESPACE_YM_SAT
 
 BEGIN_NONAMESPACE
@@ -57,7 +59,7 @@ public:
   )
   {
     if ( debug_varheap ) {
-      cout << "VarHeap::bump_var_activity(" << var << ")" << endl;
+      DOUT << "VarHeap::bump_var_activity(" << var << ")" << endl;
     }
     double& act = mActivity[var];
     act += mVarBump;
@@ -68,7 +70,7 @@ public:
       mVarBump *= 1e-100;
     }
     // pos != -1 と pos != 0 を同時に行うための hack
-    int pos = mHeapPos[var];
+    auto pos = get(var);
     if ( pos > 0 ) {
       move_up(pos);
     }
@@ -79,7 +81,7 @@ public:
   decay_var_activity()
   {
     if ( debug_varheap ) {
-      cout << "VarHeap::decay_var_activity()" << endl;
+      DOUT << "VarHeap::decay_var_activity()" << endl;
     }
     mVarBump *= (1 / mVarDecay);
   }
@@ -132,15 +134,15 @@ public:
   SatVarId
   pop_top()
   {
-    auto ans = mHeap[0];
-    mHeapPos[ans] = -1;
+    auto var = mHeap[0];
+    unset(var);
     -- mHeapNum;
     if ( mHeapNum > 0 ) {
       auto vindex = mHeap[mHeapNum];
       set(vindex, 0);
       move_down(0);
     }
-    return ans;
+    return var;
   }
 
   /// @brief 変数のアクティビティを返す．
@@ -254,12 +256,30 @@ private:
   /// mHeap と mHeapPos の一貫性を保つためにはこの関数を使うこと．
   void
   set(
-    SatVarId vindex, ///< [in] 対象の変数番号
-    SizeType pos     ///< [in] 位置
+    SatVarId var, ///< [in] 対象の変数番号
+    SizeType pos  ///< [in] 位置
   )
   {
-    mHeap[pos] = vindex;
-    mHeapPos[vindex] = pos;
+    mHeap[pos] = var;
+    mHeapPos[var] = pos;
+  }
+
+  /// @brief 変数を取り除く．
+  void
+  unset(
+    SatVarId var ///< [in] 対象の変数番号
+  )
+  {
+    mHeapPos[var] = -1;
+  }
+
+  /// @brief 変数の場所を取り出す．
+  int
+  get(
+    SatVarId var ///< [in] 対象の変数番号
+  )
+  {
+    return mHeapPos[var];
   }
 
   /// @brief 左の子供の位置を計算する
@@ -314,7 +334,7 @@ private:
 
   // ヒープ上の位置の配列
   // サイズは mVarSize
-  SizeType* mHeapPos{nullptr};
+  int* mHeapPos{nullptr};
 
   // アクティビティ
   // サイズは mVarSize
