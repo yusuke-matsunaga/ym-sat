@@ -64,13 +64,14 @@ public:
     double& act = mActivity[var];
     act += mVarBump;
     if ( act > 1e+100 ) {
+      // アクティビティがオーバーフローしたので低減率を増やす．
       for ( SizeType var1 = 0; var1 < mVarNum; ++ var1 ) {
 	mActivity[var1] *= 1e-100;
       }
       mVarBump *= 1e-100;
     }
-    // pos != -1 と pos != 0 を同時に行うための hack
     auto pos = get(var);
+    // pos != -1 と pos != 0 を同時に行うための hack
     if ( pos > 0 ) {
       move_up(pos);
     }
@@ -138,8 +139,8 @@ public:
     unset(var);
     -- mHeapNum;
     if ( mHeapNum > 0 ) {
-      auto vindex = mHeap[mHeapNum];
-      set(vindex, 0);
+      auto var1 = mHeap[mHeapNum];
+      set(var1, 0);
       move_down(0);
     }
     return var;
@@ -195,8 +196,8 @@ private:
     SizeType pos ///< [in] 対象の要素の位置
   )
   {
-    auto vindex_p = mHeap[pos];
-    auto val_p = mActivity[vindex_p];
+    auto var_p = mHeap[pos];
+    auto val_p = mActivity[var_p];
     for ( ; ; ) {
       // ヒープ木の性質から親から子の位置がわかる
       auto pos_l = left(pos);
@@ -208,14 +209,14 @@ private:
       // 左右の子供のうちアクティビティの大きい方を pos_c とする．
       // 同点なら左を選ぶ．
       auto pos_c = pos_l;
-      auto vindex_c = mHeap[pos_c];
-      auto val_c = mActivity[vindex_c];
+      auto var_c = mHeap[pos_c];
+      auto val_c = mActivity[var_c];
       if ( pos_r < mHeapNum ) {
-	auto vindex_r = mHeap[pos_r];
-	auto val_r = mActivity[vindex_r];
+	auto var_r = mHeap[pos_r];
+	auto val_r = mActivity[var_r];
 	if ( val_c < val_r ) {
 	  pos_c = pos_r;
-	  vindex_c = vindex_r;
+	  var_c = var_r;
 	  val_c = val_r;
 	}
       }
@@ -224,8 +225,8 @@ private:
 	break;
       }
       // 逆転
-      set(vindex_p, pos_c);
-      set(vindex_c, pos);
+      set(var_p, pos_c);
+      set(var_c, pos);
       pos = pos_c;
     }
   }
@@ -236,17 +237,17 @@ private:
     SizeType pos ///< [in] 対象の要素の位置
   )
   {
-    auto vindex = mHeap[pos];
-    auto val = mActivity[vindex];
+    auto var = mHeap[pos];
+    auto val = mActivity[var];
     while ( pos > 0 ) {
       auto pos_p = parent(pos);
-      auto vindex_p = mHeap[pos_p];
-      auto val_p = mActivity[vindex_p];
+      auto var_p = mHeap[pos_p];
+      auto val_p = mActivity[var_p];
       if ( val_p >= val ) {
 	break;
       }
-      set(vindex, pos_p);
-      set(vindex_p, pos);
+      set(var, pos_p);
+      set(var_p, pos);
       pos = pos_p;
     }
   }

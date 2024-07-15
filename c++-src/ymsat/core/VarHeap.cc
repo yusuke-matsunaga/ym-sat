@@ -39,10 +39,12 @@ VarHeap::alloc_var(
   auto old_heap_pos = mHeapPos;
   auto old_activity = mActivity;
   auto old_heap = mHeap;
+
+  mVarNum = size;
   if ( mVarSize == 0 ) {
     mVarSize = 1024;
   }
-  while ( mVarSize <= size ) {
+  while ( mVarSize < mVarNum ) {
     mVarSize <<= 1;
   }
   if ( mVarSize != old_size ) {
@@ -53,6 +55,9 @@ VarHeap::alloc_var(
       mHeapPos[i] = old_heap_pos[i];
       mActivity[i] = old_activity[i];
     }
+    for ( SizeType i = old_var_num; i < mVarNum; ++ i ) {
+      mHeapPos[i] = -1;
+    }
     for ( SizeType i = 0; i < mHeapNum; ++ i ) {
       mHeap[i] = old_heap[i];
     }
@@ -62,7 +67,6 @@ VarHeap::alloc_var(
       delete [] old_heap;
     }
   }
-  mVarNum = size;
 }
 
 // @brief 変数のアクティビティを初期化する．
