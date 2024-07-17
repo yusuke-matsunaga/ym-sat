@@ -1359,7 +1359,7 @@ public:
   /// が呼ばれる度に内容が変わるので必要ならばコピー
   /// を作る必要がある．
   const SatModel&
-  model()
+  model() const
   {
     return mModel;
   }
