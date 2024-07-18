@@ -16,7 +16,7 @@ BEGIN_NAMESPACE_YM_SAT
 AssignList::AssignList(
 ) : mSize{1024},
     mList{new Literal[mSize]},
-    mMarker(new SizeType[mSize])
+    mMarker{new SizeType[mSize]}
 {
 }
 
@@ -34,7 +34,7 @@ AssignList::reserve(
 )
 {
   auto new_size = mSize;
-  while ( new_size <= req_size ) {
+  while ( new_size < req_size ) {
     new_size <<= 1;
   }
   if ( mSize < new_size ) {

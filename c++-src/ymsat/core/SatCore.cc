@@ -156,7 +156,6 @@ SatCore::expand_var()
     delete [] old_reason;
     delete [] old_watcher_list;
   }
-  mAssignList.reserve(mVarNum);
   mVarHeap.alloc_var(mVarSize);
 }
 
@@ -570,6 +569,8 @@ SatCore::solve(
 )
 {
   alloc_var();
+
+  mAssignList.reserve(mVarNum + assumptions.size());
 
   if ( debug & debug_solve ) {
     DOUT << "YmSat::solve starts" << endl;
