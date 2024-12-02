@@ -28,7 +28,7 @@ BEGIN_NAMESPACE_YM_SAT
 //////////////////////////////////////////////////////////////////////
 class SatLiteral
 {
-  friend class SatSolver;
+  friend class SatSolverImpl;
 
 public:
 

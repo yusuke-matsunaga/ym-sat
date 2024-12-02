@@ -89,9 +89,6 @@ YmSat::~YmSat()
   for ( auto c: mLearntClause ) {
     delete_clause(c);
   }
-  for ( SizeType i = 0; i < mVarSize * 2; ++ i ) {
-    mWatcherList[i].finish();
-  }
 
   delete mAnalyzer;
   delete [] mVal;
@@ -115,7 +112,7 @@ YmSat::sane() const
 }
 
 // @brief 変数を追加する．
-SatVarId
+SatLiteral
 YmSat::new_variable(
   bool decision
 )
@@ -123,7 +120,7 @@ YmSat::new_variable(
   if ( decision_level() != 0 ) {
     // エラー
     cout << "Error!: decision_level() != 0" << endl;
-    return -1;
+    return SatLiteral::X;
   }
 
 #if YMSAT_USE_DVAR
@@ -134,7 +131,7 @@ YmSat::new_variable(
   // 実際の処理は alloc_var() でまとめて行う．
   SatVarId n = mVarNum;
   ++ mVarNum;
-  return n;
+  return get_lit(n, false);
 }
 
 // @brief 節を追加する．

@@ -35,6 +35,7 @@ public:
   Literal() = default;
 
   /// @brief SatLiteral からの変換コンストラクタ
+  explicit
   Literal(
     const SatLiteral& src ///< [in] もととなるリテラル
   )

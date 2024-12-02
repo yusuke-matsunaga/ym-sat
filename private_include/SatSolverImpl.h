@@ -33,7 +33,7 @@ public:
 
   /// @brief デストラクタ
   virtual
-  ~SatSolverImpl() = default;
+  ~SatSolverImpl();
 
 
 public:
@@ -50,7 +50,7 @@ public:
   /// @return 新しい変数番号を返す．
   /// @note 変数番号は 0 から始まる．
   virtual
-  SatVarId
+  SatLiteral
   new_variable(
     bool decition ///< [in] 決定変数の時に true とする．
   ) = 0;
@@ -117,45 +117,21 @@ public:
     bool enable
   ) = 0;
 
-  /// @brief リテラルを登録する．
-  void
-  reg_lit(
-    SatVarId varid, ///< [in] 変数番号
-    SatLiteral lit  ///< [in] リテラル
-  )
-  {
-    mLitMap.emplace(varid, lit);
-  }
-
 
 protected:
   //////////////////////////////////////////////////////////////////////
   // 継承クラスから用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief リテラルを得る．
+  static
   SatLiteral
   get_lit(
     SatVarId varid, ///< [in] 変数番号
     bool inv        ///< [in] 反転フラグ
-  ) const
+  )
   {
-    ASSERT_COND( mLitMap.count(varid) > 0 );
-    auto lit = mLitMap.at(varid);
-    if ( inv ) {
-      lit = ~lit;
-    }
-    return lit;
+    return SatLiteral::conv_from_varid(varid, inv);
   }
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // 変数番号と SatLiteral の対応表
-  unordered_map<SatVarId, SatLiteral> mLitMap;
 
 };
 

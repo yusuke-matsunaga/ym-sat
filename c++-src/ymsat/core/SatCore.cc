@@ -40,37 +40,24 @@ SatCore::SatCore(
   mSweep_assigns = -1;
   mSweep_props = 0;
 
-  mTmpLitsSize = 1024;
-  mTmpLits = new Literal[mTmpLitsSize];
-
-  mTmpBinClause = new_clause(2);
+  // place-holder なので中身はダミー
+  mTmpBinClause = new_clause({Literal::X, Literal::X});
 }
 
 // @brief デストラクタ
 SatCore::~SatCore()
 {
   for ( auto c: mConstrClauseList ) {
-    delete_clause(c);
+    _delete_clause(c);
   }
   for ( auto c: mLearntClauseList ) {
-    delete_clause(c);
+    _delete_clause(c);
   }
-  for ( int i: Range(mVarSize * 2) ) {
-    mWatcherList[i].finish();
-  }
-
-  delete [] mVal;
-  delete [] mDecisionLevel;
-  delete [] mReason;
-  delete [] mWatcherList;
-#if YMSAT_USE_WEIGHTARRAY
-  delete [] mWeightArray;
-#endif
-  delete [] mTmpLits;
+  _delete_clause(mTmpBinClause);
 }
 
 // @brief 変数を追加する．
-SatVarId
+SatLiteral
 SatCore::new_variable(
   bool decision
 )
@@ -79,8 +66,6 @@ SatCore::new_variable(
     // エラー
     throw std::runtime_error{"decision_level() != 0"};
   }
-
-  //decision = true;
 
   mDvarArray.push_back(decision);
   if ( decision ) {
@@ -91,7 +76,7 @@ SatCore::new_variable(
   // 実際の処理は alloc_var() でまとめて行う．
   SatVarId n = mVarNum;
   ++ mVarNum;
-  return n;
+  return get_lit(n, false);
 }
 
 // 実際に変数に関するデータ構造を生成する．
@@ -116,13 +101,6 @@ SatCore::alloc_var()
 void
 SatCore::expand_var()
 {
-  // 古い配列を保存しておく．
-  auto old_size = mVarSize;
-  auto old_val = mVal;
-  auto old_decision_level = mDecisionLevel;
-  auto old_reason = mReason;
-  auto old_watcher_list = mWatcherList;
-
   // 新しいサイズを計算する．
   if ( mVarSize == 0 ) {
     mVarSize = 1024;
@@ -132,31 +110,12 @@ SatCore::expand_var()
   }
 
   // 新しい配列を確保する．
-  mVal = new std::uint8_t[mVarSize];
-  mDecisionLevel = new int[mVarSize];
-  mReason = new Reason[mVarSize];
-  for ( SizeType i: Range(mVarSize) ) {
-    mReason[i] = Reason::None;
-  }
-  mWatcherList = new WatcherList[mVarSize * 2];
-
-  // 古い配列から新しい配列へ内容をコピーする．
-  for ( int i: Range(mOldVarNum) ) {
-    mVal[i] = old_val[i];
-    mDecisionLevel[i] = old_decision_level[i];
-    mReason[i] = old_reason[i];
-  }
-  SizeType n2 = mOldVarNum * 2;
-  for ( int i: Range(n2) ) {
-    mWatcherList[i].move(old_watcher_list[i]);
-  }
-  if ( old_size > 0 ) {
-    delete [] old_val;
-    delete [] old_decision_level;
-    delete [] old_reason;
-    delete [] old_watcher_list;
-  }
+  mVal.resize(mVarSize);
+  mDecisionLevel.resize(mVarSize);
+  mReason.resize(mVarSize, Reason::None);
+  mWatcherList.resize(mVarSize * 2);
   mVarHeap.alloc_var(mVarSize);
+  mAssignList.reserve(mVarSize);
 }
 
 // @brief 節を追加する．
@@ -174,55 +133,41 @@ SatCore::add_clause(
     throw std::runtime_error{"mSane == false"};
   }
 
-  SizeType lit_num = lits.size();
-  alloc_lits(lit_num);
-  for ( SizeType i: Range(lit_num) ) {
-    auto l = lits[i];
-    mTmpLits[i] = Literal{l};
+  // lits の内容を変更するので作業用のコピーを作る．
+  vector<Literal> tmp_lits;
+  tmp_lits.reserve(lits.size());
+  for ( auto lit: lits ) {
+    auto l = Literal{lit};
+    tmp_lits.push_back(l);
   }
 
+  // 変数用のデータ構造の確保
   alloc_var();
 
-  // mTmpLits をソートする．
-  // たぶん要素数が少ないので挿入ソートが速いはず．
-  for ( SizeType i = 1; i < lit_num; ++ i ) {
-    // この時点で [0 : i - 1] までは整列している．
-    auto l = mTmpLits[i];
-    if ( mTmpLits[i - 1].index() <= l.index() ) {
-      // このままで [0 : i] まで整列していることになる．
-      continue;
-    }
-
-    // l の挿入位置を探す．
-    SizeType j = i;
-    for ( ; ; ) {
-      mTmpLits[j] = mTmpLits[j - 1];
-      -- j;
-      if ( j == 0 || mTmpLits[j - 1].index() <= l.index() ) {
-	// 先頭に達するか，l よりも小さい要素があった．
-	break;
-      }
-    }
-    mTmpLits[j] = l;
-  }
+  // tmp_lits をソートする．
+  sort(tmp_lits.begin(), tmp_lits.end(),
+       [](Literal a, Literal b) {
+	 return a.index() < b.index();
+       });
 
   // - 重複したリテラルの除去
   // - false literal の除去
   // - true literal を持つかどうかのチェック
-  SizeType wpos = 0;
-  for ( SizeType rpos: Range(lit_num) ) {
-    auto l = mTmpLits[rpos];
-    if ( wpos != 0 ) {
-      auto l1 = mTmpLits[wpos - 1];
-      if ( l1 == l ) {
-	// 重複している．
-	continue;
-      }
-      if ( l1.varid() == l.varid() ) {
-	// 同じ変数の相反するリテラル
-	// この節は常に充足する．
-	return;
-      }
+  auto rpos = tmp_lits.begin();
+  auto epos = tmp_lits.end();
+  auto wpos = rpos;
+  Literal prev = Literal::X;
+  for ( ; rpos != epos; ++ rpos ) {
+    auto l = *rpos;
+    if ( l == prev ) {
+      // 重複している．
+      continue;
+    }
+    if ( l.varid() == prev.varid() ) {
+      // 同じ変数の相反するリテラル
+      // この節は常に充足する．
+      // ので無視して追加しない．
+      return;
     }
 
     auto v = eval(l);
@@ -232,19 +177,26 @@ SatCore::add_clause(
     }
     if ( v == SatBool3::True ) {
       // true literal があったら既に充足している
+      // ので無視して追加しない．
       return;
     }
     if ( l.varid() < 0 || l.varid() >= mVarNum ) {
       // 範囲外
+      // 普通はありえないが異常探知のためにチェックしておく．
       ostringstream buf;
       buf << "literal(" << l << "): out of range";
       throw std::runtime_error{buf.str()};
     }
     // 追加する．
-    mTmpLits[wpos] = l;
+    if ( wpos != rpos ) {
+      *wpos = l;
+    }
     ++ wpos;
   }
-  lit_num = wpos;
+  if ( wpos != epos ) {
+    tmp_lits.erase(wpos, epos);
+  }
+  auto lit_num = tmp_lits.size();
 
   if ( lit_num == 0 ) {
     // empty clause があったら unsat
@@ -252,10 +204,11 @@ SatCore::add_clause(
     return;
   }
 
+  // リテラル数の更新
   // 単項節のリテラル数も含めることにする．
   mConstrLitNum += lit_num;
 
-  auto l0 = mTmpLits[0];
+  auto l0 = tmp_lits[0];
   if ( lit_num == 1 ) {
     // unit clause があったら値の割り当てを行う．
     bool stat = check_and_assign(l0);
@@ -265,7 +218,8 @@ SatCore::add_clause(
 	   << "\tassign " << l0 << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	DOUT << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
+	DOUT << "\t--> conflict(#" << mConflictNum
+	     << ") with previous assignment" << endl
 	     << "\t    " << ~l0 << " was assigned at level "
 	     << decision_level(l0.varid()) << endl;
       }
@@ -288,9 +242,10 @@ SatCore::add_clause(
     return;
   }
 
+  // 項数の更新
   ++ mConstrClauseNum;
 
-  auto l1 = mTmpLits[1];
+  auto l1 = tmp_lits[1];
 
   if ( lit_num == 2 ) {
     if ( debug & debug_assign ) {
@@ -305,7 +260,7 @@ SatCore::add_clause(
   }
   else {
     // 節の生成
-    auto clause = new_clause(lit_num, mTmpLits);
+    auto clause = new_clause(tmp_lits);
 
     if ( debug & debug_assign ) {
       DOUT << "add_clause: " << (*clause) << endl;
@@ -331,8 +286,7 @@ SatCore::add_learnt_clause(
 
   if ( n == 0 ) {
     // empty clause があったら unsat
-    mSane = false;
-    return;
+    throw std::runtime_error{"add_learnt_clause() with empty clause"};
   }
 
   auto l0 = lits[0];
@@ -343,13 +297,14 @@ SatCore::add_learnt_clause(
       DOUT << "\tassign " << l0 << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	DOUT << "\t--> conflict(#" << mConflictNum << " with previous assignment" << endl
+	DOUT << "\t--> conflict(#" << mConflictNum
+	     << " with previous assignment" << endl
 	     << "\t    " << ~l0 << " was assigned at level "
 	     << decision_level(l0.varid()) << endl;
       }
     }
     if ( !stat ) {
-      mSane = false;
+      throw std::runtime_error{"add_learnt_clause() with conflicting clause"};
     }
     return;
   }
@@ -374,11 +329,7 @@ SatCore::add_learnt_clause(
   }
   else {
     // 節の生成
-    alloc_lits(n);
-    for ( SizeType i: Range(n) ) {
-      mTmpLits[i] = lits[i];
-    }
-    auto clause = new_clause(n, true);
+    auto clause = new_clause(lits, true);
 
     if ( debug & debug_assign ) {
       DOUT << "add_learnt_clause: " << *clause << endl
@@ -410,11 +361,12 @@ SatCore::reduce_CNF()
   if ( !sane() ) {
     return;
   }
-  ASSERT_COND( decision_level() == 0 );
+  if ( decision_level() > 0 ) {
+    throw std::runtime_error{"reduce_CNF(): decision_level() should be 0"};
+  }
 
   if ( implication() != Reason::None ) {
-    mSane = false;
-    return;
+    throw std::runtime_error{"something wrong"};
   }
 
   if ( mAssignList.size() == mSweep_assigns || mSweep_props > 0 ) {
@@ -522,30 +474,12 @@ SatCore::reduce_learnt_clause()
   }
 }
 
-// @brief mTmpLits を確保する．
-void
-SatCore::alloc_lits(
-  SizeType lit_num
-)
-{
-  auto old_size = mTmpLitsSize;
-  while ( mTmpLitsSize <= lit_num ) {
-    mTmpLitsSize <<= 1;
-  }
-  if ( old_size < mTmpLitsSize ) {
-    delete [] mTmpLits;
-    mTmpLits = new Literal[mTmpLitsSize];
-  }
-}
-
 // @brief 節を削除する．
 void
 SatCore::delete_clause(
   Clause* clause
 )
 {
-  ASSERT_COND( clause->is_learnt() );
-
   if ( debug & debug_assign ) {
     DOUT << " delete_clause: " << (*clause) << endl;
   }
@@ -554,10 +488,11 @@ SatCore::delete_clause(
   del_watcher(~clause->wl0(), Reason{clause});
   del_watcher(~clause->wl1(), Reason{clause});
 
-  mLearntLitNum -= clause->lit_num();
+  if ( clause->is_learnt() ) {
+    mLearntLitNum -= clause->lit_num();
+  }
 
-  auto p = reinterpret_cast<char*>(clause);
-  delete [] p;
+  _delete_clause(clause);
 }
 
 // @brief SAT 問題を解く．
@@ -892,8 +827,10 @@ SatCore::implication()
     SizeType rpos = 0;
     SizeType wpos = 0;
     while ( rpos < n ) {
-      auto w = wlist.elem(rpos);
-      wlist.set_elem(wpos, w);
+      auto& w = wlist.elem(rpos);
+      if ( rpos != wpos ) {
+	wlist.set_elem(wpos, w);
+      }
       ++ rpos;
       ++ wpos;
       if ( w.is_literal() ) {
@@ -915,7 +852,8 @@ SatCore::implication()
 	else { // val0 == SatBool3::False ) {
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
-	    DOUT << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
+	    DOUT << "\t--> conflict(#" << mConflictNum
+		 << ") with previous assignment" << endl
 		 << "\t    " << ~l0 << " was assigned at level "
 		 << decision_level(l0.varid()) << endl;
 	  }
@@ -1011,7 +949,8 @@ SatCore::implication()
 	else {
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
-	    DOUT << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
+	    DOUT << "\t--> conflict(#" << mConflictNum
+		 << ") with previous assignment" << endl
 		 << "\t    " << ~l0 << " was assigned at level "
 		 << decision_level(l0.varid()) << endl;
 	  }
@@ -1027,11 +966,7 @@ SatCore::implication()
     }
     // 途中でループを抜けた場合に wlist の後始末をしておく．
     if ( wpos != rpos ) {
-      for ( ; rpos < n; ++ rpos) {
-	wlist.set_elem(wpos, wlist.elem(rpos));
-	++ wpos;
-      }
-      wlist.erase(wpos);
+      wlist.move_elem(rpos, n, wpos);
     }
   }
   mPropagationNum += prop_num;

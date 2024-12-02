@@ -33,7 +33,7 @@ BEGIN_NAMESPACE_YM_SAT
 /// 処理を has_elem() が false になるまで繰り返すことである．
 ///
 /// 一方，含意操作中には AssignList は未処理の割り当てを入れておくキュー
-/// として機能する．そのため，読み出し位置を記録する mListHead という
+/// として機能する．そのため，読み出し位置を記録する mHead という
 /// メンバ変数を持っている．ただし，この変数は外部からはアクセス不可で
 /// get_next()(次に進める), skip_all()(末尾に進める), backtrack()(指定
 /// したレベルまで戻る) の3つの関数でのみ値が更新される．
@@ -53,10 +53,14 @@ class AssignList
 public:
 
   /// @brief コンストラクタ
-  AssignList();
+  AssignList(
+  ) : mList(1024),
+      mMarker(1024)
+  {
+  }
 
   /// @brief デストラクタ
-  ~AssignList();
+  ~AssignList() = default;
 
 
 public:
@@ -68,7 +72,15 @@ public:
   void
   reserve(
     SizeType req_size
-  );
+  )
+  {
+    auto new_size = mList.size();
+    while ( new_size < req_size ) {
+      new_size <<= 1;
+    }
+    mList.resize(new_size);
+    mMarker.resize(new_size);
+  }
 
 
 public:
@@ -179,11 +191,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // リストの実際の容量
-  SizeType mSize{0};
-
   // 値割り当てを保持するリスト(配列)
-  Literal* mList{nullptr};
+  vector<Literal> mList;
 
   // 書き込み位置
   SizeType mTail{0};
@@ -191,8 +200,7 @@ private:
   // 読み出し位置
   SizeType mHead{0};
 
-  // 各 decision-level ごとの marker の配列
-  SizeType* mMarker{nullptr};
+  vector<SizeType> mMarker;
 
   // 現在の decision_level
   int mCurLevel{0};

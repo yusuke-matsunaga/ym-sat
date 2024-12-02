@@ -42,9 +42,7 @@ SatSolver::new_variable(
   bool decision
 )
 {
-  auto varid = mImpl->new_variable(decision);
-  auto lit = SatLiteral::conv_from_varid(varid, false);
-  mImpl->reg_lit(varid, lit);
+  auto lit = mImpl->new_variable(decision);
 
   mLogger->new_variable(lit);
 

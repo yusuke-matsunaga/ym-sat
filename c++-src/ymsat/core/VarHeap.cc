@@ -23,9 +23,6 @@ VarHeap::VarHeap()
 // @brief デストラクタ
 VarHeap::~VarHeap()
 {
-  delete [] mHeapPos;
-  delete [] mActivity;
-  delete [] mHeap;
 }
 
 // @brief size 個の要素を格納出来るだけの領域を確保する．
@@ -34,12 +31,8 @@ VarHeap::alloc_var(
   SizeType size
 )
 {
-  auto old_var_num = mVarNum;
   auto old_size = mVarSize;
-  auto old_heap_pos = mHeapPos;
-  auto old_activity = mActivity;
-  auto old_heap = mHeap;
-
+  auto old_var_num = mVarNum;
   mVarNum = size;
   if ( mVarSize == 0 ) {
     mVarSize = 1024;
@@ -48,24 +41,9 @@ VarHeap::alloc_var(
     mVarSize <<= 1;
   }
   if ( mVarSize != old_size ) {
-    mHeapPos = new int[mVarSize];
-    mActivity = new double[mVarSize];
-    mHeap = new SatVarId[mVarSize];
-    for ( SizeType i = 0; i < old_var_num; ++ i ) {
-      mHeapPos[i] = old_heap_pos[i];
-      mActivity[i] = old_activity[i];
-    }
-    for ( SizeType i = old_var_num; i < mVarNum; ++ i ) {
-      mHeapPos[i] = -1;
-    }
-    for ( SizeType i = 0; i < mHeapNum; ++ i ) {
-      mHeap[i] = old_heap[i];
-    }
-    if ( old_size > 0 ) {
-      delete [] old_heap_pos;
-      delete [] old_activity;
-      delete [] old_heap;
-    }
+    mHeapPos.resize(mVarSize, -1);
+    mActivity.resize(mVarSize);
+    mHeap.resize(mVarSize);
   }
 }
 

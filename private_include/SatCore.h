@@ -19,6 +19,7 @@
 #include <chrono>
 #include "ym/json.h"
 
+
 BEGIN_NAMESPACE_YM_SAT
 
 class Controller;
@@ -153,7 +154,7 @@ public:
   ///
   /// 実際には変数番号を割り当てるだけで alloc_var()
   /// を呼ばれてはじめて実際の領域を確保する．
-  SatVarId
+  SatLiteral
   new_variable(
     bool decision ///< [in] 決定変数の時に true とする．
   ) override;
@@ -615,24 +616,17 @@ private:
     int level ///< [in] バックトラックするレベル
   );
 
-  /// @brief mTmpLits を確保する．
-  void
-  alloc_lits(
-    SizeType lit_num ///< [in] 必要なサイズ
-  );
-
   /// @brief 新しい節を生成する．
-  ///
-  /// リテラルは mTmpLits[] に入れておく．
   Clause*
   new_clause(
-    SizeType lit_num,   ///< [in] リテラル数
-    bool learnt = false ///< [in] 学習節のとき true とするフラグ
+    const vector<Literal>& lit_list, ///< [in] リテラルのリスト
+    bool learnt = false              ///< [in] 学習節のとき true とするフラグ
   )
   {
-    SizeType size = sizeof(Clause) + sizeof(Literal) * (lit_num - 1);
+    auto lit_num = lit_list.size();
+    auto size = sizeof(Clause) + sizeof(Literal) * (lit_num - 1);
     auto p = new char[size];
-    auto clause = new (p) Clause{lit_num, mTmpLits, learnt};
+    auto clause = new (p) Clause{lit_list, learnt};
 
     return clause;
   }
@@ -642,6 +636,16 @@ private:
   delete_clause(
     Clause* clause ///< [in] 削除する節
   );
+
+  /// @brief 節を削除する低レベルの関数
+  void
+  _delete_clause(
+    Clause* clause ///< [in] 削除する節
+  )
+  {
+    auto p = reinterpret_cast<char*>(clause);
+    delete [] p;
+  }
 
   /// @brief CNF を簡単化する．
   ///
@@ -884,25 +888,24 @@ private:
   SizeType mVarSize{0};
 
   // 値の配列
-  // サイズは mVarSize
-  std::uint8_t* mVal{nullptr};
+  vector<std::uint8_t> mVal;
 
   // 値が割り当てられたときのレベルの配列
   // サイズは mVarSize
-  int* mDecisionLevel{nullptr};
+  vector<int> mDecisionLevel;
 
   // 値が割り当てられた理由の配列
   // サイズは mVarSize
-  Reason* mReason{nullptr};
+  vector<Reason> mReason;
 
   // watcher list の配列
   // サイズは mVarSize * 2
-  WatcherList* mWatcherList{nullptr};
+  vector<WatcherList> mWatcherList;
 
 #if YMSAT_USE_WEIGHTARRAY
   // 変数の極性ごとの重み
   // サイズは mVarSize * 2
-  double* mWeightArray{nullptr};
+  vector<double> mWeightArray;
 #endif
 
   // 値割り当てを保持するリスト
@@ -913,12 +916,6 @@ private:
 
   // 前回の sweep 時のリテラル数
   int mSweep_props;
-
-  // add_clause で一時的に利用するリテラル配列
-  Literal* mTmpLits{nullptr};
-
-  // mTmpLits のサイズ
-  SizeType mTmpLitsSize{0};
 
   // 矛盾の解析時にテンポラリに使用される節
   Clause* mTmpBinClause{nullptr};

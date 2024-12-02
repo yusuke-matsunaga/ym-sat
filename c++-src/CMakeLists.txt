@@ -51,7 +51,6 @@ set (ym_sat_SOURCES
   lingeling/lgldimacs.c
   lingeling/lglib.c
 
-  ymsat/core/AssignList.cc
   ymsat/core/Clause.cc
   ymsat/core/SatCore.cc
   ymsat/core/VarHeap.cc

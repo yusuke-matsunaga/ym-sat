@@ -52,8 +52,30 @@ public:
     }
   }
 
+  /// @brief コンストラクタ
+  ///
+  /// 上に書いたように普通にこのコンストラクタを呼んではいけない．
+  Clause(
+    const vector<Literal>& lit_list, ///< [in] リテラルのリスト
+    bool learnt                      ///< [in] 学習節の場合 true
+  )
+  {
+    auto lit_num = lit_list.size();
+    mSizeLearnt = (lit_num << 1) | static_cast<std::uint32_t>(learnt);
+#if YMSAT_USE_LBD
+    mLBD = lit_num;
+#endif
+    mActivity = 0.0;
+    for ( int i = 0; i < lit_num; ++ i ) {
+      mLits[i] = lit_list[i];
+    }
+  }
+
   /// @brief デストラクタ
-  ~Clause() = default;
+  ~Clause()
+  {
+    abort();
+  }
 
 
 public:

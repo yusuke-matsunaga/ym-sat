@@ -57,7 +57,7 @@ public:
   /// @brief デストラクタ
   ~WatcherList()
   {
-    finish();
+    delete [] mArray;
   }
 
 
@@ -67,7 +67,7 @@ public:
   void
   clear()
   {
-    erase(0);
+    mNum = 0;
   }
 
   /// @brief 要素数を返す．
@@ -112,7 +112,7 @@ public:
   }
 
   /// @brief pos 番目の要素を返す．
-  Watcher
+  const Watcher&
   elem(
     SizeType pos ///< [in] 位置
   ) const
@@ -124,10 +124,24 @@ public:
   void
   set_elem(
     SizeType pos, ///< [in] 位置
-    Watcher elem  ///< [in] 要素
+    const Watcher& elem  ///< [in] 要素
   )
   {
     mArray[pos] = elem;
+  }
+
+  /// @brief 要素を移動する．
+  void
+  move_elem(
+    SizeType from_pos, ///< [in] 先頭の位置
+    SizeType end_pos,  ///< [in] 末尾の位置
+    SizeType to_pos    ///< [in] 移動先
+  )
+  {
+    for ( SizeType pos = from_pos; pos < end_pos; ++ pos, ++ to_pos ) {
+      mArray[to_pos] = mArray[pos];
+    }
+    mNum = to_pos;
   }
 
   /// @brief 要素を切り詰める．
@@ -153,17 +167,6 @@ public:
     from.mSize = 0;
     from.mNum = 0;
     from.mArray = nullptr;
-  }
-
-  /// @brief このオブジェクトが使っているメモリを回収する．
-  ///
-  /// かなり危険な関数．
-  /// この関数を呼んだらもうこのオブジェクトは使えない．
-  void
-  finish()
-  {
-    delete [] mArray;
-    mArray = nullptr;
   }
 
 

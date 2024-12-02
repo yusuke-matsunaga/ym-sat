@@ -46,7 +46,7 @@ public:
   /// @return 新しい変数番号を返す．
   ///
   /// 変数番号は 0 から始まる．
-  SatVarId
+  SatLiteral
   new_variable(
     bool decision ///< [in] 決定変数の時に true とする．
   ) override;

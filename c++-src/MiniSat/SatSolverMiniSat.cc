@@ -54,12 +54,13 @@ SatSolverMiniSat::sane() const
 }
 
 // @brief 変数を追加する．
-SatVarId
+SatLiteral
 SatSolverMiniSat::new_variable(
   bool decision
 )
 {
-  return mSolver.newVar();
+  auto var = mSolver.newVar();
+  return get_lit(var, false);
 }
 
 // @brief 節を追加する．

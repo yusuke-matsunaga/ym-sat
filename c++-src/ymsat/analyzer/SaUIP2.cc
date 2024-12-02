@@ -103,6 +103,9 @@ SaUIP2::capture(
       // q は first UIP だった．
       break;
     }
+    if ( creason == Reason::None ) {
+      throw std::runtime_error{"creason is None"};
+    }
   }
 }
 

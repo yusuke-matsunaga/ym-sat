@@ -335,15 +335,15 @@ private:
 
   // ヒープ上の位置の配列
   // サイズは mVarSize
-  int* mHeapPos{nullptr};
+  vector<int> mHeapPos;
 
   // アクティビティ
   // サイズは mVarSize
-  double* mActivity{nullptr};
+  vector<double> mActivity;
 
   // ヒープ用の配列
   // サイズは mVarSize
-  SatVarId* mHeap{nullptr};
+  vector<SatVarId> mHeap;
 
   // ヒープの要素数
   SizeType mHeapNum{0};

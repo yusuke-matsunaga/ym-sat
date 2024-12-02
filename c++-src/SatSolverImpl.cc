@@ -78,4 +78,9 @@ SatSolverImpl::new_impl(
   return unique_ptr<SatSolverImpl>{nullptr};
 }
 
+// @brief デストラクタ
+SatSolverImpl::~SatSolverImpl()
+{
+}
+
 END_NAMESPACE_YM_SAT

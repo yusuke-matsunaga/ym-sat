@@ -47,7 +47,7 @@ SaUIP2::capture(
 )
 {
   learnt.clear();
-  learnt.push_back(SatLiteral()); // place holder
+  learnt.push_back(Literal::X); // place holder
 
   bool first = true;
   int count = 0;
