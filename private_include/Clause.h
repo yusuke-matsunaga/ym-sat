@@ -33,48 +33,30 @@ class Clause
 {
 public:
 
-  /// @brief コンストラクタ
-  ///
-  /// 上に書いたように普通にこのコンストラクタを呼んではいけない．
-  Clause(
-    SizeType lit_num, ///< [in] リテラル数
-    Literal* lits,    ///< [in] リテラルの配列
-    bool learnt       ///< [in] 学習節の場合 true
-  )
-  {
-    mSizeLearnt = (lit_num << 1) | static_cast<std::uint32_t>(learnt);
-#if YMSAT_USE_LBD
-    mLBD = lit_num;
-#endif
-    mActivity = 0.0;
-    for ( int i = 0; i < lit_num; ++ i ) {
-      mLits[i] = lits[i];
-    }
-  }
-
-  /// @brief コンストラクタ
-  ///
-  /// 上に書いたように普通にこのコンストラクタを呼んではいけない．
-  Clause(
+  /// @brief コンストラクタもどき
+  static
+  Clause*
+  new_clause(
     const vector<Literal>& lit_list, ///< [in] リテラルのリスト
-    bool learnt                      ///< [in] 学習節の場合 true
+    bool learnt = false              ///< [in] 学習節の場合 true
   )
   {
-    auto lit_num = lit_list.size();
-    mSizeLearnt = (lit_num << 1) | static_cast<std::uint32_t>(learnt);
-#if YMSAT_USE_LBD
-    mLBD = lit_num;
-#endif
-    mActivity = 0.0;
-    for ( int i = 0; i < lit_num; ++ i ) {
-      mLits[i] = lit_list[i];
-    }
+    auto lit_num = static_cast<std::uint32_t>(lit_list.size());
+    auto size = sizeof(Clause) + sizeof(Literal) * (lit_num - 1);
+    auto p = new char[size];
+    auto clause = new (p) Clause{lit_num, lit_list, learnt};
+    return clause;
   }
 
-  /// @brief デストラクタ
-  ~Clause()
+  /// @brief デストラクタもどき
+  static
+  void
+  delete_clause(
+    Clause* clause
+  )
   {
-    abort();
+    auto p = reinterpret_cast<char*>(clause);
+    delete [] p;
   }
 
 
@@ -204,6 +186,36 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
+  // 内部で用いる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief コンストラクタ
+  ///
+  /// 上に書いたように普通にこのコンストラクタを呼んではいけない．
+  Clause(
+    std::uint32_t lit_num,           ///< [in] リテラル数
+    const vector<Literal>& lit_list, ///< [in] リテラルのリスト
+    bool learnt                      ///< [in] 学習節の場合 true
+  ) : mSizeLearnt{(lit_num << 1) | static_cast<std::uint32_t>(learnt)}
+  {
+#if YMSAT_USE_LBD
+    mLBD = lit_num
+#endif
+    for ( int i = 0; i < lit_num; ++ i ) {
+      mLits[i] = lit_list[i];
+    }
+  }
+
+  /// @brief デストラクタ
+  ~Clause()
+  {
+    // このデストラクタを呼んではいけない．
+    abort();
+  }
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
@@ -216,7 +228,7 @@ private:
 #endif
 
   // activity
-  double mActivity;
+  double mActivity{0.0};
 
   // リテラルの配列
   // 実際にはこの後にリテラル数分の領域を確保する．

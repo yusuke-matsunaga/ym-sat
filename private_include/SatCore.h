@@ -616,36 +616,11 @@ private:
     int level ///< [in] バックトラックするレベル
   );
 
-  /// @brief 新しい節を生成する．
-  Clause*
-  new_clause(
-    const vector<Literal>& lit_list, ///< [in] リテラルのリスト
-    bool learnt = false              ///< [in] 学習節のとき true とするフラグ
-  )
-  {
-    auto lit_num = lit_list.size();
-    auto size = sizeof(Clause) + sizeof(Literal) * (lit_num - 1);
-    auto p = new char[size];
-    auto clause = new (p) Clause{lit_list, learnt};
-
-    return clause;
-  }
-
   /// @brief 節を削除する．
   void
   delete_clause(
     Clause* clause ///< [in] 削除する節
   );
-
-  /// @brief 節を削除する低レベルの関数
-  void
-  _delete_clause(
-    Clause* clause ///< [in] 削除する節
-  )
-  {
-    auto p = reinterpret_cast<char*>(clause);
-    delete [] p;
-  }
 
   /// @brief CNF を簡単化する．
   ///
