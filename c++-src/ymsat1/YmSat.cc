@@ -683,8 +683,9 @@ Reason
 YmSat::implication()
 {
   auto conflict = Reason::None;
-  while ( mAssignList.has_elem() ) {
-    auto l = mAssignList.get_next();
+  for ( SizeType pos = mAssignList.cur_head();
+	pos < mAssignList.size(); ++ pos ) {
+    auto l = mAssignList.get(pos);
     ++ mPropagationNum;
 
     if ( debug & debug_implication ) {
@@ -726,9 +727,6 @@ YmSat::implication()
 		 << "\t    " << ~l0 << " was assigned at level "
 		 << decision_level(l0.varid()) << endl;
 	  }
-
-	  // ループを抜けるためにキューの末尾まで先頭を動かす．
-	  mAssignList.skip_all();
 
 	  // 矛盾の理由を表す節を作る．
 	  mTmpBinClause->set(l0, nl);
@@ -813,9 +811,6 @@ YmSat::implication()
 		 << decision_level(l0.varid()) << endl;
 	  }
 
-	  // ループを抜けるためにキューの末尾まで先頭を動かす．
-	  mAssignList.skip_all();
-
 	  // この場合は w が矛盾の理由を表す節になっている．
 	  conflict = w;
 	  break;
@@ -847,8 +842,8 @@ YmSat::backtrack(
   }
 
   if ( level < decision_level() ) {
-    mAssignList.backtrack(level);
-    while ( mAssignList.has_elem() ) {
+    auto new_tail = mAssignList.backtrack(level);
+    while ( mAssignList.size() > new_tail ) {
       auto p = mAssignList.get_prev();
       auto varid = p.varid();
       mVal[varid] = conv_from_Bool3(SatBool3::X);

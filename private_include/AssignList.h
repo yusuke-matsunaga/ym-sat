@@ -54,8 +54,9 @@ public:
 
   /// @brief コンストラクタ
   AssignList(
-  ) : mMarker(1024)
+  )
   {
+    set_marker();
   }
 
   /// @brief デストラクタ
@@ -74,11 +75,7 @@ public:
   )
   {
     mList.reserve(req_size);
-    auto new_size = mMarker.size();
-    while ( new_size < req_size ) {
-      new_size <<= 1;
-    }
-    mMarker.resize(new_size);
+    mMarker.reserve(req_size);
   }
 
 
@@ -103,23 +100,6 @@ public:
     return mList.size();
   }
 
-  /// @brief 読み出す要素があるとき true を返す．
-  bool
-  has_elem() const
-  {
-    return mHead < size();
-  }
-
-  /// @brief 次の要素を返す．
-  /// @return 今の読み出し位置の要素を返す．
-  ///
-  /// 読み出し位置は一つ進む
-  Literal
-  get_next()
-  {
-    return get(mHead ++);
-  }
-
   /// @brief 前の要素を返す．
   /// @return 書き込み位置の一つ手前の要素を返す．
   ///
@@ -130,15 +110,6 @@ public:
     auto p = mList.back();
     mList.pop_back();
     return p;
-  }
-
-  /// @brief 全てを読み出したことにする．
-  ///
-  /// 読み出し位置を書き込み位置にする．
-  void
-  skip_all()
-  {
-    mHead = size();
   }
 
   /// @brief pos 番目の要素を得る．
@@ -160,27 +131,36 @@ public:
   int
   cur_level() const
   {
-    return mCurLevel;
+    return mMarker.size() - 1;
+  }
+
+  /// @brief 現在のレベルの開始位置を返す．
+  SizeType
+  cur_head() const
+  {
+    return mMarker.back();
   }
 
   /// @brief 現在の位置をマーカーに登録する．
   void
   set_marker()
   {
-    mMarker[mCurLevel ++] = size();
+    mMarker.push_back(size());
   }
 
   /// @brief level の割り当てを行う直前の状態にもどす．
+  /// @return backtrack 後の末尾を返す．
   ///
   /// 具体的には読み出し位置が level のマーカとなり，現在のレベルが
   /// level となる．
-  void
+  SizeType
   backtrack(
     int level ///< [in] 対象のレベル
   )
   {
-    mHead = mMarker[level];
-    mCurLevel = level;
+    auto tail = mMarker[level + 1];
+    mMarker.erase(mMarker.begin() + level + 1, mMarker.end());
+    return tail;
   }
 
 
@@ -192,13 +172,8 @@ private:
   // 値割り当てを保持するリスト(配列)
   vector<Literal> mList;
 
-  // 読み出し位置
-  SizeType mHead{0};
-
+  // 各レベルの開始位置を記録するスタック
   vector<SizeType> mMarker;
-
-  // 現在の decision_level
-  int mCurLevel{0};
 
 };
 
