@@ -268,21 +268,6 @@ private:
   void
   add_learnt_clause();
 
-  /// @brief 新しい節を生成する．
-  ///
-  /// リテラルは mTmpLits に格納されている．
-  Clause*
-  new_clause(
-    SizeType lit_num,   ///< [in] リテラル数
-    bool learnt = false ///< [in] 学習節のとき true とするフラグ
-  );
-
-  /// @brief mTmpLits を確保する．
-  void
-  alloc_lits(
-    SizeType lit_num ///< [in] リテラル数
-  );
-
   /// @brief 節を削除する．
   void
   delete_clause(
@@ -608,12 +593,6 @@ private:
 
   // メッセージハンドラのリスト
   list<SatMsgHandler*> mMsgHandlerList;
-
-  // add_clause で一時的に利用するリテラル配列
-  Literal* mTmpLits;
-
-  // mTmpLits のサイズ
-  SizeType mTmpLitsSize;
 
   // search() で用いられるリテラル配列
   vector<Literal> mLearntLits;

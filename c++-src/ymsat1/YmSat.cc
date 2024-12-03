@@ -70,10 +70,7 @@ YmSat::YmSat(
   mLbdTmp = new bool[mLbdTmpSize];
 #endif
 
-  mTmpLitsSize = 1024;
-  mTmpLits = new Literal[mTmpLitsSize];
-
-  mTmpBinClause = new_clause(2);
+  mTmpBinClause = Clause::new_clause({Literal::X, Literal::X});
 
   mRestart = 0;
 
@@ -84,10 +81,10 @@ YmSat::YmSat(
 YmSat::~YmSat()
 {
   for ( auto c: mConstrClauseList ) {
-    delete_clause(c);
+    Clause::delete_clause(c);
   }
   for ( auto c: mLearntClause ) {
-    delete_clause(c);
+    Clause::delete_clause(c);
   }
 
   delete mAnalyzer;
@@ -101,7 +98,6 @@ YmSat::~YmSat()
 #if YMSAT_USE_LBD
   delete [] mLbdTmp;
 #endif
-  delete [] mTmpLits;
 }
 
 // @brief 正しい状態のときに true を返す．
@@ -153,47 +149,39 @@ YmSat::add_clause(
   }
 
   SizeType lit_num = lits.size();
-  alloc_lits(lit_num);
+  vector<Literal> tmp_lits(lit_num);
   for ( SizeType i = 0; i < lit_num; ++ i ) {
     auto l = lits[i];
-    mTmpLits[i] = Literal{l};
+    tmp_lits[i] = Literal{l};
   }
 
   alloc_var();
 
-  // mTmpLits をソートする．
-  // たぶん要素数が少ないので挿入ソートが速いはず．
-  for ( SizeType i = 1; i < lit_num; ++ i ) {
-    // この時点で [0 : i - 1] までは整列している．
-    auto l = mTmpLits[i];
-    if ( mTmpLits[i - 1].index() <= l.index() ) {
-      // このままで [0 : i] まで整列していることになる．
-      continue;
-    }
-
-    // l の挿入位置を探す．
-    SizeType j = i;
-    for ( ; ; ) {
-      mTmpLits[j] = mTmpLits[j - 1];
-      -- j;
-      if ( j == 0 || mTmpLits[j - 1].index() <= l.index() ) {
-	// 先頭に達するか，l よりも小さい要素があった．
-	break;
-      }
-    }
-    mTmpLits[j] = l;
-  }
+  sort(tmp_lits.begin(), tmp_lits.end(),
+       [](Literal a, Literal b){
+	 return a.index() < b.index();
+       });
 
   // - 重複したリテラルの除去
   // - false literal の除去
   // - true literal を持つかどうかのチェック
-  SizeType wpos = 0;
-  for ( SizeType rpos = 0; rpos < lit_num; ++ rpos ) {
-    auto l = mTmpLits[rpos];
-    if ( wpos != 0 && mTmpLits[wpos - 1] == l ) {
+  auto rpos = tmp_lits.begin();
+  auto epos = tmp_lits.end();
+  auto wpos = rpos;
+  Literal prev = Literal::X;
+  for ( ; rpos != epos; ++ rpos ) {
+    auto l = *rpos;
+    if ( l == prev ) {
       // 重複している．
       continue;
     }
+    if ( l.varid() == prev.varid() ) {
+      // 同じ変数の相反するリテラル
+      // この節は常に充足する．
+      // ので無視して追加しない．
+      return;
+    }
+
     auto v = eval(l);
     if ( v == SatBool3::False ) {
       // false literal は追加しない．
@@ -201,19 +189,26 @@ YmSat::add_clause(
     }
     if ( v == SatBool3::True ) {
       // true literal があったら既に充足している
+      // ので無視して追加しない．
       return;
     }
     if ( l.varid() < 0 || l.varid() >= mVarNum ) {
       // 範囲外
-      cout << "Error![YmSat]: literal(" << l << "): out of range"
-	   << endl;
-      return;
+      // 普通はありえないが異常探知のためにチェックしておく．
+      ostringstream buf;
+      buf << "literal(" << l << "): out of range";
+      throw std::runtime_error{buf.str()};
     }
     // 追加する．
-    mTmpLits[wpos] = l;
+    if ( wpos != rpos ) {
+      *wpos = l;
+    }
     ++ wpos;
   }
-  lit_num = wpos;
+  if ( wpos != epos ) {
+    tmp_lits.erase(wpos, epos);
+  }
+  lit_num = tmp_lits.size();
 
   mConstrLitNum += lit_num;
 
@@ -223,7 +218,7 @@ YmSat::add_clause(
     return;
   }
 
-  auto l0 = mTmpLits[0];
+  auto l0 = tmp_lits[0];
   if ( lit_num == 1 ) {
     // unit clause があったら値の割り当てを行う．
     bool stat = check_and_assign(l0);
@@ -232,7 +227,8 @@ YmSat::add_clause(
 	   << "\tassign " << l0 << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum
+	     << ") with previous assignment" << endl
 	     << "\t    " << ~l0 << " was assigned at level "
 	     << decision_level(l0.varid()) << endl;
       }
@@ -254,7 +250,7 @@ YmSat::add_clause(
 
   ++ mConstrClauseNum;
 
-  auto l1 = mTmpLits[1];
+  auto l1 = tmp_lits[1];
 
   if ( lit_num == 2 ) {
     if ( debug & debug_assign ) {
@@ -269,7 +265,7 @@ YmSat::add_clause(
   }
   else {
     // 節の生成
-    auto clause = new_clause(lit_num, mTmpLits);
+    auto clause = Clause::new_clause(tmp_lits);
 
     if ( debug & debug_assign ) {
       cout << "add_clause: " << (*clause) << endl;
@@ -304,7 +300,8 @@ YmSat::add_learnt_clause()
       cout << "\tassign " << l0 << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum
+	     << ") with previous assignment" << endl
 	     << "\t    " << ~l0 << " was assigned at level "
 	     << decision_level(l0.varid()) << endl;
       }
@@ -335,11 +332,7 @@ YmSat::add_learnt_clause()
   }
   else {
     // 節の生成
-    alloc_lits(n);
-    for ( SizeType i = 0; i < n; ++ i ) {
-      mTmpLits[i] = mLearntLits[i];
-    }
-    auto clause = new_clause(n, true);
+    auto clause = Clause::new_clause(mLearntLits);
 
     if ( debug & debug_assign ) {
       cout << "add_learnt_clause: " << *clause << endl
@@ -371,21 +364,7 @@ YmSat::del_watcher(
 {
   auto w0 = Watcher{reason};
   auto& wlist = watcher_list(watch_lit);
-  SizeType n = wlist.num();
-  SizeType wpos = 0;
-  for ( ; wpos < n; ++ wpos) {
-    auto w = wlist.elem(wpos);
-    if ( w == w0 ) {
-      break;
-    }
-  }
-  ASSERT_COND( wpos < n );
-  -- n;
-  for ( ; wpos < n; ++ wpos) {
-    auto w = wlist.elem(wpos + 1);
-    wlist.set_elem(wpos, w);
-  }
-  wlist.erase(n);
+  wlist.del(w0);
 }
 
 // @brief SAT 問題を解く．
@@ -447,7 +426,8 @@ YmSat::solve(
 	   << "assume " << lit << " @" << decision_level()
 	   << endl;
       if ( !stat )  {
-	cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
+	cout << "\t--> conflict(#" << mConflictNum
+	     << ") with previous assignment" << endl
 	     << "\t    " << ~lit << " was assigned at level "
 	     << decision_level(lit.varid()) << endl;
       }
@@ -704,7 +684,7 @@ YmSat::implication()
 {
   auto conflict = Reason::None;
   while ( mAssignList.has_elem() ) {
-    auto l{mAssignList.get_next()};
+    auto l = mAssignList.get_next();
     ++ mPropagationNum;
 
     if ( debug & debug_implication ) {
@@ -714,7 +694,7 @@ YmSat::implication()
     auto nl = ~l;
 
     auto& wlist = watcher_list(l);
-    SizeType n = wlist.num();
+    SizeType n = wlist.size();
     SizeType rpos = 0;
     SizeType wpos = 0;
     while ( rpos < n ) {
@@ -741,7 +721,8 @@ YmSat::implication()
 	else { // val0 == SatBool3::False
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
-	    cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
+	    cout << "\t--> conflict(#" << mConflictNum
+		 << ") with previous assignment" << endl
 		 << "\t    " << ~l0 << " was assigned at level "
 		 << decision_level(l0.varid()) << endl;
 	  }
@@ -826,7 +807,8 @@ YmSat::implication()
 	else {
 	  // 矛盾がおこった．
 	  if ( debug & debug_assign ) {
-	    cout << "\t--> conflict(#" << mConflictNum << ") with previous assignment" << endl
+	    cout << "\t--> conflict(#" << mConflictNum
+		 << ") with previous assignment" << endl
 		 << "\t    " << ~l0 << " was assigned at level "
 		 << decision_level(l0.varid()) << endl;
 	  }
@@ -902,7 +884,7 @@ YmSat::next_decision()
       // Watcher の多い方の極性を(わざと)選ぶ
       auto v2 = vindex * 2;
       bool inv = false;
-      if ( mWatcherList[v2 + 1].num() > mWatcherList[v2 + 0].num() ) {
+      if ( mWatcherList[v2 + 1].size() > mWatcherList[v2 + 0].size() ) {
 	inv = true;
       }
       return Literal::conv_from_varid(vindex, inv);
@@ -966,36 +948,6 @@ YmSat::reduceDB()
   }
 }
 
-// 新しい節を生成する．
-Clause*
-YmSat::new_clause(
-  SizeType lit_num,
-  bool learnt
-)
-{
-  SizeType size = sizeof(Clause) + sizeof(Literal) * (lit_num - 1);
-  auto p = new char[size];
-  auto clause = new (p) Clause{lit_num, mTmpLits, learnt};
-
-  return clause;
-}
-
-// @brief mTmpLits を確保する．
-void
-YmSat::alloc_lits(
-  SizeType lit_num
-)
-{
-  auto old_size = mTmpLitsSize;
-  while ( mTmpLitsSize <= lit_num ) {
-    mTmpLitsSize <<= 1;
-  }
-  if ( old_size < mTmpLitsSize ) {
-    delete [] mTmpLits;
-    mTmpLits = new Literal[mTmpLitsSize];
-  }
-}
-
 // 節を捨てる．
 void
 YmSat::delete_clause(
@@ -1014,8 +966,7 @@ YmSat::delete_clause(
 
   mLearntLitNum -= clause->lit_num();
 
-  auto p = reinterpret_cast<char*>(clause);
-  delete [] p;
+  Clause::delete_clause(clause);
 }
 
 // 学習節のアクティビティを増加させる．
