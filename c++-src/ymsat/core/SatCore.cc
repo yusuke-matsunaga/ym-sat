@@ -824,7 +824,7 @@ SatCore::implication()
     auto nl = ~l;
 
     auto& wlist = watcher_list(l);
-    SizeType n = wlist.num();
+    SizeType n = wlist.size();
     SizeType rpos = 0;
     SizeType wpos = 0;
     while ( rpos < n ) {
@@ -1017,7 +1017,7 @@ SatCore::del_satisfied_watcher(
   // あたまからスキャンして該当の要素以降を
   // 1つづつ前に詰める．
   auto& wlist = watcher_list(watch_lit);
-  SizeType n = wlist.num();
+  SizeType n = wlist.size();
   SizeType wpos = 0;
   for ( SizeType rpos: Range(n) ) {
     auto w = wlist.elem(rpos);

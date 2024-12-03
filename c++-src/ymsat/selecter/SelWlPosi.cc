@@ -22,7 +22,7 @@ SelWlPosi::choose_phase(
   auto nlit = Literal::conv_from_varid(vid, true);
   // Watcher の多い方の極性を選ぶ
   bool inv = false;
-  if ( mCore.watcher_list(nlit).num() > mCore.watcher_list(plit).num() ) {
+  if ( mCore.watcher_list(nlit).size() > mCore.watcher_list(plit).size() ) {
     inv = true;
   }
   return inv;
