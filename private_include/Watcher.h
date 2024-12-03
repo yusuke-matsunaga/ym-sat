@@ -46,6 +46,8 @@ public:
 //////////////////////////////////////////////////////////////////////
 /// @class WatcherList Watcher.h "Watcher.h"
 /// @brief Watcher のリストを表すクラス
+///
+/// 実体は vector<Watcher> だが専用のメソッドを追加している．
 //////////////////////////////////////////////////////////////////////
 class WatcherList
 {
@@ -55,10 +57,7 @@ public:
   WatcherList() = default;
 
   /// @brief デストラクタ
-  ~WatcherList()
-  {
-    delete [] mArray;
-  }
+  ~WatcherList() = default;
 
 
 public:
@@ -67,27 +66,23 @@ public:
   void
   clear()
   {
-    mNum = 0;
+    mArray.clear();
   }
 
   /// @brief 要素数を返す．
   SizeType
-  num() const
+  size() const
   {
-    return mNum;
+    return mArray.size();
   }
 
   /// @brief 要素を追加する．
   void
   add(
-    Watcher elem ///< [in] 追加する要素
+    const Watcher& elem ///< [in] 追加する要素
   )
   {
-    if ( mNum >= mSize ) {
-      expand(mNum + 1);
-    }
-    set_elem(mNum, elem);
-    ++ mNum;
+    mArray.push_back(elem);
   }
 
   /// @brief 要素を削除する．
@@ -95,20 +90,23 @@ public:
   /// 線形走査を行っている．
   void
   del(
-    Watcher elem
+    const Watcher& elem
   )
   {
-    SizeType pos = 0;
-    for ( ; pos < mNum; ++ pos ) {
-      auto w = mArray[pos];
+    auto rpos = mArray.begin();
+    auto epos = mArray.end();
+    for ( ; rpos != epos; ++ rpos ) {
+      auto& w = *rpos;
       if ( w == elem ) {
 	break;
       }
     }
-    -- mNum;
-    for ( ; pos < mNum; ++ pos ) {
-      mArray[pos] = mArray[pos + 1];
+    auto wpos = rpos;
+    ++ rpos;
+    for ( ; rpos != epos; ++ rpos, ++ wpos ) {
+      *wpos = *rpos;
     }
+    mArray.pop_back();
   }
 
   /// @brief pos 番目の要素を返す．
@@ -138,10 +136,13 @@ public:
     SizeType to_pos    ///< [in] 移動先
   )
   {
-    for ( SizeType pos = from_pos; pos < end_pos; ++ pos, ++ to_pos ) {
-      mArray[to_pos] = mArray[pos];
+    auto rpos = mArray.begin() + from_pos;
+    auto epos = mArray.begin() + end_pos;
+    auto wpos = mArray.begin() + to_pos;
+    for ( ; rpos != epos; ++ rpos, ++ wpos ) {
+      *wpos = *rpos;
     }
-    mNum = to_pos;
+    mArray.erase(wpos, mArray.end());
   }
 
   /// @brief 要素を切り詰める．
@@ -150,7 +151,8 @@ public:
     SizeType num ///< [in] 切り詰めるサイズ
   )
   {
-    mNum = num;
+    auto pos = mArray.begin() + num;
+    mArray.erase(pos, mArray.end());
   }
 
   /// @brief from の内容を移す．
@@ -161,44 +163,7 @@ public:
     WatcherList& from ///< [in] もとのリスト
   )
   {
-    mSize = from.mSize;
-    mNum = from.mNum;
-    mArray = from.mArray;
-    from.mSize = 0;
-    from.mNum = 0;
-    from.mArray = nullptr;
-  }
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 配列を拡張する．
-  void
-  expand(
-    SizeType req_size ///< [in] 拡張するサイズ
-  )
-  {
-    if ( mSize < req_size ) {
-      auto old_size = mSize;
-      auto old_array = mArray;
-      if ( mSize == 0 ) {
-	mSize = 4;
-      }
-      while ( mSize < req_size ) {
-	mSize <<= 1;
-      }
-      mArray = new Watcher[mSize];
-
-      if ( old_size > 0 ) {
-	for ( int i = 0; i < old_size; ++ i ) {
-	  mArray[i] = old_array[i];
-	}
-	delete [] old_array;
-      }
-    }
+    std::swap(mArray, from.mArray);
   }
 
 
@@ -207,14 +172,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 配列のサイズ
-  SizeType mSize{0};
-
-  // 要素数
-  SizeType mNum{0};
-
   // 配列
-  Watcher* mArray{nullptr};
+  vector<Watcher> mArray;
 
 };
 
