@@ -41,19 +41,19 @@ SatCore::SatCore(
   mSweep_props = 0;
 
   // place-holder なので中身はダミー
-  mTmpBinClause = new_clause({Literal::X, Literal::X});
+  mTmpBinClause = Clause::new_clause({Literal::X, Literal::X});
 }
 
 // @brief デストラクタ
 SatCore::~SatCore()
 {
   for ( auto c: mConstrClauseList ) {
-    _delete_clause(c);
+    Clause::delete_clause(c);
   }
   for ( auto c: mLearntClauseList ) {
-    _delete_clause(c);
+    Clause::delete_clause(c);
   }
-  _delete_clause(mTmpBinClause);
+  Clause::delete_clause(mTmpBinClause);
 }
 
 // @brief 変数を追加する．
@@ -260,7 +260,7 @@ SatCore::add_clause(
   }
   else {
     // 節の生成
-    auto clause = new_clause(tmp_lits);
+    auto clause = Clause::new_clause(tmp_lits);
 
     if ( debug & debug_assign ) {
       DOUT << "add_clause: " << (*clause) << endl;
@@ -329,7 +329,7 @@ SatCore::add_learnt_clause(
   }
   else {
     // 節の生成
-    auto clause = new_clause(lits, true);
+    auto clause = Clause::new_clause(lits, true);
 
     if ( debug & debug_assign ) {
       DOUT << "add_learnt_clause: " << *clause << endl
@@ -492,7 +492,7 @@ SatCore::delete_clause(
     mLearntLitNum -= clause->lit_num();
   }
 
-  _delete_clause(clause);
+  Clause::delete_clause(clause);
 }
 
 // @brief SAT 問題を解く．
@@ -775,6 +775,7 @@ SatCore::analyze_final(
   unordered_set<SatVarId> mark;
   mark.emplace(p.varid());
 
+  // 値割り当てを末尾から取り出す．
   for ( SizeType pos = mAssignList.size(); pos > 0; ) {
     -- pos;
     auto l = mAssignList.get(pos);
