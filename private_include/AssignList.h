@@ -54,8 +54,7 @@ public:
 
   /// @brief コンストラクタ
   AssignList(
-  ) : mList(1024),
-      mMarker(1024)
+  ) : mMarker(1024)
   {
   }
 
@@ -74,11 +73,11 @@ public:
     SizeType req_size
   )
   {
-    auto new_size = mList.size();
+    mList.reserve(req_size);
+    auto new_size = mMarker.size();
     while ( new_size < req_size ) {
       new_size <<= 1;
     }
-    mList.resize(new_size);
     mMarker.resize(new_size);
   }
 
@@ -89,29 +88,26 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 割り当てを追加する．
-  ///
-  /// ここでは領域の拡張を行わない．それ以前に reserve() で適切な
-  /// サイズが指定されている必要がある．
   void
   put(
     Literal lit ///< [in] リテラル
   )
   {
-    mList[mTail ++] = lit;
+    mList.push_back(lit);
   }
 
   /// @brief 記録されている割り当ての要素数を得る．
   SizeType
   size() const
   {
-    return mTail;
+    return mList.size();
   }
 
   /// @brief 読み出す要素があるとき true を返す．
   bool
   has_elem() const
   {
-    return mHead < mTail;
+    return mHead < size();
   }
 
   /// @brief 次の要素を返す．
@@ -131,7 +127,9 @@ public:
   Literal
   get_prev()
   {
-    return get(-- mTail);
+    auto p = mList.back();
+    mList.pop_back();
+    return p;
   }
 
   /// @brief 全てを読み出したことにする．
@@ -140,7 +138,7 @@ public:
   void
   skip_all()
   {
-    mHead = mTail;
+    mHead = size();
   }
 
   /// @brief pos 番目の要素を得る．
@@ -169,7 +167,7 @@ public:
   void
   set_marker()
   {
-    mMarker[mCurLevel ++] = mTail;
+    mMarker[mCurLevel ++] = size();
   }
 
   /// @brief level の割り当てを行う直前の状態にもどす．
@@ -193,9 +191,6 @@ private:
 
   // 値割り当てを保持するリスト(配列)
   vector<Literal> mList;
-
-  // 書き込み位置
-  SizeType mTail{0};
 
   // 読み出し位置
   SizeType mHead{0};
