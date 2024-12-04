@@ -54,6 +54,7 @@ class SatInitParam;
 class SatStats;
 class SatMsgHandler;
 class SatMsgHandlerS;
+class CnfSize;
 
 /// @brief SATの変数を表す型
 using SatVarId = SizeType;
@@ -75,6 +76,7 @@ using nsSat::SatInitParam;
 using nsSat::SatStats;
 using nsSat::SatMsgHandler;
 using nsSat::SatMsgHandlerS;
+using nsSat::CnfSize;
 
 END_NAMESPACE_YM
 

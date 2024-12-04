@@ -14,6 +14,7 @@
 #include "ym/SatModel.h"
 #include "ym/SatInitParam.h"
 #include "ym/SatStats.h"
+#include "ym/CnfSize.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -1445,6 +1446,13 @@ public:
   literal_num() const
   {
     return mLiteralNum;
+  }
+
+  /// @brief 制約節のサイズを得る．
+  CnfSize
+  cnf_size() const
+  {
+    return CnfSize{clause_num(), literal_num()};
   }
 
   /// @brief DIMACS 形式で制約節を出力する．
