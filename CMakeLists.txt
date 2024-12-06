@@ -36,6 +36,8 @@ include_directories(
 #  マクロの定義
 # ===================================================================
 
+set ( DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/testdata )
+
 
 # ===================================================================
 # サブディレクトリの設定
@@ -43,9 +45,10 @@ include_directories(
 
 add_subdirectory( c++-src )
 if ( Python3_FOUND )
-  add_subdirectory( py_ymsat )
+  add_subdirectory( py_capi )
+  add_subdirectory( pytest )
 endif ( Python3_FOUND )
-add_subdirectory( tests )
+add_subdirectory( test-programs )
 
 
 # ===================================================================

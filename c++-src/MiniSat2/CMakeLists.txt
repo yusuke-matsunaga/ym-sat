@@ -15,44 +15,20 @@ include_directories(
 # サブディレクトリの設定
 # ===================================================================
 
-add_subdirectory( glueminisat-2.2.8 )
-add_subdirectory( lingeling )
-add_subdirectory( MiniSat )
-add_subdirectory( MiniSat2 )
-add_subdirectory( ymsat )
-add_subdirectory( ymsat_old )
-
-add_subdirectory( gtest )
-
 
 # ===================================================================
 #  ソースの設定
 # ===================================================================
 
-set (main_SOURCES
-  SatMsgHandlerS.cc
-  SatSolver.cc
-  SatSolver_bv.cc
-  SatSolver_count.cc
-  SatSolver_tseitin.cc
-  SatSolverImpl.cc
-  SatInitParam.cc
-  SatLogger.cc
-  SatLoggerS.cc
-  SatOrderedSet.cc
-  SatDimacs.cc
+set (MiniSat2_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/Options.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/SatSolverMiniSat2.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/Solver.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/System.cc
+  PARENT_SCOPE
   )
 
 
 # ===================================================================
 #  ターゲットの設定
 # ===================================================================
-ym_add_object_library ( ym_sat
-  ${main_SOURCES}
-  ${glueminisat_SOURCES}
-  ${lingeling_SOURCES}
-  ${MiniSat_SOURCES}
-  ${MiniSat2_SOURCES}
-  ${ymsat_SOURCES}
-  ${ymsat_old_SOURCES}
-  )

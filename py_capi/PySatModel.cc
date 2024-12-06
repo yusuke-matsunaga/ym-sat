@@ -20,7 +20,7 @@ BEGIN_NONAMESPACE
 struct SatModelObject
 {
   PyObject_HEAD
-  SatModel* mVal;
+  SatModel mVal;
 };
 
 // Python 用のタイプ定義
@@ -48,7 +48,7 @@ SatModel_dealloc(
 )
 {
   auto model_obj = reinterpret_cast<SatModelObject*>(self);
-  delete model_obj->mVal;
+  model_obj->mVal.~SatModel();
   Py_TYPE(self)->tp_free(self);
 }
 
@@ -128,7 +128,7 @@ PySatModel::ToPyObject(
 {
   auto obj = SatModelType.tp_alloc(&SatModelType, 0);
   auto model_obj = reinterpret_cast<SatModelObject*>(obj);
-  model_obj->mVal = new SatModel{val};
+  new (&model_obj->mVal) SatModel{val};
   return obj;
 }
 
@@ -148,7 +148,7 @@ PySatModel::Get(
 )
 {
   auto model_obj = reinterpret_cast<SatModelObject*>(obj);
-  return *model_obj->mVal;
+  return model_obj->mVal;
 }
 
 // @brief SatModel を表すオブジェクトの型定義を返す．

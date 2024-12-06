@@ -86,7 +86,7 @@ obj_to_json(
 struct SatSolverObject
 {
   PyObject_HEAD
-  SatSolver* mPtr;
+  SatSolver mSolver;
 };
 
 // Python 用のタイプ定義
@@ -123,7 +123,7 @@ SatSolver_new(
 
   auto self = type->tp_alloc(type, 0);
   auto satsolver_obj = reinterpret_cast<SatSolverObject*>(self);
-  satsolver_obj->mPtr = new SatSolver{init_param};
+  new (&satsolver_obj->mSolver) SatSolver{init_param};
   return self;
 }
 
@@ -134,7 +134,7 @@ SatSolver_dealloc(
 )
 {
   auto satsolver_obj = reinterpret_cast<SatSolverObject*>(self);
-  delete satsolver_obj->mPtr;
+  satsolver_obj->mSolver.~SatSolver();
   Py_TYPE(self)->tp_free(self);
 }
 
@@ -1134,7 +1134,7 @@ PySatSolver::Get(
 )
 {
   auto satsolver_obj = reinterpret_cast<SatSolverObject*>(obj);
-  return *satsolver_obj->mPtr;
+  return satsolver_obj->mSolver;
 }
 
 // @brief SatSolver を表すオブジェクトの型定義を返す．

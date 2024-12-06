@@ -8,7 +8,7 @@
 
 #include "ym/SatInitParam.h"
 #include "SatCore.h"
-#include "ymsat1/YmSat.h"
+#include "ymsat_old/YmSat.h"
 #include "MiniSat/SatSolverMiniSat.h"
 #include "MiniSat2/SatSolverMiniSat2.h"
 #include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
