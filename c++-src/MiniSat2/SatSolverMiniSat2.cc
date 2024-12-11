@@ -97,8 +97,8 @@ SatSolverMiniSat2::solve(
   mSolver.decisions = 0;
   mSolver.propagations = 0;
 
-  bool ans = mSolver.solve(tmp);
-  if ( ans ) {
+  auto ans = mSolver.solveLimited(tmp);
+  if ( ans == l_True ) {
     SizeType n = mSolver.model.size();
     model.resize(n);
     for ( SizeType i = 0; i < n; ++ i ) {
@@ -117,7 +117,7 @@ SatSolverMiniSat2::solve(
     }
     return SatBool3::True;
   }
-  else {
+  if ( ans == l_False ) {
     SizeType n = mSolver.conflict.size();
     conflicts.resize(n);
     for ( SizeType i = 0; i < n; ++ i ) {
@@ -128,6 +128,8 @@ SatSolverMiniSat2::solve(
     }
     return SatBool3::False;
   }
+  // ans == l_Unknown
+  return SatBool3::X;
 }
 
 // @brief 探索を中止する．

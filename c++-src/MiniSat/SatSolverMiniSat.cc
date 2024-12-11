@@ -91,8 +91,8 @@ SatSolverMiniSat::solve(
     tmp.push(lit);
   }
 
-  bool ans = mSolver.solve(tmp);
-  if ( ans ) {
+  auto ans = mSolver.solve(tmp);
+  if ( ans == l_True ) {
     SizeType n = mSolver.model.size();
     model.resize(n);
     for ( SizeType i = 0; i < n; ++ i ) {
@@ -111,17 +111,19 @@ SatSolverMiniSat::solve(
     }
     return SatBool3::True;
   }
-  else {
+  if ( ans == l_False ) {
     // conflicts は未実装
     return SatBool3::False;
   }
+  // ans == l_Undef
+  return SatBool3::X;
 }
 
 // @brief 探索を中止する．
 void
 SatSolverMiniSat::stop()
 {
-  // 未実装
+  mSolver.stop();
 }
 
 SizeType

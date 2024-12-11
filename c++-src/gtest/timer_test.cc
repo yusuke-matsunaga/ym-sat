@@ -41,7 +41,7 @@ private:
 SatBool3
 TimerTest::check()
 {
-  SizeType nh = 9;
+  SizeType nh = 20;
   SizeType np = nh + 1;
 
   vector<SatLiteral> var_array(nh * np);
@@ -73,7 +73,7 @@ TimerTest::check()
   }
 
   int time_limit = 5;
-  auto res = mSolver.solve();
+  auto res = mSolver.solve(time_limit);
 
   return res;
 }
@@ -86,6 +86,7 @@ TEST_P(TimerTest, test1)
 
 INSTANTIATE_TEST_SUITE_P(SatSolverTest,
 			 TimerTest,
-			 ::testing::Values(/*"minisat", "minisat2",*/ "ymsat1", "ymsat2", "ymsat1_old"));
+			 ::testing::Values("minisat", "minisat2", "glueminisat2",
+					   "ymsat1", "ymsat2", "ymsat1_old"));
 
 END_NAMESPACE_YM

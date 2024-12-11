@@ -54,12 +54,12 @@ SatSolver::new_variable(
 SatBool3
 SatSolver::solve(
   const vector<SatLiteral>& assumptions,
-  int time_limit
+  SizeType time_limit
 )
 {
-  IntervalTimer itimer{static_cast<SizeType>(time_limit)};
+  IntervalTimer itimer{time_limit};
   if ( time_limit > 0 ) {
-    itimer.start([&](){ this->stop(); });
+    itimer.start([&](){ mImpl->stop(); });
   }
 
   mLogger->solve(assumptions);
@@ -75,13 +75,6 @@ SatSolver::solve(
   mLogger->solve_result(stat);
 
   return stat;
-}
-
-// @brief 探索を中止する．
-void
-SatSolver::stop()
-{
-  mImpl->stop();
 }
 
 // @brief 正しい状態のときに true を返す．

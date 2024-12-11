@@ -907,7 +907,7 @@ Solver::search(int nof_conflicts,
     else{
       // NO CONFLICT
 
-      if (nof_conflicts >= 0 && conflictC >= nof_conflicts){
+      if ( !mGoOn || nof_conflicts >= 0 && conflictC >= nof_conflicts){
 	// Reached bound on number of conflicts:
 	progress_estimate = progressEstimate();
 	cancelUntil(root_level);
@@ -984,7 +984,7 @@ Solver::claRescaleActivity()
 |    'simplifyDB()' first to see that no top-level conflict is present (which would put the solver
 |    in an undefined state).
 |________________________________________________________________________________________________@*/
-bool
+lbool
 Solver::solve(const vec<Lit>& assumps)
 {
   if ( debug & debug_solve ) {
@@ -1005,12 +1005,15 @@ Solver::solve(const vec<Lit>& assumps)
   }
 
   simplifyDB();
-  if (!ok) return false;
+  if (!ok) return l_False;
 
   SearchParams    params(default_params);
   double  nof_conflicts = 100;
   double  nof_learnts   = nClauses() / 3;
   lbool   status        = l_Undef;
+
+  // Added by MAT
+  mGoOn = true;
 
   // Perform assumptions:
   root_level = assumps.size();
@@ -1041,13 +1044,13 @@ Solver::solve(const vec<Lit>& assumps)
 	conflict.push(~p);
       }
       cancelUntil(0);
-      return false;
+      return l_False;
     }
     Clause* confl = propagate();
     if ( confl != NULL ) {
       analyzeFinal(confl), assert(conflict.size() > 0);
       cancelUntil(0);
-      return false;
+      return l_False;
     }
   }
   assert(root_level == decisionLevel());
@@ -1066,6 +1069,12 @@ Solver::solve(const vec<Lit>& assumps)
 	      (int)stats.conflicts, nClauses(), (int)stats.clauses_literals, (int)nof_learnts, nLearnts(), (int)stats.learnts_literals, (double)stats.learnts_literals/nLearnts(), progress_estimate*100);
     }
     status = search((int)nof_conflicts, (int)nof_learnts, params);
+
+    // Added by MAT
+    if ( !mGoOn ) {
+      break;
+    }
+
     nof_conflicts *= 1.5;
     nof_learnts   *= 1.1;
   }
@@ -1086,5 +1095,5 @@ Solver::solve(const vec<Lit>& assumps)
     }
   }
 
-  return status == l_True;
+  return status;
 }

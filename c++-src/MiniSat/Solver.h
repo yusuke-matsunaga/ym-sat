@@ -88,6 +88,9 @@ protected:
     vec<Lit>            addBinary_tmp;
     vec<Lit>            addTernary_tmp;
 
+  // Added by MAT
+  std::atomic<bool> mGoOn{false};
+
     // Main internal methods:
     //
     bool        assume           (Lit p);
@@ -197,8 +200,12 @@ public:
     //
     bool    okay() const { return ok; }       // FALSE means solver is in an conflicting state (must never be used again!)
     void    simplifyDB();
-    bool    solve(const vec<Lit>& assumps);
-    bool    solve() { vec<Lit> tmp; return solve(tmp); }
+    lbool    solve(const vec<Lit>& assumps);
+    lbool    solve() { vec<Lit> tmp; return solve(tmp); }
+
+  // Added by MAT
+  void
+  stop() { mGoOn = false; }
 
     double      progress_estimate;  // Set by 'search()'.
     vec<lbool>  model;              // If problem is satisfiable, this vector contains the model (if any).

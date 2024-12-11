@@ -332,7 +332,7 @@ YmSat::add_learnt_clause()
   }
   else {
     // 節の生成
-    auto clause = Clause::new_clause(mLearntLits);
+    auto clause = Clause::new_clause(mLearntLits, true);
 
     if ( debug & debug_assign ) {
       cout << "add_learnt_clause: " << *clause << endl
@@ -455,12 +455,9 @@ YmSat::solve(
   }
 
   SatBool3 stat = SatBool3::X;
-  while ( mGoOn ) {
+  for ( ; ; ) {
     // 実際の探索を行う．
-    mConflictLimit = static_cast<int>(confl_limit);
-    if ( mConflictLimit > mMaxConflict ) {
-      mConflictLimit = mMaxConflict;
-    }
+    mConflictLimit = std::min(mMaxConflict, static_cast<SizeType>(confl_limit));
     mLearntLimit = static_cast<int>(learnt_limit);
     auto stats = get_stats();
     for ( auto handler: mMsgHandlerList ) {
@@ -470,6 +467,10 @@ YmSat::solve(
     stat = search();
     if ( stat != SatBool3::X ) {
       // 結果が求められた．
+      break;
+    }
+    if ( !mGoOn ) {
+      // 時間切れ(アボート)
       break;
     }
     if ( mConflictLimit == mMaxConflict ) {
@@ -598,7 +599,16 @@ YmSat::search()
 {
   // コンフリクトの起こった回数
   SizeType n_confl = 0;
-  while ( mGoOn ) {
+  for ( ; ; ) {
+    {
+      for ( auto clause: mLearntClause ) {
+	if ( !clause->is_learnt() ) {
+	  cout << "ERROR!" << endl;
+	  cout << *clause << ": not a learnt clause" << endl;
+	  abort();
+	}
+      }
+    }
     // キューにつまれている割り当てから含意される値の割り当てを行う．
     auto conflict = implication();
     if ( conflict != Reason::None ) {
@@ -919,6 +929,15 @@ YmSat::reduceDB()
   // 足切りのための制限値
   double abs_limit = mClauseBump / n;
 
+  {
+    for ( auto clause: mLearntClause ) {
+      if ( !clause->is_learnt() ) {
+	cout << "ERROR!" << endl;
+	cout << *clause << ": not a learnt clause" << endl;
+	abort();
+      }
+    }
+  }
   sort(mLearntClause.begin(), mLearntClause.end(), ClauseLess());
 
   auto wpos = mLearntClause.begin();

@@ -1329,12 +1329,12 @@ public:
   /// @return 結果(SatBool3)を返す．
   ///
   /// 結果の意味は以下の通り
-  /// * kB3True  充足した．
-  /// * kB3False 充足不能が判明した．
-  /// * kB3X     わからなかった．
+  /// * SatBool3::True  充足した．
+  /// * SatBool3::False 充足不能が判明した．
+  /// * SatBool3::X     わからなかった．
   SatBool3
   solve(
-    int time_limit = 0 ///< [in] 時間制約(秒) 0 で制約なし
+    SizeType time_limit = 0 ///< [in] 時間制約(秒) 0 で制約なし
   )
   {
     // 空の assumptions を付けて solve() を呼ぶだけ
@@ -1350,8 +1350,9 @@ public:
   /// * SatBool3::X     わからなかった．
   SatBool3
   solve(
-    const vector<SatLiteral>& assumptions, ///< [in] あらかじめ仮定する変数の値割り当てリスト
-    int time_limit = 0                     ///< [in] 時間制約(秒) 0 で制約なし
+    const vector<SatLiteral>& assumptions, ///< [in] あらかじめ仮定する
+                                           ///       変数の値割り当てリスト
+    SizeType time_limit = 0                ///< [in] 時間制約(秒) 0 で制約なし
   );
 
   /// @brief 直前に解いた問題のモデルを返す．
@@ -1375,12 +1376,6 @@ public:
   {
     return mConflictLiterals;
   }
-
-  /// @brief 探索を中止する．
-  ///
-  /// 割り込みハンドラや別スレッドから非同期に呼ばれることを仮定している．
-  void
-  stop();
 
   /// @brief 時間計測機能を制御する
   void

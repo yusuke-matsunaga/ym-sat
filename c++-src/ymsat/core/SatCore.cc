@@ -643,6 +643,22 @@ SatCore::solve(
   return sat_stat;
 }
 
+// @brief 停止する．
+void
+SatCore::stop()
+{
+  mGoOn = false;
+}
+
+// @brief 時間計測機能を制御する
+void
+SatCore::timer_on(
+  bool enable
+)
+{
+  mTimerOn = enable;
+}
+
 // @brief 探索を行う本体の関数
 SatBool3
 SatCore::search()

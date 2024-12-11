@@ -589,7 +589,7 @@ private:
   SizeType mMaxConflict;
 
   // stop() が用いるフラグ
-  bool mGoOn;
+  std::atomic<bool> mGoOn;
 
   // メッセージハンドラのリスト
   list<SatMsgHandler*> mMsgHandlerList;

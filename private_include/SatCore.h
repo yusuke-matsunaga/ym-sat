@@ -367,19 +367,13 @@ public:
 
   /// @brief 停止する．
   void
-  stop() override
-  {
-    mGoOn = false;
-  }
+  stop() override;
 
   /// @brief 時間計測機能を制御する
   void
   timer_on(
     bool enable
-  ) override
-  {
-    mTimerOn = enable;
-  }
+  ) override;
 
   /// @brief solve() 中のリスタートのたびに呼び出されるメッセージハンドラの登録
   void
@@ -899,7 +893,7 @@ private:
   VarHeap mVarHeap;
 
   // 動作フラグ
-  bool mGoOn{false};
+  std::atomic<bool> mGoOn{false};
 
   // 矛盾の原因となっているリテラルのリスト
   vector<Literal> mConflicts;
