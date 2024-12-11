@@ -25,7 +25,10 @@ public:
 
   /// @brief テスト本体
   SatBool3
-  check();
+  check(
+    SizeType nh,
+    SizeType time_limit
+  );
 
 
 private:
@@ -39,9 +42,11 @@ private:
 };
 
 SatBool3
-TimerTest::check()
+TimerTest::check(
+  SizeType nh,
+  SizeType time_limit
+)
 {
-  SizeType nh = 20;
   SizeType np = nh + 1;
 
   vector<SatLiteral> var_array(nh * np);
@@ -72,7 +77,6 @@ TimerTest::check()
     }
   }
 
-  int time_limit = 5;
   auto res = mSolver.solve(time_limit);
 
   return res;
@@ -80,7 +84,14 @@ TimerTest::check()
 
 TEST_P(TimerTest, test1)
 {
-  auto res = check();
+  auto res = check(5, 10);
+  EXPECT_EQ( SatBool3::False, res );
+}
+
+TEST_P(TimerTest, test2)
+{
+  // 時間切れになるはず．
+  auto res = check(100, 10);
   EXPECT_EQ( SatBool3::X, res );
 }
 
