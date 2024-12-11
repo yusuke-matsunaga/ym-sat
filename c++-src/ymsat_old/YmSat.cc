@@ -397,6 +397,8 @@ YmSat::solve(
 
   alloc_var();
 
+  mGoOn = true;
+
   // 自明な簡単化を行う．
   reduce_CNF();
   if ( !mSane ) {
@@ -453,7 +455,7 @@ YmSat::solve(
   }
 
   SatBool3 stat = SatBool3::X;
-  for ( ; ; ) {
+  while ( mGoOn ) {
     // 実際の探索を行う．
     mConflictLimit = static_cast<int>(confl_limit);
     if ( mConflictLimit > mMaxConflict ) {
@@ -516,6 +518,7 @@ YmSat::solve(
 void
 YmSat::stop()
 {
+  mGoOn = false;
 }
 
 // @brief 学習節をすべて削除する．
@@ -595,7 +598,7 @@ YmSat::search()
 {
   // コンフリクトの起こった回数
   SizeType n_confl = 0;
-  for ( ; ; ) {
+  while ( mGoOn ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
     auto conflict = implication();
     if ( conflict != Reason::None ) {
@@ -676,6 +679,8 @@ YmSat::search()
       assign(lit);
     }
   }
+  // ここに来るのは時間切れの場合のみ
+  return SatBool3::X;
 }
 
 // 割当てキューに基づいて implication を行う．

@@ -7,10 +7,9 @@
 /// All rights reserved.
 
 #include "ym/SatSolver.h"
+#include "ym/IntervalTimer.h"
 #include "SatSolverImpl.h"
 #include "SatLogger.h"
-#include <sys/time.h>
-#include <signal.h>
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -51,20 +50,6 @@ SatSolver::new_variable(
   return lit;
 }
 
-BEGIN_NONAMESPACE
-
-SatSolver* the_solver;
-bool expired;
-
-void
-stop_solver(int)
-{
-  the_solver->stop();
-  expired = true;
-}
-
-END_NONAMESPACE
-
 // @brief assumption 付きの SAT 問題を解く．
 SatBool3
 SatSolver::solve(
@@ -72,33 +57,16 @@ SatSolver::solve(
   int time_limit
 )
 {
-  sig_t old_func = nullptr;
-  expired = false;
-
+  IntervalTimer itimer{static_cast<SizeType>(time_limit)};
   if ( time_limit > 0 ) {
-    // インターバルタイマをセットする．
-    the_solver = this;
-    old_func = signal(SIGALRM, stop_solver);
-
-    struct itimerval itimer_val;
-    itimer_val.it_interval.tv_sec = 0;
-    itimer_val.it_interval.tv_usec = 0;
-    itimer_val.it_value.tv_sec = time_limit;
-    itimer_val.it_value.tv_usec = 0;
-
-    setitimer(ITIMER_REAL, &itimer_val, nullptr);
+    itimer.start([&](){ this->stop(); });
   }
 
   mLogger->solve(assumptions);
 
-  SatBool3 stat = mImpl->solve(assumptions, mModel, mConflictLiterals);
-  if ( expired ) {
-    stat = SatBool3::X;
-  }
+  auto stat = mImpl->solve(assumptions, mModel, mConflictLiterals);
 
-  if ( time_limit > 0 ) {
-    signal(SIGALRM, old_func);
-  }
+  itimer.stop();
 
   if ( stat == SatBool3::False ) {
     sort(mConflictLiterals.begin(), mConflictLiterals.end());

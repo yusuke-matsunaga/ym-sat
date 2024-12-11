@@ -758,6 +758,8 @@ SatCore::search()
     // 未割り当ての変数を選んでいるのでエラーになるはずはない．
     assign(next_lit);
   }
+  // ここに来るのは時間切れの時だけ
+  return SatBool3::X;
 }
 
 // @brief 矛盾の原因を求める．

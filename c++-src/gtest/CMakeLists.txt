@@ -133,3 +133,9 @@ ym_add_gtest ( sat_SatSolver_test
   $<TARGET_OBJECTS:ym_sat_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
+
+ym_add_gtest ( sat_timer_test
+  timer_test.cc
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
