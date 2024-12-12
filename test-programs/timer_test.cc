@@ -7,17 +7,27 @@
 /// All rights reserved.
 
 #include "ym/SatSolver.h"
+#include <libgen.h>
 
 
 BEGIN_NAMESPACE_YM
 
 void
-timer_test()
+timer_test(
+  int argc,
+  char**argv
+)
 {
-  //SatSolver solver{"minisat"};
-  SatSolver solver{"minisat2"};
-  //SatSolver solver{"ymsat1_old"};
-  //SatSolver solver{"ymsat2"};
+  if ( argc != 2 ) {
+    cerr << "USAGE: " << basename(argv[0])
+	 << " <satsolver-name>(minisat|minisat2|glueminisat2|lingeling|ymsat|ymsat1|ymsat2|ymsat1_old"
+	 << endl;
+    return;
+  }
+
+  string name = argv[1];
+
+  SatSolver solver{name};
 
   SizeType nh = 40;
   SizeType np = nh + 1;
@@ -64,7 +74,7 @@ main(
   char** argv
 )
 {
-  YM_NAMESPACE::timer_test();
+  YM_NAMESPACE::timer_test(argc, argv);
 
   return 0;
 }
