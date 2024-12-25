@@ -52,6 +52,17 @@ struct CnfSize
     return *this;
   }
 
+  /// @brief 乗算付き代入文
+  CnfSize&
+  operator*=(
+    SizeType right ///< [in] オペランド（乗数）
+  )
+  {
+    clause_num *= right;
+    literal_num *= right;
+    return *this;
+  }
+
   /// @brief 加算
   CnfSize
   operator+(
@@ -68,6 +79,15 @@ struct CnfSize
   ) const
   {
     return CnfSize{*this}.operator-=(right);
+  }
+
+  /// @brief 乗算
+  CnfSize
+  operator*(
+    SizeType right  ///< [in] オペランド（乗数）
+  ) const
+  {
+    return CnfSize{*this}.operator*=(right);
   }
 
   /// @brief 等価比較演算子

@@ -18,6 +18,12 @@
 #  テスト用のターゲットの設定
 # ===================================================================
 
+ym_add_gtest ( sat_CnfSize_test
+  CnfSizeTest.cc
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
 ym_add_gtest ( sat_SatInitParam_test
   SatInitParamTest.cc
   $<TARGET_OBJECTS:ym_sat_obj_d>
