@@ -13,6 +13,7 @@
 #include "pym/PySatLiteral.h"
 #include "pym/PySatModel.h"
 #include "pym/PySatSolver.h"
+#include "pym/PyCnfSize.h"
 #include "pym/PyModule.h"
 
 
@@ -58,6 +59,10 @@ PyInit_ymsat()
   }
 
   if ( !PySatSolver::init(m) ) {
+    goto error;
+  }
+
+  if ( !PyCnfSize::init(m) ) {
     goto error;
   }
 
