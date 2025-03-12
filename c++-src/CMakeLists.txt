@@ -41,6 +41,7 @@ set (main_SOURCES
   SatLoggerS.cc
   SatOrderedSet.cc
   SatDimacs.cc
+  Expr2Cnf.cc
   )
 
 

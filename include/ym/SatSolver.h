@@ -15,6 +15,7 @@
 #include "ym/SatInitParam.h"
 #include "ym/SatStats.h"
 #include "ym/CnfSize.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -569,6 +570,17 @@ public:
   {
     add_xorgate(~olit, lit_list);
   }
+
+  /// @brief 与えられた論理式を充足する条件を追加する．
+  /// @return 条件を表すリテラルのリストを返す．
+  ///
+  /// 変数番号が lit_map に登録されていない時は例外が創出される．
+  vector<SatLiteral>
+  add_expr(
+    const Expr& expr, ///< [in] 対象の論理式
+    std::unordered_map<SizeType, SatLiteral>& lit_map
+                      ///< [in] 論理式中の変数番号とリテラルの対応関係を表す辞書
+  );
 
   /// @brief half_adder の入出力の関係を表す条件を追加する．
   void

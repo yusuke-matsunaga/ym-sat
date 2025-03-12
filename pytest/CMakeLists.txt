@@ -34,6 +34,7 @@ add_executable( py_ymsat
   ${py_ymsat_SOURCES}
   $<TARGET_OBJECTS:py_ymsat_obj_d>
   $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 

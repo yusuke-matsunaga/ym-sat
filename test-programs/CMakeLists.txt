@@ -21,6 +21,7 @@
 add_executable ( sat_test1
   sat_test.cc
   $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_sat_obj_d>
   )
 
@@ -35,6 +36,7 @@ target_link_libraries ( sat_test1
 add_executable ( sat_timer_test1
   timer_test.cc
   $<TARGET_OBJECTS:ym_base_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
   $<TARGET_OBJECTS:ym_sat_obj_d>
   )
 

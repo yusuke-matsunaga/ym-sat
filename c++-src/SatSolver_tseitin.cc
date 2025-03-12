@@ -7,6 +7,7 @@
 /// All rights reserved.
 
 #include "ym/SatSolver.h"
+#include "Expr2Cnf.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -82,6 +83,17 @@ SatSolver::_add_xorgate_sub(
     _add_xorgate_sub(rlit, lit_list, start + nl, nr);
     add_xorgate(olit, llit, rlit);
   }
+}
+
+// @brief 与えられた論理式を充足する条件を追加する．
+vector<SatLiteral>
+SatSolver::add_expr(
+  const Expr& expr,
+  std::unordered_map<SizeType, SatLiteral>& lit_map
+)
+{
+  Expr2Cnf expr2cnf(*this, lit_map);
+  return expr2cnf.add_expr(expr);
 }
 
 // @brief half_adder の入出力の関係を表す条件を追加する．
