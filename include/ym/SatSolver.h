@@ -5,7 +5,7 @@
 /// @brief SatSolver のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2011, 2014, 2016, 2017, 2018, 2019, 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/sat.h"
@@ -16,6 +16,7 @@
 #include "ym/SatStats.h"
 #include "ym/CnfSize.h"
 #include "ym/Expr.h"
+#include "ym/AigHandle.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -32,6 +33,11 @@ class SatLogger;
 //////////////////////////////////////////////////////////////////////
 class SatSolver
 {
+public:
+
+  /// @brief 変数番号とリテラルの対応関係を保持する辞書の型
+  using LitMap = std::unordered_map<SizeType, SatLiteral>;
+
 public:
   //////////////////////////////////////////////////////////////////////
   /// @name コンストラクタ/デストラクタ
@@ -577,9 +583,32 @@ public:
   /// 変数番号が lit_map に登録されていない時は例外が創出される．
   vector<SatLiteral>
   add_expr(
-    const Expr& expr, ///< [in] 対象の論理式
-    std::unordered_map<SizeType, SatLiteral>& lit_map
-                      ///< [in] 論理式中の変数番号とリテラルの対応関係を表す辞書
+    const Expr& expr,     ///< [in] 対象の論理式
+    const LitMap& lit_map ///< [in] 論理式中の変数番号とリテラルの対応関係を表す辞書
+  );
+
+  /// @brief 与えられたAIGを充足する条件を追加する．
+  /// @return 条件を表すリテラルのリストを返す．
+  ///
+  /// 変数番号が lit_map に登録されていない時は例外が創出される．
+  vector<SatLiteral>
+  add_aig(
+    const AigHandle& aig, ///< [in] 対象のAIG
+    const LitMap& lit_map ///< [in] AIGの変数番号とリテラルの対応関係を表す辞書
+  )
+  {
+    auto lits_list = add_aig(vector<AigHandle>{aig}, lit_map);
+    return lits_list.front();
+  }
+
+  /// @brief 与えられたAIGを充足する条件を追加する．
+  /// @return 条件を表すリテラルのリストのリストを返す．
+  ///
+  /// 変数番号が lit_map に登録されていない時は例外が創出される．
+  vector<vector<SatLiteral>>
+  add_aig(
+    const vector<AigHandle>& aig_list, ///< [in] 対象のAIGのリスト
+    const LitMap& lit_map              ///< [in] AIGの変数番号とリテラルの対応関係を表す辞書
   );
 
   /// @brief half_adder の入出力の関係を表す条件を追加する．

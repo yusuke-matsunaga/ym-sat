@@ -1,42 +1,43 @@
-#ifndef EXPR2CNF_H
-#define EXPR2CNF_H
+#ifndef AIG2CNF_H
+#define AIG2CNF_H
 
-/// @file Expr2Cnf.h
-/// @brief Expr2Cnf のヘッダファイル
+/// @file Aig2Cnf.h
+/// @brief Aig2Cnf のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym/SatSolver.h"
-#include "ym/Expr.h"
+#include "ym/AigHandle.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
 
 //////////////////////////////////////////////////////////////////////
-/// @class Expr2Cnf Expr2Cnf.h "Expr2Cnf.h"
-/// @brief Expr を CNF に変換するための補助クラス
+/// @class Aig2Cnf Aig2Cnf.h "Aig2Cnf.h"
+/// @brief AIG を CNF に変換する補助クラス
 //////////////////////////////////////////////////////////////////////
-class Expr2Cnf
+class Aig2Cnf
 {
 public:
 
+  /// @brief AIG の入力番号とリテラルの対応関係を表す辞書の型
   using LitMap = SatSolver::LitMap;
 
 public:
 
   /// @brief コンストラクタ
-  Expr2Cnf(
+  Aig2Cnf(
     SatSolver& solver,    ///< [in] SATソルバ
-    const LitMap& lit_map ///< [in] 変数とリテラルの対応を表す辞書
+    const LitMap& lit_map ///< [in] AIG の入力番号とリテラルの対応関係を表す辞書
   ) : mSolver{solver},
       mLitMap{lit_map}
   {
   }
 
   /// @brief デストラクタ
-  ~Expr2Cnf() = default;
+  ~Aig2Cnf() = default;
 
 
 public:
@@ -44,10 +45,14 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief Expr を充足する条件を追加する．
+  /// @brief AIG を CNF に変換する．
+  /// @return リテラルのリストを返す．
+  ///
+  /// - 与えられた AIG の値が 1 となる条件を表すリテラルを返す．
+  /// - 否定しても 0 となる条件にはならないことに注意
   vector<SatLiteral>
   make_cnf(
-    const Expr& expr ///< [in] 対象の論理式
+    const AigHandle& aig
   );
 
 
@@ -59,11 +64,14 @@ private:
   // SATソルバ
   SatSolver& mSolver;
 
-  // 変数とリテラルの対応を表す辞書
-  const LitMap& mLitMap;
+  // 入力番号とリテラルの対応関係を表す辞書
+  LitMap mLitMap;
+
+  // AigHandle をキーにして対応する SatLiteral のリストを記憶する辞書
+  std::unordered_map<AigHandle, vector<SatLiteral>> mAigDict;
 
 };
 
 END_NAMESPACE_YM_SAT
 
-#endif // EXPR2CNF_H
+#endif // AIG2CNF_H

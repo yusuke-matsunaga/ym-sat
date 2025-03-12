@@ -42,6 +42,7 @@ set (main_SOURCES
   SatOrderedSet.cc
   SatDimacs.cc
   Expr2Cnf.cc
+  Aig2Cnf.cc
   )
 
 

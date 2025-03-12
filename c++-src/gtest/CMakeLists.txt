@@ -93,6 +93,13 @@ ym_add_gtest ( sat_add_expr_test
   $<TARGET_OBJECTS:ym_base_obj_d>
   )
 
+ym_add_gtest ( sat_add_aig_test
+  add_aig_test.cc
+  $<TARGET_OBJECTS:ym_sat_obj_d>
+  $<TARGET_OBJECTS:ym_logic_obj_d>
+  $<TARGET_OBJECTS:ym_base_obj_d>
+  )
+
 ym_add_gtest ( sat_adder_test
   adder_test.cc
   SatTestFixture.cc

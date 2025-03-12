@@ -12,7 +12,7 @@
 BEGIN_NAMESPACE_YM_SAT
 
 vector<SatLiteral>
-Expr2Cnf::add_expr(
+Expr2Cnf::make_cnf(
   const Expr& expr ///< [in] 対象の論理式
 )
 {
@@ -40,7 +40,7 @@ Expr2Cnf::add_expr(
     lits_list.reserve(expr.operand_num());
     SizeType n = 0;
     for ( auto& expr1: expr.operand_list() ) {
-      auto lits1 = add_expr(expr1);
+      auto lits1 = make_cnf(expr1);
       lits_list.push_back(lits1);
       n += lits1.size();
     }
@@ -57,7 +57,7 @@ Expr2Cnf::add_expr(
     lits.reserve(expr.operand_num() + 1);
     lits.push_back(~new_lit);
     for ( auto& expr1: expr.operand_list() ) {
-      auto lits1 = add_expr(expr1);
+      auto lits1 = make_cnf(expr1);
       if ( lits1.empty() ) {
 	continue;
       }
@@ -83,7 +83,7 @@ Expr2Cnf::add_expr(
     lits.reserve(expr.operand_num());
     for ( auto& expr1: expr.operand_list() ) {
       auto lit1 = mSolver.new_variable(false);
-      auto lits1 = add_expr(expr1);
+      auto lits1 = make_cnf(expr1);
       mSolver.add_andgate(lit1, lits1);
       lits.push_back(lit1);
     }
