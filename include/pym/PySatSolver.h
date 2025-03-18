@@ -16,6 +16,8 @@
 
 BEGIN_NAMESPACE_YM
 
+// PySatSolverConv/PySatSolverDeconv はない．
+
 //////////////////////////////////////////////////////////////////////
 /// @class PySatSolver PySatSolver.h "PySatSolver.h"
 /// @brief Python 用の SatSolver 拡張
@@ -40,7 +42,7 @@ public:
   /// @brief PyObject が SatSolver タイプか調べる．
   static
   bool
-  Check(
+  _check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -50,7 +52,7 @@ public:
   /// Check(obj) == true であると仮定している．
   static
   SatSolver&
-  Get(
+  _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 

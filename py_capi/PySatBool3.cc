@@ -93,7 +93,7 @@ SatBool3_repr(
   PyObject* self
 )
 {
-  auto val = PySatBool3::Get(self);
+  auto val = PySatBool3::_get_ref(self);
   // val から 文字列を作る．
   const char* tmp_str = nullptr;
   switch ( val ) {
@@ -117,10 +117,10 @@ SatBool3_richcmpfunc(
   int op
 )
 {
-  if ( PySatBool3::Check(self) &&
-       PySatBool3::Check(other) ) {
-    auto val1 = PySatBool3::Get(self);
-    auto val2 = PySatBool3::Get(other);
+  if ( PySatBool3::_check(self) &&
+       PySatBool3::_check(other) ) {
+    auto val1 = PySatBool3::_get_ref(self);
+    auto val2 = PySatBool3::_get_ref(other);
     if ( op == Py_EQ ) {
       return PyBool_FromLong(val1 == val2);
     }
@@ -137,8 +137,8 @@ SatBool3_invert(
   PyObject* self
 )
 {
-  if ( PySatBool3::Check(self) ) {
-    auto val = PySatBool3::Get(self);
+  if ( PySatBool3::_check(self) ) {
+    auto val = PySatBool3::_get_ref(self);
     return PySatBool3::ToPyObject(~val);
   }
   Py_RETURN_NOTIMPLEMENTED;
@@ -151,9 +151,10 @@ SatBool3_xor(
   PyObject* other
 )
 {
-  if ( PySatBool3::Check(self) && PySatBool3::Check(other) ) {
-    auto val1 = PySatBool3::Get(self);
-    auto val2 = PySatBool3::Get(other);
+  if ( PySatBool3::_check(self) &&
+       PySatBool3::_check(other) ) {
+    auto val1 = PySatBool3::_get_ref(self);
+    auto val2 = PySatBool3::_get_ref(other);
     return PySatBool3::ToPyObject(val1 ^ val2);
   }
   Py_RETURN_NOTIMPLEMENTED;
@@ -165,7 +166,7 @@ SatBool3_bool(
   PyObject* self
 )
 {
-  auto val = PySatBool3::Get(self);
+  auto val = PySatBool3::_get_ref(self);
   return val == SatBool3::True;
 }
 
@@ -258,8 +259,8 @@ PySatBool3::init(
 
 // @brief SatBool3 を PyObject に変換する．
 PyObject*
-PySatBool3::ToPyObject(
-  SatBool3 val
+PySatBool3Conv::operator()(
+  const SatBool3& val
 )
 {
   PyObject* obj = nullptr;
@@ -272,9 +273,23 @@ PySatBool3::ToPyObject(
   return obj;
 }
 
+// @brief PyObject* から SatBool3 を取り出す．
+bool
+PySatBool3Deconv::operator()(
+  PyObject* obj,
+  SatBool3& val
+)
+{
+  if ( PySatBool3::_check(obj) ) {
+    val = PySatBool3::_get_ref(obj);
+    return true;
+  }
+  return false;
+}
+
 // @brief PyObject が SatBool3 タイプか調べる．
 bool
-PySatBool3::Check(
+PySatBool3::_check(
   PyObject* obj
 )
 {
@@ -282,8 +297,8 @@ PySatBool3::Check(
 }
 
 // @brief SatBool3 を表す PyObject から SatBool3 を取り出す．
-SatBool3
-PySatBool3::Get(
+SatBool3&
+PySatBool3::_get_ref(
   PyObject* obj
 )
 {

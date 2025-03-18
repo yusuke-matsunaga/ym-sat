@@ -70,7 +70,7 @@ CnfSize_clause_num(
   void* Py_UNUSED(closure)
 )
 {
-  auto& size = PyCnfSize::_Get(self);
+  auto& size = PyCnfSize::_get_ref(self);
   return Py_BuildValue("k", size.clause_num);
 }
 
@@ -80,7 +80,7 @@ CnfSize_literal_num(
   void* Py_UNUSED(closure)
 )
 {
-  auto& size = PyCnfSize::_Get(self);
+  auto& size = PyCnfSize::_get_ref(self);
   return Py_BuildValue("k", size.literal_num);
 }
 
@@ -99,10 +99,10 @@ CnfSize_richcmpfunc(
   int op
 )
 {
-  if ( PyCnfSize::Check(self) &&
-       PyCnfSize::Check(other) ) {
-    auto& val1 = PyCnfSize::_Get(self);
-    auto& val2 = PyCnfSize::_Get(other);
+  if ( PyCnfSize::_check(self) &&
+       PyCnfSize::_check(other) ) {
+    auto& val1 = PyCnfSize::_get_ref(self);
+    auto& val2 = PyCnfSize::_get_ref(other);
     if ( op == Py_EQ ) {
       return PyBool_FromLong(val1 == val2);
     }
@@ -120,9 +120,10 @@ CnfSize_add(
   PyObject* other
 )
 {
-  if ( PyCnfSize::Check(self) && PyCnfSize::Check(other) ) {
-    auto& val1 = PyCnfSize::_Get(self);
-    auto& val2 = PyCnfSize::_Get(other);
+  if ( PyCnfSize::_check(self) &&
+       PyCnfSize::_check(other) ) {
+    auto& val1 = PyCnfSize::_get_ref(self);
+    auto& val2 = PyCnfSize::_get_ref(other);
     return PyCnfSize::ToPyObject(val1 + val2);
   }
   Py_RETURN_NOTIMPLEMENTED;
@@ -135,9 +136,10 @@ CnfSize_sub(
   PyObject* other
 )
 {
-  if ( PyCnfSize::Check(self) && PyCnfSize::Check(other) ) {
-    auto& val1 = PyCnfSize::_Get(self);
-    auto& val2 = PyCnfSize::_Get(other);
+  if ( PyCnfSize::_check(self) &&
+       PyCnfSize::_check(other) ) {
+    auto& val1 = PyCnfSize::_get_ref(self);
+    auto& val2 = PyCnfSize::_get_ref(other);
     return PyCnfSize::ToPyObject(val1 - val2);
   }
   Py_RETURN_NOTIMPLEMENTED;
@@ -186,7 +188,7 @@ PyCnfSize::init(
 
 // @brief CnfSize を PyObject に変換する．
 PyObject*
-PyCnfSize::ToPyObject(
+PyCnfSizeConv::operator()(
   const CnfSize& val
 )
 {
@@ -196,9 +198,23 @@ PyCnfSize::ToPyObject(
   return obj;
 }
 
+// @brief PyObject* から CnfSize を取り出す．
+bool
+PyCnfSizeDeconv::operator()(
+  PyObject* obj,
+  CnfSize& val
+)
+{
+  if ( PyCnfSize::_check(obj) ) {
+    val = PyCnfSize::_get_ref(obj);
+    return true;
+  }
+  return false;
+}
+
 // @brief PyObject が CnfSize タイプか調べる．
 bool
-PyCnfSize::Check(
+PyCnfSize::_check(
   PyObject* obj
 )
 {
@@ -206,18 +222,8 @@ PyCnfSize::Check(
 }
 
 // @brief CnfSize を表す PyObject から CnfSize を取り出す．
-CnfSize
-PyCnfSize::Get(
-  PyObject* obj
-)
-{
-  auto cnfsize_obj = reinterpret_cast<CnfSizeObject*>(obj);
-  return cnfsize_obj->mVal;
-}
-
-// @brief CnfSize を表す PyObject から CnfSize を取り出す．
-const CnfSize&
-PyCnfSize::_Get(
+CnfSize&
+PyCnfSize::_get_ref(
   PyObject* obj
 )
 {

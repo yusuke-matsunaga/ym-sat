@@ -17,6 +17,51 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
+/// @class PySatLiteralConv PySatLiteral.h "PySatLiteral.h"
+/// @brief SatLiteral を PyObject* に変換するファンクタクラス
+///
+/// 実はただの関数
+//////////////////////////////////////////////////////////////////////
+class PySatLiteralConv
+{
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief SatLiteral を PyObject* に変換する．
+  PyObject*
+  operator()(
+    const SatLiteral& val
+  );
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
+/// @class PySatLiteralDeconv PySatLiteral.h "PySatLiteral.h"
+/// @brief SatLiteral を取り出すファンクタクラス
+///
+/// 実はただの関数
+//////////////////////////////////////////////////////////////////////
+class PySatLiteralDeconv
+{
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief PyObject* から SatLiteral を取り出す．
+  bool
+  operator()(
+    PyObject* obj,
+    SatLiteral& val
+  );
+
+};
+
+
+//////////////////////////////////////////////////////////////////////
 /// @class PySatLiteral PySatLiteral.h "PySatLiteral.h"
 /// @brief Python 用の SatLiteral 拡張
 ///
@@ -44,13 +89,17 @@ public:
   static
   PyObject*
   ToPyObject(
-    SatLiteral val ///< [in] 値
-  );
+    const SatLiteral& val ///< [in] 値
+  )
+  {
+    PySatLiteralConv conv;
+    return conv(val);
+  }
 
   /// @brief PyObject が SatLiteral タイプか調べる．
   static
   bool
-  Check(
+  _check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -59,8 +108,8 @@ public:
   ///
   /// Check(obj) == true であると仮定している．
   static
-  SatLiteral
-  Get(
+  SatLiteral&
+  _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );
 
