@@ -133,8 +133,8 @@ SatLiteral_richcmpfunc(
   int op
 )
 {
-  if ( PySatLiteral::_check(self) &&
-       PySatLiteral::_check(other) ) {
+  if ( PySatLiteral::Check(self) &&
+       PySatLiteral::Check(other) ) {
     auto val1 = PySatLiteral::_get_ref(self);
     auto val2 = PySatLiteral::_get_ref(other);
     if ( op == Py_EQ ) {
@@ -154,7 +154,7 @@ SatLiteral_invert(
   PyObject* self
 )
 {
-  if ( PySatLiteral::_check(self) ) {
+  if ( PySatLiteral::Check(self) ) {
     auto val = PySatLiteral::_get_ref(self);
     return PySatLiteral::ToPyObject(~val);
   }
@@ -168,7 +168,7 @@ SatLiteral_mul(
   PyObject* other
 )
 {
-  if ( PySatLiteral::_check(self) &&
+  if ( PySatLiteral::Check(self) &&
        PyBool_Check(other) ) {
     auto val1 = PySatLiteral::_get_ref(self);
     auto val2 = PyObject_IsTrue(other);
@@ -261,7 +261,7 @@ PySatLiteral::init(
 
 // @brief SatLiteral を PyObject に変換する．
 PyObject*
-PySatLiteralConv::operator()(
+PySatLiteral::Conv::operator()(
   const SatLiteral& val
 )
 {
@@ -273,12 +273,12 @@ PySatLiteralConv::operator()(
 
 // @brief PyObject* から SatLiteral を取り出す．
 bool
-PySatLiteralDeconv::operator()(
+PySatLiteral::Deconv::operator()(
   PyObject* obj,
   SatLiteral& val
 )
 {
-  if ( PySatLiteral::_check(obj) ) {
+  if ( PySatLiteral::Check(obj) ) {
     val = PySatLiteral::_get_ref(obj);
     return true;
   }
@@ -287,7 +287,7 @@ PySatLiteralDeconv::operator()(
 
 // @brief PyObject が SatLiteral タイプか調べる．
 bool
-PySatLiteral::_check(
+PySatLiteral::Check(
   PyObject* obj
 )
 {

@@ -117,8 +117,8 @@ SatBool3_richcmpfunc(
   int op
 )
 {
-  if ( PySatBool3::_check(self) &&
-       PySatBool3::_check(other) ) {
+  if ( PySatBool3::Check(self) &&
+       PySatBool3::Check(other) ) {
     auto val1 = PySatBool3::_get_ref(self);
     auto val2 = PySatBool3::_get_ref(other);
     if ( op == Py_EQ ) {
@@ -137,7 +137,7 @@ SatBool3_invert(
   PyObject* self
 )
 {
-  if ( PySatBool3::_check(self) ) {
+  if ( PySatBool3::Check(self) ) {
     auto val = PySatBool3::_get_ref(self);
     return PySatBool3::ToPyObject(~val);
   }
@@ -151,8 +151,8 @@ SatBool3_xor(
   PyObject* other
 )
 {
-  if ( PySatBool3::_check(self) &&
-       PySatBool3::_check(other) ) {
+  if ( PySatBool3::Check(self) &&
+       PySatBool3::Check(other) ) {
     auto val1 = PySatBool3::_get_ref(self);
     auto val2 = PySatBool3::_get_ref(other);
     return PySatBool3::ToPyObject(val1 ^ val2);
@@ -259,7 +259,7 @@ PySatBool3::init(
 
 // @brief SatBool3 を PyObject に変換する．
 PyObject*
-PySatBool3Conv::operator()(
+PySatBool3::Conv::operator()(
   const SatBool3& val
 )
 {
@@ -275,12 +275,12 @@ PySatBool3Conv::operator()(
 
 // @brief PyObject* から SatBool3 を取り出す．
 bool
-PySatBool3Deconv::operator()(
+PySatBool3::Deconv::operator()(
   PyObject* obj,
   SatBool3& val
 )
 {
-  if ( PySatBool3::_check(obj) ) {
+  if ( PySatBool3::Check(obj) ) {
     val = PySatBool3::_get_ref(obj);
     return true;
   }
@@ -289,7 +289,7 @@ PySatBool3Deconv::operator()(
 
 // @brief PyObject が SatBool3 タイプか調べる．
 bool
-PySatBool3::_check(
+PySatBool3::Check(
   PyObject* obj
 )
 {

@@ -74,7 +74,7 @@ SatModel_subscript(
 )
 {
   auto& model = PySatModel::_get_ref(self);
-  if ( !PySatLiteral::_check(arg) ) {
+  if ( !PySatLiteral::Check(arg) ) {
     PyErr_SetString(PyExc_TypeError, "argument 1 should be a SatLiteral");
     return nullptr;
   }
@@ -122,7 +122,7 @@ PySatModel::init(
 
 // @brief SatModel を PyObject に変換する．
 PyObject*
-PySatModelConv::operator()(
+PySatModel::Conv::operator()(
   const SatModel& val
 )
 {
@@ -134,12 +134,12 @@ PySatModelConv::operator()(
 
 // @brief PyObject* から SatModel を取り出す．
 bool
-PySatModelDeconv::operator()(
+PySatModel::Deconv::operator()(
   PyObject* obj,
   SatModel& val
 )
 {
-  if ( PySatModel::_check(obj) ) {
+  if ( PySatModel::Check(obj) ) {
     val = PySatModel::_get_ref(obj);
     return true;
   }
@@ -148,7 +148,7 @@ PySatModelDeconv::operator()(
 
 // @brief PyObject が SatModel タイプか調べる．
 bool
-PySatModel::_check(
+PySatModel::Check(
   PyObject* obj
 )
 {

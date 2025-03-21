@@ -99,8 +99,8 @@ CnfSize_richcmpfunc(
   int op
 )
 {
-  if ( PyCnfSize::_check(self) &&
-       PyCnfSize::_check(other) ) {
+  if ( PyCnfSize::Check(self) &&
+       PyCnfSize::Check(other) ) {
     auto& val1 = PyCnfSize::_get_ref(self);
     auto& val2 = PyCnfSize::_get_ref(other);
     if ( op == Py_EQ ) {
@@ -120,8 +120,8 @@ CnfSize_add(
   PyObject* other
 )
 {
-  if ( PyCnfSize::_check(self) &&
-       PyCnfSize::_check(other) ) {
+  if ( PyCnfSize::Check(self) &&
+       PyCnfSize::Check(other) ) {
     auto& val1 = PyCnfSize::_get_ref(self);
     auto& val2 = PyCnfSize::_get_ref(other);
     return PyCnfSize::ToPyObject(val1 + val2);
@@ -136,8 +136,8 @@ CnfSize_sub(
   PyObject* other
 )
 {
-  if ( PyCnfSize::_check(self) &&
-       PyCnfSize::_check(other) ) {
+  if ( PyCnfSize::Check(self) &&
+       PyCnfSize::Check(other) ) {
     auto& val1 = PyCnfSize::_get_ref(self);
     auto& val2 = PyCnfSize::_get_ref(other);
     return PyCnfSize::ToPyObject(val1 - val2);
@@ -188,7 +188,7 @@ PyCnfSize::init(
 
 // @brief CnfSize を PyObject に変換する．
 PyObject*
-PyCnfSizeConv::operator()(
+PyCnfSize::Conv::operator()(
   const CnfSize& val
 )
 {
@@ -200,12 +200,12 @@ PyCnfSizeConv::operator()(
 
 // @brief PyObject* から CnfSize を取り出す．
 bool
-PyCnfSizeDeconv::operator()(
+PyCnfSize::Deconv::operator()(
   PyObject* obj,
   CnfSize& val
 )
 {
-  if ( PyCnfSize::_check(obj) ) {
+  if ( PyCnfSize::Check(obj) ) {
     val = PyCnfSize::_get_ref(obj);
     return true;
   }
@@ -214,7 +214,7 @@ PyCnfSizeDeconv::operator()(
 
 // @brief PyObject が CnfSize タイプか調べる．
 bool
-PyCnfSize::_check(
+PyCnfSize::Check(
   PyObject* obj
 )
 {

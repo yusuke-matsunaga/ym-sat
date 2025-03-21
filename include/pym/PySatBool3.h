@@ -17,51 +17,6 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PySatBool3Conv PySatBool3.h "PySatBool3.h"
-/// @brief SatBool3 を PyObject* に変換するファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PySatBool3Conv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief SatBool3 を PyObject* に変換する．
-  PyObject*
-  operator()(
-    const SatBool3& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class PySatBool3Deconv PySatBool3.h "PySatBool3.h"
-/// @brief SatBool3 を取り出すファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PySatBool3Deconv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief PyObject* から SatBool3 を取り出す．
-  bool
-  operator()(
-    PyObject* obj,
-    SatBool3& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
 /// @class PySatBool3 PySatBool3.h "PySatBool3.h"
 /// @brief Python 用の SatBool3 拡張
 ///
@@ -69,6 +24,28 @@ public:
 //////////////////////////////////////////////////////////////////////
 class PySatBool3
 {
+  using ElemType = SatBool3;
+
+public:
+
+  /// @brief SatBool3 を PyObject* に変換するファンクタクラス
+  struct Conv {
+    PyObject*
+    operator()(
+      const ElemType& val
+    );
+  };
+
+  /// @brief PyObject* から SatBool3 を取り出すファンクタクラス
+  struct Deconv {
+    bool
+    operator()(
+      PyObject* obj,
+      ElemType& val
+    );
+  };
+
+
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
@@ -89,17 +66,30 @@ public:
   static
   PyObject*
   ToPyObject(
-    const SatBool3& val ///< [in] 値
+    const ElemType& val ///< [in] 値
   )
   {
-    PySatBool3Conv conv;
+    Conv conv;
     return conv(val);
+  }
+
+  /// @brief PyObject から SatBool3 を取り出す．
+  /// @return 正しく変換できた時に true を返す．
+  static
+  bool
+  FromPyObject(
+    PyObject* obj, ///< [in] Python のオブジェクト
+    ElemType& val  ///< [out] 結果を格納する変数
+  )
+  {
+    Deconv deconv;
+    return deconv(obj, val);
   }
 
   /// @brief PyObject が SatBool3 タイプか調べる．
   static
   bool
-  _check(
+  Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -108,7 +98,7 @@ public:
   ///
   /// Check(obj) == true であると仮定している．
   static
-  SatBool3&
+  ElemType&
   _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );

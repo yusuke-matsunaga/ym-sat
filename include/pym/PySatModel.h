@@ -17,51 +17,6 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PySatModelConv PySatModel.h "PySatModel.h"
-/// @brief SatModel を PyObject* に変換するファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PySatModelConv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief SatModel を PyObject* に変換する．
-  PyObject*
-  operator()(
-    const SatModel& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class PySatModelDeconv PySatModel.h "PySatModel.h"
-/// @brief SatModel を取り出すファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PySatModelDeconv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief PyObject* から SatModel を取り出す．
-  bool
-  operator()(
-    PyObject* obj,
-    SatModel& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
 /// @class PySatModel PySatModel.h "PySatModel.h"
 /// @brief Python 用の SatModel 拡張
 ///
@@ -69,6 +24,28 @@ public:
 //////////////////////////////////////////////////////////////////////
 class PySatModel
 {
+  using ElemType = SatModel;
+
+public:
+
+  /// @brief SatModel を PyObject* に変換するファンクタクラス
+  struct Conv {
+    PyObject*
+    operator()(
+      const ElemType& val
+    );
+  };
+
+  /// @brief PyObject* から SatModel を取り出すファンクタクラス
+  struct Deconv {
+    bool
+    operator()(
+      PyObject* obj,
+      ElemType& val
+    );
+  };
+
+
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
@@ -89,17 +66,30 @@ public:
   static
   PyObject*
   ToPyObject(
-    const SatModel& val ///< [in] 値
+    const ElemType& val ///< [in] 値
   )
   {
-    PySatModelConv conv;
+    Conv conv;
     return conv(val);
+  }
+
+  /// @brief PyObject から SatModel を取り出す．
+  /// @return 正しく変換できた時に true を返す．
+  static
+  bool
+  FromPyObject(
+    PyObject* obj, ///< [in] Python のオブジェクト
+    ElemType& val  ///< [out] 結果を格納する変数
+  )
+  {
+    Deconv deconv;
+    return deconv(obj, val);
   }
 
   /// @brief PyObject が SatModel タイプか調べる．
   static
   bool
-  _check(
+  Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -108,7 +98,7 @@ public:
   ///
   /// Check(obj) == true であると仮定している．
   static
-  SatModel&
+  ElemType&
   _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );

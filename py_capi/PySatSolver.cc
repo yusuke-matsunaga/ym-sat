@@ -167,7 +167,7 @@ parse_lits(
   vector<SatLiteral>& lit_list
 )
 {
-  if ( PySatLiteral::_check(args) ) {
+  if ( PySatLiteral::Check(args) ) {
     auto lit = PySatLiteral::_get_ref(args);
     lit_list.push_back(lit);
     return true;
@@ -288,7 +288,7 @@ parse_lit_lits(
     }
     {
       auto arg0 = PySequence_GetItem(args, 0);
-      if ( !PySatLiteral::_check(arg0) ) {
+      if ( !PySatLiteral::Check(arg0) ) {
 	Py_DECREF(arg0);
 	PyErr_SetString(PyExc_TypeError, "1st argument should be a SatLiteral.");
 	return false;
@@ -474,7 +474,7 @@ conv_to_lit_list(
   SizeType n = PySequence_Size(obj);
   for ( SizeType i = 0; i < n; ++ i ) {
     auto obj1 = PySequence_GetItem(obj, i);
-    if ( !PySatLiteral::_check(obj1) ) {
+    if ( !PySatLiteral::Check(obj1) ) {
       Py_DECREF(obj1);
       return false;
     }
@@ -1120,7 +1120,7 @@ PySatSolver::init(
 
 // @brief PyObject が SatSolver タイプか調べる．
 bool
-PySatSolver::_check(
+PySatSolver::Check(
   PyObject* obj
 )
 {

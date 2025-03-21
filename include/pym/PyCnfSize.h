@@ -17,51 +17,6 @@
 BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
-/// @class PyCnfSizeConv PyCnfSize.h "PyCnfSize.h"
-/// @brief CnfSize を PyObject* に変換するファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PyCnfSizeConv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief CnfSize を PyObject* に変換する．
-  PyObject*
-  operator()(
-    const CnfSize& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
-/// @class PyCnfSizeDeconv PyCnfSize.h "PyCnfSize.h"
-/// @brief CnfSize を取り出すファンクタクラス
-///
-/// 実はただの関数
-//////////////////////////////////////////////////////////////////////
-class PyCnfSizeDeconv
-{
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief PyObject* から CnfSize を取り出す．
-  bool
-  operator()(
-    PyObject* obj,
-    CnfSize& val
-  );
-
-};
-
-
-//////////////////////////////////////////////////////////////////////
 /// @class PyCnfSize PyCnfSize.h "PyCnfSize.h"
 /// @brief Python 用の CnfSize 拡張
 ///
@@ -69,6 +24,28 @@ public:
 //////////////////////////////////////////////////////////////////////
 class PyCnfSize
 {
+  using ElemType = CnfSize;
+
+public:
+
+  /// @brief CnfSize を PyObject* に変換するファンクタクラス
+  struct Conv {
+    PyObject*
+    operator()(
+      const ElemType& val
+    );
+  };
+
+  /// @brief PyObject* から CnfSize を取り出すファンクタクラス
+  struct Deconv {
+    bool
+    operator()(
+      PyObject* obj,
+      ElemType& val
+    );
+  };
+
+
 public:
   //////////////////////////////////////////////////////////////////////
   // 外部インターフェイス
@@ -89,17 +66,30 @@ public:
   static
   PyObject*
   ToPyObject(
-    const CnfSize& val ///< [in] 値
+    const ElemType& val ///< [in] 値
   )
   {
-    PyCnfSizeConv conv;
+    Conv conv;
     return conv(val);
+  }
+
+  /// @brief PyObject から CnfSize を取り出す．
+  /// @return 正しく変換できた時に true を返す．
+  static
+  bool
+  FromPyObject(
+    PyObject* obj, ///< [in] Python のオブジェクト
+    ElemType& val  ///< [out] 結果を格納する変数
+  )
+  {
+    Deconv deconv;
+    return deconv(obj, val);
   }
 
   /// @brief PyObject が CnfSize タイプか調べる．
   static
   bool
-  _check(
+  Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
 
@@ -108,7 +98,7 @@ public:
   ///
   /// Check(obj) == true であると仮定している．
   static
-  CnfSize&
+  ElemType&
   _get_ref(
     PyObject* obj ///< [in] 変換元の PyObject
   );
