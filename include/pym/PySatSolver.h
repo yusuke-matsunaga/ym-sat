@@ -5,7 +5,7 @@
 /// @brief PySatSolver のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #define PY_SSIZE_T_CLEAN
@@ -18,15 +18,20 @@ BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
 /// @class PySatSolver PySatSolver.h "PySatSolver.h"
-/// @brief Python 用の SatSolver 拡張
+/// @brief SatSolver を Python から使用するための拡張
 ///
-/// 複数の関数をひとまとめにしているだけなので実は名前空間として用いている．
+/// 実際には static メンバ関数しか持たないのでクラスではない．
 //////////////////////////////////////////////////////////////////////
 class PySatSolver
 {
+public:
+
   using ElemType = SatSolver;
 
-  // Conv/Deconv はない．
+public:
+
+  // このクラスは Conv/Deconv を持たない．
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -62,15 +67,6 @@ public:
   static
   PyTypeObject*
   _typeobject();
-
-  /// @brief PyObject を SatInitParam に変換する．
-  /// @return 変更が成功したら true を返す．
-  static
-  bool
-  parse_init_param(
-    PyObject* obj,           ///< [in] 変換元の PyObject
-    SatInitParam& init_param ///< [out] 変換したパラメータを格納する変数
-  );
 
 };
 

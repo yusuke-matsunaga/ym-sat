@@ -1,12 +1,14 @@
 
 /// @file PySatLiteral.cc
-/// @brief Python SatLiteral の実装ファイル
+/// @brief PySatLiteral の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "pym/PySatLiteral.h"
+#include "pym/PyLong.h"
+#include "pym/PyBool.h"
 #include "pym/PyModule.h"
 
 
@@ -15,240 +17,290 @@ BEGIN_NAMESPACE_YM
 BEGIN_NONAMESPACE
 
 // Python 用のオブジェクト定義
-struct SatLiteralObject
+// この構造体は同じサイズのヒープから作られるので
+// mVal のコンストラクタは起動されないことに注意．
+// そのためあとでコンストラクタを明示的に起動する必要がある．
+// またメモリを開放するときにも明示的にデストラクタを起動する必要がある．
+struct SatLiteral_Object
 {
   PyObject_HEAD
   SatLiteral mVal;
 };
 
 // Python 用のタイプ定義
-PyTypeObject SatLiteralType = {
+PyTypeObject SatLiteral_Type = {
   PyVarObject_HEAD_INIT(nullptr, 0)
+  // 残りは PySatLiteral::init() 中で初期化する．
 };
-
-// 生成関数
-PyObject*
-SatLiteral_new(
-  PyTypeObject* type,
-  PyObject* Py_UNUSED(args),
-  PyObject* Py_UNUSED(kwds)
-)
-{
-  // 明示的なインスタンス化は禁止
-  PyErr_SetString(PyExc_TypeError, "Instantiation of 'SatLiteral' is disabled");
-  return nullptr;
-}
 
 // 終了関数
 void
-SatLiteral_dealloc(
+dealloc_func(
   PyObject* self
 )
 {
-  // auto satliteral_obj = reinterpret_cast<SatLiteralObject*>(self);
-  // 必要なら satliteral_obj->mVal の終了処理を行う．
   Py_TYPE(self)->tp_free(self);
 }
 
-// 適正値の時に true を返す．
 PyObject*
-SatLiteral_is_valid(
+nb_multiply(
   PyObject* self,
-  PyObject* Py_UNUSED(args)
+  PyObject* other
 )
 {
-  auto lit = PySatLiteral::_get_ref(self);
-  auto v = lit.is_valid();
-  return PyBool_FromLong(v);
+  try {
+    if ( PySatLiteral::Check(self) ) {
+      auto& val1 = PySatLiteral::_get_ref(self);
+      if ( PyBool::Check(other) ) {
+        auto val2 = PyBool::Get(other);
+        return PySatLiteral::ToPyObject(val1 * val2);
+      }
+    }
+    Py_RETURN_NOTIMPLEMENTED;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
 }
 
-// 肯定のリテラルの時 true を返す．
 PyObject*
-SatLiteral_is_positive(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
+nb_invert(
+  PyObject* self
 )
 {
-  auto lit = PySatLiteral::_get_ref(self);
-  auto v = lit.is_positive();
-  return PyBool_FromLong(v);
+  auto& val = PySatLiteral::_get_ref(self);
+  try {
+    return PySatLiteral::ToPyObject(~val);
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
 }
 
-// 否定のリテラルの時 true を返す．
 PyObject*
-SatLiteral_is_negative(
+nb_inplace_multiply(
   PyObject* self,
-  PyObject* Py_UNUSED(args)
+  PyObject* other
 )
 {
-  auto lit = PySatLiteral::_get_ref(self);
-  auto v = lit.is_negative();
-  return PyBool_FromLong(v);
+  try {
+    if ( PySatLiteral::Check(self) ) {
+      auto& val1 = PySatLiteral::_get_ref(self);
+      if ( PyBool::Check(other) ) {
+        auto val2 = PyBool::Get(other);
+        val1 = val1 * val2;
+        Py_XINCREF(self);
+        return self;
+      }
+    }
+    Py_RETURN_NOTIMPLEMENTED;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
 }
 
-// 肯定のリテラルを返す．
-PyObject*
-SatLiteral_make_positive(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
-)
-{
-  auto lit = PySatLiteral::_get_ref(self);
-  auto ans = lit.make_positive();
-  return PySatLiteral::ToPyObject(ans);
-}
-
-// 否定のリテラルを返す．
-PyObject*
-SatLiteral_make_negative(
-  PyObject* self,
-  PyObject* Py_UNUSED(args)
-)
-{
-  auto lit = PySatLiteral::_get_ref(self);
-  auto ans = lit.make_negative();
-  return PySatLiteral::ToPyObject(ans);
-}
-
-// メソッド定義
-PyMethodDef SatLiteral_methods[] = {
-  {"is_valid", SatLiteral_is_valid, METH_NOARGS,
-   PyDoc_STR("return True if valid")},
-  {"is_positive", SatLiteral_is_positive, METH_NOARGS,
-   PyDoc_STR("return True if the literal is positive")},
-  {"is_negative", SatLiteral_is_negative, METH_NOARGS,
-   PyDoc_STR("return True if the literal is negative")},
-  {"make_positive", SatLiteral_make_positive, METH_NOARGS,
-   PyDoc_STR("return the positive literal")},
-  {"make_negative", SatLiteral_make_negative, METH_NOARGS,
-   PyDoc_STR("return the negative literal")},
-  {nullptr, nullptr, 0, nullptr}
+// Numberオブジェクト構造体
+PyNumberMethods number = {
+  .nb_multiply = nb_multiply,
+  .nb_invert = nb_invert,
+  .nb_inplace_multiply = nb_inplace_multiply
 };
 
-// 比較関数
+// hash 関数
+Py_hash_t
+hash_func(
+  PyObject* self
+)
+{
+  auto& val = PySatLiteral::_get_ref(self);
+  try {
+    return val.hash();
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return 0;
+  }
+}
+
+// richcompare 関数
 PyObject*
-SatLiteral_richcmpfunc(
+richcompare_func(
   PyObject* self,
   PyObject* other,
   int op
 )
 {
-  if ( PySatLiteral::Check(self) &&
-       PySatLiteral::Check(other) ) {
-    auto val1 = PySatLiteral::_get_ref(self);
-    auto val2 = PySatLiteral::_get_ref(other);
-    if ( op == Py_EQ ) {
-      return PyBool_FromLong(val1 == val2);
+  auto& val = PySatLiteral::_get_ref(self);
+  try {
+    if ( PySatLiteral::Check(other) ) {
+      auto& val2 = PySatLiteral::_get_ref(other);
+      Py_RETURN_RICHCOMPARE(val, val2, op);
     }
-    if ( op == Py_NE ) {
-      return PyBool_FromLong(val1 != val2);
-    }
+    Py_RETURN_NOTIMPLEMENTED;
   }
-  Py_INCREF(Py_NotImplemented);
-  return Py_NotImplemented;
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
 }
 
-// 否定演算(単項演算の例)
+// True if valid
 PyObject*
-SatLiteral_invert(
-  PyObject* self
-)
-{
-  if ( PySatLiteral::Check(self) ) {
-    auto val = PySatLiteral::_get_ref(self);
-    return PySatLiteral::ToPyObject(~val);
-  }
-  Py_RETURN_NOTIMPLEMENTED;
-}
-
-// 乗算(二項演算の例)
-PyObject*
-SatLiteral_mul(
+is_valid(
   PyObject* self,
-  PyObject* other
+  PyObject* Py_UNUSED(args)
 )
 {
-  if ( PySatLiteral::Check(self) &&
-       PyBool_Check(other) ) {
-    auto val1 = PySatLiteral::_get_ref(self);
-    auto val2 = PyObject_IsTrue(other);
-    return PySatLiteral::ToPyObject(val1 * val2);
-  }
-  Py_RETURN_NOTIMPLEMENTED;
+  auto& val = PySatLiteral::_get_ref(self);
+  return PyBool_FromLong(val.is_valid());
 }
 
-// 数値演算メソッド定義
-PyNumberMethods SatLiteral_number = {
-  .nb_multiply = SatLiteral_mul,
-  .nb_invert = SatLiteral_invert,
-  .nb_inplace_multiply = SatLiteral_mul
+// True if positive literal
+PyObject*
+is_positive(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto& val = PySatLiteral::_get_ref(self);
+  return PyBool_FromLong(val.is_positive());
+}
+
+// True if negative literal
+PyObject*
+is_negative(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto& val = PySatLiteral::_get_ref(self);
+  return PyBool_FromLong(val.is_negative());
+}
+
+// return the positive literal of the same variable
+PyObject*
+make_positive(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto& val = PySatLiteral::_get_ref(self);
+  return PySatLiteral::ToPyObject(val.make_positive());
+}
+
+// return the negative literal of the same variable
+PyObject*
+make_negative(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto& val = PySatLiteral::_get_ref(self);
+  return PySatLiteral::ToPyObject(val.make_negative());
+}
+
+// メソッド定義
+PyMethodDef methods[] = {
+  {"is_valid",
+   is_valid,
+   METH_NOARGS,
+   PyDoc_STR("True if valid")},
+  {"is_positive",
+   is_positive,
+   METH_NOARGS,
+   PyDoc_STR("True if positive literal")},
+  {"is_negative",
+   is_negative,
+   METH_NOARGS,
+   PyDoc_STR("True if negative literal")},
+  {"make_positive",
+   make_positive,
+   METH_NOARGS,
+   PyDoc_STR("return the positive literal of the same variable")},
+  {"make_negative",
+   make_negative,
+   METH_NOARGS,
+   PyDoc_STR("return the negative literal of the same variable")},
+  // end-marker
+  {nullptr, nullptr, 0, nullptr}
 };
 
-// ハッシュ関数
-Py_hash_t
-SatLiteral_hash(
-  PyObject* self
-)
-{
-  auto lit = PySatLiteral::_get_ref(self);
-  return lit.hash();
-}
-
-// 変数番号を返す．
 PyObject*
-SatLiteral_varid(
+get_varid(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto lit = PySatLiteral::_get_ref(self);
-  int v = lit.varid();
-  return PyLong_FromLong(v);
+  auto& val = PySatLiteral::_get_ref(self);
+  return PyLong::ToPyObject(val.varid());
 }
 
-// インデックス値を返す．
 PyObject*
-SatLiteral_index(
+get_index(
   PyObject* self,
   void* Py_UNUSED(closure)
 )
 {
-  auto lit = PySatLiteral::_get_ref(self);
-  int v = lit.index();
-  return PyLong_FromLong(v);
+  auto& val = PySatLiteral::_get_ref(self);
+  return PyLong::ToPyObject(val.index());
 }
 
-// getset メソッド定義
-PyGetSetDef SatLiteral_getsetters[] = {
-  {"varid", SatLiteral_varid, nullptr, PyDoc_STR("Variable ID")},
-  {"index", SatLiteral_index, nullptr, PyDoc_STR("index")},
+// getter/setter定義
+PyGetSetDef getsets[] = {
+  {"varid", get_varid, nullptr, PyDoc_STR("variable ID"), nullptr},
+  {"index", get_index, nullptr, PyDoc_STR("unique index"), nullptr},
+  // end-marker
   {nullptr, nullptr, nullptr, nullptr}
 };
+
+// new 関数
+PyObject*
+new_func(
+  PyTypeObject* type,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  PyErr_SetString(PyExc_TypeError, "instantiation of 'SatLiteral' is disabled");
+  return nullptr;
+}
 
 END_NONAMESPACE
 
 
-// @brief 'SatLiteral' オブジェクトを使用可能にする．
+// @brief SatLiteral オブジェクトを使用可能にする．
 bool
 PySatLiteral::init(
   PyObject* m
 )
 {
-  SatLiteralType.tp_name = "SatLiteral";
-  SatLiteralType.tp_basicsize = sizeof(SatLiteralObject);
-  SatLiteralType.tp_itemsize = 0;
-  SatLiteralType.tp_dealloc = SatLiteral_dealloc;
-  SatLiteralType.tp_flags = Py_TPFLAGS_DEFAULT;
-  SatLiteralType.tp_doc = PyDoc_STR("SatLiteral object");
-  SatLiteralType.tp_richcompare = SatLiteral_richcmpfunc;
-  SatLiteralType.tp_methods = SatLiteral_methods;
-  SatLiteralType.tp_getset = SatLiteral_getsetters;
-  SatLiteralType.tp_new = SatLiteral_new;
-  SatLiteralType.tp_as_number = &SatLiteral_number;
-  SatLiteralType.tp_hash = SatLiteral_hash;
-
-  // 型オブジェクトの登録
-  if ( !PyModule::reg_type(m, "SatLiteral", &SatLiteralType) ) {
+  SatLiteral_Type.tp_name = "SatLiteral";
+  SatLiteral_Type.tp_basicsize = sizeof(SatLiteral_Object);
+  SatLiteral_Type.tp_itemsize = 0;
+  SatLiteral_Type.tp_dealloc = dealloc_func;
+  SatLiteral_Type.tp_as_number = &number;
+  SatLiteral_Type.tp_hash = hash_func;
+  SatLiteral_Type.tp_flags = Py_TPFLAGS_DEFAULT;
+  SatLiteral_Type.tp_doc = PyDoc_STR("Python extended object for SatLiteral");
+  SatLiteral_Type.tp_richcompare = richcompare_func;
+  SatLiteral_Type.tp_methods = methods;
+  SatLiteral_Type.tp_getset = getsets;
+  SatLiteral_Type.tp_new = new_func;
+  if ( !PyModule::reg_type(m, "SatLiteral", &SatLiteral_Type) ) {
     goto error;
   }
 
@@ -259,23 +311,24 @@ PySatLiteral::init(
   return false;
 }
 
-// @brief SatLiteral を PyObject に変換する．
+// SatLiteral を PyObject に変換する．
 PyObject*
 PySatLiteral::Conv::operator()(
-  const SatLiteral& val
+  const ElemType& val ///< [in] 元の値
 )
 {
-  auto obj = SatLiteralType.tp_alloc(&SatLiteralType, 0);
-  auto satliteral_obj = reinterpret_cast<SatLiteralObject*>(obj);
-  satliteral_obj->mVal = val;
+  auto type = PySatLiteral::_typeobject();
+  auto obj = type->tp_alloc(type, 0);
+  auto my_obj = reinterpret_cast<SatLiteral_Object*>(obj);
+  new (&my_obj->mVal) SatLiteral(val);
   return obj;
 }
 
-// @brief PyObject* から SatLiteral を取り出す．
+// PyObject を SatLiteral に変換する．
 bool
 PySatLiteral::Deconv::operator()(
-  PyObject* obj,
-  SatLiteral& val
+  PyObject* obj, ///< [in] Python のオブジェクト
+  ElemType& val  ///< [out] 結果を格納する変数
 )
 {
   if ( PySatLiteral::Check(obj) ) {
@@ -291,24 +344,24 @@ PySatLiteral::Check(
   PyObject* obj
 )
 {
-  return Py_IS_TYPE(obj, _typeobject());
+  return Py_IS_TYPE(obj, &SatLiteral_Type);
 }
 
-// @brief SatLiteral を表す PyObject から SatLiteral を取り出す．
+// @brief PyObject から SatLiteral を取り出す．
 SatLiteral&
 PySatLiteral::_get_ref(
   PyObject* obj
 )
 {
-  auto satliteral_obj = reinterpret_cast<SatLiteralObject*>(obj);
-  return satliteral_obj->mVal;
+  auto my_obj = reinterpret_cast<SatLiteral_Object*>(obj);
+  return my_obj->mVal;
 }
 
 // @brief SatLiteral を表すオブジェクトの型定義を返す．
 PyTypeObject*
 PySatLiteral::_typeobject()
 {
-  return &SatLiteralType;
+  return &SatLiteral_Type;
 }
 
 END_NAMESPACE_YM

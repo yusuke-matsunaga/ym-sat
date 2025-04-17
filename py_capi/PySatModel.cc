@@ -1,9 +1,9 @@
 
 /// @file PySatModel.cc
-/// @brief Python SatModel の実装ファイル
+/// @brief PySatModel の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022, 2023 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "pym/PySatModel.h"
@@ -17,99 +17,110 @@ BEGIN_NAMESPACE_YM
 BEGIN_NONAMESPACE
 
 // Python 用のオブジェクト定義
-struct SatModelObject
+// この構造体は同じサイズのヒープから作られるので
+// mVal のコンストラクタは起動されないことに注意．
+// そのためあとでコンストラクタを明示的に起動する必要がある．
+// またメモリを開放するときにも明示的にデストラクタを起動する必要がある．
+struct SatModel_Object
 {
   PyObject_HEAD
   SatModel mVal;
 };
 
 // Python 用のタイプ定義
-PyTypeObject SatModelType = {
+PyTypeObject SatModel_Type = {
   PyVarObject_HEAD_INIT(nullptr, 0)
+  // 残りは PySatModel::init() 中で初期化する．
 };
-
-// 生成関数
-PyObject*
-SatModel_new(
-  PyTypeObject* type,
-  PyObject* Py_UNUSED(args),
-  PyObject* Py_UNUSED(kwds)
-)
-{
-  // 明示的なインスタンス化は禁止
-  PyErr_SetString(PyExc_TypeError, "Instantiation of 'SatModel' is disabled");
-  return nullptr;
-}
 
 // 終了関数
 void
-SatModel_dealloc(
+dealloc_func(
   PyObject* self
 )
 {
-  auto model_obj = reinterpret_cast<SatModelObject*>(self);
-  model_obj->mVal.~SatModel();
+  auto obj = reinterpret_cast<SatModel_Object*>(self);
+  obj->mVal.~SatModel();
   Py_TYPE(self)->tp_free(self);
 }
 
-// メソッド定義
-PyMethodDef SatModel_methods[] = {
-  {nullptr, nullptr, 0, nullptr}
-};
-
 Py_ssize_t
-SatModel_length(
+mp_length(
   PyObject* self
 )
 {
-  auto& model = PySatModel::_get_ref(self);
-  auto n = model.size();
-  return n;
+  auto& val = PySatModel::_get_ref(self);
+  try {
+    auto len_val = val.size();
+    return len_val;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return -1;
+  }
 }
 
 PyObject*
-SatModel_subscript(
+mp_subscript(
   PyObject* self,
-  PyObject* arg
+  PyObject* key
 )
 {
-  auto& model = PySatModel::_get_ref(self);
-  if ( !PySatLiteral::Check(arg) ) {
-    PyErr_SetString(PyExc_TypeError, "argument 1 should be a SatLiteral");
+  auto& val = PySatModel::_get_ref(self);
+  try {
+    SatLiteral lit;
+    if ( !PySatLiteral::FromPyObject(key, lit) ) {
+      PyErr_SetString(PyExc_TypeError, "argument 1 should be a 'SatLiteral'");
+      return nullptr;
+    }
+    return PySatBool3::ToPyObject(val.get(lit));
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
     return nullptr;
   }
-  auto lit = PySatLiteral::_get_ref(arg);
-  auto val = model.get(lit);
-  return PySatBool3::ToPyObject(val);
 }
 
-// マップオブジェクトメソッド定義
-PyMappingMethods SatModel_mapping = {
-  .mp_length = SatModel_length,
-  .mp_subscript = SatModel_subscript
+// Mapping オブジェクト構造体
+PyMappingMethods mapping = {
+  .mp_length = mp_length,
+  .mp_subscript = mp_subscript
 };
+
+// new 関数
+PyObject*
+new_func(
+  PyTypeObject* type,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  PyErr_SetString(PyExc_TypeError, "instantiation of 'SatModel' is disabled");
+  return nullptr;
+}
 
 END_NONAMESPACE
 
 
-// @brief 'SatModel' オブジェクトを使用可能にする．
+// @brief SatModel オブジェクトを使用可能にする．
 bool
 PySatModel::init(
   PyObject* m
 )
 {
-  SatModelType.tp_name = "SatModel";
-  SatModelType.tp_basicsize = sizeof(SatModelObject);
-  SatModelType.tp_itemsize = 0;
-  SatModelType.tp_dealloc = SatModel_dealloc;
-  SatModelType.tp_flags = Py_TPFLAGS_DEFAULT;
-  SatModelType.tp_doc = PyDoc_STR("SatModel object");
-  SatModelType.tp_new = SatModel_new;
-  SatModelType.tp_methods = SatModel_methods;
-  SatModelType.tp_as_mapping = &SatModel_mapping;
-
-  // 型オブジェクトの登録
-  if ( !PyModule::reg_type(m, "SatModel", &SatModelType) ) {
+  SatModel_Type.tp_name = "SatModel";
+  SatModel_Type.tp_basicsize = sizeof(SatModel_Object);
+  SatModel_Type.tp_itemsize = 0;
+  SatModel_Type.tp_dealloc = dealloc_func;
+  SatModel_Type.tp_as_mapping = &mapping;
+  SatModel_Type.tp_flags = Py_TPFLAGS_DEFAULT;
+  SatModel_Type.tp_doc = PyDoc_STR("Python extended object for SatModel");
+  SatModel_Type.tp_new = new_func;
+  if ( !PyModule::reg_type(m, "SatModel", &SatModel_Type) ) {
     goto error;
   }
 
@@ -120,23 +131,24 @@ PySatModel::init(
   return false;
 }
 
-// @brief SatModel を PyObject に変換する．
+// SatModel を PyObject に変換する．
 PyObject*
 PySatModel::Conv::operator()(
-  const SatModel& val
+  const ElemType& val ///< [in] 元の値
 )
 {
-  auto obj = SatModelType.tp_alloc(&SatModelType, 0);
-  auto model_obj = reinterpret_cast<SatModelObject*>(obj);
-  new (&model_obj->mVal) SatModel{val};
+  auto type = PySatModel::_typeobject();
+  auto obj = type->tp_alloc(type, 0);
+  auto my_obj = reinterpret_cast<SatModel_Object*>(obj);
+  new (&my_obj->mVal) SatModel(val);
   return obj;
 }
 
-// @brief PyObject* から SatModel を取り出す．
+// PyObject を SatModel に変換する．
 bool
 PySatModel::Deconv::operator()(
-  PyObject* obj,
-  SatModel& val
+  PyObject* obj, ///< [in] Python のオブジェクト
+  ElemType& val  ///< [out] 結果を格納する変数
 )
 {
   if ( PySatModel::Check(obj) ) {
@@ -152,24 +164,24 @@ PySatModel::Check(
   PyObject* obj
 )
 {
-  return Py_IS_TYPE(obj, _typeobject());
+  return Py_IS_TYPE(obj, &SatModel_Type);
 }
 
-// @brief SatModel を表す PyObject から SatModel を取り出す．
+// @brief PyObject から SatModel を取り出す．
 SatModel&
 PySatModel::_get_ref(
   PyObject* obj
 )
 {
-  auto model_obj = reinterpret_cast<SatModelObject*>(obj);
-  return model_obj->mVal;
+  auto my_obj = reinterpret_cast<SatModel_Object*>(obj);
+  return my_obj->mVal;
 }
 
 // @brief SatModel を表すオブジェクトの型定義を返す．
 PyTypeObject*
 PySatModel::_typeobject()
 {
-  return &SatModelType;
+  return &SatModel_Type;
 }
 
 END_NAMESPACE_YM

@@ -1,12 +1,14 @@
 
 /// @file PyCnfSize.cc
-/// @brief Python CnfSize の実装ファイル
+/// @brief PyCnfSize の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "pym/PyCnfSize.h"
+#include "pym/PyLong.h"
+#include "pym/PyString.h"
 #include "pym/PyModule.h"
 
 
@@ -15,167 +17,243 @@ BEGIN_NAMESPACE_YM
 BEGIN_NONAMESPACE
 
 // Python 用のオブジェクト定義
-struct CnfSizeObject
+// この構造体は同じサイズのヒープから作られるので
+// mVal のコンストラクタは起動されないことに注意．
+// そのためあとでコンストラクタを明示的に起動する必要がある．
+// またメモリを開放するときにも明示的にデストラクタを起動する必要がある．
+struct CnfSize_Object
 {
   PyObject_HEAD
   CnfSize mVal;
 };
 
 // Python 用のタイプ定義
-PyTypeObject CnfSizeType = {
+PyTypeObject CnfSize_Type = {
   PyVarObject_HEAD_INIT(nullptr, 0)
+  // 残りは PyCnfSize::init() 中で初期化する．
 };
-
-// 生成関数
-PyObject*
-CnfSize_new(
-  PyTypeObject* type,
-  PyObject* args,
-  PyObject* kwds
-)
-{
-  // 引数を取らないことを確認する．
-  static const char* kw_list[] = {
-    nullptr,
-  };
-
-  if ( PyArg_ParseTupleAndKeywords(args, kwds, "",
-				   const_cast<char**>(kw_list)) ) {
-    return nullptr;
-  }
-
-  auto self = type->tp_alloc(type, 0);
-  auto cnfsize_obj = reinterpret_cast<CnfSizeObject*>(self);
-  new (&cnfsize_obj->mVal) CnfSize{};
-  return self;
-}
 
 // 終了関数
 void
-CnfSize_dealloc(
+dealloc_func(
   PyObject* self
 )
 {
   Py_TYPE(self)->tp_free(self);
 }
 
-// メソッド定義
-PyMethodDef CnfSize_methods[] = {
-  {nullptr, nullptr, 0, nullptr}
-};
-
 PyObject*
-CnfSize_clause_num(
+nb_add(
   PyObject* self,
-  void* Py_UNUSED(closure)
+  PyObject* other
 )
 {
-  auto& size = PyCnfSize::_get_ref(self);
-  return Py_BuildValue("k", size.clause_num);
+  try {
+    if ( PyCnfSize::Check(self) ) {
+      auto& val1 = PyCnfSize::_get_ref(self);
+      if ( PyCnfSize::Check(other) ) {
+        auto& val2 = PyCnfSize::_get_ref(other);
+        return PyCnfSize::ToPyObject(val1 + val2);
+      }
+    }
+    Py_RETURN_NOTIMPLEMENTED;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
 }
 
 PyObject*
-CnfSize_literal_num(
+nb_subtract(
   PyObject* self,
-  void* Py_UNUSED(closure)
+  PyObject* other
 )
 {
-  auto& size = PyCnfSize::_get_ref(self);
-  return Py_BuildValue("k", size.literal_num);
+  try {
+    if ( PyCnfSize::Check(self) ) {
+      auto& val1 = PyCnfSize::_get_ref(self);
+      if ( PyCnfSize::Check(other) ) {
+        auto& val2 = PyCnfSize::_get_ref(other);
+        return PyCnfSize::ToPyObject(val1 - val2);
+      }
+    }
+    Py_RETURN_NOTIMPLEMENTED;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
 }
 
-// get/set 関数定義
-PyGetSetDef CnfSize_getset[] = {
-  {"clause_num", CnfSize_clause_num, nullptr, PyDoc_STR("clause num"), nullptr},
-  {"literal_num", CnfSize_literal_num, nullptr, PyDoc_STR("literal num"), nullptr},
-  {nullptr, nullptr, nullptr, nullptr, nullptr},
+PyObject*
+nb_inplace_add(
+  PyObject* self,
+  PyObject* other
+)
+{
+  try {
+    if ( PyCnfSize::Check(self) ) {
+      auto& val1 = PyCnfSize::_get_ref(self);
+      if ( PyCnfSize::Check(other) ) {
+        auto& val2 = PyCnfSize::_get_ref(other);
+        val1 += val2;
+        Py_XINCREF(self);
+        return self;
+      }
+    }
+    Py_RETURN_NOTIMPLEMENTED;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
+}
+
+PyObject*
+nb_inplace_subtract(
+  PyObject* self,
+  PyObject* other
+)
+{
+  try {
+    if ( PyCnfSize::Check(self) ) {
+      auto& val1 = PyCnfSize::_get_ref(self);
+      if ( PyCnfSize::Check(other) ) {
+        auto& val2 = PyCnfSize::_get_ref(other);
+        val1 -= val2;
+        Py_XINCREF(self);
+        return self;
+      }
+    }
+    Py_RETURN_NOTIMPLEMENTED;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
+}
+
+// Numberオブジェクト構造体
+PyNumberMethods number = {
+  .nb_add = nb_add,
+  .nb_subtract = nb_subtract,
+  .nb_inplace_add = nb_inplace_add,
+  .nb_inplace_subtract = nb_inplace_subtract
 };
 
-// 比較関数
+// richcompare 関数
 PyObject*
-CnfSize_richcmpfunc(
+richcompare_func(
   PyObject* self,
   PyObject* other,
   int op
 )
 {
-  if ( PyCnfSize::Check(self) &&
-       PyCnfSize::Check(other) ) {
-    auto& val1 = PyCnfSize::_get_ref(self);
-    auto& val2 = PyCnfSize::_get_ref(other);
-    if ( op == Py_EQ ) {
-      return PyBool_FromLong(val1 == val2);
+  auto& val = PyCnfSize::_get_ref(self);
+  try {
+    if ( PyCnfSize::Check(other) ) {
+      auto& val2 = PyCnfSize::_get_ref(other);
+      if ( op == Py_EQ ) {
+        return PyBool_FromLong(val == val2);
+      }
+      if ( op == Py_NE ) {
+        return PyBool_FromLong(val != val2);
+      }
     }
-    if ( op == Py_NE ) {
-      return PyBool_FromLong(val1 != val2);
-    }
+    Py_RETURN_NOTIMPLEMENTED;
   }
-  Py_RETURN_NOTIMPLEMENTED;
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
 }
 
-// 加算
 PyObject*
-CnfSize_add(
+get_clause_num(
   PyObject* self,
-  PyObject* other
+  void* Py_UNUSED(closure)
 )
 {
-  if ( PyCnfSize::Check(self) &&
-       PyCnfSize::Check(other) ) {
-    auto& val1 = PyCnfSize::_get_ref(self);
-    auto& val2 = PyCnfSize::_get_ref(other);
-    return PyCnfSize::ToPyObject(val1 + val2);
-  }
-  Py_RETURN_NOTIMPLEMENTED;
+  auto& val = PyCnfSize::_get_ref(self);
+  return PyLong::ToPyObject(val.clause_num);
 }
 
-// 減算
 PyObject*
-CnfSize_sub(
+get_literal_num(
   PyObject* self,
-  PyObject* other
+  void* Py_UNUSED(closure)
 )
 {
-  if ( PyCnfSize::Check(self) &&
-       PyCnfSize::Check(other) ) {
-    auto& val1 = PyCnfSize::_get_ref(self);
-    auto& val2 = PyCnfSize::_get_ref(other);
-    return PyCnfSize::ToPyObject(val1 - val2);
-  }
-  Py_RETURN_NOTIMPLEMENTED;
+  auto& val = PyCnfSize::_get_ref(self);
+  return PyLong::ToPyObject(val.literal_num);
 }
 
-// 数値演算メソッド定義
-PyNumberMethods CnfSize_number = {
-  .nb_add = CnfSize_add,
-  //.nb_sub = CnfSize_sub,
-  .nb_inplace_add = CnfSize_add,
-  //.nb_inplace_sub = CnfSize_sub
+// getter/setter定義
+PyGetSetDef getsets[] = {
+  {"clause_num", get_clause_num, nullptr, PyDoc_STR("number of clauses"), nullptr},
+  {"literal_num", get_literal_num, nullptr, PyDoc_STR("number of literals"), nullptr},
+  // end-marker
+  {nullptr, nullptr, nullptr, nullptr}
 };
+
+// new 関数
+PyObject*
+new_func(
+  PyTypeObject* type,
+  PyObject* args,
+  PyObject* kwds
+)
+{
+  static const char* kwlist[] = {
+    nullptr
+  };
+  // 余分な引数を取らないことを確認しておく．
+  if ( !PyArg_ParseTupleAndKeywords(args, kwds, "", const_cast<char**>(kwlist)) ) {
+    return nullptr;
+  }
+  try {
+    auto self = type->tp_alloc(type, 0);
+    return self;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
+}
 
 END_NONAMESPACE
 
 
-// @brief 'CnfSize' オブジェクトを使用可能にする．
+// @brief CnfSize オブジェクトを使用可能にする．
 bool
 PyCnfSize::init(
   PyObject* m
 )
 {
-  CnfSizeType.tp_name = "CnfSize";
-  CnfSizeType.tp_basicsize = sizeof(CnfSizeObject);
-  CnfSizeType.tp_itemsize = 0;
-  CnfSizeType.tp_dealloc = CnfSize_dealloc;
-  CnfSizeType.tp_flags = Py_TPFLAGS_DEFAULT;
-  CnfSizeType.tp_doc = PyDoc_STR("CnfSize object");
-  CnfSizeType.tp_richcompare = CnfSize_richcmpfunc;
-  CnfSizeType.tp_methods = CnfSize_methods;
-  CnfSizeType.tp_getset = CnfSize_getset;
-  CnfSizeType.tp_new = CnfSize_new;
-  CnfSizeType.tp_as_number = &CnfSize_number;
-
-  // 型オブジェクトの登録
-  if ( !PyModule::reg_type(m, "CnfSize", &CnfSizeType) ) {
+  CnfSize_Type.tp_name = "CnfSize";
+  CnfSize_Type.tp_basicsize = sizeof(CnfSize_Object);
+  CnfSize_Type.tp_itemsize = 0;
+  CnfSize_Type.tp_dealloc = dealloc_func;
+  CnfSize_Type.tp_as_number = &number;
+  CnfSize_Type.tp_flags = Py_TPFLAGS_DEFAULT;
+  CnfSize_Type.tp_doc = PyDoc_STR("Python extended object for CnfSize");
+  CnfSize_Type.tp_richcompare = richcompare_func;
+  CnfSize_Type.tp_getset = getsets;
+  CnfSize_Type.tp_new = new_func;
+  if ( !PyModule::reg_type(m, "CnfSize", &CnfSize_Type) ) {
     goto error;
   }
 
@@ -186,23 +264,24 @@ PyCnfSize::init(
   return false;
 }
 
-// @brief CnfSize を PyObject に変換する．
+// CnfSize を PyObject に変換する．
 PyObject*
 PyCnfSize::Conv::operator()(
-  const CnfSize& val
+  const ElemType& val ///< [in] 元の値
 )
 {
-  auto obj = CnfSizeType.tp_alloc(&CnfSizeType, 0);
-  auto cnfsize_obj = reinterpret_cast<CnfSizeObject*>(obj);
-  cnfsize_obj->mVal = val;
+  auto type = PyCnfSize::_typeobject();
+  auto obj = type->tp_alloc(type, 0);
+  auto my_obj = reinterpret_cast<CnfSize_Object*>(obj);
+  new (&my_obj->mVal) CnfSize(val);
   return obj;
 }
 
-// @brief PyObject* から CnfSize を取り出す．
+// PyObject を CnfSize に変換する．
 bool
 PyCnfSize::Deconv::operator()(
-  PyObject* obj,
-  CnfSize& val
+  PyObject* obj, ///< [in] Python のオブジェクト
+  ElemType& val  ///< [out] 結果を格納する変数
 )
 {
   if ( PyCnfSize::Check(obj) ) {
@@ -218,24 +297,24 @@ PyCnfSize::Check(
   PyObject* obj
 )
 {
-  return Py_IS_TYPE(obj, _typeobject());
+  return Py_IS_TYPE(obj, &CnfSize_Type);
 }
 
-// @brief CnfSize を表す PyObject から CnfSize を取り出す．
+// @brief PyObject から CnfSize を取り出す．
 CnfSize&
 PyCnfSize::_get_ref(
   PyObject* obj
 )
 {
-  auto cnfsize_obj = reinterpret_cast<CnfSizeObject*>(obj);
-  return cnfsize_obj->mVal;
+  auto my_obj = reinterpret_cast<CnfSize_Object*>(obj);
+  return my_obj->mVal;
 }
 
 // @brief CnfSize を表すオブジェクトの型定義を返す．
 PyTypeObject*
 PyCnfSize::_typeobject()
 {
-  return &CnfSizeType;
+  return &CnfSize_Type;
 }
 
 END_NAMESPACE_YM

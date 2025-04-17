@@ -5,7 +5,7 @@
 /// @brief PySatLiteral のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2022 Yusuke Matsunaga
+/// Copyright (C) 2025 Yusuke Matsunaga
 /// All rights reserved.
 
 #define PY_SSIZE_T_CLEAN
@@ -18,12 +18,14 @@ BEGIN_NAMESPACE_YM
 
 //////////////////////////////////////////////////////////////////////
 /// @class PySatLiteral PySatLiteral.h "PySatLiteral.h"
-/// @brief Python 用の SatLiteral 拡張
+/// @brief SatLiteral を Python から使用するための拡張
 ///
-/// 複数の関数をひとまとめにしているだけなので実は名前空間として用いている．
+/// 実際には static メンバ関数しか持たないのでクラスではない．
 //////////////////////////////////////////////////////////////////////
 class PySatLiteral
 {
+public:
+
   using ElemType = SatLiteral;
 
 public:
@@ -32,7 +34,7 @@ public:
   struct Conv {
     PyObject*
     operator()(
-      const ElemType& val
+      const ElemType& val ///< [in] 元の値
     );
   };
 
@@ -40,8 +42,8 @@ public:
   struct Deconv {
     bool
     operator()(
-      PyObject* obj,
-      ElemType& val
+      PyObject* obj, ///< [in] Python のオブジェクト
+      ElemType& val  ///< [out] 結果を格納する変数
     );
   };
 
@@ -66,7 +68,7 @@ public:
   static
   PyObject*
   ToPyObject(
-    const ElemType& val ///< [in] 値
+    const ElemType& val ///< [in] 元の値
   )
   {
     Conv conv;
@@ -92,6 +94,21 @@ public:
   Check(
     PyObject* obj ///< [in] 対象の PyObject
   );
+
+  /// @brief PyObject から SatLiteral を取り出す．
+  static
+  ElemType
+  Get(
+    PyObject* obj ///< [in] 対象の Python オブジェクト
+  )
+  {
+    ElemType val;
+    if ( PySatLiteral::FromPyObject(obj, val) ) {
+      return val;
+    }
+    PyErr_SetString(PyExc_TypeError, "Could not convert to SatLiteral");
+    return val;
+  }
 
   /// @brief SatLiteral を表す PyObject から SatLiteral を取り出す．
   /// @return SatLiteral を返す．
