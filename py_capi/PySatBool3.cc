@@ -90,6 +90,71 @@ repr_func(
   }
 }
 
+int
+nb_bool(
+  PyObject* self
+)
+{
+  auto& val = PySatBool3::_get_ref(self);
+  try {
+    return val == SatBool3::True;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return -1;
+  }
+}
+
+PyObject*
+nb_invert(
+  PyObject* self
+)
+{
+  auto& val = PySatBool3::_get_ref(self);
+  try {
+    return PySatBool3::ToPyObject(~val);
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
+}
+
+PyObject*
+nb_xor(
+  PyObject* self,
+  PyObject* other
+)
+{
+  try {
+    if ( PySatBool3::Check(self) ) {
+      auto& val1 = PySatBool3::_get_ref(self);
+      if ( PySatBool3::Check(other) ) {
+        auto& val2 = PySatBool3::_get_ref(other);
+        return PySatBool3::ToPyObject(val1 ^ val2);
+      }
+    }
+    Py_RETURN_NOTIMPLEMENTED;
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
+}
+
+// Numberオブジェクト構造体
+PyNumberMethods number = {
+  .nb_bool = nb_bool,
+  .nb_invert = nb_invert,
+  .nb_xor = nb_xor
+};
+
 // richcompare 関数
 PyObject*
 richcompare_func(
@@ -170,6 +235,7 @@ PySatBool3::init(
   SatBool3_Type.tp_itemsize = 0;
   SatBool3_Type.tp_dealloc = dealloc_func;
   SatBool3_Type.tp_repr = repr_func;
+  SatBool3_Type.tp_as_number = &number;
   SatBool3_Type.tp_flags = Py_TPFLAGS_DEFAULT;
   SatBool3_Type.tp_doc = PyDoc_STR("Python extended object for SatBool3");
   SatBool3_Type.tp_richcompare = richcompare_func;

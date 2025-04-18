@@ -24,7 +24,14 @@ class SatBool3Gen(EnumGen):
                          header_include_files=['ym/SatBool3.h'],
                          source_include_files=['pym/PySatBool3.h',
                                                'pym/PyString.h'])
-        
+
+        self.add_nb_invert()
+        self.add_nb_xor()
+
+        def bool_body(writer):
+            writer.gen_return('val == SatBool3::True')
+        self.add_nb_bool(body=bool_body)
+
 
 if __name__ == '__main__':
 

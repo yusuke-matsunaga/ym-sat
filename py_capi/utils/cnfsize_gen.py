@@ -22,7 +22,7 @@ class CnfSizeGen(PyObjGen):
                                                'pym/PyString.h'])
 
         self.add_dealloc(None)
-        
+
         self.add_new('default')
 
         def get_clause_num(writer):
@@ -47,7 +47,7 @@ class CnfSizeGen(PyObjGen):
         self.add_nb_subtract()
         self.add_nb_inplace_add()
         self.add_nb_inplace_subtract()
-        
+
         self.add_conv('default')
 
         self.add_deconv('default')

@@ -20,7 +20,7 @@ class LitsArg(ObjConvArgBase):
                          cvartype='std::vector<SatLiteral>',
                          cvarname=cvarname,
                          cvardefault=None)
-        
+
     def conv_body(self, writer):
         with writer.gen_if_block(f'PySatLiteral::Check({self.tmpname})'):
             writer.gen_auto_assign('lit',
@@ -28,7 +28,7 @@ class LitsArg(ObjConvArgBase):
             writer.gen_stmt(f'{self.cvarname}.push_back(lit)')
         with writer.gen_elseif_block(f'!PyList<SatLiteral, PySatLiteral>::FromPyObject({self.tmpname}, {self.cvarname})'):
             writer.gen_type_error('"\'a SatLiteral\' or a sequence of \'SatLiteral\'s is expected"')
-                 
+
 
 class SatSolverGen(PyObjGen):
 
@@ -44,7 +44,7 @@ class SatSolverGen(PyObjGen):
                                                ])
 
         self.add_new('disabled')
-        
+
         self.add_dealloc('default')
 
         def meth_new_variable(writer):
@@ -69,7 +69,7 @@ class SatSolverGen(PyObjGen):
                                              cvardefault=None,
                                              pyclassname='PyList<SatLiteral, PySatLiteral>')],
                         doc_str="set 'conditional literals'")
-        
+
         def meth_clear_conditional_literals(writer):
             writer.gen_stmt('val.clear_conditional_literals()')
             writer.gen_return_py_none()
@@ -102,9 +102,9 @@ class SatSolverGen(PyObjGen):
                                                   cvardefault=None,
                                                   pyclassname='PySatLiteral')],
                         doc_str="add clauses representing 'BUF' gate")
-                        
-                        
-        
+
+
+
 
 if __name__ == '__main__':
 
@@ -113,5 +113,3 @@ if __name__ == '__main__':
     gen.make_header()
 
     gen.make_source()
-    
-    

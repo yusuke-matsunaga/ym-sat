@@ -23,7 +23,7 @@ class SatModelGen(PyObjGen):
                                                ])
 
         self.add_new('disabled')
-        
+
         self.add_dealloc('default')
 
         def mp_length(writer):
@@ -38,7 +38,7 @@ class SatModelGen(PyObjGen):
 
         self.add_mapping(mp_length=mp_length,
                          mp_subscript=mp_subscript)
-        
+
         self.add_conv('default')
 
         self.add_deconv('default')
@@ -51,5 +51,3 @@ if __name__ == '__main__':
     gen.make_header()
 
     gen.make_source()
-    
-    

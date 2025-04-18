@@ -28,7 +28,7 @@ class YmsatGen(ModuleGen):
                                        ],
                          namespace='YM')
 
-        
+
 if __name__ == '__main__':
 
     gen = YmlogicGen()

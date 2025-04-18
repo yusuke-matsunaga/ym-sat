@@ -24,23 +24,23 @@ class SatLiteralGen(PyObjGen):
                                                ])
 
         self.add_new('disabled')
-        
+
         self.add_dealloc(None)
 
         self.add_richcompare('cmp_default')
-        
+
         def meth_is_valid(writer):
             writer.gen_return_py_bool('val.is_valid()')
         self.add_method('is_valid',
                         func_body=meth_is_valid,
                         doc_str='True if valid')
-        
+
         def meth_is_positive(writer):
             writer.gen_return_py_bool('val.is_positive()')
         self.add_method('is_positive',
                         func_body=meth_is_positive,
                         doc_str='True if positive literal')
-        
+
         def meth_is_negative(writer):
             writer.gen_return_py_bool('val.is_negative()')
         self.add_method('is_negative',
@@ -86,7 +86,7 @@ class SatLiteralGen(PyObjGen):
         self.add_attr('index',
                       getter_name='get_index',
                       doc_str='unique index')
-        
+
         self.add_conv('default')
 
         self.add_deconv('default')
@@ -99,5 +99,3 @@ if __name__ == '__main__':
     gen.make_header()
 
     gen.make_source()
-    
-    
