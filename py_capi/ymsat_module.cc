@@ -13,6 +13,7 @@
 #include "pym/PySatBool3.h"
 #include "pym/PySatLiteral.h"
 #include "pym/PySatModel.h"
+#include "pym/PySatInitParam.h"
 #include "pym/PySatSolver.h"
 #include "pym/PyModule.h"
 
@@ -56,6 +57,9 @@ PyInit_ymsat()
     goto error;
   }
   if ( !PySatModel::init(m) ) {
+    goto error;
+  }
+  if ( !PySatInitParam::init(m) ) {
     goto error;
   }
   if ( !PySatSolver::init(m) ) {

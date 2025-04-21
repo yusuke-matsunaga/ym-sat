@@ -26,6 +26,7 @@ set ( py_ymsat_SOURCES
   PySatBool3.cc
   PySatLiteral.cc
   PySatModel.cc
+  PySatInitParam.cc
   PySatSolver.cc
   PyCnfSize.cc
   )

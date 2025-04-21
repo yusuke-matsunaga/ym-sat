@@ -58,6 +58,9 @@ satliteral_gen = SatLiteralGen()
 from satmodel_gen import SatModelGen
 satmodel_gen = SatModelGen()
 
+from satinitparam_gen import SatInitParamGen
+satinitparam_gen = SatInitParamGen()
+
 from satsolver_gen import SatSolverGen
 satsolver_gen = SatSolverGen()
 
@@ -65,6 +68,7 @@ for gen, name in ((cnfsize_gen, 'PyCnfSize'),
                   (satbool3_gen, 'PySatBool3'),
                   (satliteral_gen, 'PySatLiteral'),
                   (satmodel_gen, 'PySatModel'),
+                  (satinitparam_gen, 'PySatInitParam'),
                   (satsolver_gen, 'PySatSolver'),
                   ):
     filename = os.path.join(include_dir, f'{name}.h')

@@ -9,6 +9,7 @@
 #include "pym/PySatLiteral.h"
 #include "pym/PyLong.h"
 #include "pym/PyBool.h"
+#include "pym/PyString.h"
 #include "pym/PyModule.h"
 
 
@@ -134,6 +135,26 @@ hash_func(
   }
 }
 
+// str 関数
+PyObject*
+str_func(
+  PyObject* self
+)
+{
+  auto& val = PySatLiteral::_get_ref(self);
+  try {
+    std::ostringstream buf;
+    buf << val;
+    return PyString::ToPyObject(buf.str());
+  }
+  catch ( std::invalid_argument err ) {
+    std::ostringstream buf;
+    buf << "invalid argument" << ": " << err.what();
+    PyErr_SetString(PyExc_ValueError, buf.str().c_str());
+    return nullptr;
+  }
+}
+
 // richcompare 関数
 PyObject*
 richcompare_func(
@@ -156,6 +177,21 @@ richcompare_func(
     PyErr_SetString(PyExc_ValueError, buf.str().c_str());
     return nullptr;
   }
+}
+
+// make a copy
+PyObject*
+copy(
+  PyObject* self,
+  PyObject* Py_UNUSED(args)
+)
+{
+  auto& val = PySatLiteral::_get_ref(self);
+  auto type = &SatLiteral_Type;
+  auto obj = type->tp_alloc(type, 0);
+  auto my_obj = reinterpret_cast<SatLiteral_Object*>(self);
+  new (&my_obj->mVal) SatLiteral(val);
+  return obj;
 }
 
 // True if valid
@@ -215,6 +251,10 @@ make_negative(
 
 // メソッド定義
 PyMethodDef methods[] = {
+  {"copy",
+   copy,
+   METH_NOARGS,
+   PyDoc_STR("make a copy")},
   {"is_valid",
    is_valid,
    METH_NOARGS,
@@ -275,7 +315,7 @@ new_func(
   PyObject* kwds
 )
 {
-  PyErr_SetString(PyExc_TypeError, "instantiation of 'SatLiteral' is disabled");
+  PyErr_SetString(PyExc_TypeError, "Instantiation of 'SatLiteral' is disabled");
   return nullptr;
 }
 
@@ -294,6 +334,7 @@ PySatLiteral::init(
   SatLiteral_Type.tp_dealloc = dealloc_func;
   SatLiteral_Type.tp_as_number = &number;
   SatLiteral_Type.tp_hash = hash_func;
+  SatLiteral_Type.tp_str = str_func;
   SatLiteral_Type.tp_flags = Py_TPFLAGS_DEFAULT;
   SatLiteral_Type.tp_doc = PyDoc_STR("Python extended object for SatLiteral");
   SatLiteral_Type.tp_richcompare = richcompare_func;

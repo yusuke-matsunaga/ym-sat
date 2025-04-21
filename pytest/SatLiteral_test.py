@@ -41,7 +41,7 @@ def test_make_positive():
     plit = lit.make_positive()
 
     assert plit == lit
-    
+
 def test_compare():
     solver = SatSolver()
     lit1 = solver.new_variable()
@@ -57,7 +57,7 @@ def test_invert():
     ilit = ~lit
     nlit = ilit.make_positive()
     iilit = ~ilit
-    
+
     assert ilit.is_negative()
     assert nlit == lit
     assert iilit == lit
@@ -69,7 +69,7 @@ def test_mul_True():
     ilit = lit * True
     nlit = ilit.make_positive()
     iilit = ~ilit
-    
+
     assert ilit.is_negative()
     assert nlit == lit
     assert iilit == lit
@@ -78,12 +78,13 @@ def test_imul_True():
     solver = SatSolver()
     lit = solver.new_variable()
 
-    ilit = lit
+    ilit = lit.copy()
     ilit *= True
     nlit = ilit.make_positive()
     iilit = ~ilit
-    
+
     assert ilit.is_negative()
+    print(f'ilit = {ilit}, nlit = {nlit}, lit = {lit}')
     assert nlit == lit
     assert iilit == lit
 
@@ -98,6 +99,6 @@ def test_imul_False():
     solver = SatSolver()
     lit = solver.new_variable()
 
-    ilit = lit
+    ilit = lit.copy()
     ilit *= False
     assert ilit == lit

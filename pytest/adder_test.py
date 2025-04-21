@@ -59,7 +59,7 @@ class AdderTest(SolverTest):
             else:
                 vals[p] = 0
         self.check(nall, vals)
-                  
+
 @pytest.fixture
 def sat_test_fixture():
     return AdderTest()
@@ -81,12 +81,12 @@ def test_add_2_4_4(sat_test_fixture):
 
 def test_add_3_3_4(sat_test_fixture):
     sat_test_fixture.check_adder(3, 3, 4)
-    
+
 def test_add_3_2_4(sat_test_fixture):
     sat_test_fixture.check_adder(3, 2, 4)
-    
+
 def test_add_3_1_4(sat_test_fixture):
     sat_test_fixture.check_adder(3, 1, 4)
-    
+
 def test_add_3_1_5(sat_test_fixture):
     sat_test_fixture.check_adder(3, 1, 5)

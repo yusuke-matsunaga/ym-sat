@@ -21,6 +21,7 @@ class SatLiteralGen(PyObjGen):
                          source_include_files=['pym/PySatLiteral.h',
                                                'pym/PyLong.h',
                                                'pym/PyBool.h',
+                                               'pym/PyString.h',
                                                ])
 
         self.add_new('disabled')
@@ -29,6 +30,22 @@ class SatLiteralGen(PyObjGen):
 
         self.add_richcompare('cmp_default')
 
+        def str_body(writer):
+            writer.gen_vardecl(typename='std::ostringstream',
+                               varname='buf')
+            writer.gen_stmt('buf << val')
+            writer.gen_return_py_string('buf.str()')
+        self.add_str(str_body)
+
+        def meth_copy(writer):
+            writer.gen_auto_assign('type', '&SatLiteral_Type')
+            writer.gen_tp_alloc(objclass='SatLiteral_Object',
+                                selfvar='obj')
+            writer.gen_stmt('new (&my_obj->mVal) SatLiteral(val)')
+            writer.gen_return('obj')
+        self.add_method('copy',
+                        func_body=meth_copy,
+                        doc_str='make a copy')
         def meth_is_valid(writer):
             writer.gen_return_py_bool('val.is_valid()')
         self.add_method('is_valid',

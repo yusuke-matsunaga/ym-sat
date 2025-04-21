@@ -29,7 +29,7 @@ class SolverTest:
             for i in range(ni):
                 lit = self.var_list[i]
                 if (p & (1 << i)) == 0:
-                    lit *= True
+                    lit = ~lit
                 assumptions.append(lit)
             ans = self.solver.solve(assumptions)
             exp_ans = SatBool3.true if vals[p] else SatBool3.false
@@ -44,7 +44,7 @@ class SolverTest:
             for i in range(ni):
                 lit = self.var_list[i]
                 if (p & (1 << i)) == 0:
-                    lit *= True
+                    lit = ~lit
                 assumptions.append(lit)
             ans = self.solver.solve(assumptions)
             exp_ans = SatBool3.true
@@ -55,7 +55,7 @@ class SolverTest:
             for i in range(ni):
                 lit = self.var_list[i]
                 if (p & (1 << i)) == 0:
-                    lit *= True
+                    lit = ~lit
                 assumptions.append(lit)
             ans = self.solver.solve(assumptions)
             exp_ans = SatBool3.true if vals[p] else SatBool3.false

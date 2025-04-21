@@ -135,7 +135,7 @@ class TseitinEncTest(SolverTest):
             else:
                 vals[p] = 0
         self.check(nall, vals)
-                  
+
 @pytest.fixture
 def sat_test_fixture():
     return TseitinEncTest()
@@ -153,14 +153,14 @@ def test_notgate(sat_test_fixture):
     sat_test_fixture.solver.add_notgate(lit1, lit2)
     vals = [0, 1, 1, 0]
     sat_test_fixture.check(2, vals)
-    
+
 def test_andgate2(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
     lit3 = sat_test_fixture.var_list[2]
     sat_test_fixture.solver.add_andgate(lit3, lit1, lit2)
     sat_test_fixture.check_and(2)
-    
+
 def test_andgate3(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -168,7 +168,7 @@ def test_andgate3(sat_test_fixture):
     lit4 = sat_test_fixture.var_list[3]
     sat_test_fixture.solver.add_andgate(lit4, lit3, lit1, lit2)
     sat_test_fixture.check_and(3)
-    
+
 def test_andgate4(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -177,7 +177,7 @@ def test_andgate4(sat_test_fixture):
     lit5 = sat_test_fixture.var_list[4]
     sat_test_fixture.solver.add_andgate(lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_and(4)
-    
+
 def test_andgate5(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -187,7 +187,7 @@ def test_andgate5(sat_test_fixture):
     lit6 = sat_test_fixture.var_list[5]
     sat_test_fixture.solver.add_andgate(lit6, lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_and(5)
-    
+
 def test_andgate5l(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -198,14 +198,14 @@ def test_andgate5l(sat_test_fixture):
     ilits = (lit1, lit2, lit3, lit4, lit5)
     sat_test_fixture.solver.add_andgate(lit6, ilits)
     sat_test_fixture.check_and(5)
-    
+
 def test_nandgate2(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
     lit3 = sat_test_fixture.var_list[2]
     sat_test_fixture.solver.add_nandgate(lit3, lit1, lit2)
     sat_test_fixture.check_nand(2)
-    
+
 def test_nandgate3(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -213,7 +213,7 @@ def test_nandgate3(sat_test_fixture):
     lit4 = sat_test_fixture.var_list[3]
     sat_test_fixture.solver.add_nandgate(lit4, lit3, lit1, lit2)
     sat_test_fixture.check_nand(3)
-    
+
 def test_nandgate4(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -222,7 +222,7 @@ def test_nandgate4(sat_test_fixture):
     lit5 = sat_test_fixture.var_list[4]
     sat_test_fixture.solver.add_nandgate(lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_nand(4)
-    
+
 def test_nandgate5(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -232,7 +232,7 @@ def test_nandgate5(sat_test_fixture):
     lit6 = sat_test_fixture.var_list[5]
     sat_test_fixture.solver.add_nandgate(lit6, lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_nand(5)
-    
+
 def test_nandgate5l(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -243,14 +243,14 @@ def test_nandgate5l(sat_test_fixture):
     ilits = (lit1, lit2, lit3, lit4, lit5)
     sat_test_fixture.solver.add_nandgate(lit6, ilits)
     sat_test_fixture.check_nand(5)
-    
+
 def test_orgate2(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
     lit3 = sat_test_fixture.var_list[2]
     sat_test_fixture.solver.add_orgate(lit3, lit1, lit2)
     sat_test_fixture.check_or(2)
-    
+
 def test_orgate3(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -258,7 +258,7 @@ def test_orgate3(sat_test_fixture):
     lit4 = sat_test_fixture.var_list[3]
     sat_test_fixture.solver.add_orgate(lit4, lit3, lit1, lit2)
     sat_test_fixture.check_or(3)
-    
+
 def test_orgate4(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -267,7 +267,7 @@ def test_orgate4(sat_test_fixture):
     lit5 = sat_test_fixture.var_list[4]
     sat_test_fixture.solver.add_orgate(lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_or(4)
-    
+
 def test_orgate5(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -277,7 +277,7 @@ def test_orgate5(sat_test_fixture):
     lit6 = sat_test_fixture.var_list[5]
     sat_test_fixture.solver.add_orgate(lit6, lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_or(5)
-    
+
 def test_orgate5l(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -288,14 +288,14 @@ def test_orgate5l(sat_test_fixture):
     ilits = (lit1, lit2, lit3, lit4, lit5)
     sat_test_fixture.solver.add_orgate(lit6, ilits)
     sat_test_fixture.check_or(5)
-    
+
 def test_norgate2(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
     lit3 = sat_test_fixture.var_list[2]
     sat_test_fixture.solver.add_norgate(lit3, lit1, lit2)
     sat_test_fixture.check_nor(2)
-    
+
 def test_norgate3(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -303,7 +303,7 @@ def test_norgate3(sat_test_fixture):
     lit4 = sat_test_fixture.var_list[3]
     sat_test_fixture.solver.add_norgate(lit4, lit3, lit1, lit2)
     sat_test_fixture.check_nor(3)
-    
+
 def test_norgate4(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -312,7 +312,7 @@ def test_norgate4(sat_test_fixture):
     lit5 = sat_test_fixture.var_list[4]
     sat_test_fixture.solver.add_norgate(lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_nor(4)
-    
+
 def test_norgate5(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -322,7 +322,7 @@ def test_norgate5(sat_test_fixture):
     lit6 = sat_test_fixture.var_list[5]
     sat_test_fixture.solver.add_norgate(lit6, lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_nor(5)
-    
+
 def test_norgate5l(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -333,14 +333,14 @@ def test_norgate5l(sat_test_fixture):
     ilits = (lit1, lit2, lit3, lit4, lit5)
     sat_test_fixture.solver.add_norgate(lit6, ilits)
     sat_test_fixture.check_nor(5)
-    
+
 def test_xorgate2(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
     lit3 = sat_test_fixture.var_list[2]
     sat_test_fixture.solver.add_xorgate(lit3, lit1, lit2)
     sat_test_fixture.check_xor(2)
-    
+
 def test_xorgate3(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -348,7 +348,7 @@ def test_xorgate3(sat_test_fixture):
     lit4 = sat_test_fixture.var_list[3]
     sat_test_fixture.solver.add_xorgate(lit4, lit3, lit1, lit2)
     sat_test_fixture.check_xor(3)
-    
+
 def test_xorgate4(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -357,7 +357,7 @@ def test_xorgate4(sat_test_fixture):
     lit5 = sat_test_fixture.var_list[4]
     sat_test_fixture.solver.add_xorgate(lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_xor(4)
-    
+
 def test_xorgate5(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -367,7 +367,7 @@ def test_xorgate5(sat_test_fixture):
     lit6 = sat_test_fixture.var_list[5]
     sat_test_fixture.solver.add_xorgate(lit6, lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_xor(5)
-    
+
 def test_xorgate5l(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -378,14 +378,14 @@ def test_xorgate5l(sat_test_fixture):
     ilits = (lit1, lit2, lit3, lit4, lit5)
     sat_test_fixture.solver.add_xorgate(lit6, ilits)
     sat_test_fixture.check_xor(5)
-    
+
 def test_xnorgate2(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
     lit3 = sat_test_fixture.var_list[2]
     sat_test_fixture.solver.add_xnorgate(lit3, lit1, lit2)
     sat_test_fixture.check_xnor(2)
-    
+
 def test_xnorgate3(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -393,7 +393,7 @@ def test_xnorgate3(sat_test_fixture):
     lit4 = sat_test_fixture.var_list[3]
     sat_test_fixture.solver.add_xnorgate(lit4, lit3, lit1, lit2)
     sat_test_fixture.check_xnor(3)
-    
+
 def test_xnorgate4(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -402,7 +402,7 @@ def test_xnorgate4(sat_test_fixture):
     lit5 = sat_test_fixture.var_list[4]
     sat_test_fixture.solver.add_xnorgate(lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_xnor(4)
-    
+
 def test_xnorgate5(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -412,7 +412,7 @@ def test_xnorgate5(sat_test_fixture):
     lit6 = sat_test_fixture.var_list[5]
     sat_test_fixture.solver.add_xnorgate(lit6, lit5, lit4, lit3, lit1, lit2)
     sat_test_fixture.check_xnor(5)
-    
+
 def test_xnorgate5l(sat_test_fixture):
     lit1 = sat_test_fixture.var_list[0]
     lit2 = sat_test_fixture.var_list[1]
@@ -487,12 +487,12 @@ def test_add_2_4_4(sat_test_fixture):
 
 def test_add_3_3_4(sat_test_fixture):
     sat_test_fixture.check_adder(3, 3, 4)
-    
+
 def test_add_3_2_4(sat_test_fixture):
     sat_test_fixture.check_adder(3, 2, 4)
-    
+
 def test_add_3_1_4(sat_test_fixture):
     sat_test_fixture.check_adder(3, 1, 4)
-    
+
 def test_add_3_1_5(sat_test_fixture):
     sat_test_fixture.check_adder(3, 1, 5)
