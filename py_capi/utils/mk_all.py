@@ -37,15 +37,6 @@ if args.source_dir is None:
 else:
     source_dir = args.source_dir
 
-from ymsat_gen import YmsatGen
-ymsat_gen = YmsatGen()
-filename = os.path.join(include_dir, 'ymsat.h')
-with open(filename, 'wt') as fout:
-    ymsat_gen.make_header(fout=fout)
-filename = os.path.join(source_dir, 'ymsat_module.cc')
-with open(filename, 'wt') as fout:
-    ymsat_gen.make_source(fout=fout)
-
 from cnfsize_gen import CnfSizeGen
 cnfsize_gen = CnfSizeGen()
 
@@ -64,16 +55,13 @@ satinitparam_gen = SatInitParamGen()
 from satsolver_gen import SatSolverGen
 satsolver_gen = SatSolverGen()
 
-for gen, name in ((cnfsize_gen, 'PyCnfSize'),
-                  (satbool3_gen, 'PySatBool3'),
-                  (satliteral_gen, 'PySatLiteral'),
-                  (satmodel_gen, 'PySatModel'),
-                  (satinitparam_gen, 'PySatInitParam'),
-                  (satsolver_gen, 'PySatSolver'),
-                  ):
-    filename = os.path.join(include_dir, f'{name}.h')
-    with open(filename, 'wt') as fout:
-        gen.make_header(fout=fout)
-    filename = os.path.join(source_dir, f'{name}.cc')
-    with open(filename, 'wt') as fout:
-        gen.make_source(fout=fout)
+gen_list = [cnfsize_gen, satbool3_gen, satliteral_gen,
+            satmodel_gen, satinitparam_gen, satsolver_gen]
+
+from mk_py_capi import ModuleGen
+module_gen = ModuleGen(modulename='ymsat',
+                       pyclass_gen_list=gen_list,
+                       namespace='YM')
+
+module_gen.make_all(include_dir=include_dir,
+                    source_dir=source_dir)
