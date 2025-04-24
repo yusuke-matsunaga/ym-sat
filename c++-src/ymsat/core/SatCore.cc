@@ -831,9 +831,8 @@ SatCore::implication()
 {
   SizeType prop_num = 0;
   auto conflict = Reason::None;
-  for ( auto pos = mAssignList.cur_head();
-	pos < mAssignList.size(); ++ pos ) {
-    auto l = mAssignList.get(pos);
+  while ( mAssignList.has_elem() && conflict == Reason::None ) {
+    auto l = mAssignList.get_next();
     ++ prop_num;
 
     if ( debug & debug_implication ) {
@@ -848,7 +847,7 @@ SatCore::implication()
     SizeType wpos = 0;
     while ( rpos < n ) {
       auto& w = wlist.elem(rpos);
-      if ( rpos != wpos ) {
+      if ( wpos < rpos ) {
 	wlist.set_elem(wpos, w);
       }
       ++ rpos;
@@ -902,16 +901,16 @@ SatCore::implication()
 	  // 新しい wl0 を得る．
 	  l0 = c->wl0();
 	}
-	else { // l1 == nl
 #if 0
+	else { // l1 == nl
 	  if ( debug & debug_implication ) {
 	    // この assert は重いのでデバッグ時にしかオンにしない．
 	    // ※ debug と debug_implication が const なので結果が0の
 	    // ときにはコンパイル時に消されることに注意
 	    ASSERT_COND(c->wl1() == nl );
 	  }
-#endif
 	}
+#endif
 
 	auto val0 = eval(l0);
 	if ( val0 == SatBool3::True ) {
@@ -1001,8 +1000,8 @@ SatCore::backtrack(
   }
 
   if ( level < decision_level() ) {
-    auto new_tail = mAssignList.backtrack(level);
-    while ( mAssignList.size() > new_tail ) {
+    mAssignList.backtrack(level);
+    while ( mAssignList.has_elem() ) {
       auto p = mAssignList.get_prev();
       auto varid = p.varid();
       mVal[varid] = (mVal[varid] << 2) | conv_from_Bool3(SatBool3::X);

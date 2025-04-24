@@ -698,9 +698,8 @@ Reason
 YmSat::implication()
 {
   auto conflict = Reason::None;
-  for ( SizeType pos = mAssignList.cur_head();
-	pos < mAssignList.size(); ++ pos ) {
-    auto l = mAssignList.get(pos);
+  while ( mAssignList.has_elem() && conflict == Reason::None ) {
+    auto l = mAssignList.get_next();
     ++ mPropagationNum;
 
     if ( debug & debug_implication ) {
@@ -857,8 +856,8 @@ YmSat::backtrack(
   }
 
   if ( level < decision_level() ) {
-    auto new_tail = mAssignList.backtrack(level);
-    while ( mAssignList.size() > new_tail ) {
+    mAssignList.backtrack(level);
+    while ( mAssignList.has_elem() ) {
       auto p = mAssignList.get_prev();
       auto varid = p.varid();
       mVal[varid] = conv_from_Bool3(SatBool3::X);

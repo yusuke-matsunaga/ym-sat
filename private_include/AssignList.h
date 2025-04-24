@@ -35,8 +35,8 @@ BEGIN_NAMESPACE_YM_SAT
 /// 一方，含意操作中には AssignList は未処理の割り当てを入れておくキュー
 /// として機能する．そのため，読み出し位置を記録する mHead という
 /// メンバ変数を持っている．ただし，この変数は外部からはアクセス不可で
-/// get_next()(次に進める), skip_all()(末尾に進める), backtrack()(指定
-/// したレベルまで戻る) の3つの関数でのみ値が更新される．
+/// get_next()(次に進める), backtrack()(指定したレベルまで戻る) の
+/// 2つの関数でのみ値が更新される．
 ///
 /// 最後に，AssignList の任意の位置にアクセスするための関数として，
 /// get(pos) が用意されている．この関数を使うときは事前に size() で
@@ -100,6 +100,23 @@ public:
     return mList.size();
   }
 
+  /// @brief 読み出す要素があるとき true を返す．
+  bool
+  has_elem() const
+  {
+    return mHead < size();
+  }
+
+  /// @brief 次の要素を返す．
+  /// @return 今の読み出し位置の要素を返す．
+  ///
+  /// 読み出し位置は一つ進む
+  Literal
+  get_next()
+  {
+    return mList[mHead ++];
+  }
+
   /// @brief 前の要素を返す．
   /// @return 書き込み位置の一つ手前の要素を返す．
   ///
@@ -149,18 +166,16 @@ public:
   }
 
   /// @brief level の割り当てを行う直前の状態にもどす．
-  /// @return backtrack 後の末尾を返す．
   ///
   /// 具体的には読み出し位置が level のマーカとなり，現在のレベルが
   /// level となる．
-  SizeType
+  void
   backtrack(
     int level ///< [in] 対象のレベル
   )
   {
-    auto tail = mMarker[level + 1];
+    mHead = mMarker[level + 1];
     mMarker.erase(mMarker.begin() + level + 1, mMarker.end());
-    return tail;
   }
 
 
@@ -171,6 +186,9 @@ private:
 
   // 値割り当てを保持するリスト(配列)
   vector<Literal> mList;
+
+  // 読み出し位置
+  SizeType mHead{0};
 
   // 各レベルの開始位置を記録するスタック
   vector<SizeType> mMarker;
