@@ -11,6 +11,31 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
+//////////////////////////////////////////////////////////////////////
+// クラス SatSolver
+//////////////////////////////////////////////////////////////////////
+
+// @brief 与えられたAIGを充足する条件を追加する．
+vector<vector<SatLiteral>>
+SatSolver::add_aig(
+  const vector<AigHandle>& aig_list,
+  const LitMap& lit_map
+)
+{
+  Aig2Cnf aig2cnf(*this, lit_map);
+  vector<vector<SatLiteral>> lits_list;
+  for ( auto& aig: aig_list ) {
+    auto lits = aig2cnf.make_cnf(aig);
+    lits_list.push_back(lits);
+  }
+  return lits_list;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス Aig2Cnf
+//////////////////////////////////////////////////////////////////////
+
 // @brief AIG を CNF に変換する．
 vector<SatLiteral>
 Aig2Cnf::make_cnf(

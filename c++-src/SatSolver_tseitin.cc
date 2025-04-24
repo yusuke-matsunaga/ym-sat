@@ -7,8 +7,6 @@
 /// All rights reserved.
 
 #include "ym/SatSolver.h"
-#include "Expr2Cnf.h"
-#include "Aig2Cnf.h"
 
 
 BEGIN_NAMESPACE_YM_SAT
@@ -84,33 +82,6 @@ SatSolver::_add_xorgate_sub(
     _add_xorgate_sub(rlit, lit_list, start + nl, nr);
     add_xorgate(olit, llit, rlit);
   }
-}
-
-// @brief 与えられた論理式を充足する条件を追加する．
-vector<SatLiteral>
-SatSolver::add_expr(
-  const Expr& expr,
-  const LitMap& lit_map
-)
-{
-  Expr2Cnf expr2cnf(*this, lit_map);
-  return expr2cnf.make_cnf(expr);
-}
-
-// @brief 与えられたAIGを充足する条件を追加する．
-vector<vector<SatLiteral>>
-SatSolver::add_aig(
-  const vector<AigHandle>& aig_list,
-  const LitMap& lit_map
-)
-{
-  Aig2Cnf aig2cnf(*this, lit_map);
-  vector<vector<SatLiteral>> lits_list;
-  for ( auto& aig: aig_list ) {
-    auto lits = aig2cnf.make_cnf(aig);
-    lits_list.push_back(lits);
-  }
-  return lits_list;
 }
 
 // @brief half_adder の入出力の関係を表す条件を追加する．
