@@ -537,10 +537,12 @@ SatCore::solve(
   mController->_init();
 
   mGoOn = true;
+#if 0
   mRestartNum = 0;
   mConflictNum = 0;
   mDecisionNum = 0;
   mPropagationNum = 0;
+#endif
   mConflicts.clear();
 
   // 最終的な結果を納める変数
@@ -580,8 +582,6 @@ SatCore::solve(
       // 制限値に達した．(アボート)
       break;
     }
-
-    ++ mRestartNum;
 
     if ( sat_stat != SatBool3::X ) {
       // 結果が求められた．
@@ -663,6 +663,9 @@ SatCore::timer_on(
 SatBool3
 SatCore::search()
 {
+  ++ mRestartNum;
+
+  // 今回の矛盾の回数
   SizeType cur_confl_num = 0;
   for ( ; ; ) {
     // キューにつまれている割り当てから含意される値の割り当てを行う．
