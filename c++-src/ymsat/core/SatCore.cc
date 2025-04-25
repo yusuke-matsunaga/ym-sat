@@ -537,12 +537,6 @@ SatCore::solve(
   mController->_init();
 
   mGoOn = true;
-#if 0
-  mRestartNum = 0;
-  mConflictNum = 0;
-  mDecisionNum = 0;
-  mPropagationNum = 0;
-#endif
   mConflicts.clear();
 
   // 最終的な結果を納める変数

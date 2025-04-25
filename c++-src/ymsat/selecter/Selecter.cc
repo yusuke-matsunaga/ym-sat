@@ -17,61 +17,6 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-#if 0
-BEGIN_NONAMESPACE
-
-// string::find_first_of() のバリエーション
-// 直前の '\' をエスケープ文字とみなす．
-string::size_type
-find_first_of(
-  const string& input,
-  char c
-)
-{
-  string::size_type p = 0;
-  string::size_type end = input.size();
-  for ( ; p < end; ++ p ) {
-    char c1 = input[p];
-    if ( c1 == c ) {
-      return p;
-    }
-    if ( c1 == '\\' ) {
-      if ( p + 1 == end ) {
-	// 末尾が \ だった．
-	return string::npos;
-      }
-      // 次の文字を読み飛ばす．
-      ++ p;
-    }
-  }
-  return string::npos;
-}
-
-// 前後の空白を取り除く
-string
-strip_wspace(
-  const string& input
-)
-{
-  string::size_type p1 = 0;
-  string::size_type end = input.size();
-  for ( ; p1 < end; ++ p1 ) {
-    if ( !isspace(input[p1]) ) {
-      break;
-    }
-  }
-  string::size_type p2 = end;
-  for ( ; p2 > p1; -- p2 ) {
-    if ( !isspace(input[p2 - 1]) ) {
-      break;
-    }
-  }
-  return input.substr(p1, p2);
-}
-
-END_NONAMESPACE
-#endif
-
 // @brief インスタンスを作るクラスメソッド
 Selecter*
 Selecter::new_obj(

@@ -387,6 +387,15 @@ public:
   // 変数と節のアクティビティパラメータに関する関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief decision variable の時 true を返す．
+  bool
+  is_decision_variable(
+    SatVarId var ///< [in] 変数番号
+  ) const
+  {
+    return mDvarArray[var];
+  }
+
   /// @brief 変数ヒープを取り出す．
   VarHeap&
   var_heap()
@@ -685,15 +694,6 @@ private:
     return mVarHeap.pop_top();
   }
 
-  /// @brief decision variable の時 true を返す．
-  bool
-  is_decision_variable(
-    SatVarId var ///< [in] 変数番号
-  ) const
-  {
-    return mDvarArray[var];
-  }
-
   /// @brief 制限値のチェックを行う．
   /// @retval true 制限を満たしている．
   /// @retval false 制限を違反している．
@@ -966,7 +966,7 @@ private:
   const int debug_all         = 0xffffffff;
 
   static
-  //const int debug = debug_decision | debug_analyze | debug_assign;
+  const int debug = debug_decision | debug_analyze | debug_assign;
   //const int debug = debug_assign;
   //const int debug = debug_assign | debug_implication;
   //const int debug = debug_assign | debug_analyze;
@@ -974,7 +974,7 @@ private:
   //const int debug = debug_solve | debug_decision;
   //const int debug = debug_solve | debug_assign;
   //const int debug = debug_all;
-  const int debug = debug_none;
+  //const int debug = debug_none;
 
 };
 
