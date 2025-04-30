@@ -85,7 +85,7 @@ SaUIP1::capture(
       auto q = get_assign(last);
       auto var = q.varid();
       if ( get_mark(var) ) {
-	set_mark(var, false);
+	clear_mark(var);
 	// それを最初のリテラルにする．
 	learnt[0] = ~q;
 	creason = reason(var);

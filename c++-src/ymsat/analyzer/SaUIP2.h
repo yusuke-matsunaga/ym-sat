@@ -69,7 +69,7 @@ protected:
     auto var = lit.varid();
     int var_level = decision_level(var);
     if ( !get_mark(var) && var_level > 0 ) {
-      set_mark_and_putq(var);
+      set_mark(var);
       bump_var_activity(var);
       if ( var_level < decision_level() ) {
 	auto cr1 = reason(var);

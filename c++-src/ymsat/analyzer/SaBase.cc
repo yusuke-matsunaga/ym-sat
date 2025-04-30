@@ -60,10 +60,7 @@ SaBase::make_minimal(
       }
       ++ wpos;
     }
-    for ( SizeType j = top; j < mClearQueue.size(); ++ j ) {
-      set_mark(mClearQueue[j], false);
-    }
-    mClearQueue.erase(mClearQueue.begin() + top, mClearQueue.end());
+    clear_marks(top);
   }
   if ( wpos < nl ) {
     lit_list.erase(lit_list.begin() + wpos, lit_list.end());
@@ -146,23 +143,26 @@ SaBase::reorder(
 
 // var->mMark を設定してキューに積む
 void
-SaBase::set_mark_and_putq(
+SaBase::set_mark(
   SatVarId var
 )
 {
-  set_mark(var, true);
+  mMark[var] = true;
   mClearQueue.push_back(var);
 }
 
 // mClearQueue につまれた変数のマークを消す．
 void
-SaBase::clear_marks()
+SaBase::clear_marks(
+  SizeType top
+)
 {
   // var->mMark をクリアする．
-  for ( auto var: mClearQueue ) {
-    set_mark(var, false);
+  for ( SizeType i = top; i < mClearQueue.size(); ++ i ) {
+    auto var = mClearQueue[i];
+    mMark[var] = false;
   }
-  mClearQueue.clear();
+  mClearQueue.erase(mClearQueue.begin() + top, mClearQueue.end());
 }
 
 END_NAMESPACE_YM_SAT

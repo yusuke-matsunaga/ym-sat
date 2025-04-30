@@ -70,10 +70,6 @@ protected:
     vector<Literal>& lit_list ///< [inout] リテラルのリスト
   );
 
-  /// @brief mClearQueue につまれた変数のマークを消す．
-  void
-  clear_marks();
-
   /// @brief 変数のマークにアクセスする．
   bool
   get_mark(
@@ -85,18 +81,23 @@ protected:
 
   /// @brief 変数にマークをつけてキューに積む
   void
-  set_mark_and_putq(
+  set_mark(
     SatVarId var ///< [in] 対象の変数
   );
 
-  /// @brief 変数のマークをセットする．
+  /// @brief mClearQueue につまれた変数のマークを消す．
   void
-  set_mark(
-    SatVarId var,  ///< [in] 対象の変数
-    bool mark ///< [in] 設定するマークの値
+  clear_marks(
+    SizeType top = 0 ///< [in] マークを消す変数の先頭の位置
+  );
+
+  /// @brief 変数のマークを消す．
+  void
+  clear_mark(
+    SatVarId var ///< [in] 対象の変数
   )
   {
-    mMark[var] = mark;
+    mMark[var] = false;
   }
 
 
@@ -122,7 +123,7 @@ private:
   {
     auto var = lit.varid();
     if ( !get_mark(var) && decision_level(var) > 0 ) {
-      set_mark_and_putq(var);
+      set_mark(var);
       mVarStack.push_back(var);
     }
   }
