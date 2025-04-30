@@ -93,10 +93,6 @@ SatSolverMiniSat2::solve(
     tmp.push(lit);
   }
 
-  mSolver.conflicts = 0;
-  mSolver.decisions = 0;
-  mSolver.propagations = 0;
-
   auto ans = mSolver.solveLimited(tmp);
   if ( ans == l_True ) {
     SizeType n = mSolver.model.size();
