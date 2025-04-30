@@ -966,7 +966,7 @@ private:
   const int debug_all         = 0xffffffff;
 
   static
-  const int debug = debug_decision | debug_analyze | debug_assign;
+  //const int debug = debug_decision | debug_analyze | debug_assign;
   //const int debug = debug_assign;
   //const int debug = debug_assign | debug_implication;
   //const int debug = debug_assign | debug_analyze;
@@ -974,7 +974,7 @@ private:
   //const int debug = debug_solve | debug_decision;
   //const int debug = debug_solve | debug_assign;
   //const int debug = debug_all;
-  //const int debug = debug_none;
+  const int debug = debug_none;
 
 };
 
