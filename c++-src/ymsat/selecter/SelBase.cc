@@ -34,7 +34,6 @@ SelBase::next_decision()
     }
     // activity の高い変数を取り出す．
     vid = mCore.var_heap().pop_top();
-    cout << "vid = " << vid << endl;
   }
 
   bool inv = false;
