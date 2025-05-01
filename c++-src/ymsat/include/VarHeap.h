@@ -65,12 +65,12 @@ public:
     act += mVarBump;
     if ( act > 1e+100 ) {
       // アクティビティがオーバーフローしたので低減率を増やす．
-      for ( SizeType var1 = 0; var1 < mVarNum; ++ var1 ) {
+      for ( SizeType var1 = 0; var1 < mActivity.size(); ++ var1 ) {
 	mActivity[var1] *= 1e-100;
       }
       mVarBump *= 1e-100;
     }
-    auto pos = get(var);
+    auto pos = get_pos(var);
     // pos != -1 と pos != 0 を同時に行うための hack
     if ( pos > 0 ) {
       move_up(pos);
@@ -100,14 +100,34 @@ public:
     SizeType size ///< [in] 必要なサイズ
   );
 
+  /// @brief ヒープの要素数を返す．
+  SizeType
+  size() const
+  {
+    return mHeapNum;
+  }
+
   /// @brief 要素が空の時 true を返す．
   bool
   empty() const
   {
-    return mHeapNum == 0;
+    return size() == 0;
   }
 
-  /// @brief 変数を始めてヒープに追加する．
+  /// @brief ヒープの要素を取り出す．
+  SatVarId
+  get(
+    SizeType pos ///< [in] 位置 ( 0 <= pos < size() )
+  ) const
+  {
+    if ( pos < 0 || size() <= pos ) {
+      throw std::out_of_range{"pos is out of range"};
+    }
+    return mHeap[pos];
+  }
+
+
+  /// @brief 変数をヒープに追加する．
   void
   add_var(
     SatVarId var ///< [in] 追加する変数
@@ -276,7 +296,7 @@ private:
 
   /// @brief 変数の場所を取り出す．
   int
-  get(
+  get_pos(
     SatVarId var ///< [in] 対象の変数番号
   )
   {
@@ -327,22 +347,16 @@ private:
   // 変数のアクティビティの減衰量
   double mVarDecay{0.95};
 
-  // 変数の数
-  SizeType mVarNum{0};
-
-  // 変数関係の配列のサイズ
-  SizeType mVarSize{0};
-
   // ヒープ上の位置の配列
-  // サイズは mVarSize
+  // キーは変数番号
+  // ヒープ上にない場合は -1 となる．
   vector<int> mHeapPos;
 
   // アクティビティ
-  // サイズは mVarSize
+  // キーは変数番号
   vector<double> mActivity;
 
   // ヒープ用の配列
-  // サイズは mVarSize
   vector<SatVarId> mHeap;
 
   // ヒープの要素数
