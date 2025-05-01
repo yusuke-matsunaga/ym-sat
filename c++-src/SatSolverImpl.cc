@@ -8,7 +8,7 @@
 
 #include "ym/SatInitParam.h"
 #include "SatCore.h"
-#include "ymsat_old/YmSat.h"
+//#include "ymsat_old/YmSat.h"
 #include "MiniSat/SatSolverMiniSat.h"
 #include "MiniSat2/SatSolverMiniSat2.h"
 #include "glueminisat-2.2.8/SatSolverGlueMiniSat2.h"
@@ -72,7 +72,19 @@ SatSolverImpl::new_impl(
     return unique_ptr<SatSolverImpl>{new SatCore{option}};
   }
   if ( type == "ymsat1_old" ) {
+#if 1
+    const char* conf_str = "{"
+      "  'controller': 'minisat1',"
+      "  'analyzer': 'uip1',"
+      "  'selector': {"
+      "    'type': 'wlposi'"
+      "  }"
+      "}";
+    auto option = JsonValue::parse(conf_str);
+    return unique_ptr<SatSolverImpl>(new SatCore{option});
+#else
     return unique_ptr<SatSolverImpl>(new nsSat1::YmSat(js_obj));
+#endif
   }
   ASSERT_NOT_REACHED;
   return unique_ptr<SatSolverImpl>{nullptr};

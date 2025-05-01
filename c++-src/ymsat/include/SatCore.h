@@ -200,25 +200,23 @@ public:
   /// @brief Watcher を追加する．
   void
   add_watcher(
-    Literal lit,  ///< [in] リテラル
-    Reason reason ///< [in] 理由
+    Literal lit,     ///< [in] リテラル
+    Watcher* watcher ///< [in] watcher
   )
   {
-    auto w0 = Watcher{reason};
     auto& wlist = watcher_list(lit);
-    wlist.add(w0);
+    wlist.add(watcher);
   }
 
   /// @brief watcher を削除する．
   void
   del_watcher(
-    Literal lit,  ///< [in] リテラル
-    Reason reason ///< [in] 理由
+    Literal lit,     ///< [in] リテラル
+    Watcher* watcher ///< [in] watcher
   )
   {
-    auto w0 = Watcher{reason};
     auto& wlist = watcher_list(lit);
-    wlist.del(w0);
+    wlist.del(watcher);
   }
 
   /// @brief 充足された watcher を削除する．
@@ -226,6 +224,17 @@ public:
   del_satisfied_watcher(
     Literal watch_lit ///< [in] リテラル
   );
+
+  /// @brief watcher を作る．
+  Watcher*
+  new_watcher(
+    Literal lit ///< [in] リテラル
+  )
+  {
+    auto w = new Watcher(Reason(lit));
+    mWatcherPool.push_back(std::unique_ptr<Watcher>(w));
+    return w;
+  }
 
 
 public:
@@ -870,6 +879,9 @@ private:
   // watcher list の配列
   // サイズは mVarSize * 2
   vector<WatcherList> mWatcherList;
+
+  // 二項節用の watcher のリスト
+  vector<std::unique_ptr<Watcher>> mWatcherPool;
 
 #if YMSAT_USE_WEIGHTARRAY
   // 変数の極性ごとの重み

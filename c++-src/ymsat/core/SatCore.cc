@@ -255,8 +255,10 @@ SatCore::add_clause(
     mConstrBinList.push_back(BinClause{l0, l1});
 
     // watcher-list の設定
-    add_watcher(~l0, Reason{l1});
-    add_watcher(~l1, Reason{l0});
+    auto w0 = new_watcher(l1);
+    add_watcher(~l0, w0);
+    auto w1 = new_watcher(l0);
+    add_watcher(~l1, w1);
   }
   else {
     // 節の生成
@@ -269,8 +271,8 @@ SatCore::add_clause(
     mConstrClauseList.push_back(clause);
 
     // watcher-list の設定
-    add_watcher(~l0, Reason{clause});
-    add_watcher(~l1, Reason{clause});
+    add_watcher(~l0, clause->watcher0());
+    add_watcher(~l1, clause->watcher1());
   }
 }
 
@@ -320,8 +322,10 @@ SatCore::add_learnt_clause(
     }
 
     // watcher-list の設定
-    add_watcher(~l0, Reason(l1));
-    add_watcher(~l1, Reason(l0));
+    auto w0 = new_watcher(l1);
+    add_watcher(~l0, w0);
+    auto w1 = new_watcher(l0);
+    add_watcher(~l1, w1);
 
     reason = Reason(l1);
 
@@ -341,11 +345,11 @@ SatCore::add_learnt_clause(
 
     mLearntClauseList.push_back(clause);
 
-    reason = Reason(clause);
-
     // watcher-list の設定
-    add_watcher(~l0, reason);
-    add_watcher(~l1, reason);
+    add_watcher(~l0, clause->watcher0());
+    add_watcher(~l1, clause->watcher1());
+
+    reason = Reason(clause);
   }
 
   // learnt clause の場合には必ず unit clause になっているはず．
@@ -485,8 +489,8 @@ SatCore::delete_clause(
   }
 
   // watch list を更新
-  del_watcher(~clause->wl0(), Reason{clause});
-  del_watcher(~clause->wl1(), Reason{clause});
+  del_watcher(~clause->wl0(), clause->watcher0());
+  del_watcher(~clause->wl1(), clause->watcher1());
 
   if ( clause->is_learnt() ) {
     mLearntLitNum -= clause->lit_num();
@@ -839,19 +843,12 @@ SatCore::implication()
     auto nl = ~l;
 
     auto& wlist = watcher_list(l);
-    SizeType n = wlist.size();
-    SizeType rpos = 0;
-    SizeType wpos = 0;
-    while ( rpos < n ) {
-      auto& w = wlist.elem(rpos);
-      if ( wpos < rpos ) {
-	wlist.set_elem(wpos, w);
-      }
-      ++ rpos;
-      ++ wpos;
-      if ( w.is_literal() ) {
+    Watcher* next = nullptr;
+    for ( auto w = wlist.begin(); w != wlist.end(); w = next ) {
+      next = w->next();
+      if ( w->is_literal() ) {
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
-	auto l0 = w.literal();
+	auto l0 = w->literal();
 	auto val0 = eval(l0);
 	if ( val0 == SatBool3::True ) {
 	  // すでに充足していた．
@@ -880,14 +877,14 @@ SatCore::implication()
 	  break;
 	}
       }
-      else { // w.is_clause()
+      else { // w->is_clause()
 	// 3つ以上のリテラルを持つ節の場合は，
 	// - nl(~l) を wl1() にする．(場合によっては wl0 を入れ替える)
 	// - wl0() が充足していたらなにもしない．
 	// - wl0() が不定，もしくは偽なら，nl の代わりの watch literal を探す．
 	// - 代わりが見つかったらそのリテラルを wl1() にする．
 	// - なければ wl0() に基づいた割り当てを行う．場合によっては矛盾が起こる．
-	auto c = w.clause();
+	auto c = w->clause();
 	auto l0 = c->wl0();
 	if ( l0 == nl ) {
 	  if ( eval(c->wl1()) == SatBool3::True ) {
@@ -898,16 +895,7 @@ SatCore::implication()
 	  // 新しい wl0 を得る．
 	  l0 = c->wl0();
 	}
-#if 0
-	else { // l1 == nl
-	  if ( debug & debug_implication ) {
-	    // この assert は重いのでデバッグ時にしかオンにしない．
-	    // ※ debug と debug_implication が const なので結果が0の
-	    // ときにはコンパイル時に消されることに注意
-	    ASSERT_COND(c->wl1() == nl );
-	  }
-	}
-#endif
+	// else { l1 == nl ならなにもしない．
 
 	auto val0 = eval(l0);
 	if ( val0 == SatBool3::True ) {
@@ -934,9 +922,9 @@ SatCore::implication()
 	      DOUT << "\t\t\tsecond watching literal becomes "
 		   << l2 << endl;
 	    }
-	    // l の watcher list から取り除く
-	    -- wpos;
+	    // w を l の watcher list から取り除き，
 	    // ~l2 の watcher list に追加する．
+	    del_watcher(l, w);
 	    add_watcher(~l2, w);
 
 	    found = true;
@@ -957,7 +945,7 @@ SatCore::implication()
 	       << " from " << w << ": " << l << endl;
 	}
 	if ( val0 == SatBool3::X ) {
-	  assign(l0, w);
+	  assign(l0, *w);
 	}
 	else {
 	  // 矛盾がおこった．
@@ -969,14 +957,10 @@ SatCore::implication()
 	  }
 
 	  // この場合は w が矛盾の理由を表す節になっている．
-	  conflict = w;
+	  conflict = *w;
 	  break;
 	}
       }
-    }
-    // 途中でループを抜けた場合に wlist の後始末をしておく．
-    if ( wpos != rpos ) {
-      wlist.move_elem(rpos, n, wpos);
     }
   }
   mPropagationNum += prop_num;
@@ -1022,27 +1006,18 @@ SatCore::del_satisfied_watcher(
 {
   // watch_lit に関係する watcher リストをスキャンして
   // literal watcher が充足していたらその watcher を削除する．
-  // watcher リストを配列で実装しているので
-  // あたまからスキャンして該当の要素以降を
-  // 1つづつ前に詰める．
   auto& wlist = watcher_list(watch_lit);
-  SizeType n = wlist.size();
-  SizeType wpos = 0;
-  for ( SizeType rpos: Range(n) ) {
-    auto w = wlist.elem(rpos);
-    if ( w.is_literal() ) {
-      auto val = eval(w.literal());
+  for ( auto w = wlist.begin(); w != wlist.end(); ) {
+    auto next = w->next();
+    if ( w->is_literal() ) {
+      auto val = eval(w->literal());
       if ( val == SatBool3::True ) {
 	// この watcher は削除する．
-	continue;
+	wlist.del(w);
       }
     }
-    if ( wpos != rpos ) {
-      wlist.set_elem(wpos, w);
-    }
-    ++ wpos;
+    w = next;
   }
-  wlist.erase(wpos);
 }
 
 // 学習節のアクティビティを増加させる．

@@ -21,7 +21,7 @@ add_subdirectory( lingeling )
 add_subdirectory( MiniSat )
 add_subdirectory( MiniSat2 )
 add_subdirectory( ymsat )
-add_subdirectory( ymsat_old )
+#add_subdirectory( ymsat_old )
 
 add_subdirectory( gtest )
 
