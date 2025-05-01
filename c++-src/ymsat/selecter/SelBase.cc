@@ -17,23 +17,24 @@ Literal
 SelBase::next_decision()
 {
   auto vid = BAD_SATVARID;
+  auto& heap = mCore.var_heap();
 
   // 一定確率でランダムな変数を選ぶ．
   std::uniform_real_distribution<double> rd_freq{0, 1.0};
-  std::uniform_int_distribution<SizeType> rd_var{0, mCore.variable_num() - 1};
-  if ( rd_freq(mRandGen) < mVarFreq && !mCore.var_heap().empty() ) {
-    vid = rd_var(mRandGen);
+  std::uniform_int_distribution<SizeType> rd_var{0, heap.size() - 1};
+  if ( rd_freq(mRandGen) < mVarFreq && !heap.empty() ) {
+    vid = heap.get(rd_var(mRandGen));
     if ( mCore.eval(vid) == SatBool3::X && mCore.is_decision_variable(vid) ) {
       // mRndAssign ++
     }
   }
 
   while ( vid == BAD_SATVARID || mCore.eval(vid) != SatBool3::X || !mCore.is_decision_variable(vid) ) {
-    if ( mCore.var_heap().empty() ) {
+    if ( heap.empty() ) {
       return Literal::X;
     }
     // activity の高い変数を取り出す．
-    vid = mCore.var_heap().pop_top();
+    vid = heap.pop_top();
   }
 
   bool inv = false;
