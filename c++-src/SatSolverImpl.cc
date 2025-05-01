@@ -62,7 +62,7 @@ SatSolverImpl::new_impl(
   if ( type == "ymsat2" || type == "" ) {
     const char* conf_str = "{"
       "  'controller': 'minisat2',"
-      "  'analyzer': 'uip2',"
+      "  'analyzer': 'uip1',"
       "  'selector': {"
       "    'type': 'nega',"
       "    'phase_cache': true"
