@@ -83,6 +83,7 @@ public:
   void
   xchange_wl()
   {
+    std::swap(mWatcher[0], mWatcher[1]);
     std::swap(mLits[0], mLits[1]);
   }
 
