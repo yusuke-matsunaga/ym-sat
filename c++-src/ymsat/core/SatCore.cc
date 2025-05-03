@@ -255,10 +255,8 @@ SatCore::add_clause(
     mConstrBinList.push_back(BinClause{l0, l1});
 
     // watcher-list の設定
-    auto w0 = new_watcher(l1);
-    add_watcher(~l0, w0);
-    auto w1 = new_watcher(l0);
-    add_watcher(~l1, w1);
+    add_watcher(~l0, Watcher(l1));
+    add_watcher(~l1, Watcher(l0));
   }
   else {
     // 節の生成
@@ -271,8 +269,8 @@ SatCore::add_clause(
     mConstrClauseList.push_back(clause);
 
     // watcher-list の設定
-    add_watcher(~l0, clause->watcher0());
-    add_watcher(~l1, clause->watcher1());
+    add_watcher(~l0, Watcher(clause));
+    add_watcher(~l1, Watcher(clause));
   }
 }
 
@@ -322,10 +320,8 @@ SatCore::add_learnt_clause(
     }
 
     // watcher-list の設定
-    auto w0 = new_watcher(l1);
-    add_watcher(~l0, w0);
-    auto w1 = new_watcher(l0);
-    add_watcher(~l1, w1);
+    add_watcher(~l0, Watcher(l1));
+    add_watcher(~l1, Watcher(l0));
 
     reason = Reason(l1);
 
@@ -346,8 +342,8 @@ SatCore::add_learnt_clause(
     mLearntClauseList.push_back(clause);
 
     // watcher-list の設定
-    add_watcher(~l0, clause->watcher0());
-    add_watcher(~l1, clause->watcher1());
+    add_watcher(~l0, Watcher(clause));
+    add_watcher(~l1, Watcher(clause));
 
     reason = Reason(clause);
   }
@@ -489,8 +485,8 @@ SatCore::delete_clause(
   }
 
   // watch list を更新
-  del_watcher(~clause->wl0(), clause->watcher0());
-  del_watcher(~clause->wl1(), clause->watcher1());
+  del_watcher(~clause->wl0(), Watcher(clause));
+  del_watcher(~clause->wl1(), Watcher(clause));
 
   if ( clause->is_learnt() ) {
     mLearntLitNum -= clause->lit_num();
@@ -843,12 +839,17 @@ SatCore::implication()
     auto nl = ~l;
 
     auto& wlist = watcher_list(l);
-    Watcher* next = nullptr;
-    for ( auto w = wlist.begin(); w != wlist.end(); w = next ) {
-      next = w->next();
-      if ( w->is_literal() ) {
+    SizeType rpos = 0;
+    SizeType wpos = 0;
+    SizeType wnum = wlist.size();
+    while ( rpos < wnum ) {
+      auto& w = wlist.elem(rpos);
+      wlist.set_elem(wpos, w);
+      ++ rpos;
+      ++ wpos;
+      if ( w.is_literal() ) {
 	// 2-リテラル節の場合は相方のリテラルに基づく値の割り当てを行う．
-	auto l0 = w->literal();
+	auto l0 = w.literal();
 	auto val0 = eval(l0);
 	if ( val0 == SatBool3::True ) {
 	  // すでに充足していた．
@@ -877,14 +878,14 @@ SatCore::implication()
 	  break;
 	}
       }
-      else { // w->is_clause()
+      else { // w.is_clause()
 	// 3つ以上のリテラルを持つ節の場合は，
 	// - nl(~l) を wl1() にする．(場合によっては wl0 を入れ替える)
 	// - wl0() が充足していたらなにもしない．
 	// - wl0() が不定，もしくは偽なら，nl の代わりの watch literal を探す．
 	// - 代わりが見つかったらそのリテラルを wl1() にする．
 	// - なければ wl0() に基づいた割り当てを行う．場合によっては矛盾が起こる．
-	auto c = w->clause();
+	auto c = w.clause();
 	auto l0 = c->wl0();
 	if ( l0 == nl ) {
 	  if ( eval(c->wl1()) == SatBool3::True ) {
@@ -924,7 +925,7 @@ SatCore::implication()
 	    }
 	    // w を l の watcher list から取り除き，
 	    // ~l2 の watcher list に追加する．
-	    del_watcher(l, w);
+	    -- wpos;
 	    add_watcher(~l2, w);
 
 	    found = true;
@@ -945,7 +946,7 @@ SatCore::implication()
 	       << " from " << w << ": " << l << endl;
 	}
 	if ( val0 == SatBool3::X ) {
-	  assign(l0, *w);
+	  assign(l0, w);
 	}
 	else {
 	  // 矛盾がおこった．
@@ -957,11 +958,12 @@ SatCore::implication()
 	  }
 
 	  // この場合は w が矛盾の理由を表す節になっている．
-	  conflict = *w;
+	  conflict = w;
 	  break;
 	}
       }
     }
+    wlist.move_elem(rpos, wnum, wpos);
   }
   mPropagationNum += prop_num;
   mSweep_props -= prop_num;
@@ -1007,16 +1009,22 @@ SatCore::del_satisfied_watcher(
   // watch_lit に関係する watcher リストをスキャンして
   // literal watcher が充足していたらその watcher を削除する．
   auto& wlist = watcher_list(watch_lit);
-  for ( auto w = wlist.begin(); w != wlist.end(); ) {
-    auto next = w->next();
-    if ( w->is_literal() ) {
-      auto val = eval(w->literal());
+  SizeType wpos = 0;
+  SizeType n = wlist.size();
+  for ( auto rpos = 0; rpos < n; ++ rpos ) {
+    auto& w = wlist.elem(rpos);
+    if ( w.is_literal() ) {
+      auto val = eval(w.literal());
       if ( val == SatBool3::True ) {
 	// この watcher は削除する．
-	wlist.del(w);
+	continue;
       }
     }
-    w = next;
+    wlist.set_elem(wpos, w);
+    ++ wpos;
+  }
+  if ( wpos < n ) {
+    wlist.erase(wpos);
   }
 }
 

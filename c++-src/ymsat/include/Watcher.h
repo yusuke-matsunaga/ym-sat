@@ -23,56 +23,30 @@ BEGIN_NAMESPACE_YM_SAT
 /// の割り当てが起こったときに，この節の watch literal の更新を行う
 /// 必要がある．
 /// そのような節のリストを作るためのクラス
-///
-/// 効率的な処理を行うために WatcherList の要素として２重のリンクポインタ
-/// を持つ．
 //////////////////////////////////////////////////////////////////////
 class Watcher :
   public Reason
 {
-  friend class WatcherList;
-
 public:
 
   /// @brief コンストラクタ
-  Watcher()
-  {
-    mPrev = mNext = this;
-  }
+  Watcher() = default;
 
-  /// @brief コンストラクタ
+  /// @brief Clause* を指定したコンストラクタ
   explicit
   Watcher(
-    Reason src ///< [in] もととなる SatReason
-  ) : Reason{src}
+    Clause* clause ///< [in] 節のポインタ
+  ) : Reason(clause)
   {
-    mPrev = mNext = this;
   }
 
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 次の要素を得る．
-  Watcher*
-  next() const
+  /// @brief Literal を指定したコンストラクタ
+  explicit
+  Watcher(
+    Literal lit ///< [in] リテラル
+  ) : Reason(lit)
   {
-    return mNext;
   }
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // 前の要素を刺すリンクポインタ
-  Watcher* mPrev;
-
-  // 次の要素を指すリンクポインタ
-  Watcher* mNext;
 
 };
 
@@ -80,8 +54,6 @@ private:
 //////////////////////////////////////////////////////////////////////
 /// @class WatcherList Watcher.h "Watcher.h"
 /// @brief Watcher のリストを表すクラス
-///
-/// 実体は先頭/末尾を表すダミーの Watcher を持つ．
 //////////////////////////////////////////////////////////////////////
 class WatcherList
 {
@@ -89,6 +61,13 @@ public:
 
   /// @brief コンストラクタ
   WatcherList() = default;
+
+  /// @brief ムーブコンストラクタ
+  WatcherList(
+    WatcherList&& src
+  ) : mArray{std::move(src.mArray)}
+  {
+  }
 
   /// @brief デストラクタ
   ~WatcherList() = default;
@@ -100,60 +79,25 @@ public:
   void
   clear()
   {
-    mSize = 0;
-    mDummy.mNext = mDummy.mPrev = &mDummy;
+    mArray.clear();
   }
 
   /// @brief 要素数を返す．
   SizeType
   size() const
   {
-    return mSize;
+    return mArray.size();
   }
 
   /// @brief 要素を追加する．
   void
   add(
-    Watcher* elem ///< [in] 追加する要素
+    const Watcher& w ///< [in] 追加する要素
   )
   {
-    ++ mSize;
-    auto last = mDummy.mPrev;
-    last->mNext = elem;
-    elem->mPrev = last;
-    elem->mNext = &mDummy;
-    mDummy.mPrev = elem;
+    mArray.push_back(w);
   }
 
-  /// @brief 要素を削除する．
-  void
-  del(
-    Watcher* elem
-  )
-  {
-    -- mSize;
-    auto prev = elem->mPrev;
-    auto next = elem->mNext;
-    prev->mNext = next;
-    next->mPrev = prev;
-    elem->mPrev = elem->mNext = elem;
-  }
-
-  /// @brief 先頭の要素を返す．
-  Watcher*
-  begin() const
-  {
-    return mDummy.mNext;
-  }
-
-  /// @brief 末尾の要素を返す．
-  Watcher*
-  end()
-  {
-    return &mDummy;
-  }
-
-#if 0
   /// @brief pos 番目の要素を返す．
   const Watcher&
   elem(
@@ -166,11 +110,11 @@ public:
   /// @brief pos 番目の要素を設定する．
   void
   set_elem(
-    SizeType pos, ///< [in] 位置
-    const Watcher& elem  ///< [in] 要素
+    SizeType pos,    ///< [in] 位置
+    const Watcher& w ///< [in] 要素
   )
   {
-    mArray[pos] = elem;
+    mArray[pos] = w;
   }
 
   /// @brief 要素を移動する．
@@ -210,7 +154,6 @@ public:
   {
     std::swap(mArray, from.mArray);
   }
-#endif
 
 
 private:
@@ -218,16 +161,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-#if 0
   // 配列
   vector<Watcher> mArray;
-#else
-  // 要素数
-  SizeType mSize{0};
-
-  // 先頭/末尾のダミー
-  Watcher mDummy;
-#endif
 
 };
 

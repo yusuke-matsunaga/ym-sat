@@ -194,6 +194,9 @@ public:
   )
   {
     auto index = lit.index();
+    if ( index >= mWatcherList.size() ) {
+      throw std::out_of_range{"lit.index() is out of range"};
+    }
     return mWatcherList[index];
   }
 
@@ -201,22 +204,32 @@ public:
   void
   add_watcher(
     Literal lit,     ///< [in] リテラル
-    Watcher* watcher ///< [in] watcher
+    const Watcher& w ///< [in] 追加する要素
   )
   {
     auto& wlist = watcher_list(lit);
-    wlist.add(watcher);
+    wlist.add(w);
   }
 
   /// @brief watcher を削除する．
   void
   del_watcher(
     Literal lit,     ///< [in] リテラル
-    Watcher* watcher ///< [in] watcher
+    const Watcher& w ///< [in] watcher
   )
   {
     auto& wlist = watcher_list(lit);
-    wlist.del(watcher);
+    SizeType wpos = 0;
+    SizeType n = wlist.size();
+    for ( auto rpos = 0; rpos < n; ++ rpos ) {
+      auto& w1 = wlist.elem(rpos);
+      if ( w1 == w ) {
+	continue;
+      }
+      wlist.set_elem(wpos, w1);
+      ++ wpos;
+    }
+    wlist.erase(wpos);
   }
 
   /// @brief 充足された watcher を削除する．
@@ -224,17 +237,6 @@ public:
   del_satisfied_watcher(
     Literal watch_lit ///< [in] リテラル
   );
-
-  /// @brief watcher を作る．
-  Watcher*
-  new_watcher(
-    Literal lit ///< [in] リテラル
-  )
-  {
-    auto w = new Watcher(Reason(lit));
-    mWatcherPool.push_back(std::unique_ptr<Watcher>(w));
-    return w;
-  }
 
 
 public:

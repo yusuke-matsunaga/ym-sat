@@ -56,8 +56,6 @@ public:
     Clause* clause
   )
   {
-    delete clause->mWatcher[0];
-    delete clause->mWatcher[1];
     auto p = reinterpret_cast<char*>(clause);
     delete [] p;
   }
@@ -83,7 +81,6 @@ public:
   void
   xchange_wl()
   {
-    std::swap(mWatcher[0], mWatcher[1]);
     std::swap(mLits[0], mLits[1]);
   }
 
@@ -164,20 +161,6 @@ public:
     return mLits[1];
   }
 
-  /// @brief 0番目の watcher を得る．
-  Watcher*
-  watcher0() const
-  {
-    return mWatcher[0];
-  }
-
-  /// @brief 1番目の watcher を得る．
-  Watcher*
-  watcher1() const
-  {
-    return mWatcher[1];
-  }
-
   /// @brief 学習節の場合 true を返す．
   bool
   is_learnt() const
@@ -219,8 +202,6 @@ private:
 #if YMSAT_USE_LBD
     mLBD = lit_num;
 #endif
-    mWatcher[0] = new Watcher(Reason(this));
-    mWatcher[1] = new Watcher(Reason(this));
     for ( int i = 0; i < lit_num; ++ i ) {
       mLits[i] = lit_list[i];
     }
@@ -249,9 +230,6 @@ private:
 
   // activity
   double mActivity{0.0};
-
-  // Watcher
-  Watcher* mWatcher[2];
 
   // リテラルの配列
   // 実際にはこの後にリテラル数分の領域を確保する．
