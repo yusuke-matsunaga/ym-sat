@@ -65,7 +65,7 @@ public:
   /// @brief ムーブコンストラクタ
   WatcherList(
     WatcherList&& src
-  ) : mArray{std::move(src.mArray)}
+  ) : mArray{src.mArray}
   {
   }
 

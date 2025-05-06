@@ -49,9 +49,9 @@ VarHeap::alloc_var(
 void
 VarHeap::reset_activity()
 {
-  if ( debug_varheap ) {
-    DOUT << "VarHeap::reset_activity()" << endl;
-  }
+#if DEBUG_VARHEAP
+  DOUT << "VarHeap::reset_activity()" << endl;
+#endif
   for ( SizeType i = 0; i < mActivity.size(); ++ i ) {
     mActivity[i] = 0.0;
   }
@@ -63,13 +63,13 @@ VarHeap::build(
   const vector<SatVarId>& var_list
 )
 {
-  if ( debug_varheap ) {
-    DOUT << "VarHeap::build(";
-    for ( auto var: var_list ) {
-      DOUT << " " << var;
-    }
-    DOUT << ")" << endl;
+#if DEBUG_VARHEAP
+  DOUT << "VarHeap::build(";
+  for ( auto var: var_list ) {
+    DOUT << " " << var;
   }
+  DOUT << ")" << endl;
+#endif
 
   if ( var_list.size() > mHeapPos.size() ) {
     throw std::invalid_argument{"var_list is too large"};

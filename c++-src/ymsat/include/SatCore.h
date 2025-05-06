@@ -864,30 +864,20 @@ private:
   // 前回の alloc_var で処理した時の変数の数
   SizeType mOldVarNum{0};
 
-  // 変数関係の配列のサイズ
-  SizeType mVarSize{0};
-
   // 値の配列
   vector<std::uint8_t> mVal;
 
   // 値が割り当てられたときのレベルの配列
-  // サイズは mVarSize
   vector<int> mDecisionLevel;
 
   // 値が割り当てられた理由の配列
-  // サイズは mVarSize
   vector<Reason> mReason;
 
   // watcher list の配列
-  // サイズは mVarSize * 2
   vector<WatcherList> mWatcherList;
-
-  // 二項節用の watcher のリスト
-  vector<std::unique_ptr<Watcher>> mWatcherPool;
 
 #if YMSAT_USE_WEIGHTARRAY
   // 変数の極性ごとの重み
-  // サイズは mVarSize * 2
   vector<double> mWeightArray;
 #endif
 
@@ -952,45 +942,22 @@ private:
   // メッセージハンドラのリスト
   vector<SatMsgHandler*> mMsgHandlerList;
 
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // デバッグ用の定数，変数
-  //////////////////////////////////////////////////////////////////////
-
-  static
-  const int debug_none        = 0x00;
-
-  static
-  const int debug_implication = 0x01;
-
-  static
-  const int debug_analyze     = 0x02;
-
-  static
-  const int debug_assign      = 0x04;
-
-  static
-  const int debug_decision    = 0x08;
-
-  static
-  const int debug_solve       = 0x10;
-
-  static
-  const int debug_all         = 0xffffffff;
-
-  static
-  //const int debug = debug_decision | debug_analyze | debug_assign;
-  //const int debug = debug_assign;
-  //const int debug = debug_assign | debug_implication;
-  //const int debug = debug_assign | debug_analyze;
-  //const int debug = debug_solve | debug_decision | debug_implication;
-  //const int debug = debug_solve | debug_decision;
-  //const int debug = debug_solve | debug_assign;
-  //const int debug = debug_all;
-  const int debug = debug_none;
-
 };
+
+//////////////////////////////////////////////////////////////////////
+// デバッグ用のマクロ
+//////////////////////////////////////////////////////////////////////
+
+#define DEBUG_NONE        0x00
+#define DEBUG_IMPLICATION 0x01
+#define DEBUG_ANALYZE     0x02
+#define DEBUG_ASSIGN      0x04
+#define DEBUG_DECISION    0x08
+#define DEBUG_SOLVE       0x10
+#define DEBUG_ALL         0xffffffff
+
+//#define YMSAT_DEBUG DEBUG_NONE
+#define YMSAT_DEBUG DEBUG_ASSIGN
 
 END_NAMESPACE_YM_SAT
 

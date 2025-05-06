@@ -84,9 +84,7 @@ void
 SatCore::alloc_var()
 {
   if ( mOldVarNum < mVarNum ) {
-    if ( mVarSize < mVarNum ) {
-      expand_var();
-    }
+    expand_var();
     for ( SizeType var: Range(mOldVarNum, mVarNum) ) {
       mVal[var] = conv_from_Bool3(SatBool3::X) | (conv_from_Bool3(SatBool3::X) << 2);
       if ( is_decision_variable(var) ) {
@@ -102,20 +100,21 @@ void
 SatCore::expand_var()
 {
   // 新しいサイズを計算する．
-  if ( mVarSize == 0 ) {
-    mVarSize = 1024;
+  auto size = mVal.size();
+  if ( size == 0 ) {
+    size = 1024;
   }
-  while ( mVarSize < mVarNum ) {
-    mVarSize <<= 1;
+  while ( size < mVarNum ) {
+    size <<= 1;
   }
 
   // 新しい配列を確保する．
-  mVal.resize(mVarSize);
-  mDecisionLevel.resize(mVarSize);
-  mReason.resize(mVarSize, Reason::None);
-  mWatcherList.resize(mVarSize * 2);
-  mVarHeap.alloc_var(mVarSize);
-  mAssignList.reserve(mVarSize);
+  mVal.resize(size);
+  mDecisionLevel.resize(size);
+  mReason.resize(size, Reason::None);
+  mWatcherList.resize(size * 2);
+  mVarHeap.alloc_var(size);
+  mAssignList.reserve(size);
 }
 
 // @brief 節を追加する．
@@ -213,17 +212,17 @@ SatCore::add_clause(
     // unit clause があったら値の割り当てを行う．
     bool stat = check_and_assign(l0);
 
-    if ( debug & debug_assign ) {
-      DOUT << "add_clause: (" << l0 << ")" << endl
-	   << "\tassign " << l0 << " @" << decision_level()
-	   << endl;
-      if ( !stat )  {
-	DOUT << "\t--> conflict(#" << mConflictNum
-	     << ") with previous assignment" << endl
-	     << "\t    " << ~l0 << " was assigned at level "
-	     << decision_level(l0.varid()) << endl;
-      }
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+    DOUT << "add_clause: (" << l0 << ")" << endl
+	 << "\tassign " << l0 << " @" << decision_level()
+	 << endl;
+    if ( !stat )  {
+      DOUT << "\t--> conflict(#" << mConflictNum
+	   << ") with previous assignment" << endl
+	   << "\t    " << ~l0 << " was assigned at level "
+	   << decision_level(l0.varid()) << endl;
     }
+#endif
 
     if ( stat ) {
       // 今の割当に基づく含意を行う．
@@ -248,10 +247,9 @@ SatCore::add_clause(
   auto l1 = tmp_lits[1];
 
   if ( lit_num == 2 ) {
-    if ( debug & debug_assign ) {
-      DOUT << "add_clause: (" << l0 << " + " << l1 << ")" << endl;
-    }
-
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+    DOUT << "add_clause: (" << l0 << " + " << l1 << ")" << endl;
+#endif
     mConstrBinList.push_back(BinClause{l0, l1});
 
     // watcher-list の設定
@@ -262,10 +260,9 @@ SatCore::add_clause(
     // 節の生成
     auto clause = Clause::new_clause(tmp_lits);
 
-    if ( debug & debug_assign ) {
-      DOUT << "add_clause: " << (*clause) << endl;
-    }
-
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+    DOUT << "add_clause: " << (*clause) << endl;
+#endif
     mConstrClauseList.push_back(clause);
 
     // watcher-list の設定
@@ -293,16 +290,16 @@ SatCore::add_learnt_clause(
   if ( n == 1 ) {
     // unit clause があったら値の割り当てを行う．
     bool stat = check_and_assign(l0);
-    if ( debug & debug_assign ) {
-      DOUT << "\tassign " << l0 << " @" << decision_level()
-	   << endl;
-      if ( !stat )  {
-	DOUT << "\t--> conflict(#" << mConflictNum
-	     << " with previous assignment" << endl
-	     << "\t    " << ~l0 << " was assigned at level "
-	     << decision_level(l0.varid()) << endl;
-      }
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+    DOUT << "\tassign " << l0 << " @" << decision_level()
+	 << endl;
+    if ( !stat )  {
+      DOUT << "\t--> conflict(#" << mConflictNum
+	   << " with previous assignment" << endl
+	   << "\t    " << ~l0 << " was assigned at level "
+	   << decision_level(l0.varid()) << endl;
     }
+#endif
     if ( !stat ) {
       throw std::runtime_error{"add_learnt_clause() with conflicting clause"};
     }
@@ -312,13 +309,12 @@ SatCore::add_learnt_clause(
   Reason reason;
   auto l1 = lits[1];
   if ( n == 2 ) {
-    if ( debug & debug_assign ) {
-      DOUT << "add_learnt_clause: "
-	   << "(" << l0 << " + " << l1 << ")" << endl
-	   << "\tassign " << l0 << " @" << decision_level()
-	   << " from (" << l0 << " + " << l1 << ")" << endl;
-    }
-
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+    DOUT << "add_learnt_clause: "
+	 << "(" << l0 << " + " << l1 << ")" << endl
+	 << "\tassign " << l0 << " @" << decision_level()
+	 << " from (" << l0 << " + " << l1 << ")" << endl;
+#endif
     // watcher-list の設定
     add_watcher(~l0, Watcher(l1));
     add_watcher(~l1, Watcher(l0));
@@ -331,11 +327,11 @@ SatCore::add_learnt_clause(
     // 節の生成
     auto clause = Clause::new_clause(lits, true);
 
-    if ( debug & debug_assign ) {
-      DOUT << "add_learnt_clause: " << *clause << endl
-	   << "\tassign " << l0 << " @" << decision_level()
-	   << " from " << *clause << endl;
-    }
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+    DOUT << "add_learnt_clause: " << *clause << endl
+	 << "\tassign " << l0 << " @" << decision_level()
+	 << " from " << *clause << endl;
+#endif
 
     bump_clause_activity(clause);
 
@@ -480,9 +476,9 @@ SatCore::delete_clause(
   Clause* clause
 )
 {
-  if ( debug & debug_assign ) {
-    DOUT << " delete_clause: " << (*clause) << endl;
-  }
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+  DOUT << " delete_clause: " << (*clause) << endl;
+#endif
 
   // watch list を更新
   del_watcher(~clause->wl0(), Watcher(clause));
@@ -507,22 +503,22 @@ SatCore::solve(
 
   mAssignList.reserve(mVarNum + assumptions.size());
 
-  if ( debug & debug_solve ) {
-    DOUT << "YmSat::solve starts" << endl;
-    DOUT << " Assumptions: ";
-    const char* and_str = "";
-    for ( auto lit: assumptions ) {
-      DOUT << and_str << lit;
-      and_str = " & ";
-    }
-    DOUT << endl;
-    DOUT << " Clauses:" << endl;
-    for ( auto clause_p: mConstrClauseList ) {
-      DOUT << "  " << *clause_p << endl;
-    }
-    DOUT << " VarNum: " << variable_num() << endl
-	 << " DVarNum: " << mDvarNum << endl;
+#if YMSAT_DEBUG & DEBUG_SOLVE
+  DOUT << "YmSat::solve starts" << endl;
+  DOUT << " Assumptions: ";
+  const char* and_str = "";
+  for ( auto lit: assumptions ) {
+    DOUT << and_str << lit;
+    and_str = " & ";
   }
+  DOUT << endl;
+  DOUT << " Clauses:" << endl;
+  for ( auto clause_p: mConstrClauseList ) {
+    DOUT << "  " << *clause_p << endl;
+  }
+  DOUT << " VarNum: " << variable_num() << endl
+       << " DVarNum: " << mDvarNum << endl;
+#endif
 
   // メッセージハンドラにヘッダの出力を行わせる．
   print_header();
@@ -568,9 +564,9 @@ SatCore::solve(
     // メッセージ出力を行う．
     print_stats();
 
-    if ( debug & debug_assign ) {
-      DOUT << "restart" << endl;
-    }
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+    DOUT << "restart" << endl;
+#endif
 
     if ( !check_budget() ) {
       // 制限値に達した．(アボート)
@@ -625,14 +621,14 @@ SatCore::solve(
   // 終了メッセージを出力させる．
   print_footer();
 
-  if ( debug & debug_solve ) {
-    switch ( sat_stat ) {
-    case SatBool3::True:  DOUT << "SAT" << endl; break;
-    case SatBool3::False: DOUT << "UNSAT" << endl; break;
-    case SatBool3::X:     DOUT << "UNKNOWN" << endl; break;
-    default: ASSERT_NOT_REACHED;
-    }
+#if YMSAT_DEBUG & DEBUG_SOLVE
+  switch ( sat_stat ) {
+  case SatBool3::True:  DOUT << "SAT" << endl; break;
+  case SatBool3::False: DOUT << "UNSAT" << endl; break;
+  case SatBool3::X:     DOUT << "UNKNOWN" << endl; break;
+  default: ASSERT_NOT_REACHED;
   }
+#endif
 
   return sat_stat;
 }
@@ -677,7 +673,8 @@ SatCore::search()
       vector<Literal> learnt_lits;
       int bt_level = mAnalyzer->analyze(conflict, learnt_lits);
 
-      if ( debug & debug_analyze ) {
+#if YMSAT_DEBUG & DEBUG_ANLYZE
+      {
 	DOUT << endl
 	     << "analyze for " << conflict << endl
 	     << endl
@@ -689,6 +686,7 @@ SatCore::search()
 	}
 	DOUT << endl;
       }
+#endif
 
       // バックトラック
       backtrack(bt_level);
@@ -752,20 +750,20 @@ SatCore::search()
 
       ++ mDecisionNum;
 
-      if ( debug & (debug_assign | debug_decision) ) {
-	DOUT << endl
-	     << "choose " << next_lit << " :"
-	     << mVarHeap.activity(next_lit.varid())
-	     << endl;
-      }
+#if YMSAT_DEBUG & (DEBUG_ASSIGN | DEBUG_DECISION)
+      DOUT << endl
+	   << "choose " << next_lit << " :"
+	   << mVarHeap.activity(next_lit.varid())
+	   << endl;
+#endif
     }
 
     // バックトラックポイントを記録
     set_marker();
 
-    if ( debug & debug_assign ) {
-      DOUT << "\tassign " << next_lit << " @" << decision_level() << endl;
-    }
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+    DOUT << "\tassign " << next_lit << " @" << decision_level() << endl;
+#endif
 
     // 選ばれたリテラルに基づいた割当を行う．
     // 未割り当ての変数を選んでいるのでエラーになるはずはない．
@@ -832,9 +830,9 @@ SatCore::implication()
     auto l = mAssignList.get_next();
     ++ prop_num;
 
-    if ( debug & debug_implication ) {
-      DOUT << "\tpick up " << l << endl;
-    }
+#if YMSAT_DEBUG & DEBUG_IMPLICATION
+    DOUT << "\tpick up " << l << endl;
+#endif
     // l の割り当てによって無効化された watcher-list の更新を行う．
     auto nl = ~l;
 
@@ -855,23 +853,22 @@ SatCore::implication()
 	  // すでに充足していた．
 	  continue;
 	}
-	if ( debug & debug_assign ) {
-	  DOUT << "\tassign " << l0 << " @" << decision_level()
-	       << " from (" << l0
-	       << " + " << ~l << "): " << l << endl;
-	}
+#if YMSAT_DEBUG & DEBUG_IMPLICATION
+	DOUT << "\tassign " << l0 << " @" << decision_level()
+	     << " from (" << l0
+	     << " + " << ~l << "): " << l << endl;
+#endif
 	if ( val0 == SatBool3::X ) {
 	  assign(l0, Reason{nl});
 	}
 	else { // val0 == SatBool3::False ) {
 	  // 矛盾がおこった．
-	  if ( debug & debug_assign ) {
-	    DOUT << "\t--> conflict(#" << mConflictNum
-		 << ") with previous assignment" << endl
-		 << "\t    " << ~l0 << " was assigned at level "
-		 << decision_level(l0.varid()) << endl;
-	  }
-
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+	  DOUT << "\t--> conflict(#" << mConflictNum
+	       << ") with previous assignment" << endl
+	       << "\t    " << ~l0 << " was assigned at level "
+	       << decision_level(l0.varid()) << endl;
+#endif
 	  // 矛盾の理由を表す節を作る．
 	  mTmpBinClause->set(l0, nl);
 	  conflict = Reason{mTmpBinClause};
@@ -904,9 +901,9 @@ SatCore::implication()
 	  continue;
 	}
 
-	if ( debug & debug_implication ) {
-	  DOUT << "\t\texamining watcher clause " << (*c) << endl;
-	}
+#if YMSAT_DEBUG & DEBUG_IMPLICATION
+	DOUT << "\t\texamining watcher clause " << (*c) << endl;
+#endif
 
 	// nl の替わりのリテラルを見つける．
 	// この時，替わりのリテラルが未定かすでに充足しているかどうか
@@ -919,10 +916,10 @@ SatCore::implication()
 	  if ( v != SatBool3::False ) {
 	    // l2 を 1番めの watch literal にする．
 	    c->xchange_wl1(i);
-	    if ( debug & debug_implication ) {
-	      DOUT << "\t\t\tsecond watching literal becomes "
-		   << l2 << endl;
-	    }
+#if YMSAT_DEBUG & DEBUG_IMPLICATION
+	    DOUT << "\t\t\tsecond watching literal becomes "
+		 << l2 << endl;
+#endif
 	    // w を l の watcher list から取り除き，
 	    // ~l2 の watcher list に追加する．
 	    -- wpos;
@@ -936,27 +933,26 @@ SatCore::implication()
 	  continue;
 	}
 
-	if ( debug & debug_implication ) {
-	  DOUT << "\t\tno other watching literals" << endl;
-	}
+#if YMSAT_DEBUG & DEBUG_IMPLICATION
+	DOUT << "\t\tno other watching literals" << endl;
+#endif
 
 	// 見付からなかったので l0 に従った割り当てを行う．
-	if ( debug & debug_assign ) {
-	  DOUT << "\tassign " << l0 << " @" << decision_level()
-	       << " from " << w << ": " << l << endl;
-	}
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+	DOUT << "\tassign " << l0 << " @" << decision_level()
+	     << " from " << w << ": " << l << endl;
+#endif
 	if ( val0 == SatBool3::X ) {
 	  assign(l0, w);
 	}
 	else {
 	  // 矛盾がおこった．
-	  if ( debug & debug_assign ) {
-	    DOUT << "\t--> conflict(#" << mConflictNum
-		 << ") with previous assignment" << endl
-		 << "\t    " << ~l0 << " was assigned at level "
-		 << decision_level(l0.varid()) << endl;
-	  }
-
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+	  DOUT << "\t--> conflict(#" << mConflictNum
+	       << ") with previous assignment" << endl
+	       << "\t    " << ~l0 << " was assigned at level "
+	       << decision_level(l0.varid()) << endl;
+#endif
 	  // この場合は w が矛盾の理由を表す節になっている．
 	  conflict = w;
 	  break;
@@ -977,10 +973,10 @@ SatCore::backtrack(
   int level
 )
 {
-  if ( debug & (debug_assign | debug_decision) ) {
-    DOUT << endl
-	 << "backtrack until @" << level << endl;
-  }
+#if YMSAT_DEBUG & (DEBUG_ASSIGN | DEBUG_DECISION)
+  DOUT << endl
+       << "backtrack until @" << level << endl;
+#endif
 
   if ( level < decision_level() ) {
     mAssignList.backtrack(level);
@@ -989,15 +985,15 @@ SatCore::backtrack(
       auto varid = p.varid();
       mVal[varid] = (mVal[varid] << 2) | conv_from_Bool3(SatBool3::X);
       push(varid);
-      if ( debug & debug_assign ) {
-	DOUT << "\tdeassign " << p << endl;
-      }
+#if YMSAT_DEBUG & DEBUG_ASSIGN
+      DOUT << "\tdeassign " << p << endl;
+#endif
     }
   }
 
-  if ( debug & (debug_assign | debug_decision) ) {
-    DOUT << endl;
-  }
+#if YMSAT_DEBUG & (DEBUG_ASSIGN | DEBUG_DECISION)
+  DOUT << endl;
+#endif
 }
 
 // @brief 充足された watcher を削除する．
@@ -1048,7 +1044,7 @@ SatCore::bump_clause_activity(
 void
 SatCore::reset_activity()
 {
-  for ( int i: Range(mVarSize) ) {
+  for ( int i: Range(mActivity.size()) ) {
     mActivity[i] = 0.0;
   }
 }

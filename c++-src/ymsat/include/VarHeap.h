@@ -17,7 +17,7 @@ BEGIN_NAMESPACE_YM_SAT
 
 BEGIN_NONAMESPACE
 
-static const bool debug_varheap = false;
+#define DEBUG_VARHEAP 0
 
 END_NONAMESPACE
 
@@ -58,9 +58,9 @@ public:
     SatVarId var ///< [in] 変数番号
   )
   {
-    if ( debug_varheap ) {
-      DOUT << "VarHeap::bump_var_activity(" << var << ")" << endl;
-    }
+#if DEBUG_VARHEAP
+    DOUT << "VarHeap::bump_var_activity(" << var << ")" << endl;
+#endif
     double& act = mActivity[var];
     act += mVarBump;
     if ( act > 1e+100 ) {
@@ -81,9 +81,9 @@ public:
   void
   decay_var_activity()
   {
-    if ( debug_varheap ) {
-      DOUT << "VarHeap::decay_var_activity()" << endl;
-    }
+#if DEBUG_VARHEAP
+    DOUT << "VarHeap::decay_var_activity()" << endl;
+#endif
     mVarBump *= (1 / mVarDecay);
   }
 
