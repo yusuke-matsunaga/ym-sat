@@ -956,8 +956,8 @@ private:
 #define DEBUG_SOLVE       0x10
 #define DEBUG_ALL         0xffffffff
 
-//#define YMSAT_DEBUG DEBUG_NONE
-#define YMSAT_DEBUG DEBUG_ASSIGN
+#define YMSAT_DEBUG DEBUG_NONE
+//#define YMSAT_DEBUG DEBUG_ASSIGN
 
 END_NAMESPACE_YM_SAT
 
