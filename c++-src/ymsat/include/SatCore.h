@@ -624,6 +624,12 @@ private:
   Reason
   implication();
 
+  /// @brief watch literal を更新する．
+  Literal
+  find_watch_literal(
+    Clause* clause ///< [in] 節
+  );
+
   /// @brief level までバックトラックする
   void
   backtrack(

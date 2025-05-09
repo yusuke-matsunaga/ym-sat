@@ -826,7 +826,7 @@ SatCore::implication()
 {
   SizeType prop_num = 0;
   auto conflict = Reason::None;
-  while ( mAssignList.has_elem() && conflict == Reason::None ) {
+  while ( mAssignList.has_elem() ) {
     auto l = mAssignList.get_next();
     ++ prop_num;
 
@@ -872,7 +872,8 @@ SatCore::implication()
 	  // 矛盾の理由を表す節を作る．
 	  mTmpBinClause->set(l0, nl);
 	  conflict = Reason{mTmpBinClause};
-	  break;
+	  wlist.move_elem(rpos, wnum, wpos);
+	  goto exit;
 	}
       }
       else { // w.is_clause()
@@ -885,16 +886,11 @@ SatCore::implication()
 	auto c = w.clause();
 	auto l0 = c->wl0();
 	if ( l0 == nl ) {
-	  if ( eval(c->wl1()) == SatBool3::True ) {
-	    continue;
-	  }
 	  // nl を 1番めのリテラルにする．
 	  c->xchange_wl();
 	  // 新しい wl0 を得る．
 	  l0 = c->wl0();
 	}
-	// else { l1 == nl ならなにもしない．
-
 	auto val0 = eval(l0);
 	if ( val0 == SatBool3::True ) {
 	  // すでに充足していた．
@@ -904,32 +900,12 @@ SatCore::implication()
 #if YMSAT_DEBUG & DEBUG_IMPLICATION
 	DOUT << "\t\texamining watcher clause " << (*c) << endl;
 #endif
-
-	// nl の替わりのリテラルを見つける．
-	// この時，替わりのリテラルが未定かすでに充足しているかどうか
-	// は問題でない．
-	bool found = false;
-	SizeType n = c->lit_num();
-	for ( SizeType i = 2; i < n; ++ i ) {
-	  auto l2 = c->lit(i);
-	  auto v = eval(l2);
-	  if ( v != SatBool3::False ) {
-	    // l2 を 1番めの watch literal にする．
-	    c->xchange_wl1(i);
-#if YMSAT_DEBUG & DEBUG_IMPLICATION
-	    DOUT << "\t\t\tsecond watching literal becomes "
-		 << l2 << endl;
-#endif
-	    // w を l の watcher list から取り除き，
-	    // ~l2 の watcher list に追加する．
-	    -- wpos;
-	    add_watcher(~l2, w);
-
-	    found = true;
-	    break;
-	  }
-	}
-	if ( found ) {
+	auto l2 = find_watch_literal(c);
+	if ( l2 != Literal::X ) {
+	  // w を l の watcher list から取り除き，
+	  // ~l2 の watcher list に追加する．
+	  -- wpos;
+	  add_watcher(~l2, w);
 	  continue;
 	}
 
@@ -955,17 +931,47 @@ SatCore::implication()
 #endif
 	  // この場合は w が矛盾の理由を表す節になっている．
 	  conflict = w;
-	  break;
+	  wlist.move_elem(rpos, wnum, wpos);
+	  goto exit;
 	}
       }
     }
     wlist.move_elem(rpos, wnum, wpos);
   }
+
+exit:
   mPropagationNum += prop_num;
   mSweep_props -= prop_num;
 
   return conflict;
 }
+
+// @brief watch literal を更新する．
+Literal
+SatCore::find_watch_literal(
+  Clause* clause
+)
+{
+  // nl の替わりのリテラルを見つける．
+  // この時，替わりのリテラルが未定かすでに充足しているかどうか
+  // は問題でない．
+  SizeType n = clause->lit_num();
+  for ( SizeType i = 2; i < n; ++ i ) {
+    auto l2 = clause->lit(i);
+    auto v = eval(l2);
+    if ( v != SatBool3::False ) {
+      // l2 を 1番めの watch literal にする．
+      clause->xchange_wl1(i);
+#if YMSAT_DEBUG & DEBUG_IMPLICATION
+      DOUT << "\t\t\tsecond watching literal becomes "
+	   << l2 << endl;
+#endif
+      return l2;
+    }
+  }
+  return Literal::X;
+}
+
 
 // @brief level までバックトラックする
 void

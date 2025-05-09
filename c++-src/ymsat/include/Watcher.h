@@ -125,13 +125,15 @@ public:
     SizeType to_pos    ///< [in] 移動先
   )
   {
-    auto rpos = mArray.begin() + from_pos;
-    auto epos = mArray.begin() + end_pos;
-    auto wpos = mArray.begin() + to_pos;
-    for ( ; rpos != epos; ++ rpos, ++ wpos ) {
-      *wpos = *rpos;
+    if ( to_pos != from_pos ) {
+      auto rpos = mArray.begin() + from_pos;
+      auto epos = mArray.begin() + end_pos;
+      auto wpos = mArray.begin() + to_pos;
+      for ( ; rpos != epos; ++ rpos, ++ wpos ) {
+	*wpos = *rpos;
+      }
+      mArray.erase(wpos, mArray.end());
     }
-    mArray.erase(wpos, mArray.end());
   }
 
   /// @brief 要素を切り詰める．
