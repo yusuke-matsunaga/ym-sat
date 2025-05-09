@@ -900,12 +900,15 @@ SatCore::implication()
 #if YMSAT_DEBUG & DEBUG_IMPLICATION
 	DOUT << "\t\texamining watcher clause " << (*c) << endl;
 #endif
+	// l 以外で矛盾しないリテラルを見つける．
 	auto l2 = find_watch_literal(c);
 	if ( l2 != Literal::X ) {
+	  // l2 を l の代わりの watch literal になる．
 	  // w を l の watcher list から取り除き，
 	  // ~l2 の watcher list に追加する．
 	  -- wpos;
 	  add_watcher(~l2, w);
+	  // この時点で決まる割り当てはない．
 	  continue;
 	}
 
