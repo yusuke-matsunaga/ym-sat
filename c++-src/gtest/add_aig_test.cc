@@ -43,7 +43,7 @@ TEST_F(SatSolverTest, add_aig_const1)
 
 TEST_F(SatSolverTest, add_aig_lit1)
 {
-  auto aig = mMgr.make_input();
+  auto aig = mMgr.input(0);
   auto lit0 = mSolver.new_variable(true);
   auto lit_map = std::unordered_map<SizeType, SatLiteral>{{aig.input_id(), lit0}};
 
@@ -54,7 +54,7 @@ TEST_F(SatSolverTest, add_aig_lit1)
 
 TEST_F(SatSolverTest, add_aig_lit2)
 {
-  auto aig = mMgr.make_input();
+  auto aig = mMgr.input(0);
   auto lit0 = mSolver.new_variable(true);
   auto lit_map = std::unordered_map<SizeType, SatLiteral>{{aig.input_id(), lit0}};
 
@@ -65,8 +65,8 @@ TEST_F(SatSolverTest, add_aig_lit2)
 
 TEST_F(SatSolverTest, add_aig_and1)
 {
-  auto aig_lit0 = mMgr.make_input();
-  auto aig_lit1 = mMgr.make_input();
+  auto aig_lit0 = mMgr.input(0);
+  auto aig_lit1 = mMgr.input(1);
   auto aig = aig_lit0 & aig_lit1;
   auto lit0 = mSolver.new_variable(true);
   auto lit1 = mSolver.new_variable(true);
@@ -83,8 +83,8 @@ TEST_F(SatSolverTest, add_aig_and1)
 
 TEST_F(SatSolverTest, add_aig_or1)
 {
-  auto aig_lit0 = mMgr.make_input();
-  auto aig_lit1 = mMgr.make_input();
+  auto aig_lit0 = mMgr.input(0);
+  auto aig_lit1 = mMgr.input(1);
   auto aig = aig_lit0 | aig_lit1;
   auto lit0 = mSolver.new_variable(true);
   auto lit1 = mSolver.new_variable(true);
@@ -121,8 +121,8 @@ TEST_F(SatSolverTest, add_aig_or1)
 
 TEST_F(SatSolverTest, add_aig_xor1)
 {
-  auto aig_lit0 = mMgr.make_input();
-  auto aig_lit1 = mMgr.make_input();
+  auto aig_lit0 = mMgr.input(0);
+  auto aig_lit1 = mMgr.input(1);
   auto aig = aig_lit0 ^ aig_lit1;
   auto lit0 = mSolver.new_variable(true);
   auto lit1 = mSolver.new_variable(true);
@@ -159,10 +159,10 @@ TEST_F(SatSolverTest, add_aig_xor1)
 
 TEST_F(SatSolverTest, add_aig_andor1)
 {
-  auto aig_lit0 = mMgr.make_input();
-  auto aig_lit1 = mMgr.make_input();
-  auto aig_lit2 = mMgr.make_input();
-  auto aig_lit3 = mMgr.make_input();
+  auto aig_lit0 = mMgr.input(0);
+  auto aig_lit1 = mMgr.input(1);
+  auto aig_lit2 = mMgr.input(2);
+  auto aig_lit3 = mMgr.input(3);
   auto aig = (aig_lit0 & aig_lit1) | (aig_lit2 & aig_lit3);
   auto lit0 = mSolver.new_variable(true);
   auto lit1 = mSolver.new_variable(true);
