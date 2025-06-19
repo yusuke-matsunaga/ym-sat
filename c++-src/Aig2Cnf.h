@@ -46,22 +46,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief AIG を CNF に変換する．
-  /// @return リテラルを返す．
+  /// @return リテラルのリストを返す．
   ///
   /// - 与えられた AIG の値が 1 となる条件を表すリテラルを返す．
-  std::vector<SatLiteral>
+  /// - 否定しても 0 となる条件にはならないことに注意
+  vector<SatLiteral>
   make_cnf(
-    const AigHandle& aig
-  );
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-  SatLiteral
-  _cnf_sub(
     const AigHandle& aig
   );
 
@@ -77,8 +67,8 @@ private:
   // 入力番号とリテラルの対応関係を表す辞書
   LitMap mLitMap;
 
-  // AigHandle をキーにして対応する SatLiteral を記憶する辞書
-  std::unordered_map<AigHandle, SatLiteral> mAigDict;
+  // AigHandle をキーにして対応する SatLiteral のリストを記憶する辞書
+  std::unordered_map<AigHandle, vector<SatLiteral>> mAigDict;
 
 };
 

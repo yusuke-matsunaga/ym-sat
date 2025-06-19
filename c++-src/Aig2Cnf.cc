@@ -11,12 +11,6 @@
 
 BEGIN_NAMESPACE_YM_SAT
 
-BEGIN_NONAMESPACE
-SizeType count = 0;
-SizeType c_count = 0;
-SizeType l_count = 0;
-END_NONAMESPACE
-
 //////////////////////////////////////////////////////////////////////
 // クラス SatSolver
 //////////////////////////////////////////////////////////////////////
@@ -29,18 +23,11 @@ SatSolver::add_aig(
 )
 {
   Aig2Cnf aig2cnf(*this, lit_map);
-  count = 0;
-  c_count = 0;
-  l_count = 0;
   vector<vector<SatLiteral>> lits_list;
-  lits_list.reserve(aig_list.size());
   for ( auto& aig: aig_list ) {
     auto lits = aig2cnf.make_cnf(aig);
     lits_list.push_back(lits);
   }
-  cout << "count = " << count << endl
-       << "clause count = " << c_count << endl
-       << "literal count = " << l_count << endl;
   return lits_list;
 }
 
@@ -50,7 +37,7 @@ SatSolver::add_aig(
 //////////////////////////////////////////////////////////////////////
 
 // @brief AIG を CNF に変換する．
-std::vector<SatLiteral>
+vector<SatLiteral>
 Aig2Cnf::make_cnf(
   const AigHandle& aig
 )
@@ -80,90 +67,68 @@ Aig2Cnf::make_cnf(
     return {lit};
   }
 
-  // トップレベルが AND 条件の場合は節を作る必要がない．
-  if ( !aig.inv() ) {
-    // すべてのファンインのリテラルが成り立つ必要がある．
-    auto fanin_list = aig.ex_fanin_list();
-    std::vector<SatLiteral> lits_list;
-    lits_list.reserve(fanin_list.size());
-    for ( auto aig1: fanin_list ) {
-      auto lit1 = _cnf_sub(aig1);
-      lits_list.push_back(lit1);
-    }
-    return lits_list;
-  }
-
-  auto lit = _cnf_sub(aig);
-  return {lit};
-}
-
-SatLiteral
-Aig2Cnf::_cnf_sub(
-  const AigHandle& aig
-)
-{
-  if ( aig.is_const() ) {
-    throw std::logic_error{"Aig2Cnf::make_cnf(): constant AIG"};
-  }
-
-  if ( aig.is_input() ) {
-    // 対応するリテラルを返す．
-    auto input_id = aig.input_id();
-    if ( mLitMap.count(input_id) == 0 ) {
-      // 対応するリテラルが登録されていない．
-      std::ostringstream buf;
-      buf << "input_id[" << input_id << "] is not registered";
-      throw std::logic_error{buf.str()};
-    }
-    auto lit = mLitMap.at(input_id);
-    if ( aig.inv() ) {
-      lit = ~lit;
-    }
-    return lit;
-  }
-
-  auto posi_aig = aig.positive_handle();
-  SatLiteral lit;
-  if ( mAigDict.count(posi_aig) > 0 ) {
+  if ( mAigDict.count(aig) > 0 ) {
     // すでに計算済みならその結果を返す．
-    lit = mAigDict.at(posi_aig);
+    auto lits = mAigDict.at(aig);
+    return lits;
   }
-  else { // aig.is_and()
-    ++ count;
-    //auto fanin_list = aig.ex_fanin_list();
-    auto fanin_list = std::vector<AigHandle>{aig.fanin0(), aig.fanin1()};
-    SizeType ni = fanin_list.size();
 
-    // 結果のリテラルを格納するリスト
-    lit = mSolver.new_variable(true);
-    {
-      // lit が成り立たない条件 -> いずれかのファンインのリテラルが成り立たない．
-      vector<SatLiteral> tmp_lits;
-      tmp_lits.reserve(ni + 1);
-      tmp_lits.push_back(lit);
-      for ( auto& h: fanin_list ) {
-	auto lit1 = _cnf_sub(h);
-	tmp_lits.push_back(~lit1);
-      }
-      mSolver.add_clause(tmp_lits);
-      ++ c_count;
-      l_count += ni + 1;
-    }
-    {
-      // lit が成り立つ条件 -> すべてのファンインのリテラルが成り立つ必要がある．
-      for ( auto& h: fanin_list ) {
-	auto lit1 = _cnf_sub(h);
-	mSolver.add_clause(~lit, lit1);
-	++ c_count;
-	l_count += 2;
-      }
-    }
-  }
-  mAigDict.emplace(posi_aig, lit);
+  // aig.is_and()
+  auto fanin_list = aig.ex_fanin_list();
+
+  // 結果のリテラルを格納するリスト
+  vector<SatLiteral> lits;
   if ( aig.inv() ) {
-    lit = ~lit;
+    // NAND
+    // いずれかのファンインが成り立たなければよい．
+    lits.reserve(1);
+    auto lit = mSolver.new_variable(true);
+    SizeType ni = fanin_list.size();
+    vector<SatLiteral> tmp_lits;
+    tmp_lits.reserve(ni + 1);
+    tmp_lits.push_back(~lit);
+    for ( SizeType i = 0; i < ni; ++ i ) {
+      auto h = fanin_list[i];
+      auto lits1 = make_cnf(~h);
+      if ( lits1.empty() ) {
+	// たぶんないはず
+	continue;
+      }
+      if ( lits1.size() == 1 ) {
+	auto lit1 = lits1.front();
+	tmp_lits.push_back(lit1);
+      }
+      else {
+	auto lit1 = mSolver.new_variable(false);
+	for ( auto lit2: lits1 ) {
+	  mSolver.add_clause(~lit1, lit2);
+	}
+	tmp_lits.push_back(lit1);
+      }
+    }
+    mSolver.add_clause(tmp_lits);
+    lits.push_back(lit);
   }
-  return lit;
+  else {
+    // AND
+    // すべてのファンインのリテラルが成り立つ必要がある．
+    vector<vector<SatLiteral>> lits_list;
+    lits_list.reserve(fanin_list.size());
+    for ( auto& h: fanin_list ) {
+      auto lits = make_cnf(h);
+      lits_list.push_back(lits);
+    }
+    SizeType n = 0;
+    for ( auto& lits: lits_list ) {
+      n += lits.size();
+    }
+    lits.reserve(n);
+    for ( auto& lits1: lits_list ) {
+      lits.insert(lits.end(), lits1.begin(), lits1.end());
+    }
+  }
+  mAigDict.emplace(aig, lits);
+  return lits;
 }
 
 END_NAMESPACE_YM_SAT
