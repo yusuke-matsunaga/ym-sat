@@ -214,4 +214,91 @@ TEST_F(SatSolverTest, add_aig_andor1)
   }
 }
 
+TEST_F(SatSolverTest, cnf_size0)
+{
+  // AIG の作成
+  auto aig_lit0 = mMgr.input(0);
+  auto aig_lit1 = mMgr.input(1);
+  auto aig = aig_lit0 & aig_lit1;
+
+  // リテラルマップの作成
+  auto lit0 = mSolver.new_variable(true);
+  auto lit1 = mSolver.new_variable(true);
+  auto lit_map = std::unordered_map<SizeType, SatLiteral>{
+    {aig_lit0.input_id(), lit0},
+    {aig_lit1.input_id(), lit1}
+  };
+
+  auto lits = mSolver.add_aig(aig, lit_map);
+  auto cnf_size = mSolver.cnf_size();
+
+  EXPECT_EQ( 0, cnf_size.clause_num );
+  EXPECT_EQ( 0, cnf_size.literal_num );
+}
+
+TEST_F(SatSolverTest, cnf_size1)
+{
+  // AIG の作成
+  auto aig_lit0 = mMgr.input(0);
+  auto aig_lit1 = mMgr.input(1);
+  auto aig_lit2 = mMgr.input(2);
+  auto aig_lit3 = mMgr.input(3);
+  auto aig = (aig_lit0 & aig_lit1) | (aig_lit2 & aig_lit3);
+
+  // リテラルマップの作成
+  auto lit0 = mSolver.new_variable(true);
+  auto lit1 = mSolver.new_variable(true);
+  auto lit2 = mSolver.new_variable(true);
+  auto lit3 = mSolver.new_variable(true);
+  auto lit_map = std::unordered_map<SizeType, SatLiteral>{
+    {aig_lit0.input_id(), lit0},
+    {aig_lit1.input_id(), lit1},
+    {aig_lit2.input_id(), lit2},
+    {aig_lit3.input_id(), lit3}
+  };
+
+  auto lits = mSolver.add_aig(aig, lit_map);
+  auto cnf_size = mSolver.cnf_size();
+
+  EXPECT_EQ( mMgr.and_num() * 3, cnf_size.clause_num );
+  EXPECT_EQ( mMgr.and_num() * 7, cnf_size.literal_num );
+  cout << mMgr.and_num() << endl;
+  cout << cnf_size << endl;
+}
+
+TEST_F(SatSolverTest, cnf_size2)
+{
+  // AIG の作成
+  auto aig_lit0 = mMgr.input(0);
+  auto aig_lit1 = mMgr.input(1);
+  auto aig_lit2 = mMgr.input(2);
+  auto aig_lit3 = mMgr.input(3);
+  auto aig1 = aig_lit0 & aig_lit1;
+  auto aig2 = aig_lit2 & aig_lit3;
+  auto aig = aig1 | aig2;
+  auto aig_inv = ~aig;
+  auto aig_X = aig1 ^ aig2;
+
+  // リテラルマップの作成
+  auto lit0 = mSolver.new_variable(true);
+  auto lit1 = mSolver.new_variable(true);
+  auto lit2 = mSolver.new_variable(true);
+  auto lit3 = mSolver.new_variable(true);
+  auto lit_map = std::unordered_map<SizeType, SatLiteral>{
+    {aig_lit0.input_id(), lit0},
+    {aig_lit1.input_id(), lit1},
+    {aig_lit2.input_id(), lit2},
+    {aig_lit3.input_id(), lit3}
+  };
+
+  auto lits_list = mSolver.add_aig({aig, aig_inv, aig_X}, lit_map);
+  auto cnf_size = mSolver.cnf_size();
+
+  EXPECT_EQ( mMgr.and_num() * 3, cnf_size.clause_num );
+  EXPECT_EQ( mMgr.and_num() * 7, cnf_size.literal_num );
+
+  cout << mMgr.and_num() << endl;
+  cout << cnf_size << endl;
+}
+
 END_NAMESPACE_YM
